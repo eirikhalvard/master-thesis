@@ -1,33 +1,69 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE FlexibleContexts #-}
-module Types where
+module Types
+  ( FeatureID
+  , RootID
+  , GroupID
+  , FeatureModel(..)
+  , rootID
+  , features
+  , featuresT
+  , FeatureTable
+  , FeatureIDs
+  , Feature(..)
+  , name
+  , parentID
+  , groups
+  , groupsT
+  , featureType
+  , Group(..)
+  , Groups
+  , groupType
+  , groupFeatures
+  , groupFeaturesF
+  , FeatureType(..)
+  , _Optional
+  , _Mandatory
+  , GroupType(..)
+  , _And
+  , _Or
+  , _Alternative
+  )
+where
 
 import           Control.Lens
 import qualified Data.Set                      as S
 import qualified Data.Map                      as M
 
 type FeatureID = Int
+
 type RootID = FeatureID
 
 type GroupID = Int
 
+type FeatureTable = M.Map FeatureID Feature
+
+type Groups = M.Map GroupID Group
+
+type FeatureIDs = S.Set FeatureID
+
 data FeatureModel =
   FM { _rootID :: RootID
-     , _features :: M.Map FeatureID Feature
+     , _features :: FeatureTable
      }
      deriving ( Show, Read )
 
 data Feature =
   Feature { _name :: String
           , _parentID :: Maybe FeatureID
-          , _groups :: M.Map GroupID Group
+          , _groups :: Groups
           , _featureType :: FeatureType
           }
           deriving ( Show, Read )
 
 data Group =
   Group { _groupType :: GroupType
-        , _groupFeatures :: S.Set FeatureID
+        , _groupFeatures :: FeatureIDs
         }
         deriving ( Show, Read )
 
@@ -56,48 +92,4 @@ groupsT = groups . itraversed
 
 groupFeaturesF :: Fold Group FeatureID
 groupFeaturesF = groupFeatures . folded
-
-carExample :: FeatureModel
-carExample = FM
-  0
-  (M.fromList
-    [ ( 1
-      , Feature "Car"
-                Nothing
-                (M.fromList [(11, Group And (S.fromList [2]))])
-                Mandatory
-      )
-    , ( 2
-      , Feature "Infotainment System"
-                (Just 1)
-                (M.fromList [(21, Group And (S.fromList [3]))])
-                Mandatory
-      )
-    , (3, Feature "Bluetooth" (Just 2) (M.fromList []) Optional)
-    ]
-  )
-
-main :: IO ()
-main = do
-  let printDivider s = putStr "\n\n\n--- " >> putStr s >> putStrLn "\n"
-
-  printDivider "Car Feature Model"
-  print carExample
-
-  printDivider "Names of all features which is Mandatory"
-  print
-    $   carExample
-    ^.. featuresT
-    .   filtered (has (featureType . _Mandatory))
-    .   name
-
-  printDivider "List of all GroupIDs alongside their Feature Names"
-  print
-    $    carExample
-    ^@.. featuresT
-    .    reindexed (view name) selfIndex
-    <.   (groupsT . asIndex)
-
-
-  print $ carExample ^.. featuresT . groupsT . groupFeaturesF
 
