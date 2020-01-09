@@ -1,3 +1,5 @@
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE FlexibleContexts #-}
 module Types where
 
 import           Control.Lens
@@ -40,6 +42,21 @@ data GroupType
   | Alternative
   deriving ( Show, Read, Eq )
 
+makeLenses ''FeatureModel
+makeLenses ''Feature
+makeLenses ''Group
+makePrisms ''FeatureType
+makePrisms ''GroupType
+
+featuresT :: IndexedTraversal' FeatureID FeatureModel Feature
+featuresT = features . itraversed
+
+groupsT :: IndexedTraversal' GroupID Feature Group
+groupsT = groups . itraversed
+
+groupFeaturesF :: Fold Group FeatureID
+groupFeaturesF = groupFeatures . folded
+
 carExample :: FeatureModel
 carExample = FM
   0
@@ -62,4 +79,25 @@ carExample = FM
 
 main :: IO ()
 main = do
+  let printDivider s = putStr "\n\n\n--- " >> putStr s >> putStrLn "\n"
+
+  printDivider "Car Feature Model"
   print carExample
+
+  printDivider "Names of all features which is Mandatory"
+  print
+    $   carExample
+    ^.. featuresT
+    .   filtered (has (featureType . _Mandatory))
+    .   name
+
+  printDivider "List of all GroupIDs alongside their Feature Names"
+  print
+    $    carExample
+    ^@.. featuresT
+    .    reindexed (view name) selfIndex
+    <.   (groupsT . asIndex)
+
+
+  print $ carExample ^.. featuresT . groupsT . groupFeaturesF
+
