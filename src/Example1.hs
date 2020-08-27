@@ -1,13 +1,14 @@
 module Example1
   ( carExample
+  , runCarExample
   )
 where
 
 import           Types
 
 import           Control.Lens
-import qualified Data.Map as M
-import qualified Data.Set as S
+import qualified Data.Map                      as M
+import qualified Data.Set                      as S
 
 carExample :: FeatureModel
 carExample = FM
@@ -29,8 +30,8 @@ carExample = FM
     ]
   )
 
-main :: IO ()
-main = do
+runCarExample :: IO ()
+runCarExample = do
   let printDivider s = putStr "\n\n\n--- " >> putStr s >> putStrLn "\n"
 
   printDivider "Car Feature Model"

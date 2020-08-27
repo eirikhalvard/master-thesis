@@ -9,7 +9,6 @@ module Types
   , features
   , featuresT
   , FeatureTable
-  , FeatureIDs
   , Feature(..)
   , name
   , parentID
@@ -45,8 +44,6 @@ type FeatureTable = M.Map FeatureID Feature
 
 type Groups = M.Map GroupID Group
 
-type FeatureIDs = S.Set FeatureID
-
 data FeatureModel =
   FM { _rootID :: RootID
      , _features :: FeatureTable
@@ -63,7 +60,7 @@ data Feature =
 
 data Group =
   Group { _groupType :: GroupType
-        , _groupFeatures :: FeatureIDs
+        , _groupFeatures :: S.Set FeatureID
         }
         deriving ( Show, Read )
 
