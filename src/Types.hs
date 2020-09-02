@@ -50,7 +50,6 @@ data Feature =
     }
     deriving ( Show, Read )
 
-
 data Group =
   Group 
     { _groupType :: GroupType
@@ -190,11 +189,9 @@ makeFieldsNoPrefix ''Group
 makePrisms ''FeatureType
 makePrisms ''GroupType
 
-
 makeFieldsNoPrefix ''EvolutionPlan
 makeFieldsNoPrefix ''Plan
 makePrisms ''Operation
-
 
 makeFieldsNoPrefix ''AddFeatureOp
 makeFieldsNoPrefix ''RemoveFeatureOp
