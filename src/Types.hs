@@ -1,34 +1,12 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE FlexibleContexts #-}
-module Types
-  ( FeatureID
-  , RootID
-  , GroupID
-  , FeatureModel(..)
-  , rootID
-  , features
-  , featuresT
-  , FeatureTable
-  , Feature(..)
-  , name
-  , parentID
-  , groups
-  , groupsT
-  , featureType
-  , Group(..)
-  , Groups
-  , groupType
-  , groupFeatures
-  , groupFeaturesF
-  , FeatureType(..)
-  , _Optional
-  , _Mandatory
-  , GroupType(..)
-  , _And
-  , _Or
-  , _Alternative
-  )
-where
+{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FunctionalDependencies #-}
+
+module Types where
 
 import           Control.Lens
 import qualified Data.Set                      as S
@@ -40,40 +18,52 @@ import qualified Data.Map                      as M
 ---------------------
 
 
-type FeatureID = Int
+type FeatureId = Int
 
-type RootID = FeatureID
 
-type GroupID = Int
+type RootId = FeatureId
 
-type FeatureTable = M.Map FeatureID Feature
 
-type Groups = M.Map GroupID Group
+type GroupId = Int
+
+
+type FeatureTable = M.Map FeatureId Feature
+
+
+type Groups = M.Map GroupId Group
+
 
 data FeatureModel =
-  FM { _rootID :: RootID
-     , _features :: FeatureTable
-     }
-     deriving ( Show, Read )
+  FM 
+    { _rootId :: RootId
+    , _features :: FeatureTable
+    }
+    deriving ( Show, Read )
+
 
 data Feature =
-  Feature { _name :: String
-          , _parentID :: Maybe FeatureID
-          , _groups :: Groups
-          , _featureType :: FeatureType
-          }
-          deriving ( Show, Read )
+  Feature 
+    { _name :: String
+    , _parentGroupId :: Maybe GroupId
+    , _groups :: Groups
+    , _featureType :: FeatureType
+    }
+    deriving ( Show, Read )
+
 
 data Group =
-  Group { _groupType :: GroupType
-        , _groupFeatures :: S.Set FeatureID
-        }
-        deriving ( Show, Read )
+  Group 
+    { _groupType :: GroupType
+    , _featureIds :: S.Set FeatureId
+    }
+    deriving ( Show, Read )
+
 
 data FeatureType
   = Optional
   | Mandatory
   deriving ( Show, Read, Eq )
+
 
 data GroupType
   = And
@@ -94,52 +84,99 @@ data EvolutionPlan =
     }
   deriving ( Show, Read )
 
+
 data Plan =
   Plan
-    { _planTimePoint :: Int
-    , _planOperations :: [Operation]
+    { _timePoint :: Int
+    , _operations :: [Operation]
     }
   deriving ( Show, Read )
 
+
 data Operation 
-  = AddFeatureOp AddFeature
-  | RemoveFeatureOp RemoveFeature
-  | MoveFeatureOp MoveFeature
-  | RenameFeatureOp RenameFeature
-  | ChangeFeatureTypeOp ChangeFeatureType
-  | AddGroupOp AddGroup
-  | RemoveGroupOp RemoveGroup
-  | ChangeGroupTypeOp ChangeGroupType
-  | MoveGroupOp MoveGroup
+  = AddFeature AddFeatureOp
+  | RemoveFeature RemoveFeatureOp
+  | MoveFeature MoveFeatureOp
+  | RenameFeature RenameFeatureOp
+  | ChangeFeatureType ChangeFeatureTypeOp
+  | AddGroup AddGroupOp
+  | RemoveGroup RemoveGroupOp
+  | ChangeGroupType ChangeGroupTypeOp
+  | MoveGroup MoveGroupOp
   deriving ( Show, Read )
 
-data AddFeature = AddFeature FeatureID String GroupID FeatureType
+
+data AddFeatureOp = 
+  AddFeatureOp 
+    { _featureId :: FeatureId 
+    , _name :: String 
+    , _parentGroupId :: GroupId 
+    , _featureType :: FeatureType
+    }
   deriving ( Show, Read )
 
-data RemoveFeature = RemoveFeature FeatureID
+
+data RemoveFeatureOp = 
+  RemoveFeatureOp 
+    { _featureId :: FeatureId
+    }
   deriving ( Show, Read )
 
-data MoveFeature = MoveFeature FeatureID GroupID
+
+data MoveFeatureOp = 
+  MoveFeatureOp 
+    { _featureId :: FeatureId
+    , _groupId :: GroupId
+    }
   deriving ( Show, Read )
 
-data RenameFeature = RenameFeature FeatureID String
+
+data RenameFeatureOp = 
+  RenameFeatureOp 
+    { _featureId :: FeatureId
+    , _name :: String
+    }
   deriving ( Show, Read )
 
-data ChangeFeatureType = ChangeFeatureType FeatureID FeatureType
+
+data ChangeFeatureTypeOp = 
+  ChangeFeatureTypeOp 
+    { _featureId :: FeatureId 
+    , _featureType :: FeatureType
+    }
   deriving ( Show, Read )
 
-data AddGroup = AddGroup FeatureID GroupID GroupType
+
+data AddGroupOp = 
+  AddGroupOp 
+    { _parentFeatureId :: FeatureId 
+    , _groupId :: GroupId 
+    , _groupType :: GroupType
+    }
   deriving ( Show, Read )
 
-data RemoveGroup = RemoveGroup GroupID
+
+data RemoveGroupOp = 
+  RemoveGroupOp 
+    { _groupId :: GroupId
+    }
   deriving ( Show, Read )
 
-data ChangeGroupType = ChangeGroupType GroupID GroupType
+
+data ChangeGroupTypeOp = 
+  ChangeGroupTypeOp 
+    { _groupId :: GroupId 
+    , _groupType :: GroupType
+    }
   deriving ( Show, Read )
 
-data MoveGroup = MoveGroup GroupID FeatureID
-  deriving ( Show, Read )
 
+data MoveGroupOp = 
+  MoveGroupOp 
+    { _groupId :: GroupId 
+    , _parentFeatureId :: FeatureId
+    }
+  deriving ( Show, Read )
 
 
 --------------
@@ -147,32 +184,24 @@ data MoveGroup = MoveGroup GroupID FeatureID
 --------------
 
 
-makeLenses ''FeatureModel
-makeLenses ''Feature
-makeLenses ''Group
+makeFieldsNoPrefix ''FeatureModel
+makeFieldsNoPrefix ''Feature
+makeFieldsNoPrefix ''Group
 makePrisms ''FeatureType
 makePrisms ''GroupType
 
 
-makeLenses ''EvolutionPlan
-makeLenses ''Plan
--- makeLenses ''Operation
+makeFieldsNoPrefix ''EvolutionPlan
+makeFieldsNoPrefix ''Plan
+makePrisms ''Operation
 
 
----------------------
---  OPTIC HELPERS  --
----------------------
-
-
-featuresT :: IndexedTraversal' FeatureID FeatureModel Feature
-featuresT = features . itraversed
-
-groupsT :: IndexedTraversal' GroupID Feature Group
-groupsT = groups . itraversed
-
-groupFeaturesF :: Fold Group FeatureID
-groupFeaturesF = groupFeatures . folded
-
-
-
-
+makeFieldsNoPrefix ''AddFeatureOp
+makeFieldsNoPrefix ''RemoveFeatureOp
+makeFieldsNoPrefix ''MoveFeatureOp
+makeFieldsNoPrefix ''RenameFeatureOp
+makeFieldsNoPrefix ''ChangeFeatureTypeOp
+makeFieldsNoPrefix ''AddGroupOp
+makeFieldsNoPrefix ''RemoveGroupOp
+makeFieldsNoPrefix ''ChangeGroupTypeOp
+makeFieldsNoPrefix ''MoveGroupOp
