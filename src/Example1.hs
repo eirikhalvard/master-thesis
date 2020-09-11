@@ -36,21 +36,3 @@ runCarExample = do
 
   printDivider "Car Feature Model"
   print carExample
-
-  printDivider "Names of all features which is Mandatory"
-  print
-    $   carExample
-    ^.. featuresT
-    .   filtered (has (featureType . _Mandatory))
-    .   name
-
-  printDivider "List of all GroupIDs alongside their Feature Names"
-  print
-    $    carExample
-    ^@.. featuresT
-    .    reindexed (view name) selfIndex
-    <.   (groupsT . asIndex)
-
-
-  print $ carExample ^.. featuresT . groupsT . groupFeaturesF
-
