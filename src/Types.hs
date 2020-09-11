@@ -50,7 +50,6 @@ data Feature =
     }
     deriving ( Show, Read )
 
-
 data Group =
   Group 
     { _groupType :: GroupType
@@ -79,7 +78,8 @@ data GroupType
 
 data EvolutionPlan =
   EvolutionPlan
-    { _initialFM :: FeatureModel
+    { _initialTime :: Int
+    , _initialFM :: FeatureModel
     , _plans :: [Plan]
     }
   deriving ( Show, Read )
@@ -149,8 +149,8 @@ data ChangeFeatureTypeOp =
 
 data AddGroupOp = 
   AddGroupOp 
-    { _parentFeatureId :: FeatureId 
-    , _groupId :: GroupId 
+    { _groupId :: GroupId 
+    , _parentFeatureId :: FeatureId 
     , _groupType :: GroupType
     }
   deriving ( Show, Read )
@@ -179,6 +179,56 @@ data MoveGroupOp =
   deriving ( Show, Read )
 
 
+------------------
+--  Validities  --
+------------------
+
+
+type Validity = (TimePoint, TimePoint)
+
+type NameValidities = M.Map String [Validity]
+
+type FeatureValidities = M.Map FeatureId FeatureValidity
+
+type GroupValidities = M.Map GroupId GroupValidity
+
+
+data TimePoint 
+  = TP Int 
+  | Forever 
+  deriving ( Show, Eq, Ord )
+
+
+data Validities =
+  Validities
+    { _nameValidities :: NameValidities
+    , _featureValidities :: FeatureValidities
+    , _groupValidities :: GroupValidities
+    }
+  deriving ( Show, Eq )
+
+
+data FeatureValidity = 
+  FeatureValidity 
+    { _validities :: [Validity]
+    , _parentGroupValidities :: [(GroupId, Validity)] 
+    , _featureTypeValidities :: [(FeatureType, Validity)]
+    , _childGroupValidities :: [(GroupId, Validity)]
+    , _nameValidities :: [(String, Validity)]
+    }
+  deriving ( Show, Eq )
+
+
+data GroupValidity = 
+  GroupValidity 
+    { _validities :: [Validity]
+    , _parentFeatureValidities :: [(FeatureId, Validity)]
+    , _groupTypeValidities :: [(GroupType, Validity)]
+    , _childFeatureValidities :: [(FeatureId, Validity)]
+    }
+  deriving ( Show, Eq )
+
+
 --------------
 --  OPTICS  --
 --------------
@@ -190,11 +240,9 @@ makeFieldsNoPrefix ''Group
 makePrisms ''FeatureType
 makePrisms ''GroupType
 
-
 makeFieldsNoPrefix ''EvolutionPlan
 makeFieldsNoPrefix ''Plan
 makePrisms ''Operation
-
 
 makeFieldsNoPrefix ''AddFeatureOp
 makeFieldsNoPrefix ''RemoveFeatureOp
@@ -205,3 +253,9 @@ makeFieldsNoPrefix ''AddGroupOp
 makeFieldsNoPrefix ''RemoveGroupOp
 makeFieldsNoPrefix ''ChangeGroupTypeOp
 makeFieldsNoPrefix ''MoveGroupOp
+
+makePrisms ''TimePoint
+makeFieldsNoPrefix ''Validities
+makeFieldsNoPrefix ''FeatureValidity
+makeFieldsNoPrefix ''GroupValidity
+
