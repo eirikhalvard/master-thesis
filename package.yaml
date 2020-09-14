@@ -28,6 +28,7 @@ dependencies:
 - mtl
 - text
 - raw-strings-qq
+- prettyprinter
 
 default-extensions:
 - TemplateHaskell

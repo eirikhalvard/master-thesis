@@ -6,6 +6,7 @@ module Example1
 where
 
 import           Types
+import           PrettyPrint
 
 import           Control.Lens
 import qualified Data.Map                      as M
@@ -54,4 +55,4 @@ runCarExample = do
   let printDivider s = putStr "\n\n\n--- " >> putStr s >> putStrLn "\n"
 
   printDivider "Car Evolution Plan"
-  print carEvolutionPlan
+  printFeatureModel (view initialFM carEvolutionPlan)
