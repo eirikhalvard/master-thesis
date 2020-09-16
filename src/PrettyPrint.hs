@@ -1,3 +1,5 @@
+{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
 module PrettyPrint where
 
 import           Types
@@ -6,58 +8,44 @@ import           Data.Text.Prettyprint.Doc.Util
 import qualified Data.Map                      as M
 import qualified Data.Set                      as S
 
-prettyType :: [Doc ann] -> Doc ann
-prettyType =
-  align . sep . zipWith (<+>) (":::" : repeat "->")
-
-prettyDecl :: Pretty a => a -> [Doc ann] -> Doc ann
-prettyDecl n tys = pretty n <+> prettyType tys
-
-doc :: Doc ann
-doc = prettyDecl ("example" :: String)
-                 ["Int", "Bool", "Char", "IO ()"]
-
-printThings :: IO ()
-printThings = putDocW 50 doc
-
 printFeatureModel :: FeatureModel -> IO ()
 printFeatureModel fm = do
-  putDocW 50 (prettyFeatureModel fm)
+  putDocW 50 (pretty fm)
   putStrLn ""
 
-prettyFeatureModel :: FeatureModel -> Doc ann
-prettyFeatureModel (FM r f) =
-  "FEATURE MODEL" <> line <> indent
-    2
-    (vsep
-      [ "rootId: " <> pretty r
-      , "features:"
-      , indent 2 (prettyFeatureTable f)
-      ]
-    )
-
-prettyFeatureTable :: FeatureTable -> Doc ann
-prettyFeatureTable ft = align
-  (vsep
-    (   (\(k, v) -> (pretty k <+> "->" <+> prettyFeature v))
-    <$> M.toList ft
-    )
-  )
-
-prettyFeature :: Feature -> Doc ann
-prettyFeature (Feature name parent groups featureType) =
-  asList $ prettyArgs
-    "="
-    [ ("name", pretty name)
-    , ( "parentGroupId"
-      , maybe "[No Parent Group]" pretty parent
+instance Pretty FeatureModel where
+  pretty (FM r f) =
+    "FEATURE MODEL" <> line <> indent
+      2
+      (vsep
+        [ "rootId: " <> pretty r
+        , "features:"
+        , indent 2 (pretty f)
+        ]
       )
-    , ("groups"     , prettyGroups groups)
-    , ("featureType", pretty (show featureType))
-    ]
 
-prettyGroups :: Groups -> Doc ann
-prettyGroups = mconcat . fmap (\g -> line <> prettyGroup g) . M.toList
+instance Pretty FeatureTable where
+  pretty ft = align
+    (vsep
+      (   (\(k, v) -> (pretty k <+> "->" <+> pretty v))
+      <$> M.toList ft
+      )
+    )
+
+instance Pretty Feature where
+  pretty (Feature name parent groups featureType) =
+    asList $ prettyArgs
+      "="
+      [ ("name", pretty name)
+      , ( "parentGroupId"
+        , maybe "[No Parent Group]" pretty parent
+        )
+      , ("groups"     , pretty groups)
+      , ("featureType", pretty (show featureType))
+      ]
+
+instance Pretty Groups where
+  pretty = mconcat . fmap (\g -> line <> prettyGroup g) . M.toList
 
 prettyGroup :: (GroupId, Group) -> Doc ann
 prettyGroup (gid, Group gType featureIds) =
