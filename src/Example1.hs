@@ -7,6 +7,7 @@ where
 
 import           Types
 import           PrettyPrint
+import           Helpers
 
 import           Control.Lens
 import qualified Data.Map                      as M

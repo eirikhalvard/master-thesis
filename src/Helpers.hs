@@ -1,27 +1,29 @@
-module Helpers (notExists) where
+module Helpers where
 
 import           Types
-import           Example1
 
 import           Control.Lens
+import           Control.Monad
 import qualified Data.Set                      as S
 import qualified Data.Map                      as M
 
-notExists :: FeatureId -> FeatureTable -> Bool
-notExists fid = hasn't (ix fid)
+notExists :: FeatureModel -> FeatureId -> Bool
+notExists fm fid = hasn't (features . ix fid) fm
 
--- parentOfGroup :: GroupId -> FeatureTable -> Maybe FeatureId
--- parentOfGroup gid =
---   preview (itraversed . filtered (has (groups . ix gid)) . asIndex)
+getFeature :: FeatureModel -> FeatureId -> Maybe Feature
+getFeature fm fid = preview (features . ix fid) fm
 
-main :: IO ()
-main = do
-  print "hei"
-  -- let printDivider s = putStr "\n\n\n--- " >> putStr s >> putStrLn "\n"
-  --     carFeatureTable = view features carExample
-  -- print $ carFeatureTable & notExists 2
-  -- print $ carFeatureTable & notExists 4
-  -- print $ carFeatureTable & parentOfGroup 21
-  -- print $ carFeatureTable & parentOfGroup 22
-  -- print $ carFeatureTable & parentOfGroup 11
+getGroup :: FeatureModel -> GroupId -> Maybe Group
+getGroup fm gid = preview (features . traversed . groups . ix gid) fm
+
+getParentOfGroup :: FeatureModel -> GroupId -> Maybe FeatureId
+getParentOfGroup fm gid =
+  preview (features . itraversed . filtered (has (groups . ix gid)) . asIndex) fm
+
+getParentFeature :: FeatureModel -> FeatureId -> Maybe Feature
+getParentFeature fm = 
+  getFeature fm >=> view parentGroupId >=> getParentOfGroup fm >=> getFeature fm
+
+getParentFeatureOfGroupId :: FeatureModel -> GroupId -> Maybe Feature
+getParentFeatureOfGroupId fm = getParentOfGroup fm >=> getFeature fm
 

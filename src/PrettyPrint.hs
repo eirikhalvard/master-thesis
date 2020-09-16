@@ -3,49 +3,64 @@
 module PrettyPrint where
 
 import           Types
+import           Helpers
+
 import           Data.Text.Prettyprint.Doc
 import           Data.Text.Prettyprint.Doc.Util
 import qualified Data.Map                      as M
 import qualified Data.Set                      as S
+import           Control.Monad.Reader
+import           Control.Lens
+
+class PrettyFM a where
+  prettyFM :: a -> Reader FeatureModel (Doc ann)
 
 printFeatureModel :: FeatureModel -> IO ()
 printFeatureModel fm = do
-  putDocW 50 (pretty fm)
+  putDocW 50 (runReader (prettyFM fm) fm)
   putStrLn ""
 
-instance Pretty FeatureModel where
-  pretty (FM r f) =
-    "FEATURE MODEL" <> line <> indent
-      2
-      (vsep
-        [ "rootId: " <> pretty r
-        , "features:"
-        , indent 2 (pretty f)
-        ]
-      )
-
-instance Pretty FeatureTable where
-  pretty ft = align
-    (vsep
-      (   (\(k, v) -> (pretty k <+> "->" <+> pretty v))
-      <$> M.toList ft
-      )
-    )
-
-instance Pretty Feature where
-  pretty (Feature name parent groups featureType) =
-    asList $ prettyArgs
-      "="
-      [ ("name", pretty name)
-      , ( "parentGroupId"
-        , maybe "[No Parent Group]" pretty parent
+instance PrettyFM FeatureModel where
+  prettyFM (FM r f) = do
+    featuresDoc <- prettyFM f
+    return $ 
+      "FEATURE MODEL" <> line <> indent
+        2
+        (vsep
+          [ "rootId: " <> pretty r
+          , "features:"
+          , indent 2 featuresDoc
+          ]
         )
-      , ("groups"     , pretty groups)
-      , ("featureType", pretty (show featureType))
-      ]
 
-instance Pretty Groups where
-  pretty = mconcat . fmap (\g -> line <> prettyGroup g) . M.toList
+instance PrettyFM FeatureTable where
+  prettyFM ft = align . vsep <$> traverse prettyMap (M.toList ft)
+    where
+      prettyMap :: (FeatureId, Feature) -> Reader FeatureModel (Doc ann)
+      prettyMap (k, v) = do
+        pv <- prettyFM v
+        return $ pretty k <+> "->" <+> pv
+
+instance PrettyFM Feature where
+  prettyFM (Feature featureName mParentGroupId groups featureType) = do
+    fm <- ask
+    pgroups <- prettyFM groups
+    let parentName = mParentGroupId >>= getParentFeatureOfGroupId fm >>= preview name
+    return $
+      asList $ prettyArgs
+        "="
+        [ ("name", pretty featureName)
+        , ( "parentGroupId"
+          , maybe "[No Parent Group]" pretty mParentGroupId
+          )
+        , ("groups"     , pgroups)
+        , ("featureType", pretty (show featureType))
+        , ( "parentFeatureName"
+          , maybe "[No Parent Feature]" pretty parentName)
+        ]
+
+instance PrettyFM Groups where
+  prettyFM = return . mconcat . fmap (\g -> line <> prettyGroup g) . M.toList
 
 prettyGroup :: (GroupId, Group) -> Doc ann
 prettyGroup (gid, Group gType featureIds) =
