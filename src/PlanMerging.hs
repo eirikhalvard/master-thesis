@@ -7,6 +7,7 @@ import           Control.Lens
 import qualified Data.Map                      as M
 import qualified Data.Set                      as S
 
+
 performOperations :: EvolutionPlan -> [(Int, FeatureModel)]
 performOperations (EvolutionPlan initTime initFM plans) =
   scanl applyOperations (initTime, initFM) plans
@@ -35,47 +36,114 @@ applyOperation currentFM op = case op of
 
 applyAddFeature
   :: AddFeatureOp -> FeatureModel -> FeatureModel
-applyAddFeature (AddFeatureOp newFeatureId newName newParentGroupId newFeatureType) currentFM
-  = currentFM
-    & (features %~ M.insert newFeatureId newFeature)
-    & (  groupOfGroupId newParentGroupId
-      .  featureIds
-      %~ S.insert newFeatureId
-      )
+applyAddFeature (AddFeatureOp newFeatureId newName newParentGroupId newFeatureType)
+  = updateParent . addMapping
   where
+    addMapping =
+      features %~ M.insert newFeatureId newFeature
+    updateParent =
+      groupOfGroupId newParentGroupId
+        .  featureIds
+        %~ S.insert newFeatureId
     newFeature = Feature newName
                          (Just newParentGroupId)
                          M.empty
                          newFeatureType
 
+
 applyRemoveFeature
   :: RemoveFeatureOp -> FeatureModel -> FeatureModel
-applyRemoveFeature op currentFM = undefined
+applyRemoveFeature (RemoveFeatureOp removeFeatureId) =
+  updateParent . removeMapping
+  where
+    removeMapping = features %~ M.delete removeFeatureId
+    updateParent =
+      parentGroupOfFeature removeFeatureId
+        .  featureIds
+        %~ S.delete removeFeatureId
 
 applyMoveFeature
   :: MoveFeatureOp -> FeatureModel -> FeatureModel
-applyMoveFeature op currentFM = undefined
+applyMoveFeature (MoveFeatureOp moveFeatureId newGroupId) =
+  updateNewParent . updateFeature . updateOldParent
+  where
+    updateOldParent =
+      parentGroupOfFeature moveFeatureId
+        .  featureIds
+        %~ S.delete moveFeatureId
+    updateFeature =
+      features
+        .  ix moveFeatureId
+        .  parentGroupId
+        .~ Just newGroupId
+    updateNewParent =
+      groupOfGroupId newGroupId
+        .  featureIds
+        %~ S.insert moveFeatureId
 
 applyRenameFeature
   :: RenameFeatureOp -> FeatureModel -> FeatureModel
-applyRenameFeature op currentFM = undefined
+applyRenameFeature (RenameFeatureOp renameFeatureId newName)
+  = renameFeature
+  where
+    renameFeature =
+      features . ix renameFeatureId . name .~ newName
 
 applyChangeFeatureType
   :: ChangeFeatureTypeOp -> FeatureModel -> FeatureModel
-applyChangeFeatureType op currentFM = undefined
+applyChangeFeatureType (ChangeFeatureTypeOp changeFeatureId newType)
+  = changeType
+  where
+    changeType =
+      features . ix changeFeatureId . featureType .~ newType
 
 applyAddGroup :: AddGroupOp -> FeatureModel -> FeatureModel
-applyAddGroup op currentFM = undefined
+applyAddGroup (AddGroupOp newGroupId parentId gType) =
+  addGroup
+  where
+    addGroup =
+      features
+        .  ix parentId
+        .  groups
+        %~ M.insert newGroupId newGroup
+    newGroup = Group gType S.empty
 
 applyRemoveGroup
   :: RemoveGroupOp -> FeatureModel -> FeatureModel
-applyRemoveGroup op currentFM = undefined
+applyRemoveGroup (RemoveGroupOp removeGroupId) =
+  removeGroup
+  where
+    removeGroup =
+      parentOfGroup removeGroupId
+        .  groups
+        %~ M.delete removeGroupId
 
 applyChangeGroupType
   :: ChangeGroupTypeOp -> FeatureModel -> FeatureModel
-applyChangeGroupType op currentFM = undefined
+applyChangeGroupType (ChangeGroupTypeOp changeGroupId newType)
+  = changeGroupType
+  where
+    changeGroupType =
+      groupOfGroupId changeGroupId . groupType .~ newType
 
 applyMoveGroup
   :: MoveGroupOp -> FeatureModel -> FeatureModel
-applyMoveGroup op currentFM = undefined
-
+applyMoveGroup (MoveGroupOp moveGroupId newParentId) =
+  removeAndAddGroup
+  where
+    removeAndAddGroup fm =
+      let moveGroup = fm ^? groupOfGroupId moveGroupId
+          removed =
+              fm
+                &  features
+                .  traversed
+                .  groups
+                %~ M.delete moveGroupId
+          addedAndRemoved =
+              removed
+                &  features
+                .  ix newParentId
+                .  groups
+                .  at moveGroupId
+                .~ moveGroup
+      in  addedAndRemoved
