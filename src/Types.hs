@@ -34,7 +34,7 @@ type Groups = M.Map GroupId Group
 
 
 data FeatureModel =
-  FM 
+  FM
     { _rootId :: RootId
     , _features :: FeatureTable
     }
@@ -42,7 +42,7 @@ data FeatureModel =
 
 
 data Feature =
-  Feature 
+  Feature
     { _name :: String
     , _parentGroupId :: Maybe GroupId
     , _groups :: Groups
@@ -50,8 +50,9 @@ data Feature =
     }
     deriving ( Show, Read )
 
+
 data Group =
-  Group 
+  Group
     { _groupType :: GroupType
     , _featureIds :: S.Set FeatureId
     }
@@ -93,7 +94,7 @@ data Plan =
   deriving ( Show, Read )
 
 
-data Operation 
+data Operation
   = AddFeature AddFeatureOp
   | RemoveFeature RemoveFeatureOp
   | MoveFeature MoveFeatureOp
@@ -106,74 +107,74 @@ data Operation
   deriving ( Show, Read )
 
 
-data AddFeatureOp = 
-  AddFeatureOp 
-    { _featureId :: FeatureId 
-    , _name :: String 
-    , _parentGroupId :: GroupId 
+data AddFeatureOp =
+  AddFeatureOp
+    { _featureId :: FeatureId
+    , _name :: String
+    , _parentGroupId :: GroupId
     , _featureType :: FeatureType
     }
   deriving ( Show, Read )
 
 
-data RemoveFeatureOp = 
-  RemoveFeatureOp 
+data RemoveFeatureOp =
+  RemoveFeatureOp
     { _featureId :: FeatureId
     }
   deriving ( Show, Read )
 
 
-data MoveFeatureOp = 
-  MoveFeatureOp 
+data MoveFeatureOp =
+  MoveFeatureOp
     { _featureId :: FeatureId
     , _groupId :: GroupId
     }
   deriving ( Show, Read )
 
 
-data RenameFeatureOp = 
-  RenameFeatureOp 
+data RenameFeatureOp =
+  RenameFeatureOp
     { _featureId :: FeatureId
     , _name :: String
     }
   deriving ( Show, Read )
 
 
-data ChangeFeatureTypeOp = 
-  ChangeFeatureTypeOp 
-    { _featureId :: FeatureId 
+data ChangeFeatureTypeOp =
+  ChangeFeatureTypeOp
+    { _featureId :: FeatureId
     , _featureType :: FeatureType
     }
   deriving ( Show, Read )
 
 
-data AddGroupOp = 
-  AddGroupOp 
-    { _groupId :: GroupId 
-    , _parentFeatureId :: FeatureId 
+data AddGroupOp =
+  AddGroupOp
+    { _groupId :: GroupId
+    , _parentFeatureId :: FeatureId
     , _groupType :: GroupType
     }
   deriving ( Show, Read )
 
 
-data RemoveGroupOp = 
-  RemoveGroupOp 
+data RemoveGroupOp =
+  RemoveGroupOp
     { _groupId :: GroupId
     }
   deriving ( Show, Read )
 
 
-data ChangeGroupTypeOp = 
-  ChangeGroupTypeOp 
-    { _groupId :: GroupId 
+data ChangeGroupTypeOp =
+  ChangeGroupTypeOp
+    { _groupId :: GroupId
     , _groupType :: GroupType
     }
   deriving ( Show, Read )
 
 
-data MoveGroupOp = 
-  MoveGroupOp 
-    { _groupId :: GroupId 
+data MoveGroupOp =
+  MoveGroupOp
+    { _groupId :: GroupId
     , _parentFeatureId :: FeatureId
     }
   deriving ( Show, Read )
@@ -193,9 +194,9 @@ type FeatureValidities = M.Map FeatureId FeatureValidity
 type GroupValidities = M.Map GroupId GroupValidity
 
 
-data TimePoint 
-  = TP Int 
-  | Forever 
+data TimePoint
+  = TP Int
+  | Forever
   deriving ( Show, Eq, Ord )
 
 
@@ -208,10 +209,10 @@ data Validities =
   deriving ( Show, Eq )
 
 
-data FeatureValidity = 
-  FeatureValidity 
+data FeatureValidity =
+  FeatureValidity
     { _validities :: [Validity]
-    , _parentGroupValidities :: [(GroupId, Validity)] 
+    , _parentGroupValidities :: [(GroupId, Validity)]
     , _featureTypeValidities :: [(FeatureType, Validity)]
     , _childGroupValidities :: [(GroupId, Validity)]
     , _nameValidities :: [(String, Validity)]
@@ -219,8 +220,8 @@ data FeatureValidity =
   deriving ( Show, Eq )
 
 
-data GroupValidity = 
-  GroupValidity 
+data GroupValidity =
+  GroupValidity
     { _validities :: [Validity]
     , _parentFeatureValidities :: [(FeatureId, Validity)]
     , _groupTypeValidities :: [(GroupType, Validity)]
