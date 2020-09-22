@@ -38,7 +38,7 @@ data FeatureModel =
     { _rootId :: RootId
     , _features :: FeatureTable
     }
-    deriving ( Show, Read )
+    deriving ( Show, Eq, Read )
 
 
 data Feature =
@@ -48,7 +48,7 @@ data Feature =
     , _groups :: Groups
     , _featureType :: FeatureType
     }
-    deriving ( Show, Read )
+    deriving ( Show, Eq, Read )
 
 
 data Group =
@@ -56,20 +56,20 @@ data Group =
     { _groupType :: GroupType
     , _featureIds :: S.Set FeatureId
     }
-    deriving ( Show, Read )
+    deriving ( Show, Eq, Read )
 
 
 data FeatureType
   = Optional
   | Mandatory
-  deriving ( Show, Read, Eq )
+  deriving ( Show, Eq, Read )
 
 
 data GroupType
   = And
   | Or
   | Alternative
-  deriving ( Show, Read, Eq )
+  deriving ( Show, Eq, Read )
 
 
 -----------------------
@@ -83,7 +83,7 @@ data EvolutionPlan =
     , _initialFM :: FeatureModel
     , _plans :: [Plan]
     }
-  deriving ( Show, Read )
+  deriving ( Show, Eq, Read )
 
 
 data Plan =
@@ -91,7 +91,7 @@ data Plan =
     { _timePoint :: Int
     , _operations :: [Operation]
     }
-  deriving ( Show, Read )
+  deriving ( Show, Eq, Read )
 
 
 data Operation
@@ -104,7 +104,7 @@ data Operation
   | RemoveGroup RemoveGroupOp
   | ChangeGroupType ChangeGroupTypeOp
   | MoveGroup MoveGroupOp
-  deriving ( Show, Read )
+  deriving ( Show, Eq, Read )
 
 
 data AddFeatureOp =
@@ -114,14 +114,14 @@ data AddFeatureOp =
     , _parentGroupId :: GroupId
     , _featureType :: FeatureType
     }
-  deriving ( Show, Read )
+  deriving ( Show, Eq, Read )
 
 
 data RemoveFeatureOp =
   RemoveFeatureOp
     { _featureId :: FeatureId
     }
-  deriving ( Show, Read )
+  deriving ( Show, Eq, Read )
 
 
 data MoveFeatureOp =
@@ -129,7 +129,7 @@ data MoveFeatureOp =
     { _featureId :: FeatureId
     , _groupId :: GroupId
     }
-  deriving ( Show, Read )
+  deriving ( Show, Eq, Read )
 
 
 data RenameFeatureOp =
@@ -137,7 +137,7 @@ data RenameFeatureOp =
     { _featureId :: FeatureId
     , _name :: String
     }
-  deriving ( Show, Read )
+  deriving ( Show, Eq, Read )
 
 
 data ChangeFeatureTypeOp =
@@ -145,7 +145,7 @@ data ChangeFeatureTypeOp =
     { _featureId :: FeatureId
     , _featureType :: FeatureType
     }
-  deriving ( Show, Read )
+  deriving ( Show, Eq, Read )
 
 
 data AddGroupOp =
@@ -154,14 +154,14 @@ data AddGroupOp =
     , _parentFeatureId :: FeatureId
     , _groupType :: GroupType
     }
-  deriving ( Show, Read )
+  deriving ( Show, Eq, Read )
 
 
 data RemoveGroupOp =
   RemoveGroupOp
     { _groupId :: GroupId
     }
-  deriving ( Show, Read )
+  deriving ( Show, Eq, Read )
 
 
 data ChangeGroupTypeOp =
@@ -169,7 +169,7 @@ data ChangeGroupTypeOp =
     { _groupId :: GroupId
     , _groupType :: GroupType
     }
-  deriving ( Show, Read )
+  deriving ( Show, Eq, Read )
 
 
 data MoveGroupOp =
@@ -177,7 +177,7 @@ data MoveGroupOp =
     { _groupId :: GroupId
     , _parentFeatureId :: FeatureId
     }
-  deriving ( Show, Read )
+  deriving ( Show, Eq, Read )
 
 
 ------------------
