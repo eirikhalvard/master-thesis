@@ -8,6 +8,11 @@ import qualified Data.Map                      as M
 import qualified Data.Set                      as S
 
 
+------------------------------------------------------------------------
+--                         PERFORM OPERATIONS                         --
+------------------------------------------------------------------------
+
+
 performOperations :: EvolutionPlan -> [(Int, FeatureModel)]
 performOperations (EvolutionPlan initTime initFM plans) =
   scanl applyOperations (initTime, initFM) plans
@@ -147,3 +152,44 @@ applyMoveGroup (MoveGroupOp moveGroupId newParentId) =
                 .  at moveGroupId
                 .~ moveGroup
       in  addedAndRemoved
+
+
+------------------------------------------------------------------------
+--                        DIFF EVOLUTION PLANS                        --
+------------------------------------------------------------------------
+
+
+type EvolutionPlanDiff = [PlanDiff]
+
+
+type PlanDiff = (Int, [Change])
+
+
+data Change = Change ChangeType Operation
+  deriving ( Show, Eq )
+
+
+data ChangeType
+  = AddChange
+  | RemoveChange
+  deriving ( Show, Eq )
+
+
+diffEvolutionPlans
+  :: EvolutionPlan -> EvolutionPlan -> EvolutionPlanDiff
+diffEvolutionPlans (EvolutionPlan baseTime baseModel basePlans) (EvolutionPlan derivedTime derivedModel derivedPlans)
+  = initialPlanDiff : operationsDiff
+  where
+    initialPlanDiff =
+      (baseTime, diffInitialModel baseModel derivedModel)
+    operationsDiff = diffOperations basePlans derivedPlans
+
+
+ -- Assumption: InitialModel are equal, and start at the same time.
+diffInitialModel :: FeatureModel -> FeatureModel -> [Change]
+diffInitialModel baseFM derivedFM = []
+
+
+diffOperations :: [Plan] -> [Plan] -> EvolutionPlanDiff
+diffOperations basePlans derivedPlans = []
+
