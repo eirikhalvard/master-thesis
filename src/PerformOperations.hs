@@ -1,4 +1,4 @@
-module PlanMerging where
+module PerformOperations where
 
 import           Helpers
 import           Types
@@ -6,10 +6,6 @@ import           Types
 import           Control.Lens
 import qualified Data.Map     as M
 import qualified Data.Set     as S
-
-------------------------------------------------------------------------
---                         PERFORM OPERATIONS                         --
-------------------------------------------------------------------------
 
 
 performOperations :: EvolutionPlan -> [(Int, FeatureModel)]
@@ -35,6 +31,7 @@ applyOperation currentFM op = case op of
   RemoveGroup op'       -> applyRemoveGroup op' currentFM
   ChangeGroupType op'   -> applyChangeGroupType op' currentFM
   MoveGroup op'         -> applyMoveGroup op' currentFM
+
 
 applyAddFeature :: AddFeatureOp -> FeatureModel -> FeatureModel
 applyAddFeature (AddFeatureOp newFeatureId newName newParentGroupId newFeatureType)
@@ -141,43 +138,3 @@ applyMoveGroup (MoveGroupOp moveGroupId newParentId) =
                 .  at moveGroupId
                 .~ moveGroup
       in  addedAndRemoved
-
-
-------------------------------------------------------------------------
---                        DIFF EVOLUTION PLANS                        --
-------------------------------------------------------------------------
-
-
-type EvolutionPlanDiff = [PlanDiff]
-
-
-type PlanDiff = (Int, [Change])
-
-
-data Change = Change ChangeType Operation
-  deriving ( Show, Eq )
-
-
-data ChangeType
-  = AddChange
-  | RemoveChange
-  deriving ( Show, Eq )
-
-
-diffEvolutionPlans :: EvolutionPlan -> EvolutionPlan -> EvolutionPlanDiff
-diffEvolutionPlans (EvolutionPlan baseTime baseModel basePlans) (EvolutionPlan derivedTime derivedModel derivedPlans)
-  = initialPlanDiff : operationsDiff
-  where
-    initialPlanDiff =
-      (baseTime, diffInitialModel baseModel derivedModel)
-    operationsDiff = diffOperations basePlans derivedPlans
-
-
- -- Assumption: InitialModel are equal, and start at the same time.
-diffInitialModel :: FeatureModel -> FeatureModel -> [Change]
-diffInitialModel baseFM derivedFM = []
-
-
-diffOperations :: [Plan] -> [Plan] -> EvolutionPlanDiff
-diffOperations basePlans derivedPlans = []
-
