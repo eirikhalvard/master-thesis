@@ -1,16 +1,16 @@
+{-# LANGUAGE FlexibleInstances    #-}
 {-# LANGUAGE TypeSynonymInstances #-}
-{-# LANGUAGE FlexibleInstances #-}
 module PrettyPrint where
 
-import           Types
 import           Helpers
+import           Types
 
+import           Control.Lens
+import           Control.Monad.Reader
+import qualified Data.Map                       as M
+import qualified Data.Set                       as S
 import           Data.Text.Prettyprint.Doc
 import           Data.Text.Prettyprint.Doc.Util
-import qualified Data.Map                      as M
-import qualified Data.Set                      as S
-import           Control.Monad.Reader
-import           Control.Lens
 
 class PrettyFM a where
   prettyFM :: a -> Reader FeatureModel (Doc ann)
@@ -23,7 +23,7 @@ printFeatureModel fm = do
 instance PrettyFM FeatureModel where
   prettyFM (FM r f) = do
     featuresDoc <- prettyFM f
-    return $ 
+    return $
       "FEATURE MODEL" <> line <> indent
         2
         (vsep
@@ -64,7 +64,7 @@ instance PrettyFM Groups where
 
 prettyGroup :: (GroupId, Group) -> Doc ann
 prettyGroup (gid, Group gType featureIds) =
-  tupled 
+  tupled
     [ pretty gid
     , pretty (show gType)
     , asCompactSet (pretty <$> S.toList featureIds)
