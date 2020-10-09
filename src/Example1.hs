@@ -6,13 +6,13 @@ module Example1
 where
 
 import           Helpers
-import           PlanMerging
+import           PerformOperations
 import           PrettyPrint
 import           Types
 
 import           Control.Lens
-import qualified Data.Map     as M
-import qualified Data.Set     as S
+import qualified Data.Map          as M
+import qualified Data.Set          as S
 
 carInitialModel :: FeatureModel
 carInitialModel = FM
