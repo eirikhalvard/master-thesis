@@ -7,7 +7,9 @@ import Element.Border as Border
 import Element.Font as Font
 import Json.Decode as Decode
 import Json.Encode as Encode
-import Svg
+import List
+import List.Extra as List
+import Svg exposing (Svg)
 import Svg.Attributes as SvgA
 
 
@@ -21,9 +23,24 @@ height =
     400
 
 
-spacing : Int
-spacing =
-    10
+nodeWidth : Int
+nodeWidth =
+    20
+
+
+nodeHeight : Int
+nodeHeight =
+    20
+
+
+spacingX : Int
+spacingX =
+    50
+
+
+spacingY : Int
+spacingY =
+    100
 
 
 main =
@@ -34,7 +51,7 @@ main =
         Ok n ->
             Element.layout [] <|
                 Element.column []
-                    [ Element.text (Debug.toString n)
+                    [ Element.text (Debug.toString (computeTree n))
                     , Element.html
                         (Svg.svg
                             [ SvgA.width (String.fromInt width)
@@ -45,30 +62,105 @@ main =
                                     ++ " "
                                     ++ String.fromInt height
                             ]
-                            [ Svg.circle
-                                [ SvgA.cx "300"
-                                , SvgA.cy "60"
-                                , SvgA.r "15"
-                                ]
-                                []
-                            , Svg.circle
-                                [ SvgA.cx "100"
-                                , SvgA.cy "150"
-                                , SvgA.r "15"
-                                ]
-                                []
-                            , Svg.line
-                                [ SvgA.x1 "300"
-                                , SvgA.y1 "60"
-                                , SvgA.x2 "100"
-                                , SvgA.y2 "150"
-                                , SvgA.strokeWidth "3"
-                                , SvgA.stroke "blue"
-                                ]
-                                []
-                            ]
+                            (n |> computeTree |> drawTree 100 100)
+                         -- [ Svg.circle
+                         --     [ SvgA.cx "300"
+                         --     , SvgA.cy "60"
+                         --     , SvgA.r "15"
+                         --     ]
+                         --     []
+                         -- , Svg.circle
+                         --     [ SvgA.cx "100"
+                         --     , SvgA.cy "150"
+                         --     , SvgA.r "15"
+                         --     ]
+                         --     []
+                         -- , Svg.line
+                         --     [ SvgA.x1 "300"
+                         --     , SvgA.y1 "60"
+                         --     , SvgA.x2 "100"
+                         --     , SvgA.y2 "150"
+                         --     , SvgA.strokeWidth "3"
+                         --     , SvgA.stroke "blue"
+                         --     ]
+                         --     []
+                         -- ]
                         )
                     ]
+
+
+computeTree : Tree -> ComputedTree
+computeTree (Node tree) =
+    let
+        computedChildren =
+            List.map computeTree tree.children
+
+        childrenTotalWidth =
+            computedChildren
+                |> List.map (\(ComputedNode t) -> t.xWidth)
+                |> List.intersperse spacingX
+                |> List.sum
+    in
+    ComputedNode
+        { value = tree.value
+        , metaData = tree.metaData
+        , children = computedChildren
+        , xWidth =
+            Basics.max nodeWidth childrenTotalWidth
+        }
+
+
+drawTree : Int -> Int -> ComputedTree -> List (Svg msg)
+drawTree xStart yStart (ComputedNode tree) =
+    let
+        childYLevel : Int
+        childYLevel =
+            yStart + spacingY
+
+        nodeXLevel : Int
+        nodeXLevel =
+            xStart + (tree.xWidth // 2)
+
+        drawChildren : Int -> List ComputedTree -> List (Svg msg)
+        drawChildren childX children =
+            case children of
+                [] ->
+                    []
+
+                (ComputedNode child) :: rest ->
+                    [ drawLine (childX + (child.xWidth // 2))
+                        childYLevel
+                        nodeXLevel
+                        yStart
+                    ]
+                        ++ drawTree childX childYLevel (ComputedNode child)
+                        ++ drawChildren (childX + child.xWidth + spacingX) rest
+    in
+    drawNode nodeXLevel yStart
+        :: drawChildren xStart tree.children
+
+
+drawNode : Int -> Int -> Svg msg
+drawNode x y =
+    Svg.circle
+        [ SvgA.cx <| String.fromInt x
+        , SvgA.cy <| String.fromInt y
+        , SvgA.r <| String.fromInt nodeWidth
+        ]
+        []
+
+
+drawLine : Int -> Int -> Int -> Int -> Svg msg
+drawLine x1 y1 x2 y2 =
+    Svg.line
+        [ SvgA.x1 <| String.fromInt x1
+        , SvgA.y1 <| String.fromInt y1
+        , SvgA.x2 <| String.fromInt x2
+        , SvgA.y2 <| String.fromInt y2
+        , SvgA.strokeWidth "3"
+        , SvgA.stroke "blue"
+        ]
+        []
 
 
 type Tree
@@ -76,6 +168,15 @@ type Tree
         { value : Int
         , metaData : Maybe String
         , children : List Tree
+        }
+
+
+type ComputedTree
+    = ComputedNode
+        { value : Int
+        , metaData : Maybe String
+        , children : List ComputedTree
+        , xWidth : Int
         }
 
 
