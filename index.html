@@ -10179,9 +10179,6 @@ var $mdgriffith$elm_ui$Element$column = F2(
 var $elm$svg$Svg$Attributes$cx = _VirtualDom_attribute('cx');
 var $elm$svg$Svg$Attributes$cy = _VirtualDom_attribute('cy');
 var $elm$json$Json$Decode$decodeString = _Json_runOnString;
-var $author$project$Main$Leaf = function (a) {
-	return {$: 'Leaf', a: a};
-};
 var $author$project$Main$Node = function (a) {
 	return {$: 'Node', a: a};
 };
@@ -10195,27 +10192,36 @@ var $elm$json$Json$Decode$lazy = function (thunk) {
 		$elm$json$Json$Decode$succeed(_Utils_Tuple0));
 };
 var $elm$json$Json$Decode$list = _Json_decodeList;
+var $elm$json$Json$Decode$map3 = _Json_map3;
 var $elm$json$Json$Decode$oneOf = _Json_oneOf;
-function $author$project$Main$cyclic$decodeTree() {
+var $elm$json$Json$Decode$maybe = function (decoder) {
 	return $elm$json$Json$Decode$oneOf(
 		_List_fromArray(
 			[
-				A2(
-				$elm$json$Json$Decode$map,
-				$author$project$Main$Leaf,
-				A2($elm$json$Json$Decode$field, 'leaf', $elm$json$Json$Decode$int)),
-				A2(
-				$elm$json$Json$Decode$map,
-				$author$project$Main$Node,
-				A2(
-					$elm$json$Json$Decode$field,
-					'node',
-					$elm$json$Json$Decode$list(
-						$elm$json$Json$Decode$lazy(
-							function (_v0) {
-								return $author$project$Main$cyclic$decodeTree();
-							}))))
+				A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, decoder),
+				$elm$json$Json$Decode$succeed($elm$core$Maybe$Nothing)
 			]));
+};
+var $elm$json$Json$Decode$string = _Json_decodeString;
+function $author$project$Main$cyclic$decodeTree() {
+	return A4(
+		$elm$json$Json$Decode$map3,
+		F3(
+			function (value, metaData, children) {
+				return $author$project$Main$Node(
+					{children: children, metaData: metaData, value: value});
+			}),
+		A2($elm$json$Json$Decode$field, 'value', $elm$json$Json$Decode$int),
+		$elm$json$Json$Decode$maybe(
+			A2($elm$json$Json$Decode$field, 'metaData', $elm$json$Json$Decode$string)),
+		A2(
+			$elm$json$Json$Decode$field,
+			'children',
+			$elm$json$Json$Decode$list(
+				$elm$json$Json$Decode$lazy(
+					function (_v0) {
+						return $author$project$Main$cyclic$decodeTree();
+					}))));
 }
 try {
 	var $author$project$Main$decodeTree = $author$project$Main$cyclic$decodeTree();
@@ -10224,6 +10230,8 @@ try {
 	};
 } catch ($) {
 	throw 'Some top-level definitions from `Main` are causing infinite recursion:\n\n  ┌─────┐\n  │    decodeTree\n  └─────┘\n\nThese errors are very tricky, so read https://elm-lang.org/0.19.1/bad-recursion to learn how to fix it!';}
+var $author$project$Main$height = 400;
+var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
 var $elm$core$Basics$always = F2(
 	function (a, _v0) {
 		return a;
@@ -10512,173 +10520,33 @@ var $mdgriffith$elm_ui$Element$layoutWith = F3(
 	});
 var $mdgriffith$elm_ui$Element$layout = $mdgriffith$elm_ui$Element$layoutWith(
 	{options: _List_Nil});
-var $mdgriffith$elm_ui$Internal$Model$AlignX = function (a) {
-	return {$: 'AlignX', a: a};
-};
-var $mdgriffith$elm_ui$Internal$Model$Right = {$: 'Right'};
-var $mdgriffith$elm_ui$Element$alignRight = $mdgriffith$elm_ui$Internal$Model$AlignX($mdgriffith$elm_ui$Internal$Model$Right);
-var $mdgriffith$elm_ui$Internal$Model$AlignY = function (a) {
-	return {$: 'AlignY', a: a};
-};
-var $mdgriffith$elm_ui$Internal$Model$CenterY = {$: 'CenterY'};
-var $mdgriffith$elm_ui$Element$centerY = $mdgriffith$elm_ui$Internal$Model$AlignY($mdgriffith$elm_ui$Internal$Model$CenterY);
-var $mdgriffith$elm_ui$Element$el = F2(
-	function (attrs, child) {
-		return A4(
-			$mdgriffith$elm_ui$Internal$Model$element,
-			$mdgriffith$elm_ui$Internal$Model$asEl,
-			$mdgriffith$elm_ui$Internal$Model$div,
-			A2(
-				$elm$core$List$cons,
-				$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$shrink),
-				A2(
-					$elm$core$List$cons,
-					$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$shrink),
-					attrs)),
-			$mdgriffith$elm_ui$Internal$Model$Unkeyed(
-				_List_fromArray(
-					[child])));
-	});
-var $mdgriffith$elm_ui$Internal$Model$Fill = function (a) {
-	return {$: 'Fill', a: a};
-};
-var $mdgriffith$elm_ui$Element$fill = $mdgriffith$elm_ui$Internal$Model$Fill(1);
-var $mdgriffith$elm_ui$Element$Background$color = function (clr) {
-	return A2(
-		$mdgriffith$elm_ui$Internal$Model$StyleClass,
-		$mdgriffith$elm_ui$Internal$Flag$bgColor,
-		A3(
-			$mdgriffith$elm_ui$Internal$Model$Colored,
-			'bg-' + $mdgriffith$elm_ui$Internal$Model$formatColorClass(clr),
-			'background-color',
-			clr));
-};
-var $mdgriffith$elm_ui$Element$Font$color = function (fontColor) {
-	return A2(
-		$mdgriffith$elm_ui$Internal$Model$StyleClass,
-		$mdgriffith$elm_ui$Internal$Flag$fontColor,
-		A3(
-			$mdgriffith$elm_ui$Internal$Model$Colored,
-			'fc-' + $mdgriffith$elm_ui$Internal$Model$formatColorClass(fontColor),
-			'color',
-			fontColor));
-};
-var $mdgriffith$elm_ui$Internal$Model$PaddingStyle = F5(
-	function (a, b, c, d, e) {
-		return {$: 'PaddingStyle', a: a, b: b, c: c, d: d, e: e};
-	});
-var $mdgriffith$elm_ui$Internal$Flag$padding = $mdgriffith$elm_ui$Internal$Flag$flag(2);
-var $mdgriffith$elm_ui$Element$padding = function (x) {
-	var f = x;
-	return A2(
-		$mdgriffith$elm_ui$Internal$Model$StyleClass,
-		$mdgriffith$elm_ui$Internal$Flag$padding,
-		A5(
-			$mdgriffith$elm_ui$Internal$Model$PaddingStyle,
-			'p-' + $elm$core$String$fromInt(x),
-			f,
-			f,
-			f,
-			f));
-};
-var $mdgriffith$elm_ui$Element$rgb255 = F3(
-	function (red, green, blue) {
-		return A4($mdgriffith$elm_ui$Internal$Model$Rgba, red / 255, green / 255, blue / 255, 1);
-	});
-var $mdgriffith$elm_ui$Internal$Flag$borderRound = $mdgriffith$elm_ui$Internal$Flag$flag(17);
-var $mdgriffith$elm_ui$Element$Border$rounded = function (radius) {
-	return A2(
-		$mdgriffith$elm_ui$Internal$Model$StyleClass,
-		$mdgriffith$elm_ui$Internal$Flag$borderRound,
-		A3(
-			$mdgriffith$elm_ui$Internal$Model$Single,
-			'br-' + $elm$core$String$fromInt(radius),
-			'border-radius',
-			$elm$core$String$fromInt(radius) + 'px'));
-};
+var $elm$svg$Svg$line = $elm$svg$Svg$trustedNode('line');
+var $elm$svg$Svg$Attributes$r = _VirtualDom_attribute('r');
+var $elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
+var $elm$svg$Svg$Attributes$strokeWidth = _VirtualDom_attribute('stroke-width');
+var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
 var $mdgriffith$elm_ui$Internal$Model$Text = function (a) {
 	return {$: 'Text', a: a};
 };
 var $mdgriffith$elm_ui$Element$text = function (content) {
 	return $mdgriffith$elm_ui$Internal$Model$Text(content);
 };
-var $author$project$Main$myElement = A2(
-	$mdgriffith$elm_ui$Element$el,
-	_List_fromArray(
-		[
-			$mdgriffith$elm_ui$Element$Background$color(
-			A3($mdgriffith$elm_ui$Element$rgb255, 240, 0, 245)),
-			$mdgriffith$elm_ui$Element$Font$color(
-			A3($mdgriffith$elm_ui$Element$rgb255, 255, 255, 255)),
-			$mdgriffith$elm_ui$Element$Border$rounded(3),
-			$mdgriffith$elm_ui$Element$padding(30)
-		]),
-	$mdgriffith$elm_ui$Element$text('stylish!'));
-var $mdgriffith$elm_ui$Internal$Model$AsRow = {$: 'AsRow'};
-var $mdgriffith$elm_ui$Internal$Model$asRow = $mdgriffith$elm_ui$Internal$Model$AsRow;
-var $mdgriffith$elm_ui$Element$row = F2(
-	function (attrs, children) {
-		return A4(
-			$mdgriffith$elm_ui$Internal$Model$element,
-			$mdgriffith$elm_ui$Internal$Model$asRow,
-			$mdgriffith$elm_ui$Internal$Model$div,
-			A2(
-				$elm$core$List$cons,
-				$mdgriffith$elm_ui$Internal$Model$htmlClass($mdgriffith$elm_ui$Internal$Style$classes.contentLeft + (' ' + $mdgriffith$elm_ui$Internal$Style$classes.contentCenterY)),
-				A2(
-					$elm$core$List$cons,
-					$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$shrink),
-					A2(
-						$elm$core$List$cons,
-						$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$shrink),
-						attrs))),
-			$mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
-	});
-var $mdgriffith$elm_ui$Internal$Model$SpacingStyle = F3(
-	function (a, b, c) {
-		return {$: 'SpacingStyle', a: a, b: b, c: c};
-	});
-var $mdgriffith$elm_ui$Internal$Flag$spacing = $mdgriffith$elm_ui$Internal$Flag$flag(3);
-var $mdgriffith$elm_ui$Internal$Model$spacingName = F2(
-	function (x, y) {
-		return 'spacing-' + ($elm$core$String$fromInt(x) + ('-' + $elm$core$String$fromInt(y)));
-	});
-var $mdgriffith$elm_ui$Element$spacing = function (x) {
-	return A2(
-		$mdgriffith$elm_ui$Internal$Model$StyleClass,
-		$mdgriffith$elm_ui$Internal$Flag$spacing,
-		A3(
-			$mdgriffith$elm_ui$Internal$Model$SpacingStyle,
-			A2($mdgriffith$elm_ui$Internal$Model$spacingName, x, x),
-			x,
-			x));
-};
-var $author$project$Main$myRowOfStuff = A2(
-	$mdgriffith$elm_ui$Element$row,
-	_List_fromArray(
-		[
-			$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
-			$mdgriffith$elm_ui$Element$centerY,
-			$mdgriffith$elm_ui$Element$spacing(30)
-		]),
-	_List_fromArray(
-		[
-			$author$project$Main$myElement,
-			$author$project$Main$myElement,
-			A2(
-			$mdgriffith$elm_ui$Element$el,
-			_List_fromArray(
-				[$mdgriffith$elm_ui$Element$alignRight]),
-			$author$project$Main$myElement)
-		]));
-var $elm$svg$Svg$Attributes$r = _VirtualDom_attribute('r');
-var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
 var $elm$core$Debug$toString = _Debug_toString;
-var $author$project$Main$treeString = '\n{ "node": [\n  { "node": [{"leaf": 1}]},\n  { "node": [{"leaf": 2}]},\n  { "node": [{"leaf": 3}, {"leaf": 4}]},\n  { "leaf": 5}\n] }\n';
+var $author$project$Main$treeString = '\n{\n  "value": 1,\n  "children": [\n    {\n      "value": 2,\n      "children": [\n        {\n          "value": 3,\n          "children": []\n        }\n      ]\n    },\n    {\n      "value": 4,\n      "metaData": "Number four:)",\n      "children": [\n        {\n          "value": 5,\n          "children": []\n        }\n      ]\n    },\n    {\n      "value": 6,\n      "children": [\n        {\n          "value": 7,\n          "children": []\n        },\n        {\n          "value": 8,\n          "children": []\n        }\n      ]\n    },\n    {\n      "value": 9,\n      "children": []\n    }\n  ]\n}\n';
+var $elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
+var $author$project$Main$width = 700;
+var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
+var $elm$svg$Svg$Attributes$x1 = _VirtualDom_attribute('x1');
+var $elm$svg$Svg$Attributes$x2 = _VirtualDom_attribute('x2');
+var $elm$svg$Svg$Attributes$y1 = _VirtualDom_attribute('y1');
+var $elm$svg$Svg$Attributes$y2 = _VirtualDom_attribute('y2');
 var $author$project$Main$main = function () {
 	var _v0 = A2($elm$json$Json$Decode$decodeString, $author$project$Main$decodeTree, $author$project$Main$treeString);
 	if (_v0.$ === 'Err') {
-		return A2($mdgriffith$elm_ui$Element$layout, _List_Nil, $author$project$Main$myRowOfStuff);
+		return A2(
+			$mdgriffith$elm_ui$Element$layout,
+			_List_Nil,
+			$mdgriffith$elm_ui$Element$text('no good'));
 	} else {
 		var n = _v0.a;
 		return A2(
@@ -10694,16 +10562,45 @@ var $author$project$Main$main = function () {
 						$mdgriffith$elm_ui$Element$html(
 						A2(
 							$elm$svg$Svg$svg,
-							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$svg$Svg$Attributes$width(
+									$elm$core$String$fromInt($author$project$Main$width)),
+									$elm$svg$Svg$Attributes$height(
+									$elm$core$String$fromInt($author$project$Main$height)),
+									$elm$svg$Svg$Attributes$viewBox(
+									'0 0 ' + ($elm$core$String$fromInt($author$project$Main$width) + (' ' + $elm$core$String$fromInt($author$project$Main$height))))
+								]),
 							_List_fromArray(
 								[
 									A2(
 									$elm$svg$Svg$circle,
 									_List_fromArray(
 										[
-											$elm$svg$Svg$Attributes$cx('60'),
+											$elm$svg$Svg$Attributes$cx('300'),
 											$elm$svg$Svg$Attributes$cy('60'),
-											$elm$svg$Svg$Attributes$r('50')
+											$elm$svg$Svg$Attributes$r('15')
+										]),
+									_List_Nil),
+									A2(
+									$elm$svg$Svg$circle,
+									_List_fromArray(
+										[
+											$elm$svg$Svg$Attributes$cx('100'),
+											$elm$svg$Svg$Attributes$cy('150'),
+											$elm$svg$Svg$Attributes$r('15')
+										]),
+									_List_Nil),
+									A2(
+									$elm$svg$Svg$line,
+									_List_fromArray(
+										[
+											$elm$svg$Svg$Attributes$x1('300'),
+											$elm$svg$Svg$Attributes$y1('60'),
+											$elm$svg$Svg$Attributes$x2('100'),
+											$elm$svg$Svg$Attributes$y2('150'),
+											$elm$svg$Svg$Attributes$strokeWidth('3'),
+											$elm$svg$Svg$Attributes$stroke('blue')
 										]),
 									_List_Nil)
 								])))

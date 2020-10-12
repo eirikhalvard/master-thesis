@@ -11,21 +11,59 @@ import Svg
 import Svg.Attributes as SvgA
 
 
+width : Int
+width =
+    700
+
+
+height : Int
+height =
+    400
+
+
+spacing : Int
+spacing =
+    10
+
+
 main =
     case Decode.decodeString decodeTree treeString of
         Err _ ->
-            Element.layout [] myRowOfStuff
+            Element.layout [] <| Element.text "no good"
 
         Ok n ->
             Element.layout [] <|
                 Element.column []
                     [ Element.text (Debug.toString n)
                     , Element.html
-                        (Svg.svg []
+                        (Svg.svg
+                            [ SvgA.width (String.fromInt width)
+                            , SvgA.height (String.fromInt height)
+                            , SvgA.viewBox <|
+                                "0 0 "
+                                    ++ String.fromInt width
+                                    ++ " "
+                                    ++ String.fromInt height
+                            ]
                             [ Svg.circle
-                                [ SvgA.cx "60"
+                                [ SvgA.cx "300"
                                 , SvgA.cy "60"
-                                , SvgA.r "50"
+                                , SvgA.r "15"
+                                ]
+                                []
+                            , Svg.circle
+                                [ SvgA.cx "100"
+                                , SvgA.cy "150"
+                                , SvgA.r "15"
+                                ]
+                                []
+                            , Svg.line
+                                [ SvgA.x1 "300"
+                                , SvgA.y1 "60"
+                                , SvgA.x2 "100"
+                                , SvgA.y2 "150"
+                                , SvgA.strokeWidth "3"
+                                , SvgA.stroke "blue"
                                 ]
                                 []
                             ]
@@ -33,59 +71,96 @@ main =
                     ]
 
 
-myRowOfStuff : Element msg
-myRowOfStuff =
-    row [ width fill, centerY, spacing 30 ]
-        [ myElement
-        , myElement
-        , el [ alignRight ] myElement
-        ]
-
-
-myElement : Element msg
-myElement =
-    el
-        [ Background.color (rgb255 240 0 245)
-        , Font.color (rgb255 255 255 255)
-        , Border.rounded 3
-        , padding 30
-        ]
-        (text "stylish!")
-
-
 type Tree
-    = Leaf Int
-    | Node (List Tree)
+    = Node
+        { value : Int
+        , metaData : Maybe String
+        , children : List Tree
+        }
+
+
+decodeTree : Decode.Decoder Tree
+decodeTree =
+    Decode.map3
+        (\value metaData children ->
+            Node
+                { value = value
+                , metaData = metaData
+                , children = children
+                }
+        )
+        (Decode.field "value" Decode.int)
+        (Decode.maybe <| Decode.field "metaData" Decode.string)
+        (Decode.field "children"
+            (Decode.list (Decode.lazy <| \_ -> decodeTree))
+        )
+
+
+encodeTree : Tree -> Encode.Value
+encodeTree (Node tree) =
+    let
+        valuePair =
+            [ ( "value", Encode.int tree.value ) ]
+
+        metaDataPair =
+            case tree.metaData of
+                Nothing ->
+                    []
+
+                Just metaData ->
+                    [ ( "metaData", Encode.string metaData ) ]
+
+        childrenPair =
+            [ ( "children", Encode.list encodeTree tree.children ) ]
+
+        objectList =
+            valuePair ++ metaDataPair ++ childrenPair
+    in
+    Encode.object objectList
 
 
 treeString : String
 treeString =
     """
-{ "node": [
-  { "node": [{"leaf": 1}]},
-  { "node": [{"leaf": 2}]},
-  { "node": [{"leaf": 3}, {"leaf": 4}]},
-  { "leaf": 5}
-] }
+{
+  "value": 1,
+  "children": [
+    {
+      "value": 2,
+      "children": [
+        {
+          "value": 3,
+          "children": []
+        }
+      ]
+    },
+    {
+      "value": 4,
+      "metaData": "Number four:)",
+      "children": [
+        {
+          "value": 5,
+          "children": []
+        }
+      ]
+    },
+    {
+      "value": 6,
+      "children": [
+        {
+          "value": 7,
+          "children": []
+        },
+        {
+          "value": 8,
+          "children": []
+        }
+      ]
+    },
+    {
+      "value": 9,
+      "children": []
+    }
+  ]
+}
 """
-
-
-decodeTree : Decode.Decoder Tree
-decodeTree =
-    Decode.oneOf
-        [ Decode.map Leaf (Decode.field "leaf" Decode.int)
-        , Decode.map Node
-            (Decode.field "node"
-                (Decode.list (Decode.lazy <| \_ -> decodeTree))
-            )
-        ]
-
-
-encodeTree : Tree -> Encode.Value
-encodeTree tree =
-    case tree of
-        Leaf v ->
-            Encode.object [ ( "leaf", Encode.int v ) ]
-
-        Node subtrees ->
-            Encode.object [ ( "node", Encode.list encodeTree subtrees ) ]
