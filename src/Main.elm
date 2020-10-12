@@ -7,6 +7,8 @@ import Element.Border as Border
 import Element.Font as Font
 import Json.Decode as Decode
 import Json.Encode as Encode
+import Svg
+import Svg.Attributes as SvgA
 
 
 main =
@@ -15,7 +17,20 @@ main =
             Element.layout [] myRowOfStuff
 
         Ok n ->
-            Element.layout [] <| Element.text (Debug.toString n)
+            Element.layout [] <|
+                Element.column []
+                    [ Element.text (Debug.toString n)
+                    , Element.html
+                        (Svg.svg []
+                            [ Svg.circle
+                                [ SvgA.cx "60"
+                                , SvgA.cy "60"
+                                , SvgA.r "50"
+                                ]
+                                []
+                            ]
+                        )
+                    ]
 
 
 myRowOfStuff : Element msg
