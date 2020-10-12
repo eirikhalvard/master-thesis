@@ -4455,66 +4455,6 @@ var $elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 			return 3;
 	}
 };
-var $mdgriffith$elm_ui$Internal$Model$Unkeyed = function (a) {
-	return {$: 'Unkeyed', a: a};
-};
-var $mdgriffith$elm_ui$Internal$Model$AsColumn = {$: 'AsColumn'};
-var $mdgriffith$elm_ui$Internal$Model$asColumn = $mdgriffith$elm_ui$Internal$Model$AsColumn;
-var $mdgriffith$elm_ui$Internal$Style$classes = {above: 'a', active: 'atv', alignBottom: 'ab', alignCenterX: 'cx', alignCenterY: 'cy', alignContainerBottom: 'acb', alignContainerCenterX: 'accx', alignContainerCenterY: 'accy', alignContainerRight: 'acr', alignLeft: 'al', alignRight: 'ar', alignTop: 'at', alignedHorizontally: 'ah', alignedVertically: 'av', any: 's', behind: 'bh', below: 'b', bold: 'w7', borderDashed: 'bd', borderDotted: 'bdt', borderNone: 'bn', borderSolid: 'bs', capturePointerEvents: 'cpe', clip: 'cp', clipX: 'cpx', clipY: 'cpy', column: 'c', container: 'ctr', contentBottom: 'cb', contentCenterX: 'ccx', contentCenterY: 'ccy', contentLeft: 'cl', contentRight: 'cr', contentTop: 'ct', cursorPointer: 'cptr', cursorText: 'ctxt', focus: 'fcs', focusedWithin: 'focus-within', fullSize: 'fs', grid: 'g', hasBehind: 'hbh', heightContent: 'hc', heightExact: 'he', heightFill: 'hf', heightFillPortion: 'hfp', hover: 'hv', imageContainer: 'ic', inFront: 'fr', inputLabel: 'lbl', inputMultiline: 'iml', inputMultilineFiller: 'imlf', inputMultilineParent: 'imlp', inputMultilineWrapper: 'implw', inputText: 'it', italic: 'i', link: 'lnk', nearby: 'nb', noTextSelection: 'notxt', onLeft: 'ol', onRight: 'or', opaque: 'oq', overflowHidden: 'oh', page: 'pg', paragraph: 'p', passPointerEvents: 'ppe', root: 'ui', row: 'r', scrollbars: 'sb', scrollbarsX: 'sbx', scrollbarsY: 'sby', seButton: 'sbt', single: 'e', sizeByCapital: 'cap', spaceEvenly: 'sev', strike: 'sk', text: 't', textCenter: 'tc', textExtraBold: 'w8', textExtraLight: 'w2', textHeavy: 'w9', textJustify: 'tj', textJustifyAll: 'tja', textLeft: 'tl', textLight: 'w3', textMedium: 'w5', textNormalWeight: 'w4', textRight: 'tr', textSemiBold: 'w6', textThin: 'w1', textUnitalicized: 'tun', transition: 'ts', transparent: 'clr', underline: 'u', widthContent: 'wc', widthExact: 'we', widthFill: 'wf', widthFillPortion: 'wfp', wrapped: 'wrp'};
-var $mdgriffith$elm_ui$Internal$Model$Generic = {$: 'Generic'};
-var $mdgriffith$elm_ui$Internal$Model$div = $mdgriffith$elm_ui$Internal$Model$Generic;
-var $mdgriffith$elm_ui$Internal$Model$NoNearbyChildren = {$: 'NoNearbyChildren'};
-var $mdgriffith$elm_ui$Internal$Model$columnClass = $mdgriffith$elm_ui$Internal$Style$classes.any + (' ' + $mdgriffith$elm_ui$Internal$Style$classes.column);
-var $mdgriffith$elm_ui$Internal$Model$gridClass = $mdgriffith$elm_ui$Internal$Style$classes.any + (' ' + $mdgriffith$elm_ui$Internal$Style$classes.grid);
-var $mdgriffith$elm_ui$Internal$Model$pageClass = $mdgriffith$elm_ui$Internal$Style$classes.any + (' ' + $mdgriffith$elm_ui$Internal$Style$classes.page);
-var $mdgriffith$elm_ui$Internal$Model$paragraphClass = $mdgriffith$elm_ui$Internal$Style$classes.any + (' ' + $mdgriffith$elm_ui$Internal$Style$classes.paragraph);
-var $mdgriffith$elm_ui$Internal$Model$rowClass = $mdgriffith$elm_ui$Internal$Style$classes.any + (' ' + $mdgriffith$elm_ui$Internal$Style$classes.row);
-var $mdgriffith$elm_ui$Internal$Model$singleClass = $mdgriffith$elm_ui$Internal$Style$classes.any + (' ' + $mdgriffith$elm_ui$Internal$Style$classes.single);
-var $mdgriffith$elm_ui$Internal$Model$contextClasses = function (context) {
-	switch (context.$) {
-		case 'AsRow':
-			return $mdgriffith$elm_ui$Internal$Model$rowClass;
-		case 'AsColumn':
-			return $mdgriffith$elm_ui$Internal$Model$columnClass;
-		case 'AsEl':
-			return $mdgriffith$elm_ui$Internal$Model$singleClass;
-		case 'AsGrid':
-			return $mdgriffith$elm_ui$Internal$Model$gridClass;
-		case 'AsParagraph':
-			return $mdgriffith$elm_ui$Internal$Model$paragraphClass;
-		default:
-			return $mdgriffith$elm_ui$Internal$Model$pageClass;
-	}
-};
-var $mdgriffith$elm_ui$Internal$Model$Keyed = function (a) {
-	return {$: 'Keyed', a: a};
-};
-var $mdgriffith$elm_ui$Internal$Model$NoStyleSheet = {$: 'NoStyleSheet'};
-var $mdgriffith$elm_ui$Internal$Model$Styled = function (a) {
-	return {$: 'Styled', a: a};
-};
-var $mdgriffith$elm_ui$Internal$Model$Unstyled = function (a) {
-	return {$: 'Unstyled', a: a};
-};
-var $mdgriffith$elm_ui$Internal$Model$addChildren = F2(
-	function (existing, nearbyChildren) {
-		switch (nearbyChildren.$) {
-			case 'NoNearbyChildren':
-				return existing;
-			case 'ChildrenBehind':
-				var behind = nearbyChildren.a;
-				return _Utils_ap(behind, existing);
-			case 'ChildrenInFront':
-				var inFront = nearbyChildren.a;
-				return _Utils_ap(existing, inFront);
-			default:
-				var behind = nearbyChildren.a;
-				var inFront = nearbyChildren.b;
-				return _Utils_ap(
-					behind,
-					_Utils_ap(existing, inFront));
-		}
-	});
 var $elm$core$List$foldrHelper = F4(
 	function (fn, acc, ctr, ls) {
 		if (!ls.b) {
@@ -4584,6 +4524,110 @@ var $elm$core$List$map = F2(
 			_List_Nil,
 			xs);
 	});
+var $elm$core$List$maximum = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(
+			A3($elm$core$List$foldl, $elm$core$Basics$max, x, xs));
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $author$project$Main$calcHeight = function (tree) {
+	return $author$project$Main$depth(tree);
+};
+var $author$project$Main$depth = function (_v0) {
+	var node = _v0.a;
+	var _v1 = $elm$core$List$maximum(
+		A2($elm$core$List$map, $author$project$Main$calcHeight, node.children));
+	if (_v1.$ === 'Nothing') {
+		return 1;
+	} else {
+		var n = _v1.a;
+		return n + 1;
+	}
+};
+var $author$project$Main$calcWidth = function (_v0) {
+	var tree = _v0.a;
+	return tree.xWidth + 100;
+};
+var $mdgriffith$elm_ui$Internal$Model$Class = F2(
+	function (a, b) {
+		return {$: 'Class', a: a, b: b};
+	});
+var $mdgriffith$elm_ui$Internal$Style$classes = {above: 'a', active: 'atv', alignBottom: 'ab', alignCenterX: 'cx', alignCenterY: 'cy', alignContainerBottom: 'acb', alignContainerCenterX: 'accx', alignContainerCenterY: 'accy', alignContainerRight: 'acr', alignLeft: 'al', alignRight: 'ar', alignTop: 'at', alignedHorizontally: 'ah', alignedVertically: 'av', any: 's', behind: 'bh', below: 'b', bold: 'w7', borderDashed: 'bd', borderDotted: 'bdt', borderNone: 'bn', borderSolid: 'bs', capturePointerEvents: 'cpe', clip: 'cp', clipX: 'cpx', clipY: 'cpy', column: 'c', container: 'ctr', contentBottom: 'cb', contentCenterX: 'ccx', contentCenterY: 'ccy', contentLeft: 'cl', contentRight: 'cr', contentTop: 'ct', cursorPointer: 'cptr', cursorText: 'ctxt', focus: 'fcs', focusedWithin: 'focus-within', fullSize: 'fs', grid: 'g', hasBehind: 'hbh', heightContent: 'hc', heightExact: 'he', heightFill: 'hf', heightFillPortion: 'hfp', hover: 'hv', imageContainer: 'ic', inFront: 'fr', inputLabel: 'lbl', inputMultiline: 'iml', inputMultilineFiller: 'imlf', inputMultilineParent: 'imlp', inputMultilineWrapper: 'implw', inputText: 'it', italic: 'i', link: 'lnk', nearby: 'nb', noTextSelection: 'notxt', onLeft: 'ol', onRight: 'or', opaque: 'oq', overflowHidden: 'oh', page: 'pg', paragraph: 'p', passPointerEvents: 'ppe', root: 'ui', row: 'r', scrollbars: 'sb', scrollbarsX: 'sbx', scrollbarsY: 'sby', seButton: 'sbt', single: 'e', sizeByCapital: 'cap', spaceEvenly: 'sev', strike: 'sk', text: 't', textCenter: 'tc', textExtraBold: 'w8', textExtraLight: 'w2', textHeavy: 'w9', textJustify: 'tj', textJustifyAll: 'tja', textLeft: 'tl', textLight: 'w3', textMedium: 'w5', textNormalWeight: 'w4', textRight: 'tr', textSemiBold: 'w6', textThin: 'w1', textUnitalicized: 'tun', transition: 'ts', transparent: 'clr', underline: 'u', widthContent: 'wc', widthExact: 'we', widthFill: 'wf', widthFillPortion: 'wfp', wrapped: 'wrp'};
+var $mdgriffith$elm_ui$Internal$Flag$Flag = function (a) {
+	return {$: 'Flag', a: a};
+};
+var $mdgriffith$elm_ui$Internal$Flag$Second = function (a) {
+	return {$: 'Second', a: a};
+};
+var $elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
+var $mdgriffith$elm_ui$Internal$Flag$flag = function (i) {
+	return (i > 31) ? $mdgriffith$elm_ui$Internal$Flag$Second(1 << (i - 32)) : $mdgriffith$elm_ui$Internal$Flag$Flag(1 << i);
+};
+var $mdgriffith$elm_ui$Internal$Flag$overflow = $mdgriffith$elm_ui$Internal$Flag$flag(20);
+var $mdgriffith$elm_ui$Element$clip = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$overflow, $mdgriffith$elm_ui$Internal$Style$classes.clip);
+var $mdgriffith$elm_ui$Internal$Model$Unkeyed = function (a) {
+	return {$: 'Unkeyed', a: a};
+};
+var $mdgriffith$elm_ui$Internal$Model$AsColumn = {$: 'AsColumn'};
+var $mdgriffith$elm_ui$Internal$Model$asColumn = $mdgriffith$elm_ui$Internal$Model$AsColumn;
+var $mdgriffith$elm_ui$Internal$Model$Generic = {$: 'Generic'};
+var $mdgriffith$elm_ui$Internal$Model$div = $mdgriffith$elm_ui$Internal$Model$Generic;
+var $mdgriffith$elm_ui$Internal$Model$NoNearbyChildren = {$: 'NoNearbyChildren'};
+var $mdgriffith$elm_ui$Internal$Model$columnClass = $mdgriffith$elm_ui$Internal$Style$classes.any + (' ' + $mdgriffith$elm_ui$Internal$Style$classes.column);
+var $mdgriffith$elm_ui$Internal$Model$gridClass = $mdgriffith$elm_ui$Internal$Style$classes.any + (' ' + $mdgriffith$elm_ui$Internal$Style$classes.grid);
+var $mdgriffith$elm_ui$Internal$Model$pageClass = $mdgriffith$elm_ui$Internal$Style$classes.any + (' ' + $mdgriffith$elm_ui$Internal$Style$classes.page);
+var $mdgriffith$elm_ui$Internal$Model$paragraphClass = $mdgriffith$elm_ui$Internal$Style$classes.any + (' ' + $mdgriffith$elm_ui$Internal$Style$classes.paragraph);
+var $mdgriffith$elm_ui$Internal$Model$rowClass = $mdgriffith$elm_ui$Internal$Style$classes.any + (' ' + $mdgriffith$elm_ui$Internal$Style$classes.row);
+var $mdgriffith$elm_ui$Internal$Model$singleClass = $mdgriffith$elm_ui$Internal$Style$classes.any + (' ' + $mdgriffith$elm_ui$Internal$Style$classes.single);
+var $mdgriffith$elm_ui$Internal$Model$contextClasses = function (context) {
+	switch (context.$) {
+		case 'AsRow':
+			return $mdgriffith$elm_ui$Internal$Model$rowClass;
+		case 'AsColumn':
+			return $mdgriffith$elm_ui$Internal$Model$columnClass;
+		case 'AsEl':
+			return $mdgriffith$elm_ui$Internal$Model$singleClass;
+		case 'AsGrid':
+			return $mdgriffith$elm_ui$Internal$Model$gridClass;
+		case 'AsParagraph':
+			return $mdgriffith$elm_ui$Internal$Model$paragraphClass;
+		default:
+			return $mdgriffith$elm_ui$Internal$Model$pageClass;
+	}
+};
+var $mdgriffith$elm_ui$Internal$Model$Keyed = function (a) {
+	return {$: 'Keyed', a: a};
+};
+var $mdgriffith$elm_ui$Internal$Model$NoStyleSheet = {$: 'NoStyleSheet'};
+var $mdgriffith$elm_ui$Internal$Model$Styled = function (a) {
+	return {$: 'Styled', a: a};
+};
+var $mdgriffith$elm_ui$Internal$Model$Unstyled = function (a) {
+	return {$: 'Unstyled', a: a};
+};
+var $mdgriffith$elm_ui$Internal$Model$addChildren = F2(
+	function (existing, nearbyChildren) {
+		switch (nearbyChildren.$) {
+			case 'NoNearbyChildren':
+				return existing;
+			case 'ChildrenBehind':
+				var behind = nearbyChildren.a;
+				return _Utils_ap(behind, existing);
+			case 'ChildrenInFront':
+				var inFront = nearbyChildren.a;
+				return _Utils_ap(existing, inFront);
+			default:
+				var behind = nearbyChildren.a;
+				var inFront = nearbyChildren.b;
+				return _Utils_ap(
+					behind,
+					_Utils_ap(existing, inFront));
+		}
+	});
 var $mdgriffith$elm_ui$Internal$Model$addKeyedChildren = F3(
 	function (key, existing, nearbyChildren) {
 		switch (nearbyChildren.$) {
@@ -4633,16 +4677,6 @@ var $mdgriffith$elm_ui$Internal$Model$AsEl = {$: 'AsEl'};
 var $mdgriffith$elm_ui$Internal$Model$asEl = $mdgriffith$elm_ui$Internal$Model$AsEl;
 var $mdgriffith$elm_ui$Internal$Model$AsParagraph = {$: 'AsParagraph'};
 var $mdgriffith$elm_ui$Internal$Model$asParagraph = $mdgriffith$elm_ui$Internal$Model$AsParagraph;
-var $mdgriffith$elm_ui$Internal$Flag$Flag = function (a) {
-	return {$: 'Flag', a: a};
-};
-var $mdgriffith$elm_ui$Internal$Flag$Second = function (a) {
-	return {$: 'Second', a: a};
-};
-var $elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
-var $mdgriffith$elm_ui$Internal$Flag$flag = function (i) {
-	return (i > 31) ? $mdgriffith$elm_ui$Internal$Flag$Second(1 << (i - 32)) : $mdgriffith$elm_ui$Internal$Flag$Flag(1 << i);
-};
 var $mdgriffith$elm_ui$Internal$Flag$alignBottom = $mdgriffith$elm_ui$Internal$Flag$flag(41);
 var $mdgriffith$elm_ui$Internal$Flag$alignRight = $mdgriffith$elm_ui$Internal$Flag$flag(40);
 var $mdgriffith$elm_ui$Internal$Flag$centerX = $mdgriffith$elm_ui$Internal$Flag$flag(42);
@@ -8050,16 +8084,6 @@ var $elm$core$List$filter = F2(
 			_List_Nil,
 			list);
 	});
-var $elm$core$List$maximum = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(
-			A3($elm$core$List$foldl, $elm$core$Basics$max, x, xs));
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
 var $elm$core$List$minimum = function (list) {
 	if (list.b) {
 		var x = list.a;
@@ -10297,7 +10321,7 @@ var $author$project$Main$drawLine = F4(
 					$elm$svg$Svg$Attributes$y2(
 					$elm$core$String$fromInt(y2)),
 					$elm$svg$Svg$Attributes$strokeWidth('3'),
-					$elm$svg$Svg$Attributes$stroke('blue')
+					$elm$svg$Svg$Attributes$stroke('black')
 				]),
 			_List_Nil);
 	});
@@ -10352,7 +10376,27 @@ var $author$project$Main$drawTree = F3(
 			A2($author$project$Main$drawNode, nodeXLevel, yStart),
 			A2(drawChildren, xStart, tree.children));
 	});
-var $author$project$Main$height = 400;
+var $mdgriffith$elm_ui$Element$el = F2(
+	function (attrs, child) {
+		return A4(
+			$mdgriffith$elm_ui$Internal$Model$element,
+			$mdgriffith$elm_ui$Internal$Model$asEl,
+			$mdgriffith$elm_ui$Internal$Model$div,
+			A2(
+				$elm$core$List$cons,
+				$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$shrink),
+				A2(
+					$elm$core$List$cons,
+					$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$shrink),
+					attrs)),
+			$mdgriffith$elm_ui$Internal$Model$Unkeyed(
+				_List_fromArray(
+					[child])));
+	});
+var $mdgriffith$elm_ui$Internal$Model$Fill = function (a) {
+	return {$: 'Fill', a: a};
+};
+var $mdgriffith$elm_ui$Element$fill = $mdgriffith$elm_ui$Internal$Model$Fill(1);
 var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
 var $elm$core$Basics$always = F2(
 	function (a, _v0) {
@@ -10642,6 +10686,12 @@ var $mdgriffith$elm_ui$Element$layoutWith = F3(
 	});
 var $mdgriffith$elm_ui$Element$layout = $mdgriffith$elm_ui$Element$layoutWith(
 	{options: _List_Nil});
+var $author$project$Main$nodeHeight = 20;
+var $mdgriffith$elm_ui$Internal$Model$Px = function (a) {
+	return {$: 'Px', a: a};
+};
+var $mdgriffith$elm_ui$Element$px = $mdgriffith$elm_ui$Internal$Model$Px;
+var $mdgriffith$elm_ui$Element$scrollbars = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$overflow, $mdgriffith$elm_ui$Internal$Style$classes.scrollbars);
 var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
 var $mdgriffith$elm_ui$Internal$Model$Text = function (a) {
 	return {$: 'Text', a: a};
@@ -10649,10 +10699,8 @@ var $mdgriffith$elm_ui$Internal$Model$Text = function (a) {
 var $mdgriffith$elm_ui$Element$text = function (content) {
 	return $mdgriffith$elm_ui$Internal$Model$Text(content);
 };
-var $elm$core$Debug$toString = _Debug_toString;
-var $author$project$Main$treeString = '\n{\n  "value": 1,\n  "children": [\n    {\n      "value": 2,\n      "children": [\n        {\n          "value": 3,\n          "children": []\n        }\n      ]\n    },\n    {\n      "value": 4,\n      "metaData": "Number four:)",\n      "children": [\n        {\n          "value": 5,\n          "children": []\n        }\n      ]\n    },\n    {\n      "value": 6,\n      "children": [\n        {\n          "value": 7,\n          "children": []\n        },\n        {\n          "value": 8,\n          "children": []\n        }\n      ]\n    },\n    {\n      "value": 9,\n      "children": []\n    }\n  ]\n}\n';
+var $author$project$Main$treeString = '\n{\n  "value": 1,\n  "children": [\n    {\n      "value": 2,\n      "children": [\n        {\n          "value": 3,\n          "children": []\n        }\n      ]\n    },\n    {\n      "value": 4,\n      "metaData": "Number four:)",\n      "children": [\n        {\n          "value": 5,\n          "children": [\n            {\n              "value": 1,\n              "children": [\n                {\n                  "value": 2,\n                  "children": [\n                    {\n                      "value": 3,\n                      "children": []\n                    }\n                  ]\n                },\n                {\n                  "value": 4,\n                  "metaData": "Number four:)",\n                  "children": [\n                    {\n                      "value": 5,\n                      "children": []\n                    }\n                  ]\n                },\n                {\n                  "value": 6,\n                  "children": [\n                    {\n                      "value": 7,\n                      "children": []\n                    },\n                    {\n                      "value": 8,\n                      "children": []\n                    }\n                  ]\n                },\n                {\n                  "value": 9,\n                  "children": [\n                    {\n                      "value": 10,\n                      "children": [\n                        {\n                          "value": 11,\n                          "children": [\n                            {\n                              "value": 12,\n                              "children": []\n                            }\n                          ]\n                        },\n                        {\n                          "value": 13,\n                          "metaData": "Number thirteen:)",\n                          "children": [\n                            {\n                              "value": 14,\n                              "children": []\n                            }\n                          ]\n                        },\n                        {\n                          "value": 15,\n                          "children": [\n                            {\n                              "value": 16,\n                              "children": []\n                            },\n                            {\n                              "value": 17,\n                              "children": []\n                            }\n                          ]\n                        },\n                        {\n                          "value": 18,\n                          "children": [\n                            {\n                              "value": 1,\n                              "children": [\n                                {\n                                  "value": 2,\n                                  "children": [\n                                    {\n                                      "value": 3,\n                                      "children": []\n                                    }\n                                  ]\n                                },\n                                {\n                                  "value": 4,\n                                  "metaData": "Number four:)",\n                                  "children": [\n                                    {\n                                      "value": 5,\n                                      "children": []\n                                    }\n                                  ]\n                                },\n                                {\n                                  "value": 6,\n                                  "children": [\n                                    {\n                                      "value": 7,\n                                      "children": []\n                                    },\n                                    {\n                                      "value": 8,\n                                      "children": []\n                                    }\n                                  ]\n                                },\n                                {\n                                  "value": 9,\n                                  "children": [\n                                    {\n                                      "value": 10,\n                                      "children": [\n                                        {\n                                          "value": 11,\n                                          "children": [\n                                            {\n                                              "value": 12,\n                                              "children": []\n                                            }\n                                          ]\n                                        },\n                                        {\n                                          "value": 13,\n                                          "metaData": "Number thirteen:)",\n                                          "children": [\n                                            {\n                                              "value": 14,\n                                              "children": []\n                                            }\n                                          ]\n                                        },\n                                        {\n                                          "value": 15,\n                                          "children": [\n                                            {\n                                              "value": 16,\n                                              "children": []\n                                            },\n                                            {\n                                              "value": 17,\n                                              "children": []\n                                            }\n                                          ]\n                                        },\n                                        {\n                                          "value": 18,\n                                          "children": []\n                                        }\n                                      ]\n                                    }\n                                  ]\n                                }\n                              ]\n                            }\n                          ]\n                        }\n                      ]\n                    }\n                  ]\n                }\n              ]\n            }\n          ]\n        }\n      ]\n    },\n    {\n      "value": 6,\n      "children": [\n        {\n          "value": 7,\n          "children": []\n        },\n        {\n          "value": 8,\n          "children": []\n        }\n      ]\n    },\n    {\n      "value": 9,\n      "children": [\n        {\n          "value": 10,\n          "children": [\n            {\n              "value": 11,\n              "children": [\n                {\n                  "value": 12,\n                  "children": []\n                }\n              ]\n            },\n            {\n              "value": 13,\n              "metaData": "Number thirteen:)",\n              "children": [\n                {\n                  "value": 14,\n                  "children": []\n                }\n              ]\n            },\n            {\n              "value": 15,\n              "children": [\n                {\n                  "value": 16,\n                  "children": []\n                },\n                {\n                  "value": 17,\n                  "children": []\n                }\n              ]\n            },\n            {\n              "value": 18,\n              "children": [\n                {\n                  "value": 1,\n                  "children": [\n                    {\n                      "value": 2,\n                      "children": [\n                        {\n                          "value": 3,\n                          "children": []\n                        }\n                      ]\n                    },\n                    {\n                      "value": 4,\n                      "metaData": "Number four:)",\n                      "children": [\n                        {\n                          "value": 5,\n                          "children": []\n                        }\n                      ]\n                    },\n                    {\n                      "value": 6,\n                      "children": [\n                        {\n                          "value": 7,\n                          "children": []\n                        },\n                        {\n                          "value": 8,\n                          "children": []\n                        }\n                      ]\n                    },\n                    {\n                      "value": 9,\n                      "children": [\n                        {\n                          "value": 10,\n                          "children": [\n                            {\n                              "value": 11,\n                              "children": [\n                                {\n                                  "value": 12,\n                                  "children": []\n                                }\n                              ]\n                            },\n                            {\n                              "value": 13,\n                              "metaData": "Number thirteen:)",\n                              "children": [\n                                {\n                                  "value": 14,\n                                  "children": []\n                                }\n                              ]\n                            },\n                            {\n                              "value": 15,\n                              "children": [\n                                {\n                                  "value": 16,\n                                  "children": []\n                                },\n                                {\n                                  "value": 17,\n                                  "children": []\n                                }\n                              ]\n                            },\n                            {\n                              "value": 18,\n                              "children": []\n                            }\n                          ]\n                        }\n                      ]\n                    }\n                  ]\n                }\n              ]\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}\n';
 var $elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
-var $author$project$Main$width = 700;
 var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
 var $author$project$Main$main = function () {
 	var _v0 = A2($elm$json$Json$Decode$decodeString, $author$project$Main$decodeTree, $author$project$Main$treeString);
@@ -10663,34 +10711,62 @@ var $author$project$Main$main = function () {
 			$mdgriffith$elm_ui$Element$text('no good'));
 	} else {
 		var n = _v0.a;
+		var computedTree = $author$project$Main$computeTree(n);
+		var height = $author$project$Main$calcHeight(computedTree) * $author$project$Main$spacingY;
+		var width = $author$project$Main$calcWidth(computedTree);
 		return A2(
 			$mdgriffith$elm_ui$Element$layout,
 			_List_Nil,
 			A2(
 				$mdgriffith$elm_ui$Element$column,
-				_List_Nil,
 				_List_fromArray(
 					[
-						$mdgriffith$elm_ui$Element$text(
-						$elm$core$Debug$toString(
-							$author$project$Main$computeTree(n))),
-						$mdgriffith$elm_ui$Element$html(
+						$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$fill)
+					]),
+				_List_fromArray(
+					[
 						A2(
-							$elm$svg$Svg$svg,
+						$mdgriffith$elm_ui$Element$el,
+						_List_fromArray(
+							[
+								$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill)
+							]),
+						$mdgriffith$elm_ui$Element$text('Welcome to the tree visualizer!')),
+						A2(
+						$mdgriffith$elm_ui$Element$el,
+						_List_fromArray(
+							[
+								$mdgriffith$elm_ui$Element$clip,
+								$mdgriffith$elm_ui$Element$scrollbars,
+								$mdgriffith$elm_ui$Element$width(
+								$mdgriffith$elm_ui$Element$px(800)),
+								$mdgriffith$elm_ui$Element$height(
+								$mdgriffith$elm_ui$Element$px(600))
+							]),
+						A2(
+							$mdgriffith$elm_ui$Element$el,
 							_List_fromArray(
 								[
-									$elm$svg$Svg$Attributes$width(
-									$elm$core$String$fromInt($author$project$Main$width)),
-									$elm$svg$Svg$Attributes$height(
-									$elm$core$String$fromInt($author$project$Main$height)),
-									$elm$svg$Svg$Attributes$viewBox(
-									'0 0 ' + ($elm$core$String$fromInt($author$project$Main$width) + (' ' + $elm$core$String$fromInt($author$project$Main$height))))
+									$mdgriffith$elm_ui$Element$width(
+									$mdgriffith$elm_ui$Element$px(width)),
+									$mdgriffith$elm_ui$Element$height(
+									$mdgriffith$elm_ui$Element$px(height))
 								]),
-							A3(
-								$author$project$Main$drawTree,
-								100,
-								100,
-								$author$project$Main$computeTree(n))))
+							$mdgriffith$elm_ui$Element$html(
+								A2(
+									$elm$svg$Svg$svg,
+									_List_fromArray(
+										[
+											$elm$svg$Svg$Attributes$width('100%'),
+											$elm$svg$Svg$Attributes$height('100%'),
+											$elm$svg$Svg$Attributes$viewBox(
+											'0 0 ' + ($elm$core$String$fromInt(width) + (' ' + $elm$core$String$fromInt(height))))
+										]),
+									A3($author$project$Main$drawTree, $author$project$Main$nodeWidth, $author$project$Main$nodeHeight, computedTree))))),
+						A2(
+						$mdgriffith$elm_ui$Element$el,
+						_List_Nil,
+						$mdgriffith$elm_ui$Element$text('Welcome to the bottom of the tree visualizer!'))
 					])));
 	}
 }();
