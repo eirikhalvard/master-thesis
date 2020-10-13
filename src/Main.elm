@@ -138,7 +138,7 @@ update msg model =
             ( updateWindowSize w h model, Cmd.none )
 
         GotViewport viewport ->
-            ( updateViewport viewport model, Cmd.none )
+            ( updateViewport (Debug.log "viewPort: " viewport) model, Cmd.none )
 
         GotTree treeErr ->
             case treeErr of
@@ -153,7 +153,8 @@ updateWindowSize : Int -> Int -> Model -> Model
 updateWindowSize w h model =
     case model of
         UnInitialized someFields ->
-            UnInitialized { someFields | mDimentions = Just ( w, h ) }
+            convertIfInitialized <|
+                UnInitialized { someFields | mDimentions = Just ( w, h ) }
 
         Initialized fields ->
             Initialized
@@ -164,6 +165,28 @@ updateWindowSize w h model =
                         Element.classifyDevice
                             { width = w, height = h }
                 }
+
+
+convertIfInitialized : Model -> Model
+convertIfInitialized model =
+    case model of
+        UnInitialized someFields ->
+            case ( someFields.mDimentions, someFields.mTree ) of
+                ( Just ( w, h ), Just tree ) ->
+                    Initialized
+                        { width = w
+                        , height = h
+                        , device =
+                            Element.classifyDevice
+                                { width = w, height = h }
+                        , tree = tree
+                        }
+
+                _ ->
+                    model
+
+        _ ->
+            model
 
 
 updateViewport : Dom.Viewport -> Model -> Model
@@ -177,23 +200,9 @@ updateViewport viewport model =
     in
     case model of
         UnInitialized someFields ->
-            case someFields.mTree of
-                Nothing ->
-                    UnInitialized
-                        { someFields
-                            | mDimentions =
-                                Just ( w, h )
-                        }
-
-                Just tree ->
-                    Initialized
-                        { width = w
-                        , height = h
-                        , device =
-                            Element.classifyDevice
-                                { width = w, height = h }
-                        , tree = tree
-                        }
+            convertIfInitialized <|
+                UnInitialized
+                    { someFields | mDimentions = Just ( w, h ) }
 
         Initialized fields ->
             model
@@ -203,23 +212,9 @@ updateTree : Tree -> Model -> Model
 updateTree tree model =
     case model of
         UnInitialized someFields ->
-            case someFields.mDimentions of
-                Nothing ->
-                    UnInitialized
-                        { someFields
-                            | mTree =
-                                Just tree
-                        }
-
-                Just ( w, h ) ->
-                    Initialized
-                        { width = w
-                        , height = h
-                        , device =
-                            Element.classifyDevice
-                                { width = w, height = h }
-                        , tree = tree
-                        }
+            convertIfInitialized <|
+                UnInitialized
+                    { someFields | mTree = Just tree }
 
         Initialized fields ->
             model
@@ -252,7 +247,6 @@ view model =
                     [ Element.el [ Element.width Element.fill ] <|
                         Element.text "Welcome to the tree visualizer!"
                     , Element.text (Debug.toString model)
-                    , Element.text (Debug.toString height)
                     , Element.el
                         [ Element.clip
                         , Element.scrollbars

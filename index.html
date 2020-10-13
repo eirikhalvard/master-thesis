@@ -6527,6 +6527,7 @@ var $author$project$Main$subscriptions = function (model) {
 				return A2($author$project$Main$NewWindowSize, w, h);
 			}));
 };
+var $elm$core$Debug$log = _Debug_log;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$Initialized = function (a) {
 	return {$: 'Initialized', a: a};
@@ -6551,31 +6552,41 @@ var $mdgriffith$elm_ui$Element$classifyDevice = function (window) {
 		orientation: (_Utils_cmp(window.width, window.height) < 0) ? $mdgriffith$elm_ui$Element$Portrait : $mdgriffith$elm_ui$Element$Landscape
 	};
 };
+var $author$project$Main$convertIfInitialized = function (model) {
+	if (model.$ === 'UnInitialized') {
+		var someFields = model.a;
+		var _v1 = _Utils_Tuple2(someFields.mDimentions, someFields.mTree);
+		if ((_v1.a.$ === 'Just') && (_v1.b.$ === 'Just')) {
+			var _v2 = _v1.a.a;
+			var w = _v2.a;
+			var h = _v2.b;
+			var tree = _v1.b.a;
+			return $author$project$Main$Initialized(
+				{
+					device: $mdgriffith$elm_ui$Element$classifyDevice(
+						{height: h, width: w}),
+					height: h,
+					tree: tree,
+					width: w
+				});
+		} else {
+			return model;
+		}
+	} else {
+		return model;
+	}
+};
 var $author$project$Main$updateTree = F2(
 	function (tree, model) {
 		if (model.$ === 'UnInitialized') {
 			var someFields = model.a;
-			var _v1 = someFields.mDimentions;
-			if (_v1.$ === 'Nothing') {
-				return $author$project$Main$UnInitialized(
+			return $author$project$Main$convertIfInitialized(
+				$author$project$Main$UnInitialized(
 					_Utils_update(
 						someFields,
 						{
 							mTree: $elm$core$Maybe$Just(tree)
-						}));
-			} else {
-				var _v2 = _v1.a;
-				var w = _v2.a;
-				var h = _v2.b;
-				return $author$project$Main$Initialized(
-					{
-						device: $mdgriffith$elm_ui$Element$classifyDevice(
-							{height: h, width: w}),
-						height: h,
-						tree: tree,
-						width: w
-					});
-			}
+						})));
 		} else {
 			var fields = model.a;
 			return model;
@@ -6588,26 +6599,14 @@ var $author$project$Main$updateViewport = F2(
 		var h = $elm$core$Basics$round(viewport.viewport.height);
 		if (model.$ === 'UnInitialized') {
 			var someFields = model.a;
-			var _v1 = someFields.mTree;
-			if (_v1.$ === 'Nothing') {
-				return $author$project$Main$UnInitialized(
+			return $author$project$Main$convertIfInitialized(
+				$author$project$Main$UnInitialized(
 					_Utils_update(
 						someFields,
 						{
 							mDimentions: $elm$core$Maybe$Just(
 								_Utils_Tuple2(w, h))
-						}));
-			} else {
-				var tree = _v1.a;
-				return $author$project$Main$Initialized(
-					{
-						device: $mdgriffith$elm_ui$Element$classifyDevice(
-							{height: h, width: w}),
-						height: h,
-						tree: tree,
-						width: w
-					});
-			}
+						})));
 		} else {
 			var fields = model.a;
 			return model;
@@ -6617,13 +6616,14 @@ var $author$project$Main$updateWindowSize = F3(
 	function (w, h, model) {
 		if (model.$ === 'UnInitialized') {
 			var someFields = model.a;
-			return $author$project$Main$UnInitialized(
-				_Utils_update(
-					someFields,
-					{
-						mDimentions: $elm$core$Maybe$Just(
-							_Utils_Tuple2(w, h))
-					}));
+			return $author$project$Main$convertIfInitialized(
+				$author$project$Main$UnInitialized(
+					_Utils_update(
+						someFields,
+						{
+							mDimentions: $elm$core$Maybe$Just(
+								_Utils_Tuple2(w, h))
+						})));
 		} else {
 			var fields = model.a;
 			return $author$project$Main$Initialized(
@@ -6651,7 +6651,10 @@ var $author$project$Main$update = F2(
 			case 'GotViewport':
 				var viewport = msg.a;
 				return _Utils_Tuple2(
-					A2($author$project$Main$updateViewport, viewport, model),
+					A2(
+						$author$project$Main$updateViewport,
+						A2($elm$core$Debug$log, 'viewPort: ', viewport),
+						model),
 					$elm$core$Platform$Cmd$none);
 			default:
 				var treeErr = msg.a;
@@ -12656,8 +12659,6 @@ var $author$project$Main$view = function (model) {
 						$mdgriffith$elm_ui$Element$text('Welcome to the tree visualizer!')),
 						$mdgriffith$elm_ui$Element$text(
 						$elm$core$Debug$toString(model)),
-						$mdgriffith$elm_ui$Element$text(
-						$elm$core$Debug$toString(height)),
 						A2(
 						$mdgriffith$elm_ui$Element$el,
 						_List_fromArray(
