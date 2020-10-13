@@ -19,18 +19,18 @@ import Svg.Attributes as SvgA
 import Task
 
 
-calcWidth : ComputedTree -> Int
+calcWidth : ComputedTree -> Float
 calcWidth (ComputedNode tree) =
     tree.computedDimentions.treeWidth
         -- a bit extra padding
         + 100
 
 
-calcHeight : ComputedTree -> Int
+calcHeight : ComputedTree -> Float
 calcHeight tree =
     let
         treeDepth =
-            depth tree
+            toFloat <| depth tree
 
         nodeTotalHeight =
             (treeDepth - 1) * nodeHeight
@@ -55,17 +55,17 @@ depth (ComputedNode node) =
 -- extra paddyo
 
 
-nodeHeight : Int
+nodeHeight : Float
 nodeHeight =
     30
 
 
-spacingX : Int
+spacingX : Float
 spacingX =
     30
 
 
-spacingY : Int
+spacingY : Float
 spacingY =
     80
 
@@ -252,8 +252,8 @@ view model =
                         ]
                       <|
                         Element.el
-                            [ Element.width <| Element.px width
-                            , Element.height <| Element.px height
+                            [ Element.width <| Element.px <| round width
+                            , Element.height <| Element.px <| round height
                             ]
                         <|
                             Element.html
@@ -262,9 +262,9 @@ view model =
                                     , SvgA.height "100%"
                                     , SvgA.viewBox <|
                                         "0 0 "
-                                            ++ String.fromInt width
+                                            ++ String.fromFloat width
                                             ++ " "
-                                            ++ String.fromInt height
+                                            ++ String.fromFloat height
                                     ]
                                     (computedTree |> drawTree 0 0)
                                 )
@@ -285,7 +285,7 @@ computeTree (Node tree) =
                 |> List.sum
 
         approxNodeWidth =
-            String.length tree.value * 15
+            toFloat (String.length tree.value) * 15
     in
     ComputedNode
         { value = tree.value
@@ -298,18 +298,18 @@ computeTree (Node tree) =
         }
 
 
-drawTree : Int -> Int -> ComputedTree -> List (Svg msg)
+drawTree : Float -> Float -> ComputedTree -> List (Svg msg)
 drawTree xStart yStart (ComputedNode tree) =
     let
-        childYLevel : Int
+        childYLevel : Float
         childYLevel =
             yStart + spacingY
 
-        nodeXLevel : Int
+        nodeXLevel : Float
         nodeXLevel =
-            xStart + (tree.computedDimentions.treeWidth // 2)
+            xStart + (tree.computedDimentions.treeWidth / 2)
 
-        drawChildren : Int -> List ComputedTree -> List (Svg msg)
+        drawChildren : Float -> List ComputedTree -> List (Svg msg)
         drawChildren childX children =
             case children of
                 [] ->
@@ -319,7 +319,7 @@ drawTree xStart yStart (ComputedNode tree) =
                     [ drawLine
                         nodeXLevel
                         (yStart + nodeHeight)
-                        (childX + (child.computedDimentions.treeWidth // 2))
+                        (childX + (child.computedDimentions.treeWidth / 2))
                         childYLevel
                     ]
                         ++ drawTree childX childYLevel (ComputedNode child)
@@ -334,30 +334,30 @@ drawTree xStart yStart (ComputedNode tree) =
         :: drawChildren xStart tree.children
 
 
-drawNode : Int -> Int -> ComputedTree -> Svg msg
+drawNode : Float -> Float -> ComputedTree -> Svg msg
 drawNode x y (ComputedNode node) =
     Svg.g
         [ SvgA.transform <|
             "translate("
-                ++ String.fromInt x
+                ++ String.fromFloat x
                 ++ ", "
-                ++ String.fromInt y
+                ++ String.fromFloat y
                 ++ ")"
         ]
         [ Svg.rect
             [ SvgA.width <|
-                String.fromInt
+                String.fromFloat
                     node.computedDimentions.approxNodeWidth
-            , SvgA.height <| String.fromInt nodeHeight
+            , SvgA.height <| String.fromFloat nodeHeight
             , SvgA.x <|
                 String.fromFloat <|
-                    -(toFloat node.computedDimentions.approxNodeWidth / 2)
+                    -(node.computedDimentions.approxNodeWidth / 2)
             , SvgA.fill "lightgrey"
             ]
             []
         , Svg.text_
             [ SvgA.x "0"
-            , SvgA.y <| String.fromFloat <| toFloat nodeHeight / 2
+            , SvgA.y <| String.fromFloat <| nodeHeight / 2
             , SvgA.dominantBaseline "middle"
             , SvgA.textAnchor "middle"
             ]
@@ -365,13 +365,13 @@ drawNode x y (ComputedNode node) =
         ]
 
 
-drawLine : Int -> Int -> Int -> Int -> Svg msg
+drawLine : Float -> Float -> Float -> Float -> Svg msg
 drawLine x1 y1 x2 y2 =
     Svg.line
-        [ SvgA.x1 <| String.fromInt x1
-        , SvgA.y1 <| String.fromInt y1
-        , SvgA.x2 <| String.fromInt x2
-        , SvgA.y2 <| String.fromInt y2
+        [ SvgA.x1 <| String.fromFloat x1
+        , SvgA.y1 <| String.fromFloat y1
+        , SvgA.x2 <| String.fromFloat x2
+        , SvgA.y2 <| String.fromFloat y2
         , SvgA.strokeWidth "3"
         , SvgA.stroke "black"
         ]
@@ -396,8 +396,8 @@ type ComputedTree
 
 
 type alias ComputedDimentions =
-    { approxNodeWidth : Int
-    , treeWidth : Int
+    { approxNodeWidth : Float
+    , treeWidth : Float
     }
 
 
