@@ -158,8 +158,8 @@ updateWindowSize : Int -> Int -> Model -> Model
 updateWindowSize w h model =
     case model of
         UnInitialized someFields ->
-            convertIfInitialized <|
-                UnInitialized { someFields | mDimentions = Just ( w, h ) }
+            convertIfInitialized
+                { someFields | mDimentions = Just ( w, h ) }
 
         Initialized fields ->
             Initialized
@@ -172,26 +172,21 @@ updateWindowSize w h model =
                 }
 
 
-convertIfInitialized : Model -> Model
-convertIfInitialized model =
-    case model of
-        UnInitialized someFields ->
-            case ( someFields.mDimentions, someFields.mTree ) of
-                ( Just ( w, h ), Just tree ) ->
-                    Initialized
-                        { width = w
-                        , height = h
-                        , device =
-                            Element.classifyDevice
-                                { width = w, height = h }
-                        , tree = tree
-                        }
-
-                _ ->
-                    model
+convertIfInitialized : SomeFields -> Model
+convertIfInitialized someFields =
+    case ( someFields.mDimentions, someFields.mTree ) of
+        ( Just ( w, h ), Just tree ) ->
+            Initialized
+                { width = w
+                , height = h
+                , device =
+                    Element.classifyDevice
+                        { width = w, height = h }
+                , tree = tree
+                }
 
         _ ->
-            model
+            UnInitialized someFields
 
 
 updateViewport : Dom.Viewport -> Model -> Model
@@ -205,9 +200,8 @@ updateViewport viewport model =
     in
     case model of
         UnInitialized someFields ->
-            convertIfInitialized <|
-                UnInitialized
-                    { someFields | mDimentions = Just ( w, h ) }
+            convertIfInitialized
+                { someFields | mDimentions = Just ( w, h ) }
 
         Initialized fields ->
             model
@@ -217,9 +211,7 @@ updateTree : Tree -> Model -> Model
 updateTree tree model =
     case model of
         UnInitialized someFields ->
-            convertIfInitialized <|
-                UnInitialized
-                    { someFields | mTree = Just tree }
+            convertIfInitialized { someFields | mTree = Just tree }
 
         Initialized fields ->
             model

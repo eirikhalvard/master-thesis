@@ -6556,28 +6556,23 @@ var $mdgriffith$elm_ui$Element$classifyDevice = function (window) {
 		orientation: (_Utils_cmp(window.width, window.height) < 0) ? $mdgriffith$elm_ui$Element$Portrait : $mdgriffith$elm_ui$Element$Landscape
 	};
 };
-var $author$project$Main$convertIfInitialized = function (model) {
-	if (model.$ === 'UnInitialized') {
-		var someFields = model.a;
-		var _v1 = _Utils_Tuple2(someFields.mDimentions, someFields.mTree);
-		if ((_v1.a.$ === 'Just') && (_v1.b.$ === 'Just')) {
-			var _v2 = _v1.a.a;
-			var w = _v2.a;
-			var h = _v2.b;
-			var tree = _v1.b.a;
-			return $author$project$Main$Initialized(
-				{
-					device: $mdgriffith$elm_ui$Element$classifyDevice(
-						{height: h, width: w}),
-					height: h,
-					tree: tree,
-					width: w
-				});
-		} else {
-			return model;
-		}
+var $author$project$Main$convertIfInitialized = function (someFields) {
+	var _v0 = _Utils_Tuple2(someFields.mDimentions, someFields.mTree);
+	if ((_v0.a.$ === 'Just') && (_v0.b.$ === 'Just')) {
+		var _v1 = _v0.a.a;
+		var w = _v1.a;
+		var h = _v1.b;
+		var tree = _v0.b.a;
+		return $author$project$Main$Initialized(
+			{
+				device: $mdgriffith$elm_ui$Element$classifyDevice(
+					{height: h, width: w}),
+				height: h,
+				tree: tree,
+				width: w
+			});
 	} else {
-		return model;
+		return $author$project$Main$UnInitialized(someFields);
 	}
 };
 var $author$project$Main$updateTree = F2(
@@ -6585,12 +6580,11 @@ var $author$project$Main$updateTree = F2(
 		if (model.$ === 'UnInitialized') {
 			var someFields = model.a;
 			return $author$project$Main$convertIfInitialized(
-				$author$project$Main$UnInitialized(
-					_Utils_update(
-						someFields,
-						{
-							mTree: $elm$core$Maybe$Just(tree)
-						})));
+				_Utils_update(
+					someFields,
+					{
+						mTree: $elm$core$Maybe$Just(tree)
+					}));
 		} else {
 			var fields = model.a;
 			return model;
@@ -6604,13 +6598,12 @@ var $author$project$Main$updateViewport = F2(
 		if (model.$ === 'UnInitialized') {
 			var someFields = model.a;
 			return $author$project$Main$convertIfInitialized(
-				$author$project$Main$UnInitialized(
-					_Utils_update(
-						someFields,
-						{
-							mDimentions: $elm$core$Maybe$Just(
-								_Utils_Tuple2(w, h))
-						})));
+				_Utils_update(
+					someFields,
+					{
+						mDimentions: $elm$core$Maybe$Just(
+							_Utils_Tuple2(w, h))
+					}));
 		} else {
 			var fields = model.a;
 			return model;
@@ -6621,13 +6614,12 @@ var $author$project$Main$updateWindowSize = F3(
 		if (model.$ === 'UnInitialized') {
 			var someFields = model.a;
 			return $author$project$Main$convertIfInitialized(
-				$author$project$Main$UnInitialized(
-					_Utils_update(
-						someFields,
-						{
-							mDimentions: $elm$core$Maybe$Just(
-								_Utils_Tuple2(w, h))
-						})));
+				_Utils_update(
+					someFields,
+					{
+						mDimentions: $elm$core$Maybe$Just(
+							_Utils_Tuple2(w, h))
+					}));
 		} else {
 			var fields = model.a;
 			return $author$project$Main$Initialized(
