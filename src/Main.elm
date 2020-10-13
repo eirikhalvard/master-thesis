@@ -20,11 +20,32 @@ import Svg.Events as SvgEvents
 import Task
 
 
+type alias Color =
+    { dark : String
+    , medium : String
+    , light : String
+    , lightPrimary : String
+    , darkPrimary : String
+    , warning : String
+    , alert : String
+    }
+
+
+colorScheme : Color
+colorScheme =
+    { dark = "#43464C"
+    , medium = "#9197A6"
+    , light = "#D3DCF2"
+    , lightPrimary = "#7690CF"
+    , darkPrimary = "#48577D"
+    , warning = "#FFCF59"
+    , alert = "#F56F67"
+    }
+
+
 calcWidth : ComputedTree -> Float
 calcWidth (ComputedNode tree) =
     tree.computedDimentions.treeWidth
-        -- a bit extra padding
-        + 100
 
 
 calcHeight : ComputedTree -> Float
@@ -34,12 +55,12 @@ calcHeight tree =
             toFloat <| depth tree
 
         nodeTotalHeight =
-            (treeDepth - 1) * nodeHeight
+            treeDepth * nodeHeight
 
         spacingTotalHeight =
             (treeDepth - 1) * spacingY
     in
-    treeDepth + nodeTotalHeight + spacingTotalHeight + 100
+    nodeTotalHeight + spacingTotalHeight
 
 
 depth : ComputedTree -> Int
@@ -265,6 +286,7 @@ view model =
                     [ Element.el [ Element.width Element.fill ] <|
                         Element.text "Welcome to the tree visualizer!"
                     , Element.text (Debug.toString model)
+                    , Element.text (Debug.toString height)
                     , Element.el
                         [ Element.clip
                         , Element.scrollbars
@@ -324,7 +346,7 @@ drawTree xStart yStart (ComputedNode tree) =
     let
         childYLevel : Float
         childYLevel =
-            yStart + spacingY
+            yStart + nodeHeight + spacingY
 
         nodeXLevel : Float
         nodeXLevel =
@@ -377,7 +399,9 @@ drawNode x y (ComputedNode node) =
             , SvgA.x <|
                 String.fromFloat <|
                     -(node.computedDimentions.approxNodeWidth / 2)
-            , SvgA.fill "lightgrey"
+            , SvgA.fill colorScheme.darkPrimary
+            , SvgA.strokeWidth "2"
+            , SvgA.stroke colorScheme.dark
             ]
             []
         , Svg.text_
@@ -385,6 +409,7 @@ drawNode x y (ComputedNode node) =
             , SvgA.y <| String.fromFloat <| nodeHeight / 2
             , SvgA.dominantBaseline "middle"
             , SvgA.textAnchor "middle"
+            , SvgA.fill colorScheme.light
             ]
             [ Svg.text node.value ]
         ]
@@ -398,7 +423,7 @@ drawLine x1 y1 x2 y2 =
         , SvgA.x2 <| String.fromFloat x2
         , SvgA.y2 <| String.fromFloat y2
         , SvgA.strokeWidth "3"
-        , SvgA.stroke "black"
+        , SvgA.stroke colorScheme.dark
         ]
         []
 

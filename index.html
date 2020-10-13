@@ -6722,12 +6722,12 @@ var $author$project$Main$spacingY = 80;
 var $author$project$Main$calcHeight = function (tree) {
 	var treeDepth = $author$project$Main$depth(tree);
 	var spacingTotalHeight = (treeDepth - 1) * $author$project$Main$spacingY;
-	var nodeTotalHeight = (treeDepth - 1) * $author$project$Main$nodeHeight;
-	return ((treeDepth + nodeTotalHeight) + spacingTotalHeight) + 100;
+	var nodeTotalHeight = treeDepth * $author$project$Main$nodeHeight;
+	return nodeTotalHeight + spacingTotalHeight;
 };
 var $author$project$Main$calcWidth = function (_v0) {
 	var tree = _v0.a;
-	return tree.computedDimentions.treeWidth + 100;
+	return tree.computedDimentions.treeWidth;
 };
 var $mdgriffith$elm_ui$Internal$Model$Class = F2(
 	function (a, b) {
@@ -12258,6 +12258,7 @@ var $author$project$Main$computeTree = function (_v0) {
 			value: tree.value
 		});
 };
+var $author$project$Main$colorScheme = {alert: '#F56F67', dark: '#43464C', darkPrimary: '#48577D', light: '#D3DCF2', lightPrimary: '#7690CF', medium: '#9197A6', warning: '#FFCF59'};
 var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
 var $elm$svg$Svg$line = $elm$svg$Svg$trustedNode('line');
 var $elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
@@ -12281,7 +12282,7 @@ var $author$project$Main$drawLine = F4(
 					$elm$svg$Svg$Attributes$y2(
 					$elm$core$String$fromFloat(y2)),
 					$elm$svg$Svg$Attributes$strokeWidth('3'),
-					$elm$svg$Svg$Attributes$stroke('black')
+					$elm$svg$Svg$Attributes$stroke($author$project$Main$colorScheme.dark)
 				]),
 			_List_Nil);
 	});
@@ -12352,7 +12353,9 @@ var $author$project$Main$drawNode = F3(
 							$elm$core$String$fromFloat($author$project$Main$nodeHeight)),
 							$elm$svg$Svg$Attributes$x(
 							$elm$core$String$fromFloat(-(node.computedDimentions.approxNodeWidth / 2))),
-							$elm$svg$Svg$Attributes$fill('lightgrey')
+							$elm$svg$Svg$Attributes$fill($author$project$Main$colorScheme.darkPrimary),
+							$elm$svg$Svg$Attributes$strokeWidth('2'),
+							$elm$svg$Svg$Attributes$stroke($author$project$Main$colorScheme.dark)
 						]),
 					_List_Nil),
 					A2(
@@ -12363,7 +12366,8 @@ var $author$project$Main$drawNode = F3(
 							$elm$svg$Svg$Attributes$y(
 							$elm$core$String$fromFloat($author$project$Main$nodeHeight / 2)),
 							$elm$svg$Svg$Attributes$dominantBaseline('middle'),
-							$elm$svg$Svg$Attributes$textAnchor('middle')
+							$elm$svg$Svg$Attributes$textAnchor('middle'),
+							$elm$svg$Svg$Attributes$fill($author$project$Main$colorScheme.light)
 						]),
 					_List_fromArray(
 						[
@@ -12375,7 +12379,7 @@ var $author$project$Main$drawTree = F3(
 	function (xStart, yStart, _v0) {
 		var tree = _v0.a;
 		var nodeXLevel = xStart + (tree.computedDimentions.treeWidth / 2);
-		var childYLevel = yStart + $author$project$Main$spacingY;
+		var childYLevel = (yStart + $author$project$Main$nodeHeight) + $author$project$Main$spacingY;
 		var drawChildren = F2(
 			function (childX, children) {
 				if (!children.b) {
@@ -12762,6 +12766,8 @@ var $author$project$Main$view = function (model) {
 						$mdgriffith$elm_ui$Element$text('Welcome to the tree visualizer!')),
 						$mdgriffith$elm_ui$Element$text(
 						$elm$core$Debug$toString(model)),
+						$mdgriffith$elm_ui$Element$text(
+						$elm$core$Debug$toString(height)),
 						A2(
 						$mdgriffith$elm_ui$Element$el,
 						_List_fromArray(
