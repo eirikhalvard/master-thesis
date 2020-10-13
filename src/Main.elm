@@ -4,7 +4,7 @@ import Browser
 import Browser.Dom as Dom
 import Browser.Events as E
 import Debug
-import Element exposing (Element, alignRight, centerY, el, fill, padding, rgb255, row, spacing, text, width)
+import Element exposing (Element)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
@@ -248,7 +248,7 @@ view model =
                     calcHeight computedTree
             in
             Element.layout [] <|
-                Element.column [ Element.height fill ]
+                Element.column [ Element.height Element.fill ]
                     [ Element.el [ Element.width Element.fill ] <|
                         Element.text "Welcome to the tree visualizer!"
                     , Element.text (Debug.toString model)
@@ -386,26 +386,3 @@ decodeTree =
         (Decode.field "children"
             (Decode.list (Decode.lazy <| \_ -> decodeTree))
         )
-
-
-encodeTree : Tree -> Encode.Value
-encodeTree (Node tree) =
-    let
-        valuePair =
-            [ ( "value", Encode.int tree.value ) ]
-
-        metaDataPair =
-            case tree.metaData of
-                Nothing ->
-                    []
-
-                Just metaData ->
-                    [ ( "metaData", Encode.string metaData ) ]
-
-        childrenPair =
-            [ ( "children", Encode.list encodeTree tree.children ) ]
-
-        objectList =
-            valuePair ++ metaDataPair ++ childrenPair
-    in
-    Encode.object objectList
