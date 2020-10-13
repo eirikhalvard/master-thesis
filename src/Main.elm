@@ -16,6 +16,7 @@ import List
 import List.Extra as List
 import Svg exposing (Svg)
 import Svg.Attributes as SvgA
+import Svg.Events as SvgEvents
 import Task
 
 
@@ -75,6 +76,8 @@ type Msg
     | NewWindowSize Int Int
     | GotViewport Dom.Viewport
     | GotTree (Result Http.Error Tree)
+    | NodeHoverEntry String
+    | NodeHoverExit
 
 
 type alias Flags =
@@ -97,6 +100,7 @@ type alias Fields =
     , width : Int
     , height : Int
     , tree : Tree
+    , hoverData : Maybe String
     }
 
 
@@ -143,7 +147,7 @@ update msg model =
             ( updateWindowSize w h model, Cmd.none )
 
         GotViewport viewport ->
-            ( updateViewport (Debug.log "viewPort: " viewport) model, Cmd.none )
+            ( updateViewport viewport model, Cmd.none )
 
         GotTree treeErr ->
             case treeErr of
@@ -152,6 +156,22 @@ update msg model =
 
                 Ok t ->
                     ( updateTree t model, Cmd.none )
+
+        NodeHoverEntry hoverData ->
+            ( updateIfInitialized (\f -> { f | hoverData = Just hoverData }) model, Cmd.none )
+
+        NodeHoverExit ->
+            ( updateIfInitialized (\f -> { f | hoverData = Nothing }) model, Cmd.none )
+
+
+updateIfInitialized : (Fields -> Fields) -> Model -> Model
+updateIfInitialized fieldTransformer model =
+    case model of
+        Initialized fields ->
+            Initialized (fieldTransformer fields)
+
+        _ ->
+            model
 
 
 updateWindowSize : Int -> Int -> Model -> Model
@@ -183,6 +203,7 @@ convertIfInitialized someFields =
                     Element.classifyDevice
                         { width = w, height = h }
                 , tree = tree
+                , hoverData = Nothing
                 }
 
         _ ->
@@ -298,7 +319,7 @@ computeTree (Node tree) =
         }
 
 
-drawTree : Float -> Float -> ComputedTree -> List (Svg msg)
+drawTree : Float -> Float -> ComputedTree -> List (Svg Msg)
 drawTree xStart yStart (ComputedNode tree) =
     let
         childYLevel : Float
@@ -309,7 +330,7 @@ drawTree xStart yStart (ComputedNode tree) =
         nodeXLevel =
             xStart + (tree.computedDimentions.treeWidth / 2)
 
-        drawChildren : Float -> List ComputedTree -> List (Svg msg)
+        drawChildren : Float -> List ComputedTree -> List (Svg Msg)
         drawChildren childX children =
             case children of
                 [] ->
@@ -334,7 +355,7 @@ drawTree xStart yStart (ComputedNode tree) =
         :: drawChildren xStart tree.children
 
 
-drawNode : Float -> Float -> ComputedTree -> Svg msg
+drawNode : Float -> Float -> ComputedTree -> Svg Msg
 drawNode x y (ComputedNode node) =
     Svg.g
         [ SvgA.transform <|
@@ -343,6 +364,10 @@ drawNode x y (ComputedNode node) =
                 ++ ", "
                 ++ String.fromFloat y
                 ++ ")"
+        , SvgEvents.onMouseOver
+            (NodeHoverEntry <| Maybe.withDefault "-" node.metaData)
+        , SvgEvents.onMouseOut NodeHoverExit
+        , SvgA.cursor "pointer"
         ]
         [ Svg.rect
             [ SvgA.width <|

@@ -6531,11 +6531,20 @@ var $author$project$Main$subscriptions = function (model) {
 				return A2($author$project$Main$NewWindowSize, w, h);
 			}));
 };
-var $elm$core$Debug$log = _Debug_log;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$Initialized = function (a) {
 	return {$: 'Initialized', a: a};
 };
+var $author$project$Main$updateIfInitialized = F2(
+	function (fieldTransformer, model) {
+		if (model.$ === 'Initialized') {
+			var fields = model.a;
+			return $author$project$Main$Initialized(
+				fieldTransformer(fields));
+		} else {
+			return model;
+		}
+	});
 var $mdgriffith$elm_ui$Element$BigDesktop = {$: 'BigDesktop'};
 var $mdgriffith$elm_ui$Element$Desktop = {$: 'Desktop'};
 var $mdgriffith$elm_ui$Element$Landscape = {$: 'Landscape'};
@@ -6568,6 +6577,7 @@ var $author$project$Main$convertIfInitialized = function (someFields) {
 				device: $mdgriffith$elm_ui$Element$classifyDevice(
 					{height: h, width: w}),
 				height: h,
+				hoverData: $elm$core$Maybe$Nothing,
 				tree: tree,
 				width: w
 			});
@@ -6647,12 +6657,9 @@ var $author$project$Main$update = F2(
 			case 'GotViewport':
 				var viewport = msg.a;
 				return _Utils_Tuple2(
-					A2(
-						$author$project$Main$updateViewport,
-						A2($elm$core$Debug$log, 'viewPort: ', viewport),
-						model),
+					A2($author$project$Main$updateViewport, viewport, model),
 					$elm$core$Platform$Cmd$none);
-			default:
+			case 'GotTree':
 				var treeErr = msg.a;
 				if (treeErr.$ === 'Err') {
 					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
@@ -6662,6 +6669,31 @@ var $author$project$Main$update = F2(
 						A2($author$project$Main$updateTree, t, model),
 						$elm$core$Platform$Cmd$none);
 				}
+			case 'NodeHoverEntry':
+				var hoverData = msg.a;
+				return _Utils_Tuple2(
+					A2(
+						$author$project$Main$updateIfInitialized,
+						function (f) {
+							return _Utils_update(
+								f,
+								{
+									hoverData: $elm$core$Maybe$Just(hoverData)
+								});
+						},
+						model),
+					$elm$core$Platform$Cmd$none);
+			default:
+				return _Utils_Tuple2(
+					A2(
+						$author$project$Main$updateIfInitialized,
+						function (f) {
+							return _Utils_update(
+								f,
+								{hoverData: $elm$core$Maybe$Nothing});
+						},
+						model),
+					$elm$core$Platform$Cmd$none);
 		}
 	});
 var $elm$core$List$maximum = function (list) {
@@ -12253,10 +12285,38 @@ var $author$project$Main$drawLine = F4(
 				]),
 			_List_Nil);
 	});
+var $author$project$Main$NodeHoverEntry = function (a) {
+	return {$: 'NodeHoverEntry', a: a};
+};
+var $author$project$Main$NodeHoverExit = {$: 'NodeHoverExit'};
+var $elm$svg$Svg$Attributes$cursor = _VirtualDom_attribute('cursor');
 var $elm$svg$Svg$Attributes$dominantBaseline = _VirtualDom_attribute('dominant-baseline');
 var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
 var $elm$svg$Svg$g = $elm$svg$Svg$trustedNode('g');
 var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
+var $elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var $elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var $elm$svg$Svg$Events$onMouseOut = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'mouseout',
+		$elm$json$Json$Decode$succeed(msg));
+};
+var $elm$svg$Svg$Events$onMouseOver = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'mouseover',
+		$elm$json$Json$Decode$succeed(msg));
+};
 var $elm$svg$Svg$rect = $elm$svg$Svg$trustedNode('rect');
 var $elm$svg$Svg$text = $elm$virtual_dom$VirtualDom$text;
 var $elm$svg$Svg$Attributes$textAnchor = _VirtualDom_attribute('text-anchor');
@@ -12273,7 +12333,12 @@ var $author$project$Main$drawNode = F3(
 			_List_fromArray(
 				[
 					$elm$svg$Svg$Attributes$transform(
-					'translate(' + ($elm$core$String$fromFloat(x) + (', ' + ($elm$core$String$fromFloat(y) + ')'))))
+					'translate(' + ($elm$core$String$fromFloat(x) + (', ' + ($elm$core$String$fromFloat(y) + ')')))),
+					$elm$svg$Svg$Events$onMouseOver(
+					$author$project$Main$NodeHoverEntry(
+						A2($elm$core$Maybe$withDefault, '-', node.metaData))),
+					$elm$svg$Svg$Events$onMouseOut($author$project$Main$NodeHoverExit),
+					$elm$svg$Svg$Attributes$cursor('pointer')
 				]),
 			_List_fromArray(
 				[
