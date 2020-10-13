@@ -5410,7 +5410,11 @@ function $author$project$Main$cyclic$decodeTree() {
 		F3(
 			function (value, metaData, children) {
 				return $author$project$Main$Node(
-					{children: children, metaData: metaData, value: value});
+					{
+						children: children,
+						metaData: metaData,
+						value: $elm$core$String$fromInt(value)
+					});
 			}),
 		A2($elm$json$Json$Decode$field, 'value', $elm$json$Json$Decode$int),
 		$elm$json$Json$Decode$maybe(
@@ -6689,13 +6693,17 @@ var $author$project$Main$depth = function (_v0) {
 		return n + 1;
 	}
 };
-var $author$project$Main$spacingY = 100;
+var $author$project$Main$nodeHeight = 30;
+var $author$project$Main$spacingY = 80;
 var $author$project$Main$calcHeight = function (tree) {
-	return $author$project$Main$depth(tree) * $author$project$Main$spacingY;
+	var treeDepth = $author$project$Main$depth(tree);
+	var spacingTotalHeight = (treeDepth - 1) * $author$project$Main$spacingY;
+	var nodeTotalHeight = (treeDepth - 1) * $author$project$Main$nodeHeight;
+	return ((treeDepth + nodeTotalHeight) + spacingTotalHeight) + 100;
 };
 var $author$project$Main$calcWidth = function (_v0) {
 	var tree = _v0.a;
-	return tree.xWidth + 100;
+	return tree.computedDimentions.treeWidth + 100;
 };
 var $mdgriffith$elm_ui$Internal$Model$Class = F2(
 	function (a, b) {
@@ -12196,8 +12204,7 @@ var $elm$core$List$intersperse = F2(
 			return A2($elm$core$List$cons, hd, spersed);
 		}
 	});
-var $author$project$Main$nodeWidth = 20;
-var $author$project$Main$spacingX = 50;
+var $author$project$Main$spacingX = 30;
 var $elm$core$List$sum = function (numbers) {
 	return A3($elm$core$List$foldl, $elm$core$Basics$add, 0, numbers);
 };
@@ -12212,15 +12219,19 @@ var $author$project$Main$computeTree = function (_v0) {
 				$elm$core$List$map,
 				function (_v1) {
 					var t = _v1.a;
-					return t.xWidth;
+					return t.computedDimentions.treeWidth;
 				},
 				computedChildren)));
+	var approxNodeWidth = $elm$core$String$length(tree.value) * 15;
 	return $author$project$Main$ComputedNode(
 		{
 			children: computedChildren,
+			computedDimentions: {
+				approxNodeWidth: approxNodeWidth,
+				treeWidth: A2($elm$core$Basics$max, approxNodeWidth, childrenTotalWidth)
+			},
 			metaData: tree.metaData,
-			value: tree.value,
-			xWidth: A2($elm$core$Basics$max, $author$project$Main$nodeWidth, childrenTotalWidth)
+			value: tree.value
 		});
 };
 var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
@@ -12250,29 +12261,63 @@ var $author$project$Main$drawLine = F4(
 				]),
 			_List_Nil);
 	});
-var $elm$svg$Svg$circle = $elm$svg$Svg$trustedNode('circle');
-var $elm$svg$Svg$Attributes$cx = _VirtualDom_attribute('cx');
-var $elm$svg$Svg$Attributes$cy = _VirtualDom_attribute('cy');
-var $elm$svg$Svg$Attributes$r = _VirtualDom_attribute('r');
-var $author$project$Main$drawNode = F2(
-	function (x, y) {
+var $elm$svg$Svg$Attributes$dominantBaseline = _VirtualDom_attribute('dominant-baseline');
+var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
+var $elm$svg$Svg$g = $elm$svg$Svg$trustedNode('g');
+var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
+var $elm$svg$Svg$rect = $elm$svg$Svg$trustedNode('rect');
+var $elm$svg$Svg$text = $elm$virtual_dom$VirtualDom$text;
+var $elm$svg$Svg$Attributes$textAnchor = _VirtualDom_attribute('text-anchor');
+var $elm$svg$Svg$text_ = $elm$svg$Svg$trustedNode('text');
+var $elm$svg$Svg$Attributes$transform = _VirtualDom_attribute('transform');
+var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
+var $elm$svg$Svg$Attributes$x = _VirtualDom_attribute('x');
+var $elm$svg$Svg$Attributes$y = _VirtualDom_attribute('y');
+var $author$project$Main$drawNode = F3(
+	function (x, y, _v0) {
+		var node = _v0.a;
 		return A2(
-			$elm$svg$Svg$circle,
+			$elm$svg$Svg$g,
 			_List_fromArray(
 				[
-					$elm$svg$Svg$Attributes$cx(
-					$elm$core$String$fromInt(x)),
-					$elm$svg$Svg$Attributes$cy(
-					$elm$core$String$fromInt(y)),
-					$elm$svg$Svg$Attributes$r(
-					$elm$core$String$fromInt($author$project$Main$nodeWidth))
+					$elm$svg$Svg$Attributes$transform(
+					'translate(' + ($elm$core$String$fromInt(x) + (', ' + ($elm$core$String$fromInt(y) + ')'))))
 				]),
-			_List_Nil);
+			_List_fromArray(
+				[
+					A2(
+					$elm$svg$Svg$rect,
+					_List_fromArray(
+						[
+							$elm$svg$Svg$Attributes$width(
+							$elm$core$String$fromInt(node.computedDimentions.approxNodeWidth)),
+							$elm$svg$Svg$Attributes$height(
+							$elm$core$String$fromInt($author$project$Main$nodeHeight)),
+							$elm$svg$Svg$Attributes$x(
+							$elm$core$String$fromFloat(-(node.computedDimentions.approxNodeWidth / 2))),
+							$elm$svg$Svg$Attributes$fill('lightgrey')
+						]),
+					_List_Nil),
+					A2(
+					$elm$svg$Svg$text_,
+					_List_fromArray(
+						[
+							$elm$svg$Svg$Attributes$x('0'),
+							$elm$svg$Svg$Attributes$y(
+							$elm$core$String$fromFloat($author$project$Main$nodeHeight / 2)),
+							$elm$svg$Svg$Attributes$dominantBaseline('middle'),
+							$elm$svg$Svg$Attributes$textAnchor('middle')
+						]),
+					_List_fromArray(
+						[
+							$elm$svg$Svg$text(node.value)
+						]))
+				]));
 	});
 var $author$project$Main$drawTree = F3(
 	function (xStart, yStart, _v0) {
 		var tree = _v0.a;
-		var nodeXLevel = xStart + ((tree.xWidth / 2) | 0);
+		var nodeXLevel = xStart + ((tree.computedDimentions.treeWidth / 2) | 0);
 		var childYLevel = yStart + $author$project$Main$spacingY;
 		var drawChildren = F2(
 			function (childX, children) {
@@ -12284,7 +12329,7 @@ var $author$project$Main$drawTree = F3(
 					return _Utils_ap(
 						_List_fromArray(
 							[
-								A4($author$project$Main$drawLine, childX + ((child.xWidth / 2) | 0), childYLevel, nodeXLevel, yStart)
+								A4($author$project$Main$drawLine, nodeXLevel, yStart + $author$project$Main$nodeHeight, childX + ((child.computedDimentions.treeWidth / 2) | 0), childYLevel)
 							]),
 						_Utils_ap(
 							A3(
@@ -12292,12 +12337,16 @@ var $author$project$Main$drawTree = F3(
 								childX,
 								childYLevel,
 								$author$project$Main$ComputedNode(child)),
-							A2(drawChildren, (childX + child.xWidth) + $author$project$Main$spacingX, rest)));
+							A2(drawChildren, (childX + child.computedDimentions.treeWidth) + $author$project$Main$spacingX, rest)));
 				}
 			});
 		return A2(
 			$elm$core$List$cons,
-			A2($author$project$Main$drawNode, nodeXLevel, yStart),
+			A3(
+				$author$project$Main$drawNode,
+				nodeXLevel,
+				yStart,
+				$author$project$Main$ComputedNode(tree)),
 			A2(drawChildren, xStart, tree.children));
 	});
 var $mdgriffith$elm_ui$Element$el = F2(
@@ -12321,7 +12370,6 @@ var $mdgriffith$elm_ui$Internal$Model$Fill = function (a) {
 	return {$: 'Fill', a: a};
 };
 var $mdgriffith$elm_ui$Element$fill = $mdgriffith$elm_ui$Internal$Model$Fill(1);
-var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
 var $elm$core$Basics$always = F2(
 	function (a, _v0) {
 		return a;
@@ -12610,7 +12658,6 @@ var $mdgriffith$elm_ui$Element$layoutWith = F3(
 	});
 var $mdgriffith$elm_ui$Element$layout = $mdgriffith$elm_ui$Element$layoutWith(
 	{options: _List_Nil});
-var $author$project$Main$nodeHeight = 20;
 var $mdgriffith$elm_ui$Internal$Model$Px = function (a) {
 	return {$: 'Px', a: a};
 };
@@ -12625,7 +12672,6 @@ var $mdgriffith$elm_ui$Element$text = function (content) {
 };
 var $elm$core$Debug$toString = _Debug_toString;
 var $elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
-var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
 var $author$project$Main$view = function (model) {
 	if (model.$ === 'UnInitialized') {
 		var someFields = model.a;
@@ -12689,7 +12735,7 @@ var $author$project$Main$view = function (model) {
 											$elm$svg$Svg$Attributes$viewBox(
 											'0 0 ' + ($elm$core$String$fromInt(width) + (' ' + $elm$core$String$fromInt(height))))
 										]),
-									A3($author$project$Main$drawTree, $author$project$Main$nodeWidth, $author$project$Main$nodeHeight, computedTree))))),
+									A3($author$project$Main$drawTree, 0, 0, computedTree))))),
 						A2(
 						$mdgriffith$elm_ui$Element$el,
 						_List_Nil,
@@ -12700,7 +12746,8 @@ var $author$project$Main$view = function (model) {
 var $author$project$Main$main = $elm$browser$Browser$element(
 	{init: $author$project$Main$init, subscriptions: $author$project$Main$subscriptions, update: $author$project$Main$update, view: $author$project$Main$view});
 _Platform_export({'Main':{'init':$author$project$Main$main(
-	$elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}});}(this));
+	$elm$json$Json$Decode$succeed(
+		{}))(0)}});}(this));
 
   var app = Elm.Main.init({ node: document.getElementById("elm") });
 }

@@ -21,14 +21,24 @@ import Task
 
 calcWidth : ComputedTree -> Int
 calcWidth (ComputedNode tree) =
-    tree.xWidth
+    tree.computedDimentions.treeWidth
         -- a bit extra padding
         + 100
 
 
 calcHeight : ComputedTree -> Int
 calcHeight tree =
-    depth tree * spacingY
+    let
+        treeDepth =
+            depth tree
+
+        nodeTotalHeight =
+            (treeDepth - 1) * nodeHeight
+
+        spacingTotalHeight =
+            (treeDepth - 1) * spacingY
+    in
+    treeDepth + nodeTotalHeight + spacingTotalHeight + 100
 
 
 depth : ComputedTree -> Int
@@ -45,24 +55,19 @@ depth (ComputedNode node) =
 -- extra paddyo
 
 
-nodeWidth : Int
-nodeWidth =
-    20
-
-
 nodeHeight : Int
 nodeHeight =
-    20
+    30
 
 
 spacingX : Int
 spacingX =
-    50
+    30
 
 
 spacingY : Int
 spacingY =
-    100
+    80
 
 
 type Msg
@@ -73,7 +78,7 @@ type Msg
 
 
 type alias Flags =
-    ()
+    {}
 
 
 type Model
@@ -269,7 +274,7 @@ view model =
                                             ++ " "
                                             ++ String.fromInt height
                                     ]
-                                    (computedTree |> drawTree nodeWidth nodeHeight)
+                                    (computedTree |> drawTree 0 0)
                                 )
                     , Element.el [] <| Element.text "Welcome to the bottom of the tree visualizer!"
                     ]
@@ -283,15 +288,21 @@ computeTree (Node tree) =
 
         childrenTotalWidth =
             computedChildren
-                |> List.map (\(ComputedNode t) -> t.xWidth)
+                |> List.map (\(ComputedNode t) -> t.computedDimentions.treeWidth)
                 |> List.intersperse spacingX
                 |> List.sum
+
+        approxNodeWidth =
+            String.length tree.value * 15
     in
     ComputedNode
         { value = tree.value
         , metaData = tree.metaData
         , children = computedChildren
-        , xWidth = Basics.max nodeWidth childrenTotalWidth
+        , computedDimentions =
+            { approxNodeWidth = approxNodeWidth
+            , treeWidth = Basics.max approxNodeWidth childrenTotalWidth
+            }
         }
 
 
@@ -304,7 +315,7 @@ drawTree xStart yStart (ComputedNode tree) =
 
         nodeXLevel : Int
         nodeXLevel =
-            xStart + (tree.xWidth // 2)
+            xStart + (tree.computedDimentions.treeWidth // 2)
 
         drawChildren : Int -> List ComputedTree -> List (Svg msg)
         drawChildren childX children =
@@ -313,26 +324,53 @@ drawTree xStart yStart (ComputedNode tree) =
                     []
 
                 (ComputedNode child) :: rest ->
-                    [ drawLine (childX + (child.xWidth // 2))
-                        childYLevel
+                    [ drawLine
                         nodeXLevel
-                        yStart
+                        (yStart + nodeHeight)
+                        (childX + (child.computedDimentions.treeWidth // 2))
+                        childYLevel
                     ]
                         ++ drawTree childX childYLevel (ComputedNode child)
-                        ++ drawChildren (childX + child.xWidth + spacingX) rest
+                        ++ drawChildren
+                            (childX
+                                + child.computedDimentions.treeWidth
+                                + spacingX
+                            )
+                            rest
     in
-    drawNode nodeXLevel yStart
+    drawNode nodeXLevel yStart (ComputedNode tree)
         :: drawChildren xStart tree.children
 
 
-drawNode : Int -> Int -> Svg msg
-drawNode x y =
-    Svg.circle
-        [ SvgA.cx <| String.fromInt x
-        , SvgA.cy <| String.fromInt y
-        , SvgA.r <| String.fromInt nodeWidth
+drawNode : Int -> Int -> ComputedTree -> Svg msg
+drawNode x y (ComputedNode node) =
+    Svg.g
+        [ SvgA.transform <|
+            "translate("
+                ++ String.fromInt x
+                ++ ", "
+                ++ String.fromInt y
+                ++ ")"
         ]
-        []
+        [ Svg.rect
+            [ SvgA.width <|
+                String.fromInt
+                    node.computedDimentions.approxNodeWidth
+            , SvgA.height <| String.fromInt nodeHeight
+            , SvgA.x <|
+                String.fromFloat <|
+                    -(toFloat node.computedDimentions.approxNodeWidth / 2)
+            , SvgA.fill "lightgrey"
+            ]
+            []
+        , Svg.text_
+            [ SvgA.x "0"
+            , SvgA.y <| String.fromFloat <| toFloat nodeHeight / 2
+            , SvgA.dominantBaseline "middle"
+            , SvgA.textAnchor "middle"
+            ]
+            [ Svg.text node.value ]
+        ]
 
 
 drawLine : Int -> Int -> Int -> Int -> Svg msg
@@ -350,7 +388,7 @@ drawLine x1 y1 x2 y2 =
 
 type Tree
     = Node
-        { value : Int
+        { value : String
         , metaData : Maybe String
         , children : List Tree
         }
@@ -358,11 +396,17 @@ type Tree
 
 type ComputedTree
     = ComputedNode
-        { value : Int
+        { value : String
         , metaData : Maybe String
         , children : List ComputedTree
-        , xWidth : Int
+        , computedDimentions : ComputedDimentions
         }
+
+
+type alias ComputedDimentions =
+    { approxNodeWidth : Int
+    , treeWidth : Int
+    }
 
 
 decodeTree : Decode.Decoder Tree
@@ -370,7 +414,7 @@ decodeTree =
     Decode.map3
         (\value metaData children ->
             Node
-                { value = value
+                { value = String.fromInt value
                 , metaData = metaData
                 , children = children
                 }
