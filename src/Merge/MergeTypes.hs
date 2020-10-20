@@ -6,6 +6,38 @@ import qualified Data.Map as M
 import qualified Data.Set as S
 
 
+--- Evolution Plan Representations ---
+
+
+-- Three levels of evolution plans.
+--   - User level       - Represents the evolution plan in the way
+--                        the user created the evolution plan,
+--                        with lists of operations
+--   - Abstracted level - Represents the evolution plan as a simple
+--                        list of feature models. This representation
+--                        is suitable with the granularity of the merge
+--                        algorithm, and will be suitable as input to
+--                        the merger
+--   - Merge level      - Represents the feature model as an initial model
+--                        and a SET of changes for each time point. No regard
+--                        to how the changes should be implemented. Suitable
+--                        for deriving the diff between the base and derived versions.
+
+
+-- TODO: proper data structures for the abstracted and merge level evolution plans
+
+type UserLevelEvolutionPlan = EvolutionPlan
+
+
+type AbstractedLevelEvolutionPlan = [(Int, FeatureModel)]
+
+
+type MergeLevelEvolutionPlan = (FeatureModel, [(Int, Modifications)])
+
+
+--- Modifications between featuremodels ---
+
+
 -- Modifications vs Changes
 -- We have two levels of changes. To differentiate between the two, we will use
 -- the name Modification or Change in order to separate the two
@@ -22,8 +54,6 @@ import qualified Data.Set as S
 --   could remove this modification The derived version has then Changed
 --   a modification. So Change-names is reserved for these meta-level changes
 
-
---- Modifications between featuremodels ---
 
 data Modifications = Modifications
   { featureModifications :: M.Map FeatureId FeatureModification
@@ -65,6 +95,7 @@ data GroupTypeModification = GroupTypeModification GroupType
 
 
 --- Diff between base, v1, v2 ---
+
 
 -- The diff result from the all the changes in the entire time point for all
 -- versions of the model
