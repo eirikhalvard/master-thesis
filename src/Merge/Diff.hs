@@ -7,5 +7,5 @@ import           Types
 import qualified Data.Map              as M
 import qualified Data.Set              as S
 
-diffChanges :: Changes -> Changes -> DiffResult
-diffChanges change1 change2 = DiffResult M.empty M.empty
+diffModifications :: Modifications -> Modifications -> DiffResult
+diffModifications change1 change2 = DiffResult M.empty M.empty

@@ -6,45 +6,61 @@ import qualified Data.Map as M
 import qualified Data.Set as S
 
 
+-- Modifications vs Changes
+-- We have two levels of changes. To differentiate between the two, we will use
+-- the name Modification or Change in order to separate the two
+--
+-- Modifications:
+--   Modifications are the actual changes between two feature models. For
+--   example, If a feature was removed or added, we will call this "change" as
+--   a Modification
+--
+-- Changes:
+--   Changes are relevant to the diff-algorithm and its output, and refer to
+--   the meta-level changes on modifications.  If a base version included
+--   a Modification, i.e. an addition of a feature, one of the derived versions
+--   could remove this modification The derived version has then Changed
+--   a modification. So Change-names is reserved for these meta-level changes
 
---- Change between featuremodels ---
 
-data Changes = Changes
-  { featureChanges :: M.Map FeatureId FeatureChange
-  , groupChanges   :: M.Map GroupId GroupChange
+--- Modifications between featuremodels ---
+
+data Modifications = Modifications
+  { featureModifications :: M.Map FeatureId FeatureModification
+  , groupModifications   :: M.Map GroupId GroupModification
   }
 
 
-data FeatureChange
+data FeatureModification
   = FeatureAdd
   | FeatureRemove
-  | FeatureChange
-      (Maybe FeatureParentChange)
-      (Maybe FeatureNameChange)
-      (Maybe FeatureTypeChange)
+  | FeatureModification
+      (Maybe FeatureParentModification)
+      (Maybe FeatureNameModification)
+      (Maybe FeatureTypeModification)
 
 
-data FeatureParentChange = FeatureParentChange GroupId
+data FeatureParentModification = FeatureParentModification GroupId
 
 
-data FeatureNameChange = FeatureNameChange String
+data FeatureNameModification = FeatureNameModification String
 
 
-data FeatureTypeChange = FeatureTypeChange FeatureType
+data FeatureTypeModification = FeatureTypeModification FeatureType
 
 
-data GroupChange
+data GroupModification
   = GroupAdd
   | GroupRemove
-  | GroupChange
-      (Maybe GroupParentChange)
-      (Maybe GroupTypeChange)
+  | GroupModification
+      (Maybe GroupParentModification)
+      (Maybe GroupTypeModification)
 
 
-data GroupParentChange = GroupParentChange FeatureId
+data GroupParentModification = GroupParentModification FeatureId
 
 
-data GroupTypeChange = GroupTypeChange GroupType
+data GroupTypeModification = GroupTypeModification GroupType
 
 
 
@@ -59,37 +75,37 @@ data DiffResult = DiffResult
 
 
 -- Every possible combination that a feature- or group change could be modified
-data SingleDiffResult changeType
-  = NoChange changeType
-  | ChangedInOne Version (OneChange changeType)
-  | ChangedInBoth (BothChange changeType)
+data SingleDiffResult modificationType
+  = NoChange modificationType
+  | ChangedInOne Version (OneChange modificationType)
+  | ChangedInBoth (BothChange modificationType)
 
 
-data OneChange changeType
+data OneChange modificationType
   = OneChangeWithBase
-      changeType -- Base modification
-      (RemovedOrChangedModification changeType) -- Derived (V1 or V2) modification
+      modificationType -- Base modification
+      (RemovedOrChangedModification modificationType) -- Derived (V1 or V2) modification
   | OneChangeWithoutBase
-      (AddedModification changeType) -- Derived (V1 or V2) modification
+      (AddedModification modificationType) -- Derived (V1 or V2) modification
 
 
-data BothChange changeType
+data BothChange modificationType
   = BothChangeWithBase
-      changeType -- Base modification
-      (RemovedOrChangedModification changeType) -- V1 modification
-      (RemovedOrChangedModification changeType) -- V2 modification
+      modificationType -- Base modification
+      (RemovedOrChangedModification modificationType) -- V1 modification
+      (RemovedOrChangedModification modificationType) -- V2 modification
   | BothChangeWithoutBase
-      (AddedModification changeType) -- V1 modification
-      (AddedModification changeType) -- V2 modification
+      (AddedModification modificationType) -- V1 modification
+      (AddedModification modificationType) -- V2 modification
 
 
-data RemovedOrChangedModification changeType
+data RemovedOrChangedModification modificationType
   = RemovedModification
-  | ChangedModification changeType
+  | ChangedModification modificationType
 
 
-data AddedModification changeType
-  = AddedModification changeType
+data AddedModification modificationType
+  = AddedModification modificationType
 
 
 data Version
@@ -97,7 +113,7 @@ data Version
   | V2
 
 
-type FeatureDiffResult = SingleDiffResult FeatureChange
+type FeatureDiffResult = SingleDiffResult FeatureModification
 
 
-type GroupDiffResult = SingleDiffResult GroupChange
+type GroupDiffResult = SingleDiffResult GroupModification
