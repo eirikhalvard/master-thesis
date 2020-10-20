@@ -11,19 +11,26 @@ data DiffResult = DiffResult
   , groupDiffResult   :: M.Map GroupId GroupDiffResult
   }
 
-data FeatureDiffResult = FeatureDiffResult
-  { unchanged     :: FeatureChange
-  , newChange     :: FeatureChange
-  , removedChange :: FeatureChange
-  , changedChange :: (FeatureChange, FeatureChange)
-  }
+data SingleDiffResult change
+  = Unchanged change
+  | NewChange change
+  | RemovedChange change
+  | ChangedChange change change
 
-data GroupDiffResult = GroupDiffResult
-  { gunchanged     :: GroupChange
-  , gnewChange     :: GroupChange
-  , gremovedChange :: GroupChange
-  , gchangedChange :: (GroupChange, GroupChange)
-  }
+type FeatureDiffResult = SingleDiffResult FeatureChange
+
+type GroupDiffResult = SingleDiffResult GroupChange
+
+
+data BothResult change
+  = UUnchanged change
+  | OnlyV1Change change change
+  | OnlyV2Change change change
+  | BothChange change change change
+
+
+
+
 
 diffChanges :: Changes -> Changes -> DiffResult
-diffChanges change1 change2 = undefined
+diffChanges change1 change2 = DiffResult M.empty M.empty
