@@ -1,7 +1,6 @@
 module Merge.Diff where
 
 import           Merge.ChangeDetection
-import           Merge.MergeTypes
 import           Types
 
 import qualified Data.Map              as M

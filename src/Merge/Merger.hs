@@ -1,10 +1,9 @@
 module Merge.Merger where
 
-import           Merge.MergeTypes
 import           Types
 
-import qualified Data.Map         as M
-import qualified Data.Set         as S
+import qualified Data.Map as M
+import qualified Data.Set as S
 
 
 data MergeConflict
@@ -23,20 +22,20 @@ data GlobalConflict
 
 
 diffModifications
-  :: ModificationLevelEvolutionPlan
-  -> ModificationLevelEvolutionPlan
-  -> ModificationLevelEvolutionPlan
-  -> MergeLevelEvolutionPlan
+  :: ModificationLevelEvolutionPlan FeatureModel
+  -> ModificationLevelEvolutionPlan FeatureModel
+  -> ModificationLevelEvolutionPlan FeatureModel
+  -> MergeLevelEvolutionPlan FeatureModel
 diffModifications base v1 v2 = undefined
 
 
 mergeAllChanges
-  :: MergeLevelEvolutionPlan
-  -> Either MergeConflict ModificationLevelEvolutionPlan
+  :: MergeLevelEvolutionPlan FeatureModel
+  -> Either MergeConflict (ModificationLevelEvolutionPlan FeatureModel)
 mergeAllChanges mergeLevelEP = undefined
 
 
 deriveAbstractedEvolutionPlan
-  :: ModificationLevelEvolutionPlan
-  -> AbstractedLevelEvolutionPlan
+  :: ModificationLevelEvolutionPlan FeatureModel
+  -> AbstractedLevelEvolutionPlan FeatureModel
 deriveAbstractedEvolutionPlan modificationLevelEP = undefined
