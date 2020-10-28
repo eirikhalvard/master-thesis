@@ -10,7 +10,7 @@ import qualified Data.Set         as S
 -- level evolution plan. This will be done by deriving what modifications were
 -- done to each feature and group.  For every concecutive pair of feature
 -- models, the changes between them will be derived
-deriveChanges :: AbstractedLevelEvolutionPlan -> MergeLevelEvolutionPlan
+deriveChanges :: AbstractedLevelEvolutionPlan -> ModificationLevelEvolutionPlan
 deriveChanges evolutionPlan = undefined
 
 

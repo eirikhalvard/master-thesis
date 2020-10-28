@@ -8,16 +8,35 @@ import qualified Data.Set         as S
 
 
 data MergeConflict
+  = LocalConflict LocalConflict
+  | GlobalConflict GlobalConflict
+
+
+data LocalConflict
+  = ConflictingModifications
+  | OthersEtcEtcEtc
+
+
+data GlobalConflict
   = DuplicateName
   | EtcEtcEtc
 
 
-threeWayMerge
+diffModifications
+  :: ModificationLevelEvolutionPlan
+  -> ModificationLevelEvolutionPlan
+  -> ModificationLevelEvolutionPlan
+  -> MergeLevelEvolutionPlan
+diffModifications base v1 v2 = undefined
+
+
+mergeAllChanges
   :: MergeLevelEvolutionPlan
-  -> MergeLevelEvolutionPlan
-  -> MergeLevelEvolutionPlan
-  -> Either MergeConflict MergeLevelEvolutionPlan
-threeWayMerge base v1 v2 = undefined
+  -> Either MergeConflict ModificationLevelEvolutionPlan
+mergeAllChanges mergeLevelEP = undefined
 
 
-
+deriveAbstractedEvolutionPlan
+  :: ModificationLevelEvolutionPlan
+  -> AbstractedLevelEvolutionPlan
+deriveAbstractedEvolutionPlan modificationLevelEP = undefined
