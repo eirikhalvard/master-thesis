@@ -6,6 +6,7 @@
 
 - `stack run` Compiles and runs the program
 - `stack repl` Opens up a repl with all the modules available
+- `ghcid -c "stack repl"` Compiles project on save
 
 ### Permanent build
 
