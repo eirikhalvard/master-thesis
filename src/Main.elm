@@ -8,10 +8,10 @@ import Element exposing (Element)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
+import EvolutionPlans exposing (..)
+import EvolutionPlansDecoder as Decode
 import Html exposing (Html)
 import Http
-import Json.Decode as Decode
-import Json.Encode as Encode
 import List
 import List.Extra as List
 import Svg exposing (Svg)
@@ -96,7 +96,7 @@ type Msg
     = NoOp
     | NewWindowSize Int Int
     | GotViewport Dom.Viewport
-    | GotTree (Result Http.Error Tree)
+    | GotMergeResult (Result Http.Error MergeResult)
     | NodeHoverEntry String
     | NodeHoverExit
 
@@ -112,7 +112,7 @@ type Model
 
 type alias SomeFields =
     { mDimentions : Maybe ( Int, Int )
-    , mTree : Maybe Tree
+    , mMergeResult : Maybe MergeResult
     }
 
 
@@ -120,7 +120,7 @@ type alias Fields =
     { device : Element.Device
     , width : Int
     , height : Int
-    , tree : Tree
+    , mergeResult : MergeResult
     , hoverData : Maybe String
     }
 
@@ -141,20 +141,20 @@ init flags =
         getViewport =
             Task.perform GotViewport Dom.getViewport
 
-        getTree =
+        getMergeResult =
             Http.get
-                { url = "./tree.json"
+                { url = "./elm-input.json"
                 , expect =
                     Http.expectJson
-                        GotTree
-                        decodeTree
+                        GotMergeResult
+                        Decode.mergeResult
                 }
     in
     ( UnInitialized
-        { mTree = Nothing
+        { mMergeResult = Nothing
         , mDimentions = Nothing
         }
-    , Cmd.batch [ getViewport, getTree ]
+    , Cmd.batch [ getViewport, getMergeResult ]
     )
 
 
@@ -170,13 +170,13 @@ update msg model =
         GotViewport viewport ->
             ( updateViewport viewport model, Cmd.none )
 
-        GotTree treeErr ->
-            case treeErr of
+        GotMergeResult mergeResultErr ->
+            case mergeResultErr of
                 Err _ ->
                     ( model, Cmd.none )
 
                 Ok t ->
-                    ( updateTree t model, Cmd.none )
+                    ( updateMergeResult t model, Cmd.none )
 
         NodeHoverEntry hoverData ->
             ( updateIfInitialized (\f -> { f | hoverData = Just hoverData }) model, Cmd.none )
@@ -215,15 +215,15 @@ updateWindowSize w h model =
 
 convertIfInitialized : SomeFields -> Model
 convertIfInitialized someFields =
-    case ( someFields.mDimentions, someFields.mTree ) of
-        ( Just ( w, h ), Just tree ) ->
+    case ( someFields.mDimentions, someFields.mMergeResult ) of
+        ( Just ( w, h ), Just mergeResult ) ->
             Initialized
                 { width = w
                 , height = h
                 , device =
                     Element.classifyDevice
                         { width = w, height = h }
-                , tree = tree
+                , mergeResult = mergeResult
                 , hoverData = Nothing
                 }
 
@@ -249,11 +249,11 @@ updateViewport viewport model =
             model
 
 
-updateTree : Tree -> Model -> Model
-updateTree tree model =
+updateMergeResult : MergeResult -> Model -> Model
+updateMergeResult mergeResult model =
     case model of
         UnInitialized someFields ->
-            convertIfInitialized { someFields | mTree = Just tree }
+            convertIfInitialized { someFields | mMergeResult = Just mergeResult }
 
         Initialized fields ->
             model
@@ -262,6 +262,42 @@ updateTree tree model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     E.onResize (\w h -> NewWindowSize w h)
+
+
+tempToTree : Feature -> Tree
+tempToTree (Feature fields) =
+    Node
+        { value = fields.name
+        , metaData = Just fields.featureType
+        , children =
+            fields.groups
+                |> List.concatMap (\(Group gFields) -> gFields.features)
+                |> List.map tempToTree
+        }
+
+
+firstFeatureModel : MergeResult -> Feature
+firstFeatureModel mr =
+    let
+        errFeature =
+            Feature
+                { id = "error-feature"
+                , featureType = "errorFeatureType"
+                , name = "errorFeatureName"
+                , groups = []
+                }
+    in
+    case mr.evolutionPlans of
+        ep :: _ ->
+            case ep.evolutionPlan.timePoints of
+                _ :: _ :: _ :: fm :: _ ->
+                    fm.featureModel.rootFeature
+
+                _ ->
+                    errFeature
+
+        [] ->
+            errFeature
 
 
 view : Model -> Html Msg
@@ -273,7 +309,7 @@ view model =
         Initialized fields ->
             let
                 computedTree =
-                    computeTree fields.tree
+                    computeTree <| tempToTree <| firstFeatureModel fields.mergeResult
 
                 width =
                     calcWidth computedTree
@@ -426,43 +462,3 @@ drawLine x1 y1 x2 y2 =
         , SvgA.stroke colorScheme.dark
         ]
         []
-
-
-type Tree
-    = Node
-        { value : String
-        , metaData : Maybe String
-        , children : List Tree
-        }
-
-
-type ComputedTree
-    = ComputedNode
-        { value : String
-        , metaData : Maybe String
-        , children : List ComputedTree
-        , computedDimentions : ComputedDimentions
-        }
-
-
-type alias ComputedDimentions =
-    { approxNodeWidth : Float
-    , treeWidth : Float
-    }
-
-
-decodeTree : Decode.Decoder Tree
-decodeTree =
-    Decode.map3
-        (\value metaData children ->
-            Node
-                { value = String.fromInt value
-                , metaData = metaData
-                , children = children
-                }
-        )
-        (Decode.field "value" Decode.int)
-        (Decode.maybe <| Decode.field "metaData" Decode.string)
-        (Decode.field "children"
-            (Decode.list (Decode.lazy <| \_ -> decodeTree))
-        )
