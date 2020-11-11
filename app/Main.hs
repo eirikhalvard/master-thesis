@@ -1,6 +1,6 @@
 module Main where
 
-import Example1
+import SerializeOutput
 
 main :: IO ()
-main = runCarExample
+main = writeExampleToFile "elm-input.json"

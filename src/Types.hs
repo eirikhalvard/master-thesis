@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -12,6 +13,9 @@ import Control.Lens
 import qualified Data.Map as M
 import qualified Data.Set as S
 
+import Data.Aeson
+import GHC.Generics
+
 ----------------------
 --  FEATURE MODELS  --
 ----------------------
@@ -25,7 +29,7 @@ type GroupId = String
 data FeatureModel = FeatureModel
   { _rootFeature :: Feature
   }
-  deriving (Show, Eq, Read)
+  deriving (Show, Eq, Read, Generic)
 
 data Feature = Feature
   { _id :: FeatureId
@@ -33,14 +37,14 @@ data Feature = Feature
   , _name :: String
   , _groups :: S.Set Group
   }
-  deriving (Show, Eq, Read, Ord)
+  deriving (Show, Eq, Read, Ord, Generic)
 
 data Group = Group
   { _id :: GroupId
   , _groupType :: GroupType
   , _features :: S.Set Feature
   }
-  deriving (Show, Eq, Read, Ord)
+  deriving (Show, Eq, Read, Ord, Generic)
 
 --- Flat Structured Feature Model ---
 
@@ -67,13 +71,13 @@ data Group' = Group'
 data FeatureType
   = Optional
   | Mandatory
-  deriving (Show, Eq, Read, Ord)
+  deriving (Show, Eq, Read, Ord, Generic)
 
 data GroupType
   = And
   | Or
   | Alternative
-  deriving (Show, Eq, Read, Ord)
+  deriving (Show, Eq, Read, Ord, Generic)
 
 -----------------------
 --  EVOLUTION PLANS  --
@@ -119,13 +123,13 @@ type Time = Int
 data AbstractedLevelEvolutionPlan featureModel = AbstractedLevelEvolutionPlan
   { _timePoints :: [TimePoint featureModel]
   }
-  deriving (Show, Eq, Read)
+  deriving (Show, Eq, Read, Generic)
 
 data TimePoint featureModel = TimePoint
   { _time :: Time
   , _featureModel :: FeatureModel
   }
-  deriving (Show, Eq, Read)
+  deriving (Show, Eq, Read, Generic)
 
 data TransformationEvolutionPlan transformation featureModel = TransformationEvolutionPlan
   { _initialTime :: Time
@@ -339,6 +343,60 @@ type FeatureDiffResult =
 type GroupDiffResult =
   SingleDiffResult GroupModification
 
+--------------------
+--  Merge Result  --
+--------------------
+
+data MergeResult = MergeResult
+  { _evolutionPlans :: [MergeEvolutionPlan]
+  }
+  deriving (Show, Eq, Read, Generic)
+
+data MergeEvolutionPlan = MergeEvolutionPlan
+  { _name :: String
+  , _evolutionPlan :: AbstractedLevelEvolutionPlan FeatureModel
+  }
+  deriving (Show, Eq, Read, Generic)
+
+-- customAesonOptions :: _
+customAesonOptions = defaultOptions{fieldLabelModifier = tail}
+
+instance ToJSON MergeResult where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON MergeEvolutionPlan where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON (AbstractedLevelEvolutionPlan FeatureModel) where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON (TimePoint FeatureModel) where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON FeatureModel where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON Feature where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON Group where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON FeatureType where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON GroupType where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
 --------------
 --  OPTICS  --
 --------------
@@ -384,3 +442,6 @@ makePrisms ''BothChange
 makePrisms ''RemovedOrChangedModification
 makeFieldsNoPrefix ''AddedModification
 makePrisms ''Version
+
+makeFieldsNoPrefix ''MergeEvolutionPlan
+makeFieldsNoPrefix ''MergeResult
