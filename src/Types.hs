@@ -18,10 +18,10 @@ import qualified Data.Set     as S
 ----------------------
 
 
-type FeatureId = Int
+type FeatureId = String
 
 
-type GroupId = Int
+type GroupId = String
 
 
 --- Tree Structured Feature Model ---
@@ -38,6 +38,7 @@ data Feature =
   Feature
     { _id          :: FeatureId
     , _featureType :: FeatureType
+    , _name        :: String
     , _groups      :: S.Set Group
     }
   deriving ( Show, Eq, Read, Ord )
@@ -94,16 +95,6 @@ data GroupType
   deriving ( Show, Eq, Read, Ord )
 
 
-makeFieldsNoPrefix ''FeatureModel
-makeFieldsNoPrefix ''Feature
-makeFieldsNoPrefix ''Group
-makeFieldsNoPrefix ''FeatureModel'
-makeFieldsNoPrefix ''Feature'
-makeFieldsNoPrefix ''Group'
-makePrisms ''FeatureType
-makePrisms ''GroupType
-
-
 -----------------------
 --  EVOLUTION PLANS  --
 -----------------------
@@ -150,7 +141,15 @@ type Time = Int
 
 data AbstractedLevelEvolutionPlan featureModel =
   AbstractedLevelEvolutionPlan
-    { _featureModels :: [(Time, featureModel)]
+    { _timePoints :: [TimePoint featureModel]
+    }
+  deriving ( Show, Eq, Read )
+
+
+data TimePoint featureModel =
+  TimePoint
+    { _time         :: Time
+    , _featureModel :: FeatureModel
     }
   deriving ( Show, Eq, Read )
 
@@ -322,7 +321,6 @@ data FeatureParentModification =
   deriving ( Show, Eq, Read )
 
 
-
 data FeatureNameModification =
   FeatureNameModification String
   deriving ( Show, Eq, Read )
@@ -421,11 +419,21 @@ type GroupDiffResult =
 --  OPTICS  --
 --------------
 
+makeFieldsNoPrefix ''FeatureModel
+makeFieldsNoPrefix ''Feature
+makeFieldsNoPrefix ''Group
+makeFieldsNoPrefix ''FeatureModel'
+makeFieldsNoPrefix ''Feature'
+makeFieldsNoPrefix ''Group'
+makePrisms ''FeatureType
+makePrisms ''GroupType
 
+makeFieldsNoPrefix ''AbstractedLevelEvolutionPlan
+makeFieldsNoPrefix ''TimePoint
 makeFieldsNoPrefix ''TransformationEvolutionPlan
 makeFieldsNoPrefix ''Plan
-makePrisms ''Operation
 
+makePrisms ''Operation
 makeFieldsNoPrefix ''AddFeatureOp
 makeFieldsNoPrefix ''RemoveFeatureOp
 makeFieldsNoPrefix ''MoveFeatureOp
@@ -436,3 +444,19 @@ makeFieldsNoPrefix ''RemoveGroupOp
 makeFieldsNoPrefix ''ChangeGroupTypeOp
 makeFieldsNoPrefix ''MoveGroupOp
 
+makeFieldsNoPrefix ''Modifications
+makePrisms ''FeatureModification
+makeFieldsNoPrefix ''FeatureParentModification
+makeFieldsNoPrefix ''FeatureNameModification
+makeFieldsNoPrefix ''FeatureTypeModification
+makePrisms ''GroupModification
+makeFieldsNoPrefix ''GroupParentModification
+makeFieldsNoPrefix ''GroupTypeModification
+
+makeFieldsNoPrefix ''DiffResult
+makePrisms ''SingleDiffResult
+makePrisms ''OneChange
+makePrisms ''BothChange
+makePrisms ''RemovedOrChangedModification
+makeFieldsNoPrefix ''AddedModification
+makePrisms ''Version
