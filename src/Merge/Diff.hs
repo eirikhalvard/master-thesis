@@ -1,10 +1,10 @@
 module Merge.Diff where
 
-import           Merge.ChangeDetection
-import           Types
+import Merge.ChangeDetection
+import Types
 
-import qualified Data.Map              as M
-import qualified Data.Set              as S
+import qualified Data.Map as M
+import qualified Data.Set as S
 
 -- diffModifications will compare the modifcations from base with the
 -- modifications from each derived version. The comparison will produce

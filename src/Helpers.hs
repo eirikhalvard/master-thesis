@@ -1,12 +1,13 @@
 {-# LANGUAGE RankNTypes #-}
+
 module Helpers where
 
-import           Types
+import Types
 
-import           Control.Lens
-import           Control.Monad
-import qualified Data.Map      as M
-import qualified Data.Set      as S
+import Control.Lens
+import Control.Monad
+import qualified Data.Map as M
+import qualified Data.Set as S
 
 -- notExists :: FeatureModel -> FeatureId -> Bool
 -- notExists fm fid = hasn't (features . ix fid) fm
@@ -16,8 +17,6 @@ import qualified Data.Set      as S
 
 -- getGroup :: FeatureModel -> GroupId -> Maybe Group
 -- getGroup fm gid = preview (features . traversed . groups . ix gid) fm
-
-
 
 -- getParentGroupOfFeature :: FeatureModel -> FeatureId -> Maybe GroupId
 -- getParentGroupOfFeature fm fid =
@@ -30,7 +29,6 @@ import qualified Data.Set      as S
 -- getParentOfFeature :: FeatureModel -> FeatureId -> Maybe FeatureId
 -- getParentOfFeature fm =
 --   getParentGroupOfFeature fm >=> getParentOfGroup fm
-
 
 -- getParentFeature :: FeatureModel -> FeatureId -> Maybe Feature
 -- getParentFeature fm =
@@ -61,5 +59,3 @@ import qualified Data.Set      as S
 --   case getParentOfFeature fm fid of
 --     Nothing        -> pure fm
 --     Just parentFid -> traverseOf (features . ix parentFid) handler fm
-
-

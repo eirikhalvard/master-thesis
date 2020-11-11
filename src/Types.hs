@@ -1,104 +1,83 @@
-{-# LANGUAGE DuplicateRecordFields  #-}
-{-# LANGUAGE FlexibleContexts       #-}
-{-# LANGUAGE FlexibleInstances      #-}
+{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
-{-# LANGUAGE MultiParamTypeClasses  #-}
-{-# LANGUAGE TemplateHaskell        #-}
-{-# LANGUAGE TypeSynonymInstances   #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeSynonymInstances #-}
 
 module Types where
 
-import           Control.Lens
-import qualified Data.Map     as M
-import qualified Data.Set     as S
-
+import Control.Lens
+import qualified Data.Map as M
+import qualified Data.Set as S
 
 ----------------------
 --  FEATURE MODELS  --
 ----------------------
 
-
 type FeatureId = String
-
 
 type GroupId = String
 
-
 --- Tree Structured Feature Model ---
 
+data FeatureModel = FeatureModel
+  { _rootFeature :: Feature
+  }
+  deriving (Show, Eq, Read)
 
-data FeatureModel =
-  FeatureModel
-    { _rootFeature :: Feature
-    }
-  deriving ( Show, Eq, Read )
+data Feature = Feature
+  { _id :: FeatureId
+  , _featureType :: FeatureType
+  , _name :: String
+  , _groups :: S.Set Group
+  }
+  deriving (Show, Eq, Read, Ord)
 
-
-data Feature =
-  Feature
-    { _id          :: FeatureId
-    , _featureType :: FeatureType
-    , _name        :: String
-    , _groups      :: S.Set Group
-    }
-  deriving ( Show, Eq, Read, Ord )
-
-
-data Group =
-  Group
-    { _id        :: GroupId
-    , _groupType :: GroupType
-    , _features  :: S.Set Feature
-    }
-  deriving ( Show, Eq, Read, Ord )
-
+data Group = Group
+  { _id :: GroupId
+  , _groupType :: GroupType
+  , _features :: S.Set Feature
+  }
+  deriving (Show, Eq, Read, Ord)
 
 --- Flat Structured Feature Model ---
 
+data FeatureModel' = FeatureModel'
+  { _rootId :: FeatureId
+  , _features :: M.Map FeatureId Feature'
+  , _groups :: M.Map GroupId Group'
+  }
+  deriving (Show, Eq, Read)
 
-data FeatureModel' =
-  FeatureModel'
-    { _rootId   :: FeatureId
-    , _features :: M.Map FeatureId Feature'
-    , _groups   :: M.Map GroupId Group'
-    }
-  deriving ( Show, Eq, Read )
+data Feature' = Feature'
+  { _parentGroupId :: Maybe GroupId
+  , _featureType :: FeatureType
+  , _name :: String
+  }
+  deriving (Show, Eq, Read)
 
-
-data Feature' =
-  Feature'
-    { _parentGroupId :: Maybe GroupId
-    , _featureType   :: FeatureType
-    , _name          :: String
-    }
-  deriving ( Show, Eq, Read )
-
-
-data Group' =
-  Group'
-    { _parentFeatureId :: FeatureId
-    , _groupType       :: GroupType
-    }
-  deriving ( Show, Eq, Read )
-
+data Group' = Group'
+  { _parentFeatureId :: FeatureId
+  , _groupType :: GroupType
+  }
+  deriving (Show, Eq, Read)
 
 data FeatureType
   = Optional
   | Mandatory
-  deriving ( Show, Eq, Read, Ord )
-
+  deriving (Show, Eq, Read, Ord)
 
 data GroupType
   = And
   | Or
   | Alternative
-  deriving ( Show, Eq, Read, Ord )
-
+  deriving (Show, Eq, Read, Ord)
 
 -----------------------
 --  EVOLUTION PLANS  --
 -----------------------
-
 
 --  Four different types of evolution plan representations. We categorize them in
 --  two categories. Abstracted evolution plans and Tranformation evolution plans
@@ -135,57 +114,43 @@ data GroupType
 --        changed, added or removed in several versions, which this
 --        representation encodes.
 
-
 type Time = Int
 
+data AbstractedLevelEvolutionPlan featureModel = AbstractedLevelEvolutionPlan
+  { _timePoints :: [TimePoint featureModel]
+  }
+  deriving (Show, Eq, Read)
 
-data AbstractedLevelEvolutionPlan featureModel =
-  AbstractedLevelEvolutionPlan
-    { _timePoints :: [TimePoint featureModel]
-    }
-  deriving ( Show, Eq, Read )
+data TimePoint featureModel = TimePoint
+  { _time :: Time
+  , _featureModel :: FeatureModel
+  }
+  deriving (Show, Eq, Read)
 
+data TransformationEvolutionPlan transformation featureModel = TransformationEvolutionPlan
+  { _initialTime :: Time
+  , _initialFM :: featureModel
+  , _plans :: [Plan transformation]
+  }
+  deriving (Show, Eq, Read)
 
-data TimePoint featureModel =
-  TimePoint
-    { _time         :: Time
-    , _featureModel :: FeatureModel
-    }
-  deriving ( Show, Eq, Read )
-
-
-data TransformationEvolutionPlan transformation featureModel =
-  TransformationEvolutionPlan
-    { _initialTime :: Time
-    , _initialFM   :: featureModel
-    , _plans       :: [Plan transformation]
-    }
-  deriving ( Show, Eq, Read )
-
-
-data Plan transformation =
-  Plan
-    { _timePoint      :: Time
-    , _transformation :: transformation
-    }
-  deriving ( Show, Eq, Read )
-
+data Plan transformation = Plan
+  { _timePoint :: Time
+  , _transformation :: transformation
+  }
+  deriving (Show, Eq, Read)
 
 type UserLevelEvolutionPlan featureModel = TransformationEvolutionPlan Operations featureModel
 
-
 type ModificationLevelEvolutionPlan featureModel = TransformationEvolutionPlan Modifications featureModel
 
-
 type MergeLevelEvolutionPlan featureModel = TransformationEvolutionPlan DiffResult featureModel
-
 
 ----------------------------
 --  TRANSFORMATION TYPES  --
 ----------------------------
 
 --- OPERATIONS ---
-
 
 type Operations = [Operation]
 
@@ -199,84 +164,64 @@ data Operation
   | RemoveGroup RemoveGroupOp
   | ChangeGroupType ChangeGroupTypeOp
   | MoveGroup MoveGroupOp
-  deriving ( Show, Eq, Read )
+  deriving (Show, Eq, Read)
 
+data AddFeatureOp = AddFeatureOp
+  { _featureId :: FeatureId
+  , _name :: String
+  , _parentGroupId :: GroupId
+  , _featureType :: FeatureType
+  }
+  deriving (Show, Eq, Read)
 
-data AddFeatureOp =
-  AddFeatureOp
-    { _featureId     :: FeatureId
-    , _name          :: String
-    , _parentGroupId :: GroupId
-    , _featureType   :: FeatureType
-    }
-  deriving ( Show, Eq, Read )
+data RemoveFeatureOp = RemoveFeatureOp
+  { _featureId :: FeatureId
+  }
+  deriving (Show, Eq, Read)
 
+data MoveFeatureOp = MoveFeatureOp
+  { _featureId :: FeatureId
+  , _groupId :: GroupId
+  }
+  deriving (Show, Eq, Read)
 
-data RemoveFeatureOp =
-  RemoveFeatureOp
-    { _featureId :: FeatureId
-    }
-  deriving ( Show, Eq, Read )
+data RenameFeatureOp = RenameFeatureOp
+  { _featureId :: FeatureId
+  , _name :: String
+  }
+  deriving (Show, Eq, Read)
 
+data ChangeFeatureTypeOp = ChangeFeatureTypeOp
+  { _featureId :: FeatureId
+  , _featureType :: FeatureType
+  }
+  deriving (Show, Eq, Read)
 
-data MoveFeatureOp =
-  MoveFeatureOp
-    { _featureId :: FeatureId
-    , _groupId   :: GroupId
-    }
-  deriving ( Show, Eq, Read )
+data AddGroupOp = AddGroupOp
+  { _groupId :: GroupId
+  , _parentFeatureId :: FeatureId
+  , _groupType :: GroupType
+  }
+  deriving (Show, Eq, Read)
 
+data RemoveGroupOp = RemoveGroupOp
+  { _groupId :: GroupId
+  }
+  deriving (Show, Eq, Read)
 
-data RenameFeatureOp =
-  RenameFeatureOp
-    { _featureId :: FeatureId
-    , _name      :: String
-    }
-  deriving ( Show, Eq, Read )
+data ChangeGroupTypeOp = ChangeGroupTypeOp
+  { _groupId :: GroupId
+  , _groupType :: GroupType
+  }
+  deriving (Show, Eq, Read)
 
-
-data ChangeFeatureTypeOp =
-  ChangeFeatureTypeOp
-    { _featureId   :: FeatureId
-    , _featureType :: FeatureType
-    }
-  deriving ( Show, Eq, Read )
-
-
-data AddGroupOp =
-  AddGroupOp
-    { _groupId         :: GroupId
-    , _parentFeatureId :: FeatureId
-    , _groupType       :: GroupType
-    }
-  deriving ( Show, Eq, Read )
-
-
-data RemoveGroupOp =
-  RemoveGroupOp
-    { _groupId :: GroupId
-    }
-  deriving ( Show, Eq, Read )
-
-
-data ChangeGroupTypeOp =
-  ChangeGroupTypeOp
-    { _groupId   :: GroupId
-    , _groupType :: GroupType
-    }
-  deriving ( Show, Eq, Read )
-
-
-data MoveGroupOp =
-  MoveGroupOp
-    { _groupId         :: GroupId
-    , _parentFeatureId :: FeatureId
-    }
-  deriving ( Show, Eq, Read )
-
+data MoveGroupOp = MoveGroupOp
+  { _groupId :: GroupId
+  , _parentFeatureId :: FeatureId
+  }
+  deriving (Show, Eq, Read)
 
 --- MODIFICATIONS ---
-
 
 -- Modifications vs Changes
 -- We have two levels of changes. To differentiate between the two, we will use
@@ -294,17 +239,13 @@ data MoveGroupOp =
 --   could remove this modification The derived version has then Changed
 --   a modification. So Change-names is reserved for these meta-level changes
 
-
 --- Modifications between featuremodels ---
 
-
-data Modifications =
-  Modifications
-    { _features :: M.Map FeatureId FeatureModification
-    , _groups   :: M.Map GroupId GroupModification
-    }
-  deriving ( Show, Eq, Read )
-
+data Modifications = Modifications
+  { _features :: M.Map FeatureId FeatureModification
+  , _groups :: M.Map GroupId GroupModification
+  }
+  deriving (Show, Eq, Read)
 
 data FeatureModification
   = FeatureAdd
@@ -313,23 +254,19 @@ data FeatureModification
       (Maybe FeatureParentModification)
       (Maybe FeatureNameModification)
       (Maybe FeatureTypeModification)
-  deriving ( Show, Eq, Read )
+  deriving (Show, Eq, Read)
 
+data FeatureParentModification
+  = FeatureParentModification GroupId
+  deriving (Show, Eq, Read)
 
-data FeatureParentModification =
-  FeatureParentModification GroupId
-  deriving ( Show, Eq, Read )
+data FeatureNameModification
+  = FeatureNameModification String
+  deriving (Show, Eq, Read)
 
-
-data FeatureNameModification =
-  FeatureNameModification String
-  deriving ( Show, Eq, Read )
-
-
-data FeatureTypeModification =
-  FeatureTypeModification FeatureType
-  deriving ( Show, Eq, Read )
-
+data FeatureTypeModification
+  = FeatureTypeModification FeatureType
+  deriving (Show, Eq, Read)
 
 data GroupModification
   = GroupAdd
@@ -337,38 +274,32 @@ data GroupModification
   | GroupModification
       (Maybe GroupParentModification)
       (Maybe GroupTypeModification)
-  deriving ( Show, Eq, Read )
+  deriving (Show, Eq, Read)
 
+data GroupParentModification
+  = GroupParentModification FeatureId
+  deriving (Show, Eq, Read)
 
-data GroupParentModification =
-  GroupParentModification FeatureId
-  deriving ( Show, Eq, Read )
-
-
-data GroupTypeModification =
-  GroupTypeModification GroupType
-  deriving ( Show, Eq, Read )
-
+data GroupTypeModification
+  = GroupTypeModification GroupType
+  deriving (Show, Eq, Read)
 
 --- DIFF RESULT ---
-
 
 -- The diff result from the all the changes in the entire time point for all
 -- versions of the model
 data DiffResult = DiffResult
   { _featureDiffResult :: M.Map FeatureId FeatureDiffResult
-  , _groupDiffResult   :: M.Map GroupId GroupDiffResult
+  , _groupDiffResult :: M.Map GroupId GroupDiffResult
   }
-  deriving ( Show, Eq, Read )
-
+  deriving (Show, Eq, Read)
 
 -- Every possible combination that a feature- or group change could be modified
 data SingleDiffResult modificationType
   = NoChange modificationType
   | ChangedInOne Version (OneChange modificationType)
   | ChangedInBoth (BothChange modificationType)
-  deriving ( Show, Eq, Read )
-
+  deriving (Show, Eq, Read)
 
 data OneChange modificationType
   = OneChangeWithBase
@@ -376,8 +307,7 @@ data OneChange modificationType
       (RemovedOrChangedModification modificationType) -- Derived (V1 or V2) modification
   | OneChangeWithoutBase
       (AddedModification modificationType) -- Derived (V1 or V2) modification
-  deriving ( Show, Eq, Read )
-
+  deriving (Show, Eq, Read)
 
 data BothChange modificationType
   = BothChangeWithBase
@@ -387,33 +317,27 @@ data BothChange modificationType
   | BothChangeWithoutBase
       (AddedModification modificationType) -- V1 modification
       (AddedModification modificationType) -- V2 modification
-  deriving ( Show, Eq, Read )
-
+  deriving (Show, Eq, Read)
 
 data RemovedOrChangedModification modificationType
   = RemovedModification
   | ChangedModification modificationType
-  deriving ( Show, Eq, Read )
+  deriving (Show, Eq, Read)
 
-
-data AddedModification modificationType =
-  AddedModification modificationType
-  deriving ( Show, Eq, Read )
-
+data AddedModification modificationType
+  = AddedModification modificationType
+  deriving (Show, Eq, Read)
 
 data Version
   = V1
   | V2
-  deriving ( Show, Eq, Read )
-
+  deriving (Show, Eq, Read)
 
 type FeatureDiffResult =
   SingleDiffResult FeatureModification
 
-
 type GroupDiffResult =
   SingleDiffResult GroupModification
-
 
 --------------
 --  OPTICS  --
