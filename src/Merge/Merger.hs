@@ -1,42 +1,35 @@
 module Merge.Merger where
 
-import           Merge.MergeTypes
-import           Types
+import Types
 
-import qualified Data.Map         as M
-import qualified Data.Set         as S
-
+import qualified Data.Map as M
+import qualified Data.Set as S
 
 data MergeConflict
   = LocalConflict LocalConflict
   | GlobalConflict GlobalConflict
 
-
 data LocalConflict
   = ConflictingModifications
   | OthersEtcEtcEtc
-
 
 data GlobalConflict
   = DuplicateName
   | EtcEtcEtc
 
-
-diffModifications
-  :: ModificationLevelEvolutionPlan
-  -> ModificationLevelEvolutionPlan
-  -> ModificationLevelEvolutionPlan
-  -> MergeLevelEvolutionPlan
+diffModifications ::
+  ModificationLevelEvolutionPlan FeatureModel ->
+  ModificationLevelEvolutionPlan FeatureModel ->
+  ModificationLevelEvolutionPlan FeatureModel ->
+  MergeLevelEvolutionPlan FeatureModel
 diffModifications base v1 v2 = undefined
 
-
-mergeAllChanges
-  :: MergeLevelEvolutionPlan
-  -> Either MergeConflict ModificationLevelEvolutionPlan
+mergeAllChanges ::
+  MergeLevelEvolutionPlan FeatureModel ->
+  Either MergeConflict (ModificationLevelEvolutionPlan FeatureModel)
 mergeAllChanges mergeLevelEP = undefined
 
-
-deriveAbstractedEvolutionPlan
-  :: ModificationLevelEvolutionPlan
-  -> AbstractedLevelEvolutionPlan
+deriveAbstractedEvolutionPlan ::
+  ModificationLevelEvolutionPlan FeatureModel ->
+  AbstractedLevelEvolutionPlan FeatureModel
 deriveAbstractedEvolutionPlan modificationLevelEP = undefined

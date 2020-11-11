@@ -1,82 +1,84 @@
-module Example1
-  ( carInitialModel
-  , carEvolutionPlan
-  , runCarExample
-  )
-where
+module Example1 (
+  ) where
 
-import           Helpers
-import           PerformOperations
-import           PrettyPrint
-import           Types
+-- carInitialModel,
+-- carEvolutionPlan,
+-- runCarExample,
 
-import           Control.Lens
-import qualified Data.Map          as M
-import qualified Data.Set          as S
+import Helpers
+import PerformOperations
+import PrettyPrint
+import Types
 
-carInitialModel :: FeatureModel
-carInitialModel = FM
-  0
-  (M.fromList
-    [ ( 0
-      , Feature
-        "Car"
-        Nothing
-        (M.singleton 0 (Group And (S.singleton 1)))
-        Mandatory
-      )
-    , ( 1
-      , Feature
-        "Infotainment System"
-        (Just 0)
-        (M.singleton 1 (Group And (S.singleton 2)))
-        Mandatory
-      )
-    , (2, Feature "Bluetooth" (Just 1) M.empty Optional)
-    ]
-  )
+import Control.Lens
+import qualified Data.Map as M
+import qualified Data.Set as S
 
-carEvolutionPlan :: EvolutionPlan
-carEvolutionPlan = EvolutionPlan
-  0
-  carInitialModel
-  [ Plan
-    1
-    [ AddGroup (AddGroupOp 3 1 Alternative)
-    , AddFeature (AddFeatureOp 3 "Android Auto" 3 Optional)
-    , AddFeature
-      (AddFeatureOp 4 "Apple Car Play" 3 Optional)
-    ]
-  , Plan
-    2
-    [ AddFeature
-      (AddFeatureOp 5 "Comfort Systems" 0 Optional)
-    , AddGroup (AddGroupOp 4 5 And)
-    , AddFeature (AddFeatureOp 6 "Parking Pilot" 4 Optional)
-    ]
-  ]
+-- carInitialModel :: FeatureModel
+-- carInitialModel =
+--   FM
+--     0
+--     ( M.fromList
+--         [
+--           ( 0
+--           , Feature
+--               "Car"
+--               Nothing
+--               (M.singleton 0 (Group And (S.singleton 1)))
+--               Mandatory
+--           )
+--         ,
+--           ( 1
+--           , Feature
+--               "Infotainment System"
+--               (Just 0)
+--               (M.singleton 1 (Group And (S.singleton 2)))
+--               Mandatory
+--           )
+--         , (2, Feature "Bluetooth" (Just 1) M.empty Optional)
+--         ]
+--     )
 
-showAndPerform :: EvolutionPlan -> IO ()
-showAndPerform ep = mapM_ f (performOperations ep)
-  where
-    f (i, fm) = do
-      putStrLn $ "FEATURE MODEL FOR TIME " ++ show i
-      printFeatureModel fm
-      putStrLn "---------"
-      putStrLn ""
+-- carEvolutionPlan :: EvolutionPlan
+-- carEvolutionPlan =
+--   EvolutionPlan
+--     0
+--     carInitialModel
+--     [ Plan
+--         1
+--         [ AddGroup (AddGroupOp 3 1 Alternative)
+--         , AddFeature (AddFeatureOp 3 "Android Auto" 3 Optional)
+--         , AddFeature
+--             (AddFeatureOp 4 "Apple Car Play" 3 Optional)
+--         ]
+--     , Plan
+--         2
+--         [ AddFeature
+--             (AddFeatureOp 5 "Comfort Systems" 0 Optional)
+--         , AddGroup (AddGroupOp 4 5 And)
+--         , AddFeature (AddFeatureOp 6 "Parking Pilot" 4 Optional)
+--         ]
+--     ]
 
+-- showAndPerform :: EvolutionPlan -> IO ()
+-- showAndPerform ep = mapM_ f (performOperations ep)
+--   where
+--     f (i, fm) = do
+--       putStrLn $ "FEATURE MODEL FOR TIME " ++ show i
+--       printFeatureModel fm
+--       putStrLn "---------"
+--       putStrLn ""
 
-runCarExample :: IO ()
-runCarExample = do
-  let printDivider s =
-        putStr "\n\n\n--- " >> putStr s >> putStrLn "\n"
+-- runCarExample :: IO ()
+-- runCarExample = do
+--   let printDivider s =
+--         putStr "\n\n\n--- " >> putStr s >> putStrLn "\n"
 
-  printDivider "Car Evolution Plan"
-  printFeatureModel (view initialFM carEvolutionPlan)
+--   printDivider "Car Evolution Plan"
+--   printFeatureModel (view initialFM carEvolutionPlan)
 
-  putStrLn "---------------"
-  putStrLn "---------------"
-  putStrLn "---------------"
-  putStrLn ""
-  showAndPerform carEvolutionPlan
-
+--   putStrLn "---------------"
+--   putStrLn "---------------"
+--   putStrLn "---------------"
+--   putStrLn ""
+--   showAndPerform carEvolutionPlan
