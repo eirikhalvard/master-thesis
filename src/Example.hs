@@ -57,10 +57,10 @@ baseEvolutionPlan =
     beverages =
       Feature "feature:beverages" Mandatory "Beverages" $
         S.fromList
-          [ Group "group:beverages-group" And $
+          [ Group "group:beverages-group" Or $
               S.fromList
-                [ Feature "feature:tea" Mandatory "Tea" S.empty
-                , Feature "feature:coffee" Mandatory "Coffee" S.empty
+                [ Feature "feature:tea" Optional "Tea" S.empty
+                , Feature "feature:coffee" Optional "Coffee" S.empty
                 ]
           ]
     size =
@@ -117,7 +117,7 @@ v1EvolutionPlan =
     currency =
       Feature "feature:currency" Mandatory "Currency" $
         S.fromList
-          [ Group "group:currency-group" Or $
+          [ Group "group:currency-group" Alternative $
               S.fromList
                 [ Feature "feature:euro" Optional "Euro" S.empty
                 , Feature "feature:dollar" Optional "Dollar" S.empty
@@ -141,10 +141,10 @@ v1EvolutionPlan =
     beverages =
       Feature "feature:beverages" Mandatory "Beverages" $
         S.fromList
-          [ Group "group:beverages-group" And $
+          [ Group "group:beverages-group" Or $
               S.fromList
-                [ Feature "feature:tea" Mandatory "Tea" S.empty
-                , Feature "feature:coffee" Mandatory "Coffee" S.empty
+                [ Feature "feature:tea" Optional "Tea" S.empty
+                , Feature "feature:coffee" Optional "Coffee" S.empty
                 ]
           ]
     modifiedSize =
@@ -210,11 +210,11 @@ v2EvolutionPlan =
     beverages =
       Feature "feature:beverages" Mandatory "Beverages" $
         S.fromList
-          [ Group "group:beverages-group" And $
+          [ Group "group:beverages-group" Or $
               S.fromList
-                [ Feature "feature:tea" Mandatory "Tea" S.empty
-                , Feature "feature:coffee" Mandatory "Coffee" S.empty
-                , Feature "feature:cappuccino" Mandatory "Cappuccino" S.empty
+                [ Feature "feature:tea" Optional "Tea" S.empty
+                , Feature "feature:coffee" Optional "Coffee" S.empty
+                , Feature "feature:cappuccino" Optional "Cappuccino" S.empty
                 ]
           ]
     size =
@@ -271,7 +271,7 @@ expectedEvolutionPlan =
     currency =
       Feature "feature:currency" Mandatory "Currency" $
         S.fromList
-          [ Group "group:currency-group" Or $
+          [ Group "group:currency-group" Alternative $
               S.fromList
                 [ Feature "feature:euro" Optional "Euro" S.empty
                 , Feature "feature:dollar" Optional "Dollar" S.empty
@@ -296,11 +296,11 @@ expectedEvolutionPlan =
     beverages =
       Feature "feature:beverages" Mandatory "Beverages" $
         S.fromList
-          [ Group "group:beverages-group" And $
+          [ Group "group:beverages-group" Or $
               S.fromList
-                [ Feature "feature:tea" Mandatory "Tea" S.empty
-                , Feature "feature:coffee" Mandatory "Coffee" S.empty
-                , Feature "feature:cappuccino" Mandatory "Cappuccino" S.empty
+                [ Feature "feature:tea" Optional "Tea" S.empty
+                , Feature "feature:coffee" Optional "Coffee" S.empty
+                , Feature "feature:cappuccino" Optional "Cappuccino" S.empty
                 ]
           ]
     mergedSize =
