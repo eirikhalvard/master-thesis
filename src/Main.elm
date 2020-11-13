@@ -7,6 +7,7 @@ import Browser.Events as E
 import Element exposing (Element)
 import Element.Background as Background
 import Element.Border as Border
+import Element.Events as EEvents
 import Element.Font as Font
 import EvolutionPlans exposing (..)
 import EvolutionPlansDecoder as Decode
@@ -328,6 +329,29 @@ view model =
                                 Element.column [ Element.height Element.fill ]
                                     [ Element.el [ Element.width Element.fill ] <|
                                         Element.text "Welcome to the tree visualizer!"
+                                    , Element.column []
+                                        [ Element.row []
+                                            (fields.mergeResult.evolutionPlans
+                                                |> Array.indexedMap
+                                                    (\i ep ->
+                                                        Element.el [ EEvents.onClick (NewEvolutionPlanIndex i) ] <|
+                                                            Element.text <|
+                                                                ep.name
+                                                    )
+                                                |> Array.toList
+                                            )
+                                        , Element.row []
+                                            (currentEP.timePoints
+                                                |> Array.indexedMap
+                                                    (\i tp ->
+                                                        Element.el [ EEvents.onClick (NewFeatureModelIndex i) ] <|
+                                                            Element.text <|
+                                                                String.fromInt <|
+                                                                    tp.time
+                                                    )
+                                                |> Array.toList
+                                            )
+                                        ]
                                     , Element.text (Debug.toString model)
                                     , Element.text (Debug.toString height)
                                     , Element.el

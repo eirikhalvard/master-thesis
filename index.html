@@ -11492,6 +11492,12 @@ var $author$project$Main$update = F2(
 					$elm$core$Platform$Cmd$none);
 		}
 	});
+var $author$project$Main$NewEvolutionPlanIndex = function (a) {
+	return {$: 'NewEvolutionPlanIndex', a: a};
+};
+var $author$project$Main$NewFeatureModelIndex = function (a) {
+	return {$: 'NewFeatureModelIndex', a: a};
+};
 var $elm$core$List$maximum = function (list) {
 	if (list.b) {
 		var x = list.a;
@@ -17105,6 +17111,43 @@ var $mdgriffith$elm_ui$Internal$Model$Fill = function (a) {
 var $mdgriffith$elm_ui$Element$fill = $mdgriffith$elm_ui$Internal$Model$Fill(1);
 var $mdgriffith$elm_ui$Internal$Model$unstyled = A2($elm$core$Basics$composeL, $mdgriffith$elm_ui$Internal$Model$Unstyled, $elm$core$Basics$always);
 var $mdgriffith$elm_ui$Element$html = $mdgriffith$elm_ui$Internal$Model$unstyled;
+var $elm$core$Elm$JsArray$indexedMap = _JsArray_indexedMap;
+var $elm$core$Array$indexedMap = F2(
+	function (func, _v0) {
+		var len = _v0.a;
+		var tree = _v0.c;
+		var tail = _v0.d;
+		var initialBuilder = {
+			nodeList: _List_Nil,
+			nodeListSize: 0,
+			tail: A3(
+				$elm$core$Elm$JsArray$indexedMap,
+				func,
+				$elm$core$Array$tailIndex(len),
+				tail)
+		};
+		var helper = F2(
+			function (node, builder) {
+				if (node.$ === 'SubTree') {
+					var subTree = node.a;
+					return A3($elm$core$Elm$JsArray$foldl, helper, builder, subTree);
+				} else {
+					var leaf = node.a;
+					var offset = builder.nodeListSize * $elm$core$Array$branchFactor;
+					var mappedLeaf = $elm$core$Array$Leaf(
+						A3($elm$core$Elm$JsArray$indexedMap, func, offset, leaf));
+					return {
+						nodeList: A2($elm$core$List$cons, mappedLeaf, builder.nodeList),
+						nodeListSize: builder.nodeListSize + 1,
+						tail: builder.tail
+					};
+				}
+			});
+		return A2(
+			$elm$core$Array$builderToArray,
+			true,
+			A3($elm$core$Elm$JsArray$foldl, helper, initialBuilder, tree));
+	});
 var $mdgriffith$elm_ui$Internal$Model$OnlyDynamic = F2(
 	function (a, b) {
 		return {$: 'OnlyDynamic', a: a, b: b};
@@ -17382,10 +17425,31 @@ var $mdgriffith$elm_ui$Element$layoutWith = F3(
 	});
 var $mdgriffith$elm_ui$Element$layout = $mdgriffith$elm_ui$Element$layoutWith(
 	{options: _List_Nil});
+var $mdgriffith$elm_ui$Element$Events$onClick = A2($elm$core$Basics$composeL, $mdgriffith$elm_ui$Internal$Model$Attr, $elm$html$Html$Events$onClick);
 var $mdgriffith$elm_ui$Internal$Model$Px = function (a) {
 	return {$: 'Px', a: a};
 };
 var $mdgriffith$elm_ui$Element$px = $mdgriffith$elm_ui$Internal$Model$Px;
+var $mdgriffith$elm_ui$Internal$Model$AsRow = {$: 'AsRow'};
+var $mdgriffith$elm_ui$Internal$Model$asRow = $mdgriffith$elm_ui$Internal$Model$AsRow;
+var $mdgriffith$elm_ui$Element$row = F2(
+	function (attrs, children) {
+		return A4(
+			$mdgriffith$elm_ui$Internal$Model$element,
+			$mdgriffith$elm_ui$Internal$Model$asRow,
+			$mdgriffith$elm_ui$Internal$Model$div,
+			A2(
+				$elm$core$List$cons,
+				$mdgriffith$elm_ui$Internal$Model$htmlClass($mdgriffith$elm_ui$Internal$Style$classes.contentLeft + (' ' + $mdgriffith$elm_ui$Internal$Style$classes.contentCenterY)),
+				A2(
+					$elm$core$List$cons,
+					$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$shrink),
+					A2(
+						$elm$core$List$cons,
+						$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$shrink),
+						attrs))),
+			$mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
+	});
 var $mdgriffith$elm_ui$Element$scrollbars = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$overflow, $mdgriffith$elm_ui$Internal$Style$classes.scrollbars);
 var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
 var $author$project$EvolutionPlans$Node = function (a) {
@@ -17433,8 +17497,8 @@ var $author$project$Main$view = function (model) {
 			return _Debug_todo(
 				'Main',
 				{
-					start: {line: 309, column: 21},
-					end: {line: 309, column: 31}
+					start: {line: 310, column: 21},
+					end: {line: 310, column: 31}
 				})('Evolution Plan index out of bounds');
 		} else {
 			var currentEP = _v1.a;
@@ -17443,8 +17507,8 @@ var $author$project$Main$view = function (model) {
 				return _Debug_todo(
 					'Main',
 					{
-						start: {line: 314, column: 29},
-						end: {line: 314, column: 39}
+						start: {line: 315, column: 29},
+						end: {line: 315, column: 39}
 					})('Feature Model index out of bounds');
 			} else {
 				var currentFM = _v2.a;
@@ -17470,6 +17534,49 @@ var $author$project$Main$view = function (model) {
 										$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill)
 									]),
 								$mdgriffith$elm_ui$Element$text('Welcome to the tree visualizer!')),
+								A2(
+								$mdgriffith$elm_ui$Element$column,
+								_List_Nil,
+								_List_fromArray(
+									[
+										A2(
+										$mdgriffith$elm_ui$Element$row,
+										_List_Nil,
+										$elm$core$Array$toList(
+											A2(
+												$elm$core$Array$indexedMap,
+												F2(
+													function (i, ep) {
+														return A2(
+															$mdgriffith$elm_ui$Element$el,
+															_List_fromArray(
+																[
+																	$mdgriffith$elm_ui$Element$Events$onClick(
+																	$author$project$Main$NewEvolutionPlanIndex(i))
+																]),
+															$mdgriffith$elm_ui$Element$text(ep.name));
+													}),
+												fields.mergeResult.evolutionPlans))),
+										A2(
+										$mdgriffith$elm_ui$Element$row,
+										_List_Nil,
+										$elm$core$Array$toList(
+											A2(
+												$elm$core$Array$indexedMap,
+												F2(
+													function (i, tp) {
+														return A2(
+															$mdgriffith$elm_ui$Element$el,
+															_List_fromArray(
+																[
+																	$mdgriffith$elm_ui$Element$Events$onClick(
+																	$author$project$Main$NewFeatureModelIndex(i))
+																]),
+															$mdgriffith$elm_ui$Element$text(
+																$elm$core$String$fromInt(tp.time)));
+													}),
+												currentEP.timePoints)))
+									])),
 								$mdgriffith$elm_ui$Element$text(
 								$elm$core$Debug$toString(model)),
 								$mdgriffith$elm_ui$Element$text(
