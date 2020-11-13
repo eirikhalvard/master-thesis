@@ -3,7 +3,6 @@ module Main exposing (..)
 import Browser
 import Browser.Dom as Dom
 import Browser.Events as E
-import Debug
 import Element exposing (Element)
 import Element.Background as Background
 import Element.Border as Border
@@ -99,6 +98,8 @@ type Msg
     | GotMergeResult (Result Http.Error MergeResult)
     | NodeHoverEntry String
     | NodeHoverExit
+    | NewEvolutionPlanIndex Int
+    | NewFeatureModelIndex Int
 
 
 type alias Flags =
@@ -122,6 +123,8 @@ type alias Fields =
     , height : Int
     , mergeResult : MergeResult
     , hoverData : Maybe String
+    , chosenEvolutionPlanIndex : Int
+    , chosenFeatureModelIndex : Int
     }
 
 
@@ -184,6 +187,21 @@ update msg model =
         NodeHoverExit ->
             ( updateIfInitialized (\f -> { f | hoverData = Nothing }) model, Cmd.none )
 
+        NewEvolutionPlanIndex epIndex ->
+            ( updateIfInitialized
+                (\f ->
+                    { f
+                        | chosenEvolutionPlanIndex = epIndex
+                        , chosenFeatureModelIndex = 0
+                    }
+                )
+                model
+            , Cmd.none
+            )
+
+        NewFeatureModelIndex fmIndex ->
+            ( updateIfInitialized (\f -> { f | chosenFeatureModelIndex = fmIndex }) model, Cmd.none )
+
 
 updateIfInitialized : (Fields -> Fields) -> Model -> Model
 updateIfInitialized fieldTransformer model =
@@ -225,6 +243,8 @@ convertIfInitialized someFields =
                         { width = w, height = h }
                 , mergeResult = mergeResult
                 , hoverData = Nothing
+                , chosenEvolutionPlanIndex = 0
+                , chosenFeatureModelIndex = 0
                 }
 
         _ ->
@@ -261,7 +281,7 @@ updateMergeResult mergeResult model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    E.onResize (\w h -> NewWindowSize w h)
+    E.onResize NewWindowSize
 
 
 tempToTree : Feature -> Tree

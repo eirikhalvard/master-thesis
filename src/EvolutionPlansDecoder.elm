@@ -39,34 +39,29 @@ featureModel =
 
 feature : Decode.Decoder Feature
 feature =
-    Decode.map4
-        (\i f n g ->
-            Feature
-                { id = i
-                , featureType = f
-                , name = n
-                , groups = g
-                }
-        )
-        (Decode.field "id" Decode.string)
-        (Decode.field "featureType" Decode.string)
-        (Decode.field "name" Decode.string)
-        (Decode.field "groups" <| Decode.list (Decode.lazy (\_ -> group)))
+    let
+        field =
+            Decode.map4
+                FeatureFields
+                (Decode.field "id" Decode.string)
+                (Decode.field "featureType" Decode.string)
+                (Decode.field "name" Decode.string)
+                (Decode.field "groups" <| Decode.list (Decode.lazy (\_ -> group)))
+    in
+    Decode.map Feature field
 
 
 group : Decode.Decoder Group
 group =
-    Decode.map3
-        (\i g f ->
-            Group
-                { id = i
-                , groupType = g
-                , features = f
-                }
-        )
-        (Decode.field "id" Decode.string)
-        (Decode.field "groupType" Decode.string)
-        (Decode.field "features" <| Decode.list (Decode.lazy (\_ -> feature)))
+    let
+        field =
+            Decode.map3
+                GroupFields
+                (Decode.field "id" Decode.string)
+                (Decode.field "groupType" Decode.string)
+                (Decode.field "features" <| Decode.list (Decode.lazy (\_ -> feature)))
+    in
+    Decode.map Group field
 
 
 tree : Decode.Decoder Tree

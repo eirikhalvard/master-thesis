@@ -11003,9 +11003,17 @@ var $author$project$EvolutionPlans$FeatureModel = function (rootFeature) {
 var $author$project$EvolutionPlans$Feature = function (a) {
 	return {$: 'Feature', a: a};
 };
+var $author$project$EvolutionPlans$FeatureFields = F4(
+	function (id, featureType, name, groups) {
+		return {featureType: featureType, groups: groups, id: id, name: name};
+	});
 var $author$project$EvolutionPlans$Group = function (a) {
 	return {$: 'Group', a: a};
 };
+var $author$project$EvolutionPlans$GroupFields = F3(
+	function (id, groupType, features) {
+		return {features: features, groupType: groupType, id: id};
+	});
 var $elm$json$Json$Decode$andThen = _Json_andThen;
 var $elm$json$Json$Decode$lazy = function (thunk) {
 	return A2(
@@ -11015,13 +11023,9 @@ var $elm$json$Json$Decode$lazy = function (thunk) {
 };
 var $elm$json$Json$Decode$map4 = _Json_map4;
 function $author$project$EvolutionPlansDecoder$cyclic$feature() {
-	return A5(
+	var field = A5(
 		$elm$json$Json$Decode$map4,
-		F4(
-			function (i, f, n, g) {
-				return $author$project$EvolutionPlans$Feature(
-					{featureType: f, groups: g, id: i, name: n});
-			}),
+		$author$project$EvolutionPlans$FeatureFields,
 		A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$string),
 		A2($elm$json$Json$Decode$field, 'featureType', $elm$json$Json$Decode$string),
 		A2($elm$json$Json$Decode$field, 'name', $elm$json$Json$Decode$string),
@@ -11033,15 +11037,12 @@ function $author$project$EvolutionPlansDecoder$cyclic$feature() {
 					function (_v1) {
 						return $author$project$EvolutionPlansDecoder$cyclic$group();
 					}))));
+	return A2($elm$json$Json$Decode$map, $author$project$EvolutionPlans$Feature, field);
 }
 function $author$project$EvolutionPlansDecoder$cyclic$group() {
-	return A4(
+	var field = A4(
 		$elm$json$Json$Decode$map3,
-		F3(
-			function (i, g, f) {
-				return $author$project$EvolutionPlans$Group(
-					{features: f, groupType: g, id: i});
-			}),
+		$author$project$EvolutionPlans$GroupFields,
 		A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$string),
 		A2($elm$json$Json$Decode$field, 'groupType', $elm$json$Json$Decode$string),
 		A2(
@@ -11052,6 +11053,7 @@ function $author$project$EvolutionPlansDecoder$cyclic$group() {
 					function (_v0) {
 						return $author$project$EvolutionPlansDecoder$cyclic$feature();
 					}))));
+	return A2($elm$json$Json$Decode$map, $author$project$EvolutionPlans$Group, field);
 }
 try {
 	var $author$project$EvolutionPlansDecoder$feature = $author$project$EvolutionPlansDecoder$cyclic$feature();
@@ -11296,11 +11298,7 @@ var $elm$browser$Browser$Events$onResize = function (func) {
 				A2($elm$json$Json$Decode$field, 'innerHeight', $elm$json$Json$Decode$int))));
 };
 var $author$project$Main$subscriptions = function (model) {
-	return $elm$browser$Browser$Events$onResize(
-		F2(
-			function (w, h) {
-				return A2($author$project$Main$NewWindowSize, w, h);
-			}));
+	return $elm$browser$Browser$Events$onResize($author$project$Main$NewWindowSize);
 };
 var $author$project$Main$Initialized = function (a) {
 	return {$: 'Initialized', a: a};
@@ -11344,6 +11342,8 @@ var $author$project$Main$convertIfInitialized = function (someFields) {
 		var mergeResult = _v0.b.a;
 		return $author$project$Main$Initialized(
 			{
+				chosenEvolutionPlanIndex: 0,
+				chosenFeatureModelIndex: 0,
 				device: $mdgriffith$elm_ui$Element$classifyDevice(
 					{height: h, width: w}),
 				height: h,
@@ -11453,7 +11453,7 @@ var $author$project$Main$update = F2(
 						},
 						model),
 					$elm$core$Platform$Cmd$none);
-			default:
+			case 'NodeHoverExit':
 				return _Utils_Tuple2(
 					A2(
 						$author$project$Main$updateIfInitialized,
@@ -11461,6 +11461,30 @@ var $author$project$Main$update = F2(
 							return _Utils_update(
 								f,
 								{hoverData: $elm$core$Maybe$Nothing});
+						},
+						model),
+					$elm$core$Platform$Cmd$none);
+			case 'NewEvolutionPlanIndex':
+				var epIndex = msg.a;
+				return _Utils_Tuple2(
+					A2(
+						$author$project$Main$updateIfInitialized,
+						function (f) {
+							return _Utils_update(
+								f,
+								{chosenEvolutionPlanIndex: epIndex, chosenFeatureModelIndex: 0});
+						},
+						model),
+					$elm$core$Platform$Cmd$none);
+			default:
+				var fmIndex = msg.a;
+				return _Utils_Tuple2(
+					A2(
+						$author$project$Main$updateIfInitialized,
+						function (f) {
+							return _Utils_update(
+								f,
+								{chosenFeatureModelIndex: fmIndex});
 						},
 						model),
 					$elm$core$Platform$Cmd$none);
@@ -17492,7 +17516,7 @@ var $author$project$Main$main = $elm$browser$Browser$element(
 	{init: $author$project$Main$init, subscriptions: $author$project$Main$subscriptions, update: $author$project$Main$update, view: $author$project$Main$view});
 _Platform_export({'Main':{'init':$author$project$Main$main(
 	$elm$json$Json$Decode$succeed(
-		{}))({"versions":{"elm":"0.19.1"},"types":{"message":"Main.Msg","aliases":{"EvolutionPlans.EvolutionPlan":{"args":[],"type":"{ timePoints : List.List EvolutionPlans.TimePoint }"},"EvolutionPlans.FeatureModel":{"args":[],"type":"{ rootFeature : EvolutionPlans.Feature }"},"EvolutionPlans.MergeEvolutionPlan":{"args":[],"type":"{ name : String.String, evolutionPlan : EvolutionPlans.EvolutionPlan }"},"EvolutionPlans.MergeResult":{"args":[],"type":"{ evolutionPlans : List.List EvolutionPlans.MergeEvolutionPlan }"},"EvolutionPlans.Time":{"args":[],"type":"Basics.Int"},"EvolutionPlans.TimePoint":{"args":[],"type":"{ time : EvolutionPlans.Time, featureModel : EvolutionPlans.FeatureModel }"},"Browser.Dom.Viewport":{"args":[],"type":"{ scene : { width : Basics.Float, height : Basics.Float }, viewport : { x : Basics.Float, y : Basics.Float, width : Basics.Float, height : Basics.Float } }"},"EvolutionPlans.FeatureId":{"args":[],"type":"String.String"},"EvolutionPlans.GroupId":{"args":[],"type":"String.String"}},"unions":{"Main.Msg":{"args":[],"tags":{"NoOp":[],"NewWindowSize":["Basics.Int","Basics.Int"],"GotViewport":["Browser.Dom.Viewport"],"GotMergeResult":["Result.Result Http.Error EvolutionPlans.MergeResult"],"NodeHoverEntry":["String.String"],"NodeHoverExit":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Basics.Int"],"BadBody":["String.String"]}},"EvolutionPlans.Feature":{"args":[],"tags":{"Feature":["{ id : EvolutionPlans.FeatureId, featureType : String.String, name : String.String, groups : List.List EvolutionPlans.Group }"]}},"Basics.Float":{"args":[],"tags":{"Float":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"String.String":{"args":[],"tags":{"String":[]}},"EvolutionPlans.Group":{"args":[],"tags":{"Group":["{ id : EvolutionPlans.GroupId, groupType : String.String, features : List.List EvolutionPlans.Feature }"]}}}}})}});}(this));
+		{}))({"versions":{"elm":"0.19.1"},"types":{"message":"Main.Msg","aliases":{"EvolutionPlans.EvolutionPlan":{"args":[],"type":"{ timePoints : List.List EvolutionPlans.TimePoint }"},"EvolutionPlans.FeatureModel":{"args":[],"type":"{ rootFeature : EvolutionPlans.Feature }"},"EvolutionPlans.MergeEvolutionPlan":{"args":[],"type":"{ name : String.String, evolutionPlan : EvolutionPlans.EvolutionPlan }"},"EvolutionPlans.MergeResult":{"args":[],"type":"{ evolutionPlans : List.List EvolutionPlans.MergeEvolutionPlan }"},"EvolutionPlans.Time":{"args":[],"type":"Basics.Int"},"EvolutionPlans.TimePoint":{"args":[],"type":"{ time : EvolutionPlans.Time, featureModel : EvolutionPlans.FeatureModel }"},"Browser.Dom.Viewport":{"args":[],"type":"{ scene : { width : Basics.Float, height : Basics.Float }, viewport : { x : Basics.Float, y : Basics.Float, width : Basics.Float, height : Basics.Float } }"},"EvolutionPlans.FeatureFields":{"args":[],"type":"{ id : EvolutionPlans.FeatureId, featureType : String.String, name : String.String, groups : List.List EvolutionPlans.Group }"},"EvolutionPlans.FeatureId":{"args":[],"type":"String.String"},"EvolutionPlans.GroupFields":{"args":[],"type":"{ id : EvolutionPlans.GroupId, groupType : String.String, features : List.List EvolutionPlans.Feature }"},"EvolutionPlans.GroupId":{"args":[],"type":"String.String"}},"unions":{"Main.Msg":{"args":[],"tags":{"NoOp":[],"NewWindowSize":["Basics.Int","Basics.Int"],"GotViewport":["Browser.Dom.Viewport"],"GotMergeResult":["Result.Result Http.Error EvolutionPlans.MergeResult"],"NodeHoverEntry":["String.String"],"NodeHoverExit":[],"NewEvolutionPlanIndex":["Basics.Int"],"NewFeatureModelIndex":["Basics.Int"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Basics.Int"],"BadBody":["String.String"]}},"EvolutionPlans.Feature":{"args":[],"tags":{"Feature":["EvolutionPlans.FeatureFields"]}},"Basics.Float":{"args":[],"tags":{"Float":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"String.String":{"args":[],"tags":{"String":[]}},"EvolutionPlans.Group":{"args":[],"tags":{"Group":["EvolutionPlans.GroupFields"]}}}}})}});}(this));
 
   var app = Elm.Main.init({ node: document.getElementById("elm") });
 }

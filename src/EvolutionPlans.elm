@@ -41,20 +41,26 @@ type alias FeatureModel =
 
 
 type Feature
-    = Feature
-        { id : FeatureId
-        , featureType : String
-        , name : String
-        , groups : List Group
-        }
+    = Feature FeatureFields
+
+
+type alias FeatureFields =
+    { id : FeatureId
+    , featureType : String
+    , name : String
+    , groups : List Group
+    }
 
 
 type Group
-    = Group
-        { id : GroupId
-        , groupType : String
-        , features : List Feature
-        }
+    = Group GroupFields
+
+
+type alias GroupFields =
+    { id : GroupId
+    , groupType : String
+    , features : List Feature
+    }
 
 
 type Tree
