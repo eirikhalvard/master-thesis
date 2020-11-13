@@ -1,5 +1,7 @@
 module EvolutionPlans exposing (..)
 
+import Array exposing (Array)
+
 
 type alias Time =
     Int
@@ -14,18 +16,13 @@ type alias GroupId =
 
 
 type alias MergeResult =
-    { evolutionPlans : List MergeEvolutionPlan
-    }
-
-
-type alias MergeEvolutionPlan =
-    { name : String
-    , evolutionPlan : EvolutionPlan
+    { evolutionPlans : Array EvolutionPlan
     }
 
 
 type alias EvolutionPlan =
-    { timePoints : List TimePoint
+    { timePoints : Array TimePoint
+    , name : String
     }
 
 

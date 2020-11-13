@@ -1,5 +1,6 @@
 module EvolutionPlansDecoder exposing (..)
 
+import Array
 import EvolutionPlans exposing (..)
 import Json.Decode as Decode
 import Json.Encode as Encode
@@ -8,20 +9,16 @@ import Json.Encode as Encode
 mergeResult : Decode.Decoder MergeResult
 mergeResult =
     Decode.map MergeResult
-        (Decode.field "evolutionPlans" <| Decode.list mergeEvolutionPlan)
-
-
-mergeEvolutionPlan : Decode.Decoder MergeEvolutionPlan
-mergeEvolutionPlan =
-    Decode.map2 MergeEvolutionPlan
-        (Decode.field "name" Decode.string)
-        (Decode.field "evolutionPlan" evolutionPlan)
+        (Decode.field "evolutionPlans" <| Decode.map Array.fromList <| Decode.list evolutionPlan)
 
 
 evolutionPlan : Decode.Decoder EvolutionPlan
 evolutionPlan =
-    Decode.map EvolutionPlan
-        (Decode.field "timePoints" <| Decode.list timePoint)
+    Decode.map2 EvolutionPlan
+        (Decode.field "evolutionPlan"
+            (Decode.field "timePoints" <| Decode.map Array.fromList <| Decode.list timePoint)
+        )
+        (Decode.field "name" Decode.string)
 
 
 timePoint : Decode.Decoder TimePoint

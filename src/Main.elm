@@ -1,5 +1,6 @@
 module Main exposing (..)
 
+import Array
 import Browser
 import Browser.Dom as Dom
 import Browser.Events as E
@@ -296,30 +297,6 @@ tempToTree (Feature fields) =
         }
 
 
-firstFeatureModel : MergeResult -> Feature
-firstFeatureModel mr =
-    let
-        errFeature =
-            Feature
-                { id = "error-feature"
-                , featureType = "errorFeatureType"
-                , name = "errorFeatureName"
-                , groups = []
-                }
-    in
-    case mr.evolutionPlans of
-        ep :: _ ->
-            case ep.evolutionPlan.timePoints of
-                _ :: _ :: _ :: fm :: _ ->
-                    fm.featureModel.rootFeature
-
-                _ ->
-                    errFeature
-
-        [] ->
-            errFeature
-
-
 view : Model -> Html Msg
 view model =
     case model of
@@ -327,48 +304,58 @@ view model =
             Element.layout [] <| Element.text <| Debug.toString someFields
 
         Initialized fields ->
-            let
-                computedTree =
-                    computeTree <| tempToTree <| firstFeatureModel fields.mergeResult
+            case Array.get fields.chosenEvolutionPlanIndex fields.mergeResult.evolutionPlans of
+                Nothing ->
+                    Debug.todo "Evolution Plan index out of bounds"
 
-                width =
-                    calcWidth computedTree
+                Just currentEP ->
+                    case Array.get fields.chosenFeatureModelIndex currentEP.timePoints of
+                        Nothing ->
+                            Debug.todo "Feature Model index out of bounds"
 
-                height =
-                    calcHeight computedTree
-            in
-            Element.layout [] <|
-                Element.column [ Element.height Element.fill ]
-                    [ Element.el [ Element.width Element.fill ] <|
-                        Element.text "Welcome to the tree visualizer!"
-                    , Element.text (Debug.toString model)
-                    , Element.text (Debug.toString height)
-                    , Element.el
-                        [ Element.clip
-                        , Element.scrollbars
-                        , Element.width (Element.px <| fields.width - 100)
-                        , Element.height (Element.px <| fields.height - 100)
-                        ]
-                      <|
-                        Element.el
-                            [ Element.width <| Element.px <| round width
-                            , Element.height <| Element.px <| round height
-                            ]
-                        <|
-                            Element.html
-                                (Svg.svg
-                                    [ SvgA.width "100%"
-                                    , SvgA.height "100%"
-                                    , SvgA.viewBox <|
-                                        "0 0 "
-                                            ++ String.fromFloat width
-                                            ++ " "
-                                            ++ String.fromFloat height
+                        Just currentFM ->
+                            let
+                                computedTree =
+                                    computeTree <| tempToTree <| currentFM.featureModel.rootFeature
+
+                                width =
+                                    calcWidth computedTree
+
+                                height =
+                                    calcHeight computedTree
+                            in
+                            Element.layout [] <|
+                                Element.column [ Element.height Element.fill ]
+                                    [ Element.el [ Element.width Element.fill ] <|
+                                        Element.text "Welcome to the tree visualizer!"
+                                    , Element.text (Debug.toString model)
+                                    , Element.text (Debug.toString height)
+                                    , Element.el
+                                        [ Element.clip
+                                        , Element.scrollbars
+                                        , Element.width (Element.px <| fields.width - 100)
+                                        , Element.height (Element.px <| fields.height - 100)
+                                        ]
+                                      <|
+                                        Element.el
+                                            [ Element.width <| Element.px <| round width
+                                            , Element.height <| Element.px <| round height
+                                            ]
+                                        <|
+                                            Element.html
+                                                (Svg.svg
+                                                    [ SvgA.width "100%"
+                                                    , SvgA.height "100%"
+                                                    , SvgA.viewBox <|
+                                                        "0 0 "
+                                                            ++ String.fromFloat width
+                                                            ++ " "
+                                                            ++ String.fromFloat height
+                                                    ]
+                                                    (computedTree |> drawTree 0 0)
+                                                )
+                                    , Element.el [] <| Element.text "Welcome to the bottom of the tree visualizer!"
                                     ]
-                                    (computedTree |> drawTree 0 0)
-                                )
-                    , Element.el [] <| Element.text "Welcome to the bottom of the tree visualizer!"
-                    ]
 
 
 computeTree : Tree -> ComputedTree
