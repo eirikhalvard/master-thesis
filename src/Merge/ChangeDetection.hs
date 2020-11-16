@@ -27,10 +27,19 @@ flattenEvolutionPlan =
     %~ flattenFeatureModel
 
 flattenFeatureModel :: FeatureModel -> FeatureModel'
-flattenFeatureModel = undefined
+flattenFeatureModel fm =
+  FeatureModel'
+    (fm ^. L.rootFeature . L.id)
+    (M.fromList features)
+    (M.fromList groups)
   where
-    flattenFeature feature mParentGroup = undefined
-    flattenGroup group parentFeature = undefined
+    (features, groups) = flattenFeature Nothing (fm ^. L.rootFeature)
+    flattenFeature mParentGroup (Feature id featureType name groups) =
+      ([(id, Feature' mParentGroup featureType name)], [])
+        <> foldMap (flattenGroup id) groups
+    flattenGroup parentFeature (Group id groupType features) =
+      ([], [(id, Group' parentFeature groupType)])
+        <> foldMap (flattenFeature (Just id)) features
 
 constructModificationLevelEP ::
   AbstractedLevelEvolutionPlan FeatureModel' ->
