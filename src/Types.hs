@@ -2,10 +2,6 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE FunctionalDependencies #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeSynonymInstances #-}
 
 module Types where
 
@@ -127,7 +123,7 @@ data AbstractedLevelEvolutionPlan featureModel = AbstractedLevelEvolutionPlan
 
 data TimePoint featureModel = TimePoint
   { _time :: Time
-  , _featureModel :: FeatureModel
+  , _featureModel :: featureModel
   }
   deriving (Show, Eq, Read, Generic)
 
@@ -396,52 +392,3 @@ instance ToJSON FeatureType where
 instance ToJSON GroupType where
   toJSON = genericToJSON customAesonOptions
   toEncoding = genericToEncoding customAesonOptions
-
---------------
---  OPTICS  --
---------------
-
-makeFieldsNoPrefix ''FeatureModel
-makeFieldsNoPrefix ''Feature
-makeFieldsNoPrefix ''Group
-makeFieldsNoPrefix ''FeatureModel'
-makeFieldsNoPrefix ''Feature'
-makeFieldsNoPrefix ''Group'
-makePrisms ''FeatureType
-makePrisms ''GroupType
-
-makeFieldsNoPrefix ''AbstractedLevelEvolutionPlan
-makeFieldsNoPrefix ''TimePoint
-makeFieldsNoPrefix ''TransformationEvolutionPlan
-makeFieldsNoPrefix ''Plan
-
-makePrisms ''Operation
-makeFieldsNoPrefix ''AddFeatureOp
-makeFieldsNoPrefix ''RemoveFeatureOp
-makeFieldsNoPrefix ''MoveFeatureOp
-makeFieldsNoPrefix ''RenameFeatureOp
-makeFieldsNoPrefix ''ChangeFeatureTypeOp
-makeFieldsNoPrefix ''AddGroupOp
-makeFieldsNoPrefix ''RemoveGroupOp
-makeFieldsNoPrefix ''ChangeGroupTypeOp
-makeFieldsNoPrefix ''MoveGroupOp
-
-makeFieldsNoPrefix ''Modifications
-makePrisms ''FeatureModification
-makeFieldsNoPrefix ''FeatureParentModification
-makeFieldsNoPrefix ''FeatureNameModification
-makeFieldsNoPrefix ''FeatureTypeModification
-makePrisms ''GroupModification
-makeFieldsNoPrefix ''GroupParentModification
-makeFieldsNoPrefix ''GroupTypeModification
-
-makeFieldsNoPrefix ''DiffResult
-makePrisms ''SingleDiffResult
-makePrisms ''OneChange
-makePrisms ''BothChange
-makePrisms ''RemovedOrChangedModification
-makeFieldsNoPrefix ''AddedModification
-makePrisms ''Version
-
-makeFieldsNoPrefix ''MergeEvolutionPlan
-makeFieldsNoPrefix ''MergeResult
