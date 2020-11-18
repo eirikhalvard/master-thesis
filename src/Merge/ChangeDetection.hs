@@ -5,6 +5,7 @@ import Types
 
 import Control.Lens
 import qualified Data.Map as M
+import qualified Data.Map.Merge.Lazy as Merge
 import qualified Data.Set as S
 
 -- deriveChanges will transform the abstract level evolution plan to the
@@ -44,8 +45,85 @@ flattenFeatureModel fm =
 constructModificationLevelEP ::
   AbstractedLevelEvolutionPlan FeatureModel' ->
   ModificationLevelEvolutionPlan FeatureModel'
-constructModificationLevelEP = undefined
+constructModificationLevelEP (AbstractedLevelEvolutionPlan timePoints) = case timePoints of
+  [] -> error "evolution plan has to have at least one time point!"
+  ((TimePoint initialTime initialFM) : restTimePoints) ->
+    TransformationEvolutionPlan
+      initialTime
+      initialFM
+      (zipWith timePointsToPlan timePoints restTimePoints)
+
+timePointsToPlan ::
+  TimePoint FeatureModel' -> TimePoint FeatureModel' -> Plan Modifications
+timePointsToPlan (TimePoint _ prevFM) (TimePoint currTime currFM) =
+  Plan currTime $ diffFeatureModels prevFM currFM
 
 -- diffFeatureModels will derive every modification
 diffFeatureModels :: FeatureModel' -> FeatureModel' -> Modifications
-diffFeatureModels fm1 fm2 = undefined
+diffFeatureModels prevFM currFM =
+  Modifications
+    featureModifications
+    groupModifications
+  where
+    featureModifications =
+      Merge.merge
+        (Merge.mapMissing (\_ _ -> FeatureRemove))
+        ( Merge.mapMissing
+            ( \_ (Feature' parent featureType name) ->
+                FeatureAdd parent featureType name
+            )
+        )
+        ( Merge.zipWithMaybeMatched
+            ( \_
+               prev@(Feature' prevParent prevFeatureType prevName)
+               new@(Feature' newParent newFeatureType newName) ->
+                  if prev == new
+                    then Nothing
+                    else
+                      Just $
+                        FeatureModification
+                          ( if prevParent == newParent
+                              then Nothing
+                              else Just (FeatureParentModification newParent)
+                          )
+                          ( if prevFeatureType == newFeatureType
+                              then Nothing
+                              else Just (FeatureTypeModification newFeatureType)
+                          )
+                          ( if prevName == newName
+                              then Nothing
+                              else Just (FeatureNameModification newName)
+                          )
+            )
+        )
+        (prevFM ^. L.features)
+        (currFM ^. L.features)
+    groupModifications =
+      Merge.merge
+        (Merge.mapMissing (\_ _ -> GroupRemove))
+        ( Merge.mapMissing
+            ( \_ (Group' parent groupType) ->
+                GroupAdd parent groupType
+            )
+        )
+        ( Merge.zipWithMaybeMatched
+            ( \_
+               prev@(Group' prevParent prevGroupType)
+               new@(Group' newParent newGroupType) ->
+                  if prev == new
+                    then Nothing
+                    else
+                      Just $
+                        GroupModification
+                          ( if prevParent == newParent
+                              then Nothing
+                              else Just (GroupParentModification newParent)
+                          )
+                          ( if prevGroupType == newGroupType
+                              then Nothing
+                              else Just (GroupTypeModification newGroupType)
+                          )
+            )
+        )
+        (prevFM ^. L.groups)
+        (currFM ^. L.groups)

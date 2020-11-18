@@ -28,6 +28,14 @@ writeExampleToFile filename = do
         . L.featureModel
         . L.features
         . traversed
+  print "----------FEATURE MODIFICATIONS----------"
+  mapM_ print $
+    deriveChanges baseEvolutionPlan
+      ^@.. L.plans . ix 0 . L.transformation . L.features . itraversed
+  print "----------GROUP MODIFICATIONS----------"
+  mapM_ print $
+    deriveChanges baseEvolutionPlan
+      ^@.. L.plans . ix 0 . L.transformation . L.groups . itraversed
   where
     mergeResult =
       MergeResult
