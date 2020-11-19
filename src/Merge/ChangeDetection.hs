@@ -6,7 +6,6 @@ import Types
 import Control.Lens
 import qualified Data.Map as M
 import qualified Data.Map.Merge.Lazy as Merge
-import qualified Data.Set as S
 
 -- deriveChanges will transform the abstract level evolution plan to the
 -- modification level evolution plan. This will be done by deriving what

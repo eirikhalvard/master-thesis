@@ -4,6 +4,8 @@ import Control.Lens
 import Example
 import qualified Lenses as L
 import Merge.ChangeDetection
+import Merge.Merger
+import Text.Pretty.Simple (pPrint)
 import Types
 
 import Data.Aeson
@@ -11,36 +13,28 @@ import Data.Aeson
 writeExampleToFile :: FilePath -> IO ()
 writeExampleToFile filename = do
   print $ "Writing json to file " ++ filename
-  encodeFile filename mergeResult
+  encodeFile filename $
+    MergeResult
+      [ MergeEvolutionPlan "base" baseEvolutionPlan
+      , MergeEvolutionPlan "v1" v1EvolutionPlan
+      , MergeEvolutionPlan "v2" v2EvolutionPlan
+      , MergeEvolutionPlan "expected" expectedEvolutionPlan
+      ]
 
-  print "BASE NORMAL:"
-  baseEvolutionPlan
-    & L.timePoints
-      . traversed
-      . L.featureModel
-    %%~ print
+  let baseModificationEvolutionPlan = deriveChanges baseEvolutionPlan
+      v1ModificationEvolutionPlan = deriveChanges v1EvolutionPlan
+      v2ModificationEvolutionPlan = deriveChanges v2EvolutionPlan
+      mergePlan =
+        createMergePlan
+          baseModificationEvolutionPlan
+          v1ModificationEvolutionPlan
+          v2ModificationEvolutionPlan
 
-  print "BASE FLAT:"
-  mapM_ print $
-    flattenEvolutionPlan baseEvolutionPlan
-      ^.. L.timePoints
-        . ix 1
-        . L.featureModel
-        . L.features
-        . traversed
-  print "----------FEATURE MODIFICATIONS----------"
-  mapM_ print $
-    deriveChanges baseEvolutionPlan
-      ^@.. L.plans . ix 0 . L.transformation . L.features . itraversed
-  print "----------GROUP MODIFICATIONS----------"
-  mapM_ print $
-    deriveChanges baseEvolutionPlan
-      ^@.. L.plans . ix 0 . L.transformation . L.groups . itraversed
-  where
-    mergeResult =
-      MergeResult
-        [ MergeEvolutionPlan "base" baseEvolutionPlan
-        , MergeEvolutionPlan "v1" v1EvolutionPlan
-        , MergeEvolutionPlan "v2" v2EvolutionPlan
-        , MergeEvolutionPlan "expected" expectedEvolutionPlan
-        ]
+  print "------- BASE ABSTRACTED EVOLUTION PLAN -------"
+  pPrint baseEvolutionPlan
+
+  print "------- BASE MODIFICATION EVOLUTION PLAN -------"
+  pPrint baseModificationEvolutionPlan
+
+  print "------- MERGE EVOLUTION PLAN -------"
+  pPrint mergePlan

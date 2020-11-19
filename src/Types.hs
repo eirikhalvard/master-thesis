@@ -289,8 +289,8 @@ data GroupTypeModification
 -- The diff result from the all the changes in the entire time point for all
 -- versions of the model
 data DiffResult = DiffResult
-  { _featureDiffResult :: M.Map FeatureId FeatureDiffResult
-  , _groupDiffResult :: M.Map GroupId GroupDiffResult
+  { _features :: M.Map FeatureId FeatureDiffResult
+  , _groups :: M.Map GroupId GroupDiffResult
   }
   deriving (Show, Eq, Read)
 
