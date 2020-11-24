@@ -13081,20 +13081,26 @@ var $author$project$Main$viewEvolutionPlanButton = F3(
 	function (fields, epIndex, ep) {
 		return A2(
 			$author$project$Main$noOutlineButton,
-			_List_fromArray(
-				[
-					$mdgriffith$elm_ui$Element$Events$onClick(
-					$author$project$Main$NewEvolutionPlanIndex(epIndex)),
-					$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
-					$mdgriffith$elm_ui$Element$Background$color(
-					(!_Utils_eq(fields.chosenEvolutionPlanIndex, epIndex)) ? $author$project$Main$colorScheme.navbar.topBackground : $author$project$Main$colorScheme.navbar.bottomBackground),
-					$mdgriffith$elm_ui$Element$mouseOver(
-					_List_fromArray(
-						[
-							$mdgriffith$elm_ui$Element$Background$color($author$project$Main$colorScheme.navbar.topHover)
-						])),
-					$mdgriffith$elm_ui$Element$padding(3)
-				]),
+			_Utils_ap(
+				_List_fromArray(
+					[
+						$mdgriffith$elm_ui$Element$Events$onClick(
+						$author$project$Main$NewEvolutionPlanIndex(epIndex)),
+						$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
+						$mdgriffith$elm_ui$Element$padding(3)
+					]),
+				_Utils_eq(fields.chosenEvolutionPlanIndex, epIndex) ? _List_fromArray(
+					[
+						$mdgriffith$elm_ui$Element$Background$color($author$project$Main$colorScheme.navbar.bottomBackground)
+					]) : _List_fromArray(
+					[
+						$mdgriffith$elm_ui$Element$Background$color($author$project$Main$colorScheme.navbar.topBackground),
+						$mdgriffith$elm_ui$Element$mouseOver(
+						_List_fromArray(
+							[
+								$mdgriffith$elm_ui$Element$Background$color($author$project$Main$colorScheme.navbar.topHover)
+							]))
+					])),
 			{
 				label: A2(
 					$mdgriffith$elm_ui$Element$el,
@@ -13182,6 +13188,49 @@ var $mdgriffith$elm_ui$Element$Border$widthEach = function (_v0) {
 			bottom,
 			left));
 };
+var $author$project$Main$viewFeatureModelButton = F3(
+	function (fields, fmIndex, fm) {
+		return A2(
+			$author$project$Main$noOutlineButton,
+			_Utils_ap(
+				_List_fromArray(
+					[
+						$mdgriffith$elm_ui$Element$Events$onClick(
+						$author$project$Main$NewFeatureModelIndex(fmIndex)),
+						$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
+						$mdgriffith$elm_ui$Element$padding(3)
+					]),
+				_Utils_eq(fields.chosenFeatureModelIndex, fmIndex) ? _List_fromArray(
+					[
+						$mdgriffith$elm_ui$Element$Background$color($author$project$Main$colorScheme.navbar.background)
+					]) : _List_fromArray(
+					[
+						$mdgriffith$elm_ui$Element$Background$color($author$project$Main$colorScheme.navbar.bottomBackground),
+						$mdgriffith$elm_ui$Element$mouseOver(
+						_List_fromArray(
+							[
+								$mdgriffith$elm_ui$Element$Background$color($author$project$Main$colorScheme.navbar.bottomHover)
+							])),
+						$mdgriffith$elm_ui$Element$Border$widthEach(
+						{bottom: 0, left: 1, right: 1, top: 0}),
+						$mdgriffith$elm_ui$Element$Border$solid,
+						$mdgriffith$elm_ui$Element$Border$color($author$project$Main$colorScheme.navbar.bottomHover)
+					])),
+			{
+				label: A2(
+					$mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[
+							$mdgriffith$elm_ui$Element$centerX,
+							$mdgriffith$elm_ui$Element$Font$color(
+							_Utils_eq(fields.chosenFeatureModelIndex, fmIndex) ? $author$project$Main$colorScheme.navbar.selectedTimePoint : $author$project$Main$colorScheme.white)
+						]),
+					$mdgriffith$elm_ui$Element$text(
+						$elm$core$String$fromInt(fm.time))),
+				onPress: $elm$core$Maybe$Just(
+					$author$project$Main$NewFeatureModelIndex(fmIndex))
+			});
+	});
 var $author$project$Main$viewFeatureModelBar = F2(
 	function (fields, currentEP) {
 		return A2(
@@ -13193,44 +13242,7 @@ var $author$project$Main$viewFeatureModelBar = F2(
 			$elm$core$Array$toList(
 				A2(
 					$elm$core$Array$indexedMap,
-					F2(
-						function (i, tp) {
-							return A2(
-								$author$project$Main$noOutlineButton,
-								_List_fromArray(
-									[
-										$mdgriffith$elm_ui$Element$Events$onClick(
-										$author$project$Main$NewFeatureModelIndex(i)),
-										$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
-										$mdgriffith$elm_ui$Element$Background$color(
-										(!_Utils_eq(fields.chosenFeatureModelIndex, i)) ? $author$project$Main$colorScheme.navbar.bottomBackground : $author$project$Main$colorScheme.navbar.background),
-										$mdgriffith$elm_ui$Element$mouseOver(
-										_List_fromArray(
-											[
-												$mdgriffith$elm_ui$Element$Background$color($author$project$Main$colorScheme.navbar.bottomHover)
-											])),
-										$mdgriffith$elm_ui$Element$Border$widthEach(
-										{bottom: 0, left: 1, right: 1, top: 0}),
-										$mdgriffith$elm_ui$Element$Border$solid,
-										$mdgriffith$elm_ui$Element$Border$color(
-										(!_Utils_eq(fields.chosenFeatureModelIndex, i)) ? $author$project$Main$colorScheme.navbar.bottomHover : $author$project$Main$colorScheme.navbar.background),
-										$mdgriffith$elm_ui$Element$padding(3)
-									]),
-								{
-									label: A2(
-										$mdgriffith$elm_ui$Element$el,
-										_List_fromArray(
-											[
-												$mdgriffith$elm_ui$Element$centerX,
-												$mdgriffith$elm_ui$Element$Font$color(
-												(!_Utils_eq(fields.chosenFeatureModelIndex, i)) ? $author$project$Main$colorScheme.white : $author$project$Main$colorScheme.navbar.selectedTimePoint)
-											]),
-										$mdgriffith$elm_ui$Element$text(
-											$elm$core$String$fromInt(tp.time))),
-									onPress: $elm$core$Maybe$Just(
-										$author$project$Main$NewFeatureModelIndex(i))
-								});
-						}),
+					$author$project$Main$viewFeatureModelButton(fields),
 					currentEP.timePoints)));
 	});
 var $mdgriffith$elm_ui$Element$none = $mdgriffith$elm_ui$Internal$Model$Empty;

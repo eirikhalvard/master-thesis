@@ -380,21 +380,33 @@ viewEvolutionPlanBar fields =
         )
 
 
+buttonColors : Element.Color -> Element.Color -> Element.Color -> Bool -> List (Element.Attribute a)
+buttonColors base hover clicked isClicked =
+    if isClicked then
+        [ Background.color clicked ]
+
+    else
+        [ Background.color base
+        , Element.mouseOver [ Background.color colorScheme.navbar.topHover ]
+        ]
+
+
 viewEvolutionPlanButton : Fields -> Int -> EvolutionPlan -> Element Msg
 viewEvolutionPlanButton fields epIndex ep =
     noOutlineButton
-        [ EEvents.onClick (NewEvolutionPlanIndex epIndex)
-        , Element.width Element.fill
-        , Background.color
-            (if fields.chosenEvolutionPlanIndex /= epIndex then
-                colorScheme.navbar.topBackground
+        ([ EEvents.onClick (NewEvolutionPlanIndex epIndex)
+         , Element.width Element.fill
+         , Element.padding 3
+         ]
+            ++ (if fields.chosenEvolutionPlanIndex == epIndex then
+                    [ Background.color colorScheme.navbar.bottomBackground ]
 
-             else
-                colorScheme.navbar.bottomBackground
-            )
-        , Element.mouseOver [ Background.color colorScheme.navbar.topHover ]
-        , Element.padding 3
-        ]
+                else
+                    [ Background.color colorScheme.navbar.topBackground
+                    , Element.mouseOver [ Background.color colorScheme.navbar.topHover ]
+                    ]
+               )
+        )
         { onPress = Just (NewEvolutionPlanIndex epIndex)
         , label =
             Element.el
@@ -420,48 +432,45 @@ viewFeatureModelBar : Fields -> EvolutionPlan -> Element Msg
 viewFeatureModelBar fields currentEP =
     Element.row [ Element.width Element.fill ]
         (currentEP.timePoints
-            |> Array.indexedMap
-                (\i tp ->
-                    noOutlineButton
-                        [ EEvents.onClick (NewFeatureModelIndex i)
-                        , Element.width Element.fill
-                        , Background.color
-                            (if fields.chosenFeatureModelIndex /= i then
-                                colorScheme.navbar.bottomBackground
-
-                             else
-                                colorScheme.navbar.background
-                            )
-                        , Element.mouseOver [ Background.color colorScheme.navbar.bottomHover ]
-                        , Border.widthEach { bottom = 0, left = 1, right = 1, top = 0 }
-                        , Border.solid
-                        , Border.color
-                            (if fields.chosenFeatureModelIndex /= i then
-                                colorScheme.navbar.bottomHover
-
-                             else
-                                colorScheme.navbar.background
-                            )
-                        , Element.padding 3
-                        ]
-                        { onPress = Just (NewFeatureModelIndex i)
-                        , label =
-                            Element.el
-                                [ Element.centerX
-                                , Font.color
-                                    (if fields.chosenFeatureModelIndex /= i then
-                                        colorScheme.white
-
-                                     else
-                                        colorScheme.navbar.selectedTimePoint
-                                    )
-                                ]
-                            <|
-                                Element.text (String.fromInt tp.time)
-                        }
-                )
+            |> Array.indexedMap (viewFeatureModelButton fields)
             |> Array.toList
         )
+
+
+viewFeatureModelButton : Fields -> Int -> TimePoint -> Element Msg
+viewFeatureModelButton fields fmIndex fm =
+    noOutlineButton
+        ([ EEvents.onClick (NewFeatureModelIndex fmIndex)
+         , Element.width Element.fill
+         , Element.padding 3
+         ]
+            ++ (if fields.chosenFeatureModelIndex == fmIndex then
+                    [ Background.color colorScheme.navbar.background
+                    ]
+
+                else
+                    [ Background.color colorScheme.navbar.bottomBackground
+                    , Element.mouseOver [ Background.color colorScheme.navbar.bottomHover ]
+                    , Border.widthEach { bottom = 0, left = 1, right = 1, top = 0 }
+                    , Border.solid
+                    , Border.color colorScheme.navbar.bottomHover
+                    ]
+               )
+        )
+        { onPress = Just (NewFeatureModelIndex fmIndex)
+        , label =
+            Element.el
+                [ Element.centerX
+                , Font.color <|
+                    if fields.chosenFeatureModelIndex == fmIndex then
+                        colorScheme.navbar.selectedTimePoint
+
+                    else
+                        colorScheme.white
+                ]
+            <|
+                Element.text (String.fromInt fm.time)
+        }
 
 
 viewTree : Fields -> EvolutionPlan -> TimePoint -> Element Msg
