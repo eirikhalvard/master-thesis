@@ -6816,55 +6816,14 @@ var $author$project$Main$update = F2(
 					$elm$core$Platform$Cmd$none);
 		}
 	});
-var $author$project$Main$NewEvolutionPlanIndex = function (a) {
-	return {$: 'NewEvolutionPlanIndex', a: a};
-};
-var $author$project$Main$NewFeatureModelIndex = function (a) {
-	return {$: 'NewFeatureModelIndex', a: a};
-};
-var $elm$core$List$maximum = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(
-			A3($elm$core$List$foldl, $elm$core$Basics$max, x, xs));
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
-var $author$project$Main$depth = function (_v0) {
-	var node = _v0.a;
-	var _v1 = $elm$core$List$maximum(
-		A2($elm$core$List$map, $author$project$Main$depth, node.children));
-	if (_v1.$ === 'Nothing') {
-		return 1;
-	} else {
-		var n = _v1.a;
-		return n + 1;
-	}
-};
-var $author$project$Main$nodeHeight = 30;
-var $author$project$Main$spacingY = 80;
-var $author$project$Main$calcHeight = function (tree) {
-	var treeDepth = $author$project$Main$depth(tree);
-	var spacingTotalHeight = (treeDepth - 1) * $author$project$Main$spacingY;
-	var nodeTotalHeight = treeDepth * $author$project$Main$nodeHeight;
-	return nodeTotalHeight + spacingTotalHeight;
-};
-var $author$project$Main$calcWidth = function (_v0) {
-	var tree = _v0.a;
-	return tree.computedDimentions.treeWidth;
-};
-var $mdgriffith$elm_ui$Internal$Model$AlignX = function (a) {
-	return {$: 'AlignX', a: a};
-};
-var $mdgriffith$elm_ui$Internal$Model$CenterX = {$: 'CenterX'};
-var $mdgriffith$elm_ui$Element$centerX = $mdgriffith$elm_ui$Internal$Model$AlignX($mdgriffith$elm_ui$Internal$Model$CenterX);
-var $mdgriffith$elm_ui$Internal$Model$Class = F2(
-	function (a, b) {
-		return {$: 'Class', a: a, b: b};
+var $mdgriffith$elm_ui$Internal$Model$Colored = F3(
+	function (a, b, c) {
+		return {$: 'Colored', a: a, b: b, c: c};
 	});
-var $mdgriffith$elm_ui$Internal$Style$classes = {above: 'a', active: 'atv', alignBottom: 'ab', alignCenterX: 'cx', alignCenterY: 'cy', alignContainerBottom: 'acb', alignContainerCenterX: 'accx', alignContainerCenterY: 'accy', alignContainerRight: 'acr', alignLeft: 'al', alignRight: 'ar', alignTop: 'at', alignedHorizontally: 'ah', alignedVertically: 'av', any: 's', behind: 'bh', below: 'b', bold: 'w7', borderDashed: 'bd', borderDotted: 'bdt', borderNone: 'bn', borderSolid: 'bs', capturePointerEvents: 'cpe', clip: 'cp', clipX: 'cpx', clipY: 'cpy', column: 'c', container: 'ctr', contentBottom: 'cb', contentCenterX: 'ccx', contentCenterY: 'ccy', contentLeft: 'cl', contentRight: 'cr', contentTop: 'ct', cursorPointer: 'cptr', cursorText: 'ctxt', focus: 'fcs', focusedWithin: 'focus-within', fullSize: 'fs', grid: 'g', hasBehind: 'hbh', heightContent: 'hc', heightExact: 'he', heightFill: 'hf', heightFillPortion: 'hfp', hover: 'hv', imageContainer: 'ic', inFront: 'fr', inputLabel: 'lbl', inputMultiline: 'iml', inputMultilineFiller: 'imlf', inputMultilineParent: 'imlp', inputMultilineWrapper: 'implw', inputText: 'it', italic: 'i', link: 'lnk', nearby: 'nb', noTextSelection: 'notxt', onLeft: 'ol', onRight: 'or', opaque: 'oq', overflowHidden: 'oh', page: 'pg', paragraph: 'p', passPointerEvents: 'ppe', root: 'ui', row: 'r', scrollbars: 'sb', scrollbarsX: 'sbx', scrollbarsY: 'sby', seButton: 'sbt', single: 'e', sizeByCapital: 'cap', spaceEvenly: 'sev', strike: 'sk', text: 't', textCenter: 'tc', textExtraBold: 'w8', textExtraLight: 'w2', textHeavy: 'w9', textJustify: 'tj', textJustifyAll: 'tja', textLeft: 'tl', textLight: 'w3', textMedium: 'w5', textNormalWeight: 'w4', textRight: 'tr', textSemiBold: 'w6', textThin: 'w1', textUnitalicized: 'tun', transition: 'ts', transparent: 'clr', underline: 'u', widthContent: 'wc', widthExact: 'we', widthFill: 'wf', widthFillPortion: 'wfp', wrapped: 'wrp'};
+var $mdgriffith$elm_ui$Internal$Model$StyleClass = F2(
+	function (a, b) {
+		return {$: 'StyleClass', a: a, b: b};
+	});
 var $mdgriffith$elm_ui$Internal$Flag$Flag = function (a) {
 	return {$: 'Flag', a: a};
 };
@@ -6875,16 +6834,6 @@ var $elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
 var $mdgriffith$elm_ui$Internal$Flag$flag = function (i) {
 	return (i > 31) ? $mdgriffith$elm_ui$Internal$Flag$Second(1 << (i - 32)) : $mdgriffith$elm_ui$Internal$Flag$Flag(1 << i);
 };
-var $mdgriffith$elm_ui$Internal$Flag$overflow = $mdgriffith$elm_ui$Internal$Flag$flag(20);
-var $mdgriffith$elm_ui$Element$clip = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$overflow, $mdgriffith$elm_ui$Internal$Style$classes.clip);
-var $mdgriffith$elm_ui$Internal$Model$Colored = F3(
-	function (a, b, c) {
-		return {$: 'Colored', a: a, b: b, c: c};
-	});
-var $mdgriffith$elm_ui$Internal$Model$StyleClass = F2(
-	function (a, b) {
-		return {$: 'StyleClass', a: a, b: b};
-	});
 var $mdgriffith$elm_ui$Internal$Flag$bgColor = $mdgriffith$elm_ui$Internal$Flag$flag(8);
 var $mdgriffith$elm_ui$Internal$Model$floatClass = function (x) {
 	return $elm$core$String$fromInt(
@@ -6906,28 +6855,6 @@ var $mdgriffith$elm_ui$Element$Background$color = function (clr) {
 			'bg-' + $mdgriffith$elm_ui$Internal$Model$formatColorClass(clr),
 			'background-color',
 			clr));
-};
-var $mdgriffith$elm_ui$Internal$Flag$borderColor = $mdgriffith$elm_ui$Internal$Flag$flag(28);
-var $mdgriffith$elm_ui$Element$Border$color = function (clr) {
-	return A2(
-		$mdgriffith$elm_ui$Internal$Model$StyleClass,
-		$mdgriffith$elm_ui$Internal$Flag$borderColor,
-		A3(
-			$mdgriffith$elm_ui$Internal$Model$Colored,
-			'bc-' + $mdgriffith$elm_ui$Internal$Model$formatColorClass(clr),
-			'border-color',
-			clr));
-};
-var $mdgriffith$elm_ui$Internal$Flag$fontColor = $mdgriffith$elm_ui$Internal$Flag$flag(14);
-var $mdgriffith$elm_ui$Element$Font$color = function (fontColor) {
-	return A2(
-		$mdgriffith$elm_ui$Internal$Model$StyleClass,
-		$mdgriffith$elm_ui$Internal$Flag$fontColor,
-		A3(
-			$mdgriffith$elm_ui$Internal$Model$Colored,
-			'fc-' + $mdgriffith$elm_ui$Internal$Model$formatColorClass(fontColor),
-			'color',
-			fontColor));
 };
 var $mdgriffith$elm_ui$Internal$Model$Rgba = F4(
 	function (a, b, c, d) {
@@ -6955,11 +6882,77 @@ var $author$project$Main$colorScheme = {
 	warning: '#FFCF59',
 	white: A3($mdgriffith$elm_ui$Element$rgb255, 255, 255, 255)
 };
+var $elm$core$Bitwise$and = _Bitwise_and;
+var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
+var $elm$core$Array$bitMask = 4294967295 >>> (32 - $elm$core$Array$shiftStep);
+var $elm$core$Basics$ge = _Utils_ge;
+var $elm$core$Elm$JsArray$unsafeGet = _JsArray_unsafeGet;
+var $elm$core$Array$getHelp = F3(
+	function (shift, index, tree) {
+		getHelp:
+		while (true) {
+			var pos = $elm$core$Array$bitMask & (index >>> shift);
+			var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, pos, tree);
+			if (_v0.$ === 'SubTree') {
+				var subTree = _v0.a;
+				var $temp$shift = shift - $elm$core$Array$shiftStep,
+					$temp$index = index,
+					$temp$tree = subTree;
+				shift = $temp$shift;
+				index = $temp$index;
+				tree = $temp$tree;
+				continue getHelp;
+			} else {
+				var values = _v0.a;
+				return A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, values);
+			}
+		}
+	});
+var $elm$core$Array$tailIndex = function (len) {
+	return (len >>> 5) << 5;
+};
+var $elm$core$Array$get = F2(
+	function (index, _v0) {
+		var len = _v0.a;
+		var startShift = _v0.b;
+		var tree = _v0.c;
+		var tail = _v0.d;
+		return ((index < 0) || (_Utils_cmp(index, len) > -1)) ? $elm$core$Maybe$Nothing : ((_Utils_cmp(
+			index,
+			$elm$core$Array$tailIndex(len)) > -1) ? $elm$core$Maybe$Just(
+			A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, tail)) : $elm$core$Maybe$Just(
+			A3($elm$core$Array$getHelp, startShift, index, tree)));
+	});
+var $mdgriffith$elm_ui$Internal$Style$classes = {above: 'a', active: 'atv', alignBottom: 'ab', alignCenterX: 'cx', alignCenterY: 'cy', alignContainerBottom: 'acb', alignContainerCenterX: 'accx', alignContainerCenterY: 'accy', alignContainerRight: 'acr', alignLeft: 'al', alignRight: 'ar', alignTop: 'at', alignedHorizontally: 'ah', alignedVertically: 'av', any: 's', behind: 'bh', below: 'b', bold: 'w7', borderDashed: 'bd', borderDotted: 'bdt', borderNone: 'bn', borderSolid: 'bs', capturePointerEvents: 'cpe', clip: 'cp', clipX: 'cpx', clipY: 'cpy', column: 'c', container: 'ctr', contentBottom: 'cb', contentCenterX: 'ccx', contentCenterY: 'ccy', contentLeft: 'cl', contentRight: 'cr', contentTop: 'ct', cursorPointer: 'cptr', cursorText: 'ctxt', focus: 'fcs', focusedWithin: 'focus-within', fullSize: 'fs', grid: 'g', hasBehind: 'hbh', heightContent: 'hc', heightExact: 'he', heightFill: 'hf', heightFillPortion: 'hfp', hover: 'hv', imageContainer: 'ic', inFront: 'fr', inputLabel: 'lbl', inputMultiline: 'iml', inputMultilineFiller: 'imlf', inputMultilineParent: 'imlp', inputMultilineWrapper: 'implw', inputText: 'it', italic: 'i', link: 'lnk', nearby: 'nb', noTextSelection: 'notxt', onLeft: 'ol', onRight: 'or', opaque: 'oq', overflowHidden: 'oh', page: 'pg', paragraph: 'p', passPointerEvents: 'ppe', root: 'ui', row: 'r', scrollbars: 'sb', scrollbarsX: 'sbx', scrollbarsY: 'sby', seButton: 'sbt', single: 'e', sizeByCapital: 'cap', spaceEvenly: 'sev', strike: 'sk', text: 't', textCenter: 'tc', textExtraBold: 'w8', textExtraLight: 'w2', textHeavy: 'w9', textJustify: 'tj', textJustifyAll: 'tja', textLeft: 'tl', textLight: 'w3', textMedium: 'w5', textNormalWeight: 'w4', textRight: 'tr', textSemiBold: 'w6', textThin: 'w1', textUnitalicized: 'tun', transition: 'ts', transparent: 'clr', underline: 'u', widthContent: 'wc', widthExact: 'we', widthFill: 'wf', widthFillPortion: 'wfp', wrapped: 'wrp'};
+var $mdgriffith$elm_ui$Internal$Model$Attr = function (a) {
+	return {$: 'Attr', a: a};
+};
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
+var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
+var $mdgriffith$elm_ui$Internal$Model$htmlClass = function (cls) {
+	return $mdgriffith$elm_ui$Internal$Model$Attr(
+		$elm$html$Html$Attributes$class(cls));
+};
+var $mdgriffith$elm_ui$Internal$Model$OnlyDynamic = F2(
+	function (a, b) {
+		return {$: 'OnlyDynamic', a: a, b: b};
+	});
+var $mdgriffith$elm_ui$Internal$Model$StaticRootAndDynamic = F2(
+	function (a, b) {
+		return {$: 'StaticRootAndDynamic', a: a, b: b};
+	});
 var $mdgriffith$elm_ui$Internal$Model$Unkeyed = function (a) {
 	return {$: 'Unkeyed', a: a};
 };
-var $mdgriffith$elm_ui$Internal$Model$AsColumn = {$: 'AsColumn'};
-var $mdgriffith$elm_ui$Internal$Model$asColumn = $mdgriffith$elm_ui$Internal$Model$AsColumn;
+var $mdgriffith$elm_ui$Internal$Model$AsEl = {$: 'AsEl'};
+var $mdgriffith$elm_ui$Internal$Model$asEl = $mdgriffith$elm_ui$Internal$Model$AsEl;
 var $mdgriffith$elm_ui$Internal$Model$Generic = {$: 'Generic'};
 var $mdgriffith$elm_ui$Internal$Model$div = $mdgriffith$elm_ui$Internal$Model$Generic;
 var $mdgriffith$elm_ui$Internal$Model$NoNearbyChildren = {$: 'NoNearbyChildren'};
@@ -7059,23 +7052,12 @@ var $mdgriffith$elm_ui$Internal$Model$addKeyedChildren = F3(
 							inFront)));
 		}
 	});
-var $mdgriffith$elm_ui$Internal$Model$AsEl = {$: 'AsEl'};
-var $mdgriffith$elm_ui$Internal$Model$asEl = $mdgriffith$elm_ui$Internal$Model$AsEl;
 var $mdgriffith$elm_ui$Internal$Model$AsParagraph = {$: 'AsParagraph'};
 var $mdgriffith$elm_ui$Internal$Model$asParagraph = $mdgriffith$elm_ui$Internal$Model$AsParagraph;
 var $mdgriffith$elm_ui$Internal$Flag$alignBottom = $mdgriffith$elm_ui$Internal$Flag$flag(41);
 var $mdgriffith$elm_ui$Internal$Flag$alignRight = $mdgriffith$elm_ui$Internal$Flag$flag(40);
 var $mdgriffith$elm_ui$Internal$Flag$centerX = $mdgriffith$elm_ui$Internal$Flag$flag(42);
 var $mdgriffith$elm_ui$Internal$Flag$centerY = $mdgriffith$elm_ui$Internal$Flag$flag(43);
-var $elm$json$Json$Encode$string = _Json_wrap;
-var $elm$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			$elm$json$Json$Encode$string(string));
-	});
-var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$core$Set$Set_elm_builtin = function (a) {
 	return {$: 'Set_elm_builtin', a: a};
@@ -10298,6 +10280,16 @@ var $elm$core$List$filter = F2(
 			_List_Nil,
 			list);
 	});
+var $elm$core$List$maximum = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(
+			A3($elm$core$List$foldl, $elm$core$Basics$max, x, xs));
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
 var $elm$core$List$minimum = function (list) {
 	if (list.b) {
 		var x = list.a;
@@ -10595,7 +10587,6 @@ var $elm$virtual_dom$VirtualDom$keyedNode = function (tag) {
 };
 var $elm$core$Basics$not = _Basics_not;
 var $elm$html$Html$p = _VirtualDom_node('p');
-var $elm$core$Bitwise$and = _Bitwise_and;
 var $mdgriffith$elm_ui$Internal$Flag$present = F2(
 	function (myFlag, _v0) {
 		var fieldOne = _v0.a;
@@ -11443,7 +11434,6 @@ var $mdgriffith$elm_ui$Internal$Model$renderWidth = function (w) {
 	}
 };
 var $mdgriffith$elm_ui$Internal$Flag$borderWidth = $mdgriffith$elm_ui$Internal$Flag$flag(27);
-var $elm$core$Basics$ge = _Utils_ge;
 var $mdgriffith$elm_ui$Internal$Model$skippable = F2(
 	function (flag, style) {
 		if (_Utils_eq(flag, $mdgriffith$elm_ui$Internal$Flag$borderWidth)) {
@@ -12377,360 +12367,6 @@ var $mdgriffith$elm_ui$Internal$Model$element = F4(
 				$mdgriffith$elm_ui$Internal$Model$NoNearbyChildren,
 				$elm$core$List$reverse(attributes)));
 	});
-var $mdgriffith$elm_ui$Internal$Model$Height = function (a) {
-	return {$: 'Height', a: a};
-};
-var $mdgriffith$elm_ui$Element$height = $mdgriffith$elm_ui$Internal$Model$Height;
-var $mdgriffith$elm_ui$Internal$Model$Attr = function (a) {
-	return {$: 'Attr', a: a};
-};
-var $mdgriffith$elm_ui$Internal$Model$htmlClass = function (cls) {
-	return $mdgriffith$elm_ui$Internal$Model$Attr(
-		$elm$html$Html$Attributes$class(cls));
-};
-var $mdgriffith$elm_ui$Internal$Model$Content = {$: 'Content'};
-var $mdgriffith$elm_ui$Element$shrink = $mdgriffith$elm_ui$Internal$Model$Content;
-var $mdgriffith$elm_ui$Internal$Model$Width = function (a) {
-	return {$: 'Width', a: a};
-};
-var $mdgriffith$elm_ui$Element$width = $mdgriffith$elm_ui$Internal$Model$Width;
-var $mdgriffith$elm_ui$Element$column = F2(
-	function (attrs, children) {
-		return A4(
-			$mdgriffith$elm_ui$Internal$Model$element,
-			$mdgriffith$elm_ui$Internal$Model$asColumn,
-			$mdgriffith$elm_ui$Internal$Model$div,
-			A2(
-				$elm$core$List$cons,
-				$mdgriffith$elm_ui$Internal$Model$htmlClass($mdgriffith$elm_ui$Internal$Style$classes.contentTop + (' ' + $mdgriffith$elm_ui$Internal$Style$classes.contentLeft)),
-				A2(
-					$elm$core$List$cons,
-					$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$shrink),
-					A2(
-						$elm$core$List$cons,
-						$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$shrink),
-						attrs))),
-			$mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
-	});
-var $author$project$EvolutionPlans$ComputedNode = function (a) {
-	return {$: 'ComputedNode', a: a};
-};
-var $elm$core$List$intersperse = F2(
-	function (sep, xs) {
-		if (!xs.b) {
-			return _List_Nil;
-		} else {
-			var hd = xs.a;
-			var tl = xs.b;
-			var step = F2(
-				function (x, rest) {
-					return A2(
-						$elm$core$List$cons,
-						sep,
-						A2($elm$core$List$cons, x, rest));
-				});
-			var spersed = A3($elm$core$List$foldr, step, _List_Nil, tl);
-			return A2($elm$core$List$cons, hd, spersed);
-		}
-	});
-var $author$project$Main$spacingX = 30;
-var $elm$core$List$sum = function (numbers) {
-	return A3($elm$core$List$foldl, $elm$core$Basics$add, 0, numbers);
-};
-var $author$project$Main$computeTree = function (_v0) {
-	var tree = _v0.a;
-	var computedChildren = A2($elm$core$List$map, $author$project$Main$computeTree, tree.children);
-	var childrenTotalWidth = $elm$core$List$sum(
-		A2(
-			$elm$core$List$intersperse,
-			$author$project$Main$spacingX,
-			A2(
-				$elm$core$List$map,
-				function (_v1) {
-					var t = _v1.a;
-					return t.computedDimentions.treeWidth;
-				},
-				computedChildren)));
-	var approxNodeWidth = $elm$core$String$length(tree.value) * 15;
-	return $author$project$EvolutionPlans$ComputedNode(
-		{
-			children: computedChildren,
-			computedDimentions: {
-				approxNodeWidth: approxNodeWidth,
-				treeWidth: A2($elm$core$Basics$max, approxNodeWidth, childrenTotalWidth)
-			},
-			metaData: tree.metaData,
-			value: tree.value
-		});
-};
-var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
-var $elm$svg$Svg$line = $elm$svg$Svg$trustedNode('line');
-var $elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
-var $elm$svg$Svg$Attributes$strokeWidth = _VirtualDom_attribute('stroke-width');
-var $elm$svg$Svg$Attributes$x1 = _VirtualDom_attribute('x1');
-var $elm$svg$Svg$Attributes$x2 = _VirtualDom_attribute('x2');
-var $elm$svg$Svg$Attributes$y1 = _VirtualDom_attribute('y1');
-var $elm$svg$Svg$Attributes$y2 = _VirtualDom_attribute('y2');
-var $author$project$Main$drawLine = F4(
-	function (x1, y1, x2, y2) {
-		return A2(
-			$elm$svg$Svg$line,
-			_List_fromArray(
-				[
-					$elm$svg$Svg$Attributes$x1(
-					$elm$core$String$fromFloat(x1)),
-					$elm$svg$Svg$Attributes$y1(
-					$elm$core$String$fromFloat(y1)),
-					$elm$svg$Svg$Attributes$x2(
-					$elm$core$String$fromFloat(x2)),
-					$elm$svg$Svg$Attributes$y2(
-					$elm$core$String$fromFloat(y2)),
-					$elm$svg$Svg$Attributes$strokeWidth('3'),
-					$elm$svg$Svg$Attributes$stroke($author$project$Main$colorScheme.dark)
-				]),
-			_List_Nil);
-	});
-var $author$project$Main$NodeHoverEntry = function (a) {
-	return {$: 'NodeHoverEntry', a: a};
-};
-var $author$project$Main$NodeHoverExit = {$: 'NodeHoverExit'};
-var $elm$svg$Svg$Attributes$cursor = _VirtualDom_attribute('cursor');
-var $elm$svg$Svg$Attributes$dominantBaseline = _VirtualDom_attribute('dominant-baseline');
-var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
-var $elm$svg$Svg$g = $elm$svg$Svg$trustedNode('g');
-var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
-var $elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 'Normal', a: a};
-};
-var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
-var $elm$html$Html$Events$on = F2(
-	function (event, decoder) {
-		return A2(
-			$elm$virtual_dom$VirtualDom$on,
-			event,
-			$elm$virtual_dom$VirtualDom$Normal(decoder));
-	});
-var $elm$svg$Svg$Events$onMouseOut = function (msg) {
-	return A2(
-		$elm$html$Html$Events$on,
-		'mouseout',
-		$elm$json$Json$Decode$succeed(msg));
-};
-var $elm$svg$Svg$Events$onMouseOver = function (msg) {
-	return A2(
-		$elm$html$Html$Events$on,
-		'mouseover',
-		$elm$json$Json$Decode$succeed(msg));
-};
-var $elm$svg$Svg$rect = $elm$svg$Svg$trustedNode('rect');
-var $elm$svg$Svg$text = $elm$virtual_dom$VirtualDom$text;
-var $elm$svg$Svg$Attributes$textAnchor = _VirtualDom_attribute('text-anchor');
-var $elm$svg$Svg$text_ = $elm$svg$Svg$trustedNode('text');
-var $elm$svg$Svg$Attributes$transform = _VirtualDom_attribute('transform');
-var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
-var $elm$svg$Svg$Attributes$x = _VirtualDom_attribute('x');
-var $elm$svg$Svg$Attributes$y = _VirtualDom_attribute('y');
-var $author$project$Main$drawNode = F3(
-	function (x, y, _v0) {
-		var node = _v0.a;
-		return A2(
-			$elm$svg$Svg$g,
-			_List_fromArray(
-				[
-					$elm$svg$Svg$Attributes$transform(
-					'translate(' + ($elm$core$String$fromFloat(x) + (', ' + ($elm$core$String$fromFloat(y) + ')')))),
-					$elm$svg$Svg$Events$onMouseOver(
-					$author$project$Main$NodeHoverEntry(
-						A2($elm$core$Maybe$withDefault, '-', node.metaData))),
-					$elm$svg$Svg$Events$onMouseOut($author$project$Main$NodeHoverExit),
-					$elm$svg$Svg$Attributes$cursor('pointer')
-				]),
-			_List_fromArray(
-				[
-					A2(
-					$elm$svg$Svg$rect,
-					_List_fromArray(
-						[
-							$elm$svg$Svg$Attributes$width(
-							$elm$core$String$fromFloat(node.computedDimentions.approxNodeWidth)),
-							$elm$svg$Svg$Attributes$height(
-							$elm$core$String$fromFloat($author$project$Main$nodeHeight)),
-							$elm$svg$Svg$Attributes$x(
-							$elm$core$String$fromFloat(-(node.computedDimentions.approxNodeWidth / 2))),
-							$elm$svg$Svg$Attributes$fill($author$project$Main$colorScheme.darkPrimary),
-							$elm$svg$Svg$Attributes$strokeWidth('2'),
-							$elm$svg$Svg$Attributes$stroke($author$project$Main$colorScheme.dark)
-						]),
-					_List_Nil),
-					A2(
-					$elm$svg$Svg$text_,
-					_List_fromArray(
-						[
-							$elm$svg$Svg$Attributes$x('0'),
-							$elm$svg$Svg$Attributes$y(
-							$elm$core$String$fromFloat($author$project$Main$nodeHeight / 2)),
-							$elm$svg$Svg$Attributes$dominantBaseline('middle'),
-							$elm$svg$Svg$Attributes$textAnchor('middle'),
-							$elm$svg$Svg$Attributes$fill($author$project$Main$colorScheme.light)
-						]),
-					_List_fromArray(
-						[
-							$elm$svg$Svg$text(node.value)
-						]))
-				]));
-	});
-var $author$project$Main$drawTree = F3(
-	function (xStart, yStart, _v0) {
-		var tree = _v0.a;
-		var nodeXLevel = xStart + (tree.computedDimentions.treeWidth / 2);
-		var childYLevel = (yStart + $author$project$Main$nodeHeight) + $author$project$Main$spacingY;
-		var drawChildren = F2(
-			function (childX, children) {
-				if (!children.b) {
-					return _List_Nil;
-				} else {
-					var child = children.a.a;
-					var rest = children.b;
-					return _Utils_ap(
-						_List_fromArray(
-							[
-								A4($author$project$Main$drawLine, nodeXLevel, yStart + $author$project$Main$nodeHeight, childX + (child.computedDimentions.treeWidth / 2), childYLevel)
-							]),
-						_Utils_ap(
-							A3(
-								$author$project$Main$drawTree,
-								childX,
-								childYLevel,
-								$author$project$EvolutionPlans$ComputedNode(child)),
-							A2(drawChildren, (childX + child.computedDimentions.treeWidth) + $author$project$Main$spacingX, rest)));
-				}
-			});
-		return A2(
-			$elm$core$List$cons,
-			A3(
-				$author$project$Main$drawNode,
-				nodeXLevel,
-				yStart,
-				$author$project$EvolutionPlans$ComputedNode(tree)),
-			A2(drawChildren, xStart, tree.children));
-	});
-var $mdgriffith$elm_ui$Element$el = F2(
-	function (attrs, child) {
-		return A4(
-			$mdgriffith$elm_ui$Internal$Model$element,
-			$mdgriffith$elm_ui$Internal$Model$asEl,
-			$mdgriffith$elm_ui$Internal$Model$div,
-			A2(
-				$elm$core$List$cons,
-				$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$shrink),
-				A2(
-					$elm$core$List$cons,
-					$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$shrink),
-					attrs)),
-			$mdgriffith$elm_ui$Internal$Model$Unkeyed(
-				_List_fromArray(
-					[child])));
-	});
-var $mdgriffith$elm_ui$Internal$Model$Fill = function (a) {
-	return {$: 'Fill', a: a};
-};
-var $mdgriffith$elm_ui$Element$fill = $mdgriffith$elm_ui$Internal$Model$Fill(1);
-var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
-var $elm$core$Array$bitMask = 4294967295 >>> (32 - $elm$core$Array$shiftStep);
-var $elm$core$Elm$JsArray$unsafeGet = _JsArray_unsafeGet;
-var $elm$core$Array$getHelp = F3(
-	function (shift, index, tree) {
-		getHelp:
-		while (true) {
-			var pos = $elm$core$Array$bitMask & (index >>> shift);
-			var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, pos, tree);
-			if (_v0.$ === 'SubTree') {
-				var subTree = _v0.a;
-				var $temp$shift = shift - $elm$core$Array$shiftStep,
-					$temp$index = index,
-					$temp$tree = subTree;
-				shift = $temp$shift;
-				index = $temp$index;
-				tree = $temp$tree;
-				continue getHelp;
-			} else {
-				var values = _v0.a;
-				return A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, values);
-			}
-		}
-	});
-var $elm$core$Array$tailIndex = function (len) {
-	return (len >>> 5) << 5;
-};
-var $elm$core$Array$get = F2(
-	function (index, _v0) {
-		var len = _v0.a;
-		var startShift = _v0.b;
-		var tree = _v0.c;
-		var tail = _v0.d;
-		return ((index < 0) || (_Utils_cmp(index, len) > -1)) ? $elm$core$Maybe$Nothing : ((_Utils_cmp(
-			index,
-			$elm$core$Array$tailIndex(len)) > -1) ? $elm$core$Maybe$Just(
-			A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, tail)) : $elm$core$Maybe$Just(
-			A3($elm$core$Array$getHelp, startShift, index, tree)));
-	});
-var $elm$core$Basics$always = F2(
-	function (a, _v0) {
-		return a;
-	});
-var $elm$core$Basics$composeL = F3(
-	function (g, f, x) {
-		return g(
-			f(x));
-	});
-var $mdgriffith$elm_ui$Internal$Model$unstyled = A2($elm$core$Basics$composeL, $mdgriffith$elm_ui$Internal$Model$Unstyled, $elm$core$Basics$always);
-var $mdgriffith$elm_ui$Element$html = $mdgriffith$elm_ui$Internal$Model$unstyled;
-var $elm$core$Elm$JsArray$foldl = _JsArray_foldl;
-var $elm$core$Elm$JsArray$indexedMap = _JsArray_indexedMap;
-var $elm$core$Array$indexedMap = F2(
-	function (func, _v0) {
-		var len = _v0.a;
-		var tree = _v0.c;
-		var tail = _v0.d;
-		var initialBuilder = {
-			nodeList: _List_Nil,
-			nodeListSize: 0,
-			tail: A3(
-				$elm$core$Elm$JsArray$indexedMap,
-				func,
-				$elm$core$Array$tailIndex(len),
-				tail)
-		};
-		var helper = F2(
-			function (node, builder) {
-				if (node.$ === 'SubTree') {
-					var subTree = node.a;
-					return A3($elm$core$Elm$JsArray$foldl, helper, builder, subTree);
-				} else {
-					var leaf = node.a;
-					var offset = builder.nodeListSize * $elm$core$Array$branchFactor;
-					var mappedLeaf = $elm$core$Array$Leaf(
-						A3($elm$core$Elm$JsArray$indexedMap, func, offset, leaf));
-					return {
-						nodeList: A2($elm$core$List$cons, mappedLeaf, builder.nodeList),
-						nodeListSize: builder.nodeListSize + 1,
-						tail: builder.tail
-					};
-				}
-			});
-		return A2(
-			$elm$core$Array$builderToArray,
-			true,
-			A3($elm$core$Elm$JsArray$foldl, helper, initialBuilder, tree));
-	});
-var $mdgriffith$elm_ui$Internal$Model$OnlyDynamic = F2(
-	function (a, b) {
-		return {$: 'OnlyDynamic', a: a, b: b};
-	});
-var $mdgriffith$elm_ui$Internal$Model$StaticRootAndDynamic = F2(
-	function (a, b) {
-		return {$: 'StaticRootAndDynamic', a: a, b: b};
-	});
 var $mdgriffith$elm_ui$Internal$Model$AllowHover = {$: 'AllowHover'};
 var $mdgriffith$elm_ui$Internal$Model$Layout = {$: 'Layout'};
 var $mdgriffith$elm_ui$Internal$Model$focusDefaultStyle = {
@@ -12878,6 +12514,7 @@ var $mdgriffith$elm_ui$Internal$Model$SansSerif = {$: 'SansSerif'};
 var $mdgriffith$elm_ui$Internal$Model$Typeface = function (a) {
 	return {$: 'Typeface', a: a};
 };
+var $mdgriffith$elm_ui$Internal$Flag$fontColor = $mdgriffith$elm_ui$Internal$Flag$flag(14);
 var $mdgriffith$elm_ui$Internal$Flag$fontFamily = $mdgriffith$elm_ui$Internal$Flag$flag(5);
 var $mdgriffith$elm_ui$Internal$Flag$fontSize = $mdgriffith$elm_ui$Internal$Flag$flag(4);
 var $elm$core$String$toLower = _String_toLower;
@@ -12979,6 +12616,140 @@ var $mdgriffith$elm_ui$Element$layoutWith = F3(
 	});
 var $mdgriffith$elm_ui$Element$layout = $mdgriffith$elm_ui$Element$layoutWith(
 	{options: _List_Nil});
+var $mdgriffith$elm_ui$Internal$Model$Text = function (a) {
+	return {$: 'Text', a: a};
+};
+var $mdgriffith$elm_ui$Element$text = function (content) {
+	return $mdgriffith$elm_ui$Internal$Model$Text(content);
+};
+var $elm$core$Debug$toString = _Debug_toString;
+var $mdgriffith$elm_ui$Internal$Model$AsColumn = {$: 'AsColumn'};
+var $mdgriffith$elm_ui$Internal$Model$asColumn = $mdgriffith$elm_ui$Internal$Model$AsColumn;
+var $mdgriffith$elm_ui$Internal$Model$Height = function (a) {
+	return {$: 'Height', a: a};
+};
+var $mdgriffith$elm_ui$Element$height = $mdgriffith$elm_ui$Internal$Model$Height;
+var $mdgriffith$elm_ui$Internal$Model$Content = {$: 'Content'};
+var $mdgriffith$elm_ui$Element$shrink = $mdgriffith$elm_ui$Internal$Model$Content;
+var $mdgriffith$elm_ui$Internal$Model$Width = function (a) {
+	return {$: 'Width', a: a};
+};
+var $mdgriffith$elm_ui$Element$width = $mdgriffith$elm_ui$Internal$Model$Width;
+var $mdgriffith$elm_ui$Element$column = F2(
+	function (attrs, children) {
+		return A4(
+			$mdgriffith$elm_ui$Internal$Model$element,
+			$mdgriffith$elm_ui$Internal$Model$asColumn,
+			$mdgriffith$elm_ui$Internal$Model$div,
+			A2(
+				$elm$core$List$cons,
+				$mdgriffith$elm_ui$Internal$Model$htmlClass($mdgriffith$elm_ui$Internal$Style$classes.contentTop + (' ' + $mdgriffith$elm_ui$Internal$Style$classes.contentLeft)),
+				A2(
+					$elm$core$List$cons,
+					$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$shrink),
+					A2(
+						$elm$core$List$cons,
+						$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$shrink),
+						attrs))),
+			$mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
+	});
+var $mdgriffith$elm_ui$Internal$Model$Fill = function (a) {
+	return {$: 'Fill', a: a};
+};
+var $mdgriffith$elm_ui$Element$fill = $mdgriffith$elm_ui$Internal$Model$Fill(1);
+var $elm$core$Elm$JsArray$foldl = _JsArray_foldl;
+var $elm$core$Elm$JsArray$indexedMap = _JsArray_indexedMap;
+var $elm$core$Array$indexedMap = F2(
+	function (func, _v0) {
+		var len = _v0.a;
+		var tree = _v0.c;
+		var tail = _v0.d;
+		var initialBuilder = {
+			nodeList: _List_Nil,
+			nodeListSize: 0,
+			tail: A3(
+				$elm$core$Elm$JsArray$indexedMap,
+				func,
+				$elm$core$Array$tailIndex(len),
+				tail)
+		};
+		var helper = F2(
+			function (node, builder) {
+				if (node.$ === 'SubTree') {
+					var subTree = node.a;
+					return A3($elm$core$Elm$JsArray$foldl, helper, builder, subTree);
+				} else {
+					var leaf = node.a;
+					var offset = builder.nodeListSize * $elm$core$Array$branchFactor;
+					var mappedLeaf = $elm$core$Array$Leaf(
+						A3($elm$core$Elm$JsArray$indexedMap, func, offset, leaf));
+					return {
+						nodeList: A2($elm$core$List$cons, mappedLeaf, builder.nodeList),
+						nodeListSize: builder.nodeListSize + 1,
+						tail: builder.tail
+					};
+				}
+			});
+		return A2(
+			$elm$core$Array$builderToArray,
+			true,
+			A3($elm$core$Elm$JsArray$foldl, helper, initialBuilder, tree));
+	});
+var $mdgriffith$elm_ui$Internal$Model$AsRow = {$: 'AsRow'};
+var $mdgriffith$elm_ui$Internal$Model$asRow = $mdgriffith$elm_ui$Internal$Model$AsRow;
+var $mdgriffith$elm_ui$Element$row = F2(
+	function (attrs, children) {
+		return A4(
+			$mdgriffith$elm_ui$Internal$Model$element,
+			$mdgriffith$elm_ui$Internal$Model$asRow,
+			$mdgriffith$elm_ui$Internal$Model$div,
+			A2(
+				$elm$core$List$cons,
+				$mdgriffith$elm_ui$Internal$Model$htmlClass($mdgriffith$elm_ui$Internal$Style$classes.contentLeft + (' ' + $mdgriffith$elm_ui$Internal$Style$classes.contentCenterY)),
+				A2(
+					$elm$core$List$cons,
+					$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$shrink),
+					A2(
+						$elm$core$List$cons,
+						$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$shrink),
+						attrs))),
+			$mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
+	});
+var $author$project$Main$NewEvolutionPlanIndex = function (a) {
+	return {$: 'NewEvolutionPlanIndex', a: a};
+};
+var $mdgriffith$elm_ui$Internal$Model$AlignX = function (a) {
+	return {$: 'AlignX', a: a};
+};
+var $mdgriffith$elm_ui$Internal$Model$CenterX = {$: 'CenterX'};
+var $mdgriffith$elm_ui$Element$centerX = $mdgriffith$elm_ui$Internal$Model$AlignX($mdgriffith$elm_ui$Internal$Model$CenterX);
+var $mdgriffith$elm_ui$Element$Font$color = function (fontColor) {
+	return A2(
+		$mdgriffith$elm_ui$Internal$Model$StyleClass,
+		$mdgriffith$elm_ui$Internal$Flag$fontColor,
+		A3(
+			$mdgriffith$elm_ui$Internal$Model$Colored,
+			'fc-' + $mdgriffith$elm_ui$Internal$Model$formatColorClass(fontColor),
+			'color',
+			fontColor));
+};
+var $mdgriffith$elm_ui$Element$el = F2(
+	function (attrs, child) {
+		return A4(
+			$mdgriffith$elm_ui$Internal$Model$element,
+			$mdgriffith$elm_ui$Internal$Model$asEl,
+			$mdgriffith$elm_ui$Internal$Model$div,
+			A2(
+				$elm$core$List$cons,
+				$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$shrink),
+				A2(
+					$elm$core$List$cons,
+					$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$shrink),
+					attrs)),
+			$mdgriffith$elm_ui$Internal$Model$Unkeyed(
+				_List_fromArray(
+					[child])));
+	});
 var $mdgriffith$elm_ui$Internal$Model$Hover = {$: 'Hover'};
 var $mdgriffith$elm_ui$Internal$Model$PseudoSelector = F2(
 	function (a, b) {
@@ -12988,6 +12759,10 @@ var $mdgriffith$elm_ui$Internal$Flag$hover = $mdgriffith$elm_ui$Internal$Flag$fl
 var $mdgriffith$elm_ui$Internal$Model$AlignY = function (a) {
 	return {$: 'AlignY', a: a};
 };
+var $mdgriffith$elm_ui$Internal$Model$Class = F2(
+	function (a, b) {
+		return {$: 'Class', a: a, b: b};
+	});
 var $mdgriffith$elm_ui$Internal$Model$Describe = function (a) {
 	return {$: 'Describe', a: a};
 };
@@ -13001,9 +12776,11 @@ var $mdgriffith$elm_ui$Internal$Model$TransformComponent = F2(
 		return {$: 'TransformComponent', a: a, b: b};
 	});
 var $mdgriffith$elm_ui$Internal$Model$Empty = {$: 'Empty'};
-var $mdgriffith$elm_ui$Internal$Model$Text = function (a) {
-	return {$: 'Text', a: a};
-};
+var $elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
+	});
 var $elm$virtual_dom$VirtualDom$map = _VirtualDom_map;
 var $mdgriffith$elm_ui$Internal$Model$map = F2(
 	function (fn, el) {
@@ -13150,6 +12927,17 @@ var $mdgriffith$elm_ui$Element$Input$hasFocusStyle = function (attr) {
 var $mdgriffith$elm_ui$Element$Input$focusDefault = function (attrs) {
 	return A2($elm$core$List$any, $mdgriffith$elm_ui$Element$Input$hasFocusStyle, attrs) ? $mdgriffith$elm_ui$Internal$Model$NoAttribute : $mdgriffith$elm_ui$Internal$Model$htmlClass('focusable');
 };
+var $elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var $elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
 var $elm$html$Html$Events$onClick = function (msg) {
 	return A2(
 		$elm$html$Html$Events$on,
@@ -13289,61 +13077,66 @@ var $mdgriffith$elm_ui$Element$padding = function (x) {
 			f,
 			f));
 };
-var $mdgriffith$elm_ui$Internal$Model$Px = function (a) {
-	return {$: 'Px', a: a};
-};
-var $mdgriffith$elm_ui$Element$px = $mdgriffith$elm_ui$Internal$Model$Px;
-var $mdgriffith$elm_ui$Internal$Model$AsRow = {$: 'AsRow'};
-var $mdgriffith$elm_ui$Internal$Model$asRow = $mdgriffith$elm_ui$Internal$Model$AsRow;
-var $mdgriffith$elm_ui$Element$row = F2(
-	function (attrs, children) {
-		return A4(
-			$mdgriffith$elm_ui$Internal$Model$element,
-			$mdgriffith$elm_ui$Internal$Model$asRow,
-			$mdgriffith$elm_ui$Internal$Model$div,
-			A2(
-				$elm$core$List$cons,
-				$mdgriffith$elm_ui$Internal$Model$htmlClass($mdgriffith$elm_ui$Internal$Style$classes.contentLeft + (' ' + $mdgriffith$elm_ui$Internal$Style$classes.contentCenterY)),
-				A2(
-					$elm$core$List$cons,
-					$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$shrink),
-					A2(
-						$elm$core$List$cons,
-						$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$shrink),
-						attrs))),
-			$mdgriffith$elm_ui$Internal$Model$Unkeyed(children));
+var $author$project$Main$viewEvolutionPlanButton = F3(
+	function (fields, epIndex, ep) {
+		return A2(
+			$author$project$Main$noOutlineButton,
+			_List_fromArray(
+				[
+					$mdgriffith$elm_ui$Element$Events$onClick(
+					$author$project$Main$NewEvolutionPlanIndex(epIndex)),
+					$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
+					$mdgriffith$elm_ui$Element$Background$color(
+					(!_Utils_eq(fields.chosenEvolutionPlanIndex, epIndex)) ? $author$project$Main$colorScheme.navbar.topBackground : $author$project$Main$colorScheme.navbar.bottomBackground),
+					$mdgriffith$elm_ui$Element$mouseOver(
+					_List_fromArray(
+						[
+							$mdgriffith$elm_ui$Element$Background$color($author$project$Main$colorScheme.navbar.topHover)
+						])),
+					$mdgriffith$elm_ui$Element$padding(3)
+				]),
+			{
+				label: A2(
+					$mdgriffith$elm_ui$Element$el,
+					_List_fromArray(
+						[
+							$mdgriffith$elm_ui$Element$centerX,
+							$mdgriffith$elm_ui$Element$Font$color($author$project$Main$colorScheme.white)
+						]),
+					$mdgriffith$elm_ui$Element$text(ep.name)),
+				onPress: $elm$core$Maybe$Just(
+					$author$project$Main$NewEvolutionPlanIndex(epIndex))
+			});
 	});
-var $mdgriffith$elm_ui$Element$scrollbars = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$overflow, $mdgriffith$elm_ui$Internal$Style$classes.scrollbars);
+var $author$project$Main$viewEvolutionPlanBar = function (fields) {
+	return A2(
+		$mdgriffith$elm_ui$Element$row,
+		_List_fromArray(
+			[
+				$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill)
+			]),
+		$elm$core$Array$toList(
+			A2(
+				$elm$core$Array$indexedMap,
+				$author$project$Main$viewEvolutionPlanButton(fields),
+				fields.mergeResult.evolutionPlans)));
+};
+var $author$project$Main$NewFeatureModelIndex = function (a) {
+	return {$: 'NewFeatureModelIndex', a: a};
+};
+var $mdgriffith$elm_ui$Internal$Flag$borderColor = $mdgriffith$elm_ui$Internal$Flag$flag(28);
+var $mdgriffith$elm_ui$Element$Border$color = function (clr) {
+	return A2(
+		$mdgriffith$elm_ui$Internal$Model$StyleClass,
+		$mdgriffith$elm_ui$Internal$Flag$borderColor,
+		A3(
+			$mdgriffith$elm_ui$Internal$Model$Colored,
+			'bc-' + $mdgriffith$elm_ui$Internal$Model$formatColorClass(clr),
+			'border-color',
+			clr));
+};
 var $mdgriffith$elm_ui$Internal$Flag$borderStyle = $mdgriffith$elm_ui$Internal$Flag$flag(11);
 var $mdgriffith$elm_ui$Element$Border$solid = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$borderStyle, $mdgriffith$elm_ui$Internal$Style$classes.borderSolid);
-var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
-var $author$project$EvolutionPlans$Node = function (a) {
-	return {$: 'Node', a: a};
-};
-var $author$project$Main$tempToTree = function (_v0) {
-	var fields = _v0.a;
-	return $author$project$EvolutionPlans$Node(
-		{
-			children: A2(
-				$elm$core$List$map,
-				$author$project$Main$tempToTree,
-				A2(
-					$elm$core$List$concatMap,
-					function (_v1) {
-						var gFields = _v1.a;
-						return gFields.features;
-					},
-					fields.groups)),
-			metaData: $elm$core$Maybe$Just(fields.featureType),
-			value: fields.name
-		});
-};
-var $mdgriffith$elm_ui$Element$text = function (content) {
-	return $mdgriffith$elm_ui$Internal$Model$Text(content);
-};
-var $elm$core$Debug$toString = _Debug_toString;
-var $elm$core$Debug$todo = _Debug_todo;
-var $elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
 var $mdgriffith$elm_ui$Internal$Model$BorderWidth = F5(
 	function (a, b, c, d, e) {
 		return {$: 'BorderWidth', a: a, b: b, c: c, d: d, e: e};
@@ -13389,195 +13182,415 @@ var $mdgriffith$elm_ui$Element$Border$widthEach = function (_v0) {
 			bottom,
 			left));
 };
-var $author$project$Main$view = function (model) {
-	if (model.$ === 'UnInitialized') {
-		var someFields = model.a;
+var $author$project$Main$viewFeatureModelBar = F2(
+	function (fields, currentEP) {
 		return A2(
-			$mdgriffith$elm_ui$Element$layout,
-			_List_Nil,
-			$mdgriffith$elm_ui$Element$text(
-				$elm$core$Debug$toString(someFields)));
+			$mdgriffith$elm_ui$Element$row,
+			_List_fromArray(
+				[
+					$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill)
+				]),
+			$elm$core$Array$toList(
+				A2(
+					$elm$core$Array$indexedMap,
+					F2(
+						function (i, tp) {
+							return A2(
+								$author$project$Main$noOutlineButton,
+								_List_fromArray(
+									[
+										$mdgriffith$elm_ui$Element$Events$onClick(
+										$author$project$Main$NewFeatureModelIndex(i)),
+										$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
+										$mdgriffith$elm_ui$Element$Background$color(
+										(!_Utils_eq(fields.chosenFeatureModelIndex, i)) ? $author$project$Main$colorScheme.navbar.bottomBackground : $author$project$Main$colorScheme.navbar.background),
+										$mdgriffith$elm_ui$Element$mouseOver(
+										_List_fromArray(
+											[
+												$mdgriffith$elm_ui$Element$Background$color($author$project$Main$colorScheme.navbar.bottomHover)
+											])),
+										$mdgriffith$elm_ui$Element$Border$widthEach(
+										{bottom: 0, left: 1, right: 1, top: 0}),
+										$mdgriffith$elm_ui$Element$Border$solid,
+										$mdgriffith$elm_ui$Element$Border$color(
+										(!_Utils_eq(fields.chosenFeatureModelIndex, i)) ? $author$project$Main$colorScheme.navbar.bottomHover : $author$project$Main$colorScheme.navbar.background),
+										$mdgriffith$elm_ui$Element$padding(3)
+									]),
+								{
+									label: A2(
+										$mdgriffith$elm_ui$Element$el,
+										_List_fromArray(
+											[
+												$mdgriffith$elm_ui$Element$centerX,
+												$mdgriffith$elm_ui$Element$Font$color(
+												(!_Utils_eq(fields.chosenFeatureModelIndex, i)) ? $author$project$Main$colorScheme.white : $author$project$Main$colorScheme.navbar.selectedTimePoint)
+											]),
+										$mdgriffith$elm_ui$Element$text(
+											$elm$core$String$fromInt(tp.time))),
+									onPress: $elm$core$Maybe$Just(
+										$author$project$Main$NewFeatureModelIndex(i))
+								});
+						}),
+					currentEP.timePoints)));
+	});
+var $mdgriffith$elm_ui$Element$none = $mdgriffith$elm_ui$Internal$Model$Empty;
+var $mdgriffith$elm_ui$Internal$Model$Px = function (a) {
+	return {$: 'Px', a: a};
+};
+var $mdgriffith$elm_ui$Element$px = $mdgriffith$elm_ui$Internal$Model$Px;
+var $author$project$Main$viewNavbarSpacer = function (fields) {
+	return A2(
+		$mdgriffith$elm_ui$Element$el,
+		_List_fromArray(
+			[
+				$mdgriffith$elm_ui$Element$height(
+				$mdgriffith$elm_ui$Element$px(16)),
+				$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
+				$mdgriffith$elm_ui$Element$Background$color($author$project$Main$colorScheme.navbar.bottomBackground)
+			]),
+		$mdgriffith$elm_ui$Element$none);
+};
+var $author$project$Main$viewNavbar = F2(
+	function (fields, currentEP) {
+		return A2(
+			$mdgriffith$elm_ui$Element$column,
+			_List_fromArray(
+				[
+					$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill)
+				]),
+			_List_fromArray(
+				[
+					$author$project$Main$viewEvolutionPlanBar(fields),
+					$author$project$Main$viewNavbarSpacer(fields),
+					A2($author$project$Main$viewFeatureModelBar, fields, currentEP)
+				]));
+	});
+var $author$project$Main$depth = function (_v0) {
+	var node = _v0.a;
+	var _v1 = $elm$core$List$maximum(
+		A2($elm$core$List$map, $author$project$Main$depth, node.children));
+	if (_v1.$ === 'Nothing') {
+		return 1;
 	} else {
-		var fields = model.a;
-		var _v1 = A2($elm$core$Array$get, fields.chosenEvolutionPlanIndex, fields.mergeResult.evolutionPlans);
-		if (_v1.$ === 'Nothing') {
-			return _Debug_todo(
-				'Main',
-				{
-					start: {line: 336, column: 21},
-					end: {line: 336, column: 31}
-				})('Evolution Plan index out of bounds');
+		var n = _v1.a;
+		return n + 1;
+	}
+};
+var $author$project$Main$nodeHeight = 30;
+var $author$project$Main$spacingY = 80;
+var $author$project$Main$calcHeight = function (tree) {
+	var treeDepth = $author$project$Main$depth(tree);
+	var spacingTotalHeight = (treeDepth - 1) * $author$project$Main$spacingY;
+	var nodeTotalHeight = treeDepth * $author$project$Main$nodeHeight;
+	return nodeTotalHeight + spacingTotalHeight;
+};
+var $author$project$Main$calcWidth = function (_v0) {
+	var tree = _v0.a;
+	return tree.computedDimentions.treeWidth;
+};
+var $mdgriffith$elm_ui$Internal$Flag$overflow = $mdgriffith$elm_ui$Internal$Flag$flag(20);
+var $mdgriffith$elm_ui$Element$clip = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$overflow, $mdgriffith$elm_ui$Internal$Style$classes.clip);
+var $author$project$EvolutionPlans$ComputedNode = function (a) {
+	return {$: 'ComputedNode', a: a};
+};
+var $elm$core$List$intersperse = F2(
+	function (sep, xs) {
+		if (!xs.b) {
+			return _List_Nil;
 		} else {
-			var currentEP = _v1.a;
-			var _v2 = A2($elm$core$Array$get, fields.chosenFeatureModelIndex, currentEP.timePoints);
-			if (_v2.$ === 'Nothing') {
-				return _Debug_todo(
-					'Main',
-					{
-						start: {line: 341, column: 29},
-						end: {line: 341, column: 39}
-					})('Feature Model index out of bounds');
-			} else {
-				var currentFM = _v2.a;
-				var computedTree = $author$project$Main$computeTree(
-					$author$project$Main$tempToTree(currentFM.featureModel.rootFeature));
-				var height = $author$project$Main$calcHeight(computedTree);
-				var width = $author$project$Main$calcWidth(computedTree);
-				return A2(
-					$mdgriffith$elm_ui$Element$layout,
+			var hd = xs.a;
+			var tl = xs.b;
+			var step = F2(
+				function (x, rest) {
+					return A2(
+						$elm$core$List$cons,
+						sep,
+						A2($elm$core$List$cons, x, rest));
+				});
+			var spersed = A3($elm$core$List$foldr, step, _List_Nil, tl);
+			return A2($elm$core$List$cons, hd, spersed);
+		}
+	});
+var $author$project$Main$spacingX = 30;
+var $elm$core$List$sum = function (numbers) {
+	return A3($elm$core$List$foldl, $elm$core$Basics$add, 0, numbers);
+};
+var $author$project$Main$computeTree = function (_v0) {
+	var tree = _v0.a;
+	var computedChildren = A2($elm$core$List$map, $author$project$Main$computeTree, tree.children);
+	var childrenTotalWidth = $elm$core$List$sum(
+		A2(
+			$elm$core$List$intersperse,
+			$author$project$Main$spacingX,
+			A2(
+				$elm$core$List$map,
+				function (_v1) {
+					var t = _v1.a;
+					return t.computedDimentions.treeWidth;
+				},
+				computedChildren)));
+	var approxNodeWidth = $elm$core$String$length(tree.value) * 15;
+	return $author$project$EvolutionPlans$ComputedNode(
+		{
+			children: computedChildren,
+			computedDimentions: {
+				approxNodeWidth: approxNodeWidth,
+				treeWidth: A2($elm$core$Basics$max, approxNodeWidth, childrenTotalWidth)
+			},
+			metaData: tree.metaData,
+			value: tree.value
+		});
+};
+var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
+var $elm$svg$Svg$line = $elm$svg$Svg$trustedNode('line');
+var $elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
+var $elm$svg$Svg$Attributes$strokeWidth = _VirtualDom_attribute('stroke-width');
+var $elm$svg$Svg$Attributes$x1 = _VirtualDom_attribute('x1');
+var $elm$svg$Svg$Attributes$x2 = _VirtualDom_attribute('x2');
+var $elm$svg$Svg$Attributes$y1 = _VirtualDom_attribute('y1');
+var $elm$svg$Svg$Attributes$y2 = _VirtualDom_attribute('y2');
+var $author$project$Main$drawLine = F4(
+	function (x1, y1, x2, y2) {
+		return A2(
+			$elm$svg$Svg$line,
+			_List_fromArray(
+				[
+					$elm$svg$Svg$Attributes$x1(
+					$elm$core$String$fromFloat(x1)),
+					$elm$svg$Svg$Attributes$y1(
+					$elm$core$String$fromFloat(y1)),
+					$elm$svg$Svg$Attributes$x2(
+					$elm$core$String$fromFloat(x2)),
+					$elm$svg$Svg$Attributes$y2(
+					$elm$core$String$fromFloat(y2)),
+					$elm$svg$Svg$Attributes$strokeWidth('3'),
+					$elm$svg$Svg$Attributes$stroke($author$project$Main$colorScheme.dark)
+				]),
+			_List_Nil);
+	});
+var $author$project$Main$NodeHoverEntry = function (a) {
+	return {$: 'NodeHoverEntry', a: a};
+};
+var $author$project$Main$NodeHoverExit = {$: 'NodeHoverExit'};
+var $elm$svg$Svg$Attributes$cursor = _VirtualDom_attribute('cursor');
+var $elm$svg$Svg$Attributes$dominantBaseline = _VirtualDom_attribute('dominant-baseline');
+var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
+var $elm$svg$Svg$g = $elm$svg$Svg$trustedNode('g');
+var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
+var $elm$svg$Svg$Events$onMouseOut = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'mouseout',
+		$elm$json$Json$Decode$succeed(msg));
+};
+var $elm$svg$Svg$Events$onMouseOver = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'mouseover',
+		$elm$json$Json$Decode$succeed(msg));
+};
+var $elm$svg$Svg$rect = $elm$svg$Svg$trustedNode('rect');
+var $elm$svg$Svg$text = $elm$virtual_dom$VirtualDom$text;
+var $elm$svg$Svg$Attributes$textAnchor = _VirtualDom_attribute('text-anchor');
+var $elm$svg$Svg$text_ = $elm$svg$Svg$trustedNode('text');
+var $elm$svg$Svg$Attributes$transform = _VirtualDom_attribute('transform');
+var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
+var $elm$svg$Svg$Attributes$x = _VirtualDom_attribute('x');
+var $elm$svg$Svg$Attributes$y = _VirtualDom_attribute('y');
+var $author$project$Main$drawNode = F3(
+	function (x, y, _v0) {
+		var node = _v0.a;
+		return A2(
+			$elm$svg$Svg$g,
+			_List_fromArray(
+				[
+					$elm$svg$Svg$Attributes$transform(
+					'translate(' + ($elm$core$String$fromFloat(x) + (', ' + ($elm$core$String$fromFloat(y) + ')')))),
+					$elm$svg$Svg$Events$onMouseOver(
+					$author$project$Main$NodeHoverEntry(
+						A2($elm$core$Maybe$withDefault, '-', node.metaData))),
+					$elm$svg$Svg$Events$onMouseOut($author$project$Main$NodeHoverExit),
+					$elm$svg$Svg$Attributes$cursor('pointer')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$svg$Svg$rect,
 					_List_fromArray(
 						[
-							$mdgriffith$elm_ui$Element$Background$color($author$project$Main$colorScheme.navbar.background)
+							$elm$svg$Svg$Attributes$width(
+							$elm$core$String$fromFloat(node.computedDimentions.approxNodeWidth)),
+							$elm$svg$Svg$Attributes$height(
+							$elm$core$String$fromFloat($author$project$Main$nodeHeight)),
+							$elm$svg$Svg$Attributes$x(
+							$elm$core$String$fromFloat(-(node.computedDimentions.approxNodeWidth / 2))),
+							$elm$svg$Svg$Attributes$fill($author$project$Main$colorScheme.darkPrimary),
+							$elm$svg$Svg$Attributes$strokeWidth('2'),
+							$elm$svg$Svg$Attributes$stroke($author$project$Main$colorScheme.dark)
 						]),
+					_List_Nil),
 					A2(
-						$mdgriffith$elm_ui$Element$column,
+					$elm$svg$Svg$text_,
+					_List_fromArray(
+						[
+							$elm$svg$Svg$Attributes$x('0'),
+							$elm$svg$Svg$Attributes$y(
+							$elm$core$String$fromFloat($author$project$Main$nodeHeight / 2)),
+							$elm$svg$Svg$Attributes$dominantBaseline('middle'),
+							$elm$svg$Svg$Attributes$textAnchor('middle'),
+							$elm$svg$Svg$Attributes$fill($author$project$Main$colorScheme.light)
+						]),
+					_List_fromArray(
+						[
+							$elm$svg$Svg$text(node.value)
+						]))
+				]));
+	});
+var $author$project$Main$drawTree = F3(
+	function (xStart, yStart, _v0) {
+		var tree = _v0.a;
+		var nodeXLevel = xStart + (tree.computedDimentions.treeWidth / 2);
+		var childYLevel = (yStart + $author$project$Main$nodeHeight) + $author$project$Main$spacingY;
+		var drawChildren = F2(
+			function (childX, children) {
+				if (!children.b) {
+					return _List_Nil;
+				} else {
+					var child = children.a.a;
+					var rest = children.b;
+					return _Utils_ap(
 						_List_fromArray(
 							[
-								$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$fill),
-								$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill)
+								A4($author$project$Main$drawLine, nodeXLevel, yStart + $author$project$Main$nodeHeight, childX + (child.computedDimentions.treeWidth / 2), childYLevel)
 							]),
+						_Utils_ap(
+							A3(
+								$author$project$Main$drawTree,
+								childX,
+								childYLevel,
+								$author$project$EvolutionPlans$ComputedNode(child)),
+							A2(drawChildren, (childX + child.computedDimentions.treeWidth) + $author$project$Main$spacingX, rest)));
+				}
+			});
+		return A2(
+			$elm$core$List$cons,
+			A3(
+				$author$project$Main$drawNode,
+				nodeXLevel,
+				yStart,
+				$author$project$EvolutionPlans$ComputedNode(tree)),
+			A2(drawChildren, xStart, tree.children));
+	});
+var $elm$core$Basics$always = F2(
+	function (a, _v0) {
+		return a;
+	});
+var $mdgriffith$elm_ui$Internal$Model$unstyled = A2($elm$core$Basics$composeL, $mdgriffith$elm_ui$Internal$Model$Unstyled, $elm$core$Basics$always);
+var $mdgriffith$elm_ui$Element$html = $mdgriffith$elm_ui$Internal$Model$unstyled;
+var $mdgriffith$elm_ui$Element$scrollbars = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$overflow, $mdgriffith$elm_ui$Internal$Style$classes.scrollbars);
+var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
+var $author$project$EvolutionPlans$Node = function (a) {
+	return {$: 'Node', a: a};
+};
+var $author$project$Main$tempToTree = function (_v0) {
+	var fields = _v0.a;
+	return $author$project$EvolutionPlans$Node(
+		{
+			children: A2(
+				$elm$core$List$map,
+				$author$project$Main$tempToTree,
+				A2(
+					$elm$core$List$concatMap,
+					function (_v1) {
+						var gFields = _v1.a;
+						return gFields.features;
+					},
+					fields.groups)),
+			metaData: $elm$core$Maybe$Just(fields.featureType),
+			value: fields.name
+		});
+};
+var $elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
+var $author$project$Main$viewTree = F3(
+	function (fields, currentEP, currentFM) {
+		var computedTree = $author$project$Main$computeTree(
+			$author$project$Main$tempToTree(currentFM.featureModel.rootFeature));
+		var height = $author$project$Main$calcHeight(computedTree);
+		var width = $author$project$Main$calcWidth(computedTree);
+		return A2(
+			$mdgriffith$elm_ui$Element$el,
+			_List_fromArray(
+				[
+					$mdgriffith$elm_ui$Element$clip,
+					$mdgriffith$elm_ui$Element$scrollbars,
+					$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
+					$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$fill)
+				]),
+			A2(
+				$mdgriffith$elm_ui$Element$el,
+				_List_fromArray(
+					[
+						$mdgriffith$elm_ui$Element$padding(16)
+					]),
+				$mdgriffith$elm_ui$Element$html(
+					A2(
+						$elm$svg$Svg$svg,
 						_List_fromArray(
 							[
-								A2(
-								$mdgriffith$elm_ui$Element$column,
-								_List_fromArray(
-									[
-										$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill)
-									]),
-								_List_fromArray(
-									[
-										A2(
-										$mdgriffith$elm_ui$Element$row,
-										_List_fromArray(
-											[
-												$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill)
-											]),
-										$elm$core$Array$toList(
-											A2(
-												$elm$core$Array$indexedMap,
-												F2(
-													function (i, ep) {
-														return A2(
-															$author$project$Main$noOutlineButton,
-															_List_fromArray(
-																[
-																	$mdgriffith$elm_ui$Element$Events$onClick(
-																	$author$project$Main$NewEvolutionPlanIndex(i)),
-																	$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
-																	$mdgriffith$elm_ui$Element$Background$color(
-																	(!_Utils_eq(fields.chosenEvolutionPlanIndex, i)) ? $author$project$Main$colorScheme.navbar.topBackground : $author$project$Main$colorScheme.navbar.bottomBackground),
-																	$mdgriffith$elm_ui$Element$mouseOver(
-																	_List_fromArray(
-																		[
-																			$mdgriffith$elm_ui$Element$Background$color($author$project$Main$colorScheme.navbar.topHover)
-																		])),
-																	$mdgriffith$elm_ui$Element$padding(3)
-																]),
-															{
-																label: A2(
-																	$mdgriffith$elm_ui$Element$el,
-																	_List_fromArray(
-																		[
-																			$mdgriffith$elm_ui$Element$centerX,
-																			$mdgriffith$elm_ui$Element$Font$color($author$project$Main$colorScheme.white)
-																		]),
-																	$mdgriffith$elm_ui$Element$text(ep.name)),
-																onPress: $elm$core$Maybe$Just(
-																	$author$project$Main$NewEvolutionPlanIndex(i))
-															});
-													}),
-												fields.mergeResult.evolutionPlans))),
-										A2(
-										$mdgriffith$elm_ui$Element$row,
-										_List_fromArray(
-											[
-												$mdgriffith$elm_ui$Element$height(
-												$mdgriffith$elm_ui$Element$px(16)),
-												$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
-												$mdgriffith$elm_ui$Element$Background$color($author$project$Main$colorScheme.navbar.bottomBackground)
-											]),
-										_List_Nil),
-										A2(
-										$mdgriffith$elm_ui$Element$row,
-										_List_fromArray(
-											[
-												$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill)
-											]),
-										$elm$core$Array$toList(
-											A2(
-												$elm$core$Array$indexedMap,
-												F2(
-													function (i, tp) {
-														return A2(
-															$author$project$Main$noOutlineButton,
-															_List_fromArray(
-																[
-																	$mdgriffith$elm_ui$Element$Events$onClick(
-																	$author$project$Main$NewFeatureModelIndex(i)),
-																	$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
-																	$mdgriffith$elm_ui$Element$Background$color(
-																	(!_Utils_eq(fields.chosenFeatureModelIndex, i)) ? $author$project$Main$colorScheme.navbar.bottomBackground : $author$project$Main$colorScheme.navbar.background),
-																	$mdgriffith$elm_ui$Element$mouseOver(
-																	_List_fromArray(
-																		[
-																			$mdgriffith$elm_ui$Element$Background$color($author$project$Main$colorScheme.navbar.bottomHover)
-																		])),
-																	$mdgriffith$elm_ui$Element$Border$widthEach(
-																	{bottom: 0, left: 1, right: 1, top: 0}),
-																	$mdgriffith$elm_ui$Element$Border$solid,
-																	$mdgriffith$elm_ui$Element$Border$color(
-																	(!_Utils_eq(fields.chosenFeatureModelIndex, i)) ? $author$project$Main$colorScheme.navbar.bottomHover : $author$project$Main$colorScheme.navbar.background),
-																	$mdgriffith$elm_ui$Element$padding(3)
-																]),
-															{
-																label: A2(
-																	$mdgriffith$elm_ui$Element$el,
-																	_List_fromArray(
-																		[
-																			$mdgriffith$elm_ui$Element$centerX,
-																			$mdgriffith$elm_ui$Element$Font$color(
-																			(!_Utils_eq(fields.chosenFeatureModelIndex, i)) ? $author$project$Main$colorScheme.white : $author$project$Main$colorScheme.navbar.selectedTimePoint)
-																		]),
-																	$mdgriffith$elm_ui$Element$text(
-																		$elm$core$String$fromInt(tp.time))),
-																onPress: $elm$core$Maybe$Just(
-																	$author$project$Main$NewFeatureModelIndex(i))
-															});
-													}),
-												currentEP.timePoints)))
-									])),
-								A2(
-								$mdgriffith$elm_ui$Element$el,
-								_List_fromArray(
-									[
-										$mdgriffith$elm_ui$Element$clip,
-										$mdgriffith$elm_ui$Element$scrollbars,
-										$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
-										$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$fill)
-									]),
-								A2(
-									$mdgriffith$elm_ui$Element$el,
-									_List_fromArray(
-										[
-											$mdgriffith$elm_ui$Element$padding(16)
-										]),
-									$mdgriffith$elm_ui$Element$html(
-										A2(
-											$elm$svg$Svg$svg,
-											_List_fromArray(
-												[
-													$elm$svg$Svg$Attributes$width(
-													$elm$core$String$fromFloat(width)),
-													$elm$svg$Svg$Attributes$height(
-													$elm$core$String$fromFloat(height)),
-													$elm$svg$Svg$Attributes$viewBox(
-													'0 0 ' + ($elm$core$String$fromFloat(width) + (' ' + $elm$core$String$fromFloat(height))))
-												]),
-											A3($author$project$Main$drawTree, 0, 0, computedTree)))))
-							])));
+								$elm$svg$Svg$Attributes$width(
+								$elm$core$String$fromFloat(width)),
+								$elm$svg$Svg$Attributes$height(
+								$elm$core$String$fromFloat(height)),
+								$elm$svg$Svg$Attributes$viewBox(
+								'0 0 ' + ($elm$core$String$fromFloat(width) + (' ' + $elm$core$String$fromFloat(height))))
+							]),
+						A3($author$project$Main$drawTree, 0, 0, computedTree)))));
+	});
+var $author$project$Main$viewInitialized = F3(
+	function (fields, currentEP, currentFM) {
+		return A2(
+			$mdgriffith$elm_ui$Element$column,
+			_List_fromArray(
+				[
+					$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$fill),
+					$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill)
+				]),
+			_List_fromArray(
+				[
+					A2($author$project$Main$viewNavbar, fields, currentEP),
+					A3($author$project$Main$viewTree, fields, currentEP, currentFM)
+				]));
+	});
+var $author$project$Main$view = function (model) {
+	var content = function () {
+		if (model.$ === 'UnInitialized') {
+			var someFields = model.a;
+			return $mdgriffith$elm_ui$Element$text(
+				$elm$core$Debug$toString(someFields));
+		} else {
+			var fields = model.a;
+			var _v1 = A2($elm$core$Array$get, fields.chosenEvolutionPlanIndex, fields.mergeResult.evolutionPlans);
+			if (_v1.$ === 'Nothing') {
+				return $mdgriffith$elm_ui$Element$text('Evolution Plan index out of bounds');
+			} else {
+				var currentEP = _v1.a;
+				var _v2 = A2($elm$core$Array$get, fields.chosenFeatureModelIndex, currentEP.timePoints);
+				if (_v2.$ === 'Nothing') {
+					return $mdgriffith$elm_ui$Element$text('Feature Model index out of bounds');
+				} else {
+					var currentFM = _v2.a;
+					return A3($author$project$Main$viewInitialized, fields, currentEP, currentFM);
+				}
 			}
 		}
-	}
+	}();
+	return A2(
+		$mdgriffith$elm_ui$Element$layout,
+		_List_fromArray(
+			[
+				$mdgriffith$elm_ui$Element$Background$color($author$project$Main$colorScheme.navbar.background)
+			]),
+		content);
 };
 var $author$project$Main$main = $elm$browser$Browser$element(
 	{init: $author$project$Main$init, subscriptions: $author$project$Main$subscriptions, update: $author$project$Main$update, view: $author$project$Main$view});

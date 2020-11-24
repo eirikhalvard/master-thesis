@@ -326,141 +326,176 @@ noOutlineButton attributes fields =
 
 view : Model -> Html Msg
 view model =
-    case model of
-        UnInitialized someFields ->
-            Element.layout [] <| Element.text <| Debug.toString someFields
+    let
+        content =
+            case model of
+                UnInitialized someFields ->
+                    Element.text <| Debug.toString someFields
 
-        Initialized fields ->
-            case Array.get fields.chosenEvolutionPlanIndex fields.mergeResult.evolutionPlans of
-                Nothing ->
-                    Debug.todo "Evolution Plan index out of bounds"
-
-                Just currentEP ->
-                    case Array.get fields.chosenFeatureModelIndex currentEP.timePoints of
+                Initialized fields ->
+                    case Array.get fields.chosenEvolutionPlanIndex fields.mergeResult.evolutionPlans of
                         Nothing ->
-                            Debug.todo "Feature Model index out of bounds"
+                            Element.text "Evolution Plan index out of bounds"
 
-                        Just currentFM ->
-                            let
-                                computedTree =
-                                    computeTree <| tempToTree <| currentFM.featureModel.rootFeature
+                        Just currentEP ->
+                            case Array.get fields.chosenFeatureModelIndex currentEP.timePoints of
+                                Nothing ->
+                                    Element.text "Feature Model index out of bounds"
 
-                                width =
-                                    calcWidth computedTree
+                                Just currentFM ->
+                                    viewInitialized fields currentEP currentFM
+    in
+    Element.layout [ Background.color colorScheme.navbar.background ] content
 
-                                height =
-                                    calcHeight computedTree
-                            in
-                            Element.layout [ Background.color colorScheme.navbar.background ] <|
-                                Element.column
-                                    [ Element.height Element.fill
-                                    , Element.width Element.fill
-                                    ]
-                                    [ Element.column
-                                        [ Element.width Element.fill ]
-                                        [ Element.row
-                                            [ Element.width Element.fill
-                                            ]
-                                            (fields.mergeResult.evolutionPlans
-                                                |> Array.indexedMap
-                                                    (\i ep ->
-                                                        noOutlineButton
-                                                            [ EEvents.onClick (NewEvolutionPlanIndex i)
-                                                            , Element.width Element.fill
-                                                            , Background.color
-                                                                (if fields.chosenEvolutionPlanIndex /= i then
-                                                                    colorScheme.navbar.topBackground
 
-                                                                 else
-                                                                    colorScheme.navbar.bottomBackground
-                                                                )
-                                                            , Element.mouseOver [ Background.color colorScheme.navbar.topHover ]
-                                                            , Element.padding 3
-                                                            ]
-                                                            { onPress = Just (NewEvolutionPlanIndex i)
-                                                            , label =
-                                                                Element.el
-                                                                    [ Element.centerX
-                                                                    , Font.color colorScheme.white
-                                                                    ]
-                                                                <|
-                                                                    Element.text ep.name
-                                                            }
-                                                    )
-                                                |> Array.toList
-                                            )
-                                        , Element.row
-                                            [ Element.height <| Element.px 16
-                                            , Element.width Element.fill
-                                            , Background.color colorScheme.navbar.bottomBackground
-                                            ]
-                                            []
-                                        , Element.row [ Element.width Element.fill ]
-                                            (currentEP.timePoints
-                                                |> Array.indexedMap
-                                                    (\i tp ->
-                                                        noOutlineButton
-                                                            [ EEvents.onClick (NewFeatureModelIndex i)
-                                                            , Element.width Element.fill
-                                                            , Background.color
-                                                                (if fields.chosenFeatureModelIndex /= i then
-                                                                    colorScheme.navbar.bottomBackground
+viewInitialized : Fields -> EvolutionPlan -> TimePoint -> Element Msg
+viewInitialized fields currentEP currentFM =
+    Element.column
+        [ Element.height Element.fill
+        , Element.width Element.fill
+        ]
+        [ viewNavbar fields currentEP
+        , viewTree fields currentEP currentFM
+        ]
 
-                                                                 else
-                                                                    colorScheme.navbar.background
-                                                                )
-                                                            , Element.mouseOver [ Background.color colorScheme.navbar.bottomHover ]
-                                                            , Border.widthEach { bottom = 0, left = 1, right = 1, top = 0 }
-                                                            , Border.solid
-                                                            , Border.color
-                                                                (if fields.chosenFeatureModelIndex /= i then
-                                                                    colorScheme.navbar.bottomHover
 
-                                                                 else
-                                                                    colorScheme.navbar.background
-                                                                )
-                                                            , Element.padding 3
-                                                            ]
-                                                            { onPress = Just (NewFeatureModelIndex i)
-                                                            , label =
-                                                                Element.el
-                                                                    [ Element.centerX
-                                                                    , Font.color
-                                                                        (if fields.chosenFeatureModelIndex /= i then
-                                                                            colorScheme.white
+viewNavbar : Fields -> EvolutionPlan -> Element Msg
+viewNavbar fields currentEP =
+    Element.column
+        [ Element.width Element.fill ]
+        [ viewEvolutionPlanBar fields
+        , viewNavbarSpacer fields
+        , viewFeatureModelBar fields currentEP
+        ]
 
-                                                                         else
-                                                                            colorScheme.navbar.selectedTimePoint
-                                                                        )
-                                                                    ]
-                                                                <|
-                                                                    Element.text (String.fromInt tp.time)
-                                                            }
-                                                    )
-                                                |> Array.toList
-                                            )
-                                        ]
-                                    , Element.el
-                                        [ Element.clip
-                                        , Element.scrollbars
-                                        , Element.width Element.fill
-                                        , Element.height Element.fill
-                                        ]
-                                      <|
-                                        Element.el [ Element.padding 16 ] <|
-                                            Element.html
-                                                (Svg.svg
-                                                    [ SvgA.width <| String.fromFloat width
-                                                    , SvgA.height <| String.fromFloat height
-                                                    , SvgA.viewBox <|
-                                                        "0 0 "
-                                                            ++ String.fromFloat width
-                                                            ++ " "
-                                                            ++ String.fromFloat height
-                                                    ]
-                                                    (computedTree |> drawTree 0 0)
-                                                )
-                                    ]
+
+viewEvolutionPlanBar : Fields -> Element Msg
+viewEvolutionPlanBar fields =
+    Element.row
+        [ Element.width Element.fill
+        ]
+        (fields.mergeResult.evolutionPlans
+            |> Array.indexedMap (viewEvolutionPlanButton fields)
+            |> Array.toList
+        )
+
+
+viewEvolutionPlanButton : Fields -> Int -> EvolutionPlan -> Element Msg
+viewEvolutionPlanButton fields epIndex ep =
+    noOutlineButton
+        [ EEvents.onClick (NewEvolutionPlanIndex epIndex)
+        , Element.width Element.fill
+        , Background.color
+            (if fields.chosenEvolutionPlanIndex /= epIndex then
+                colorScheme.navbar.topBackground
+
+             else
+                colorScheme.navbar.bottomBackground
+            )
+        , Element.mouseOver [ Background.color colorScheme.navbar.topHover ]
+        , Element.padding 3
+        ]
+        { onPress = Just (NewEvolutionPlanIndex epIndex)
+        , label =
+            Element.el
+                [ Element.centerX
+                , Font.color colorScheme.white
+                ]
+            <|
+                Element.text ep.name
+        }
+
+
+viewNavbarSpacer : Fields -> Element Msg
+viewNavbarSpacer fields =
+    Element.el
+        [ Element.height <| Element.px 16
+        , Element.width Element.fill
+        , Background.color colorScheme.navbar.bottomBackground
+        ]
+        Element.none
+
+
+viewFeatureModelBar : Fields -> EvolutionPlan -> Element Msg
+viewFeatureModelBar fields currentEP =
+    Element.row [ Element.width Element.fill ]
+        (currentEP.timePoints
+            |> Array.indexedMap
+                (\i tp ->
+                    noOutlineButton
+                        [ EEvents.onClick (NewFeatureModelIndex i)
+                        , Element.width Element.fill
+                        , Background.color
+                            (if fields.chosenFeatureModelIndex /= i then
+                                colorScheme.navbar.bottomBackground
+
+                             else
+                                colorScheme.navbar.background
+                            )
+                        , Element.mouseOver [ Background.color colorScheme.navbar.bottomHover ]
+                        , Border.widthEach { bottom = 0, left = 1, right = 1, top = 0 }
+                        , Border.solid
+                        , Border.color
+                            (if fields.chosenFeatureModelIndex /= i then
+                                colorScheme.navbar.bottomHover
+
+                             else
+                                colorScheme.navbar.background
+                            )
+                        , Element.padding 3
+                        ]
+                        { onPress = Just (NewFeatureModelIndex i)
+                        , label =
+                            Element.el
+                                [ Element.centerX
+                                , Font.color
+                                    (if fields.chosenFeatureModelIndex /= i then
+                                        colorScheme.white
+
+                                     else
+                                        colorScheme.navbar.selectedTimePoint
+                                    )
+                                ]
+                            <|
+                                Element.text (String.fromInt tp.time)
+                        }
+                )
+            |> Array.toList
+        )
+
+
+viewTree : Fields -> EvolutionPlan -> TimePoint -> Element Msg
+viewTree fields currentEP currentFM =
+    let
+        computedTree =
+            computeTree <| tempToTree <| currentFM.featureModel.rootFeature
+
+        width =
+            calcWidth computedTree
+
+        height =
+            calcHeight computedTree
+    in
+    Element.el
+        [ Element.clip
+        , Element.scrollbars
+        , Element.width Element.fill
+        , Element.height Element.fill
+        ]
+    <|
+        Element.el [ Element.padding 16 ] <|
+            Element.html
+                (Svg.svg
+                    [ SvgA.width <| String.fromFloat width
+                    , SvgA.height <| String.fromFloat height
+                    , SvgA.viewBox <|
+                        "0 0 "
+                            ++ String.fromFloat width
+                            ++ " "
+                            ++ String.fromFloat height
+                    ]
+                    (computedTree |> drawTree 0 0)
+                )
 
 
 computeTree : Tree -> ComputedTree
