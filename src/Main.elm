@@ -9,9 +9,11 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Events as EEvents
 import Element.Font as Font
+import Element.Input as ElementI
 import EvolutionPlans exposing (..)
 import EvolutionPlansDecoder as Decode
 import Html exposing (Html)
+import Html.Attributes as HtmlA
 import Http
 import List
 import List.Extra as List
@@ -29,6 +31,15 @@ type alias Color =
     , darkPrimary : String
     , warning : String
     , alert : String
+    , white : Element.Color
+    , navbar :
+        { topBackground : Element.Color
+        , topHover : Element.Color
+        , bottomBackground : Element.Color
+        , bottomHover : Element.Color
+        , background : Element.Color
+        , selectedTimePoint : Element.Color
+        }
     }
 
 
@@ -41,6 +52,15 @@ colorScheme =
     , darkPrimary = "#48577D"
     , warning = "#FFCF59"
     , alert = "#F56F67"
+    , white = Element.rgb255 255 255 255
+    , navbar =
+        { topBackground = Element.rgb255 165 165 165
+        , topHover = Element.rgb255 179 179 179
+        , bottomBackground = Element.rgb255 196 196 196
+        , bottomHover = Element.rgb255 208 208 208
+        , background = Element.rgb255 246 246 246
+        , selectedTimePoint = Element.rgb255 98 118 189
+        }
     }
 
 
@@ -194,7 +214,8 @@ update msg model =
                 (\f ->
                     { f
                         | chosenEvolutionPlanIndex = epIndex
-                        , chosenFeatureModelIndex = 0
+
+                        -- , chosenFeatureModelIndex = 0
                     }
                 )
                 model
@@ -298,6 +319,11 @@ tempToTree (Feature fields) =
         }
 
 
+noOutlineButton : List (Element.Attribute msg) -> { onPress : Maybe msg, label : Element msg } -> Element msg
+noOutlineButton attributes fields =
+    ElementI.button (Element.htmlAttribute (HtmlA.style "box-shadow" "none") :: attributes) fields
+
+
 view : Model -> Html Msg
 view model =
     case model of
@@ -325,40 +351,102 @@ view model =
                                 height =
                                     calcHeight computedTree
                             in
-                            Element.layout [] <|
-                                Element.column [ Element.height Element.fill ]
-                                    [ Element.el [ Element.width Element.fill ] <|
-                                        Element.text "Welcome to the tree visualizer!"
-                                    , Element.column []
-                                        [ Element.row []
+                            Element.layout [ Background.color colorScheme.navbar.background ] <|
+                                Element.column
+                                    [ Element.height Element.fill
+                                    , Element.width Element.fill
+                                    ]
+                                    [ Element.column
+                                        [ Element.width Element.fill ]
+                                        [ Element.row
+                                            [ Element.width Element.fill
+                                            ]
                                             (fields.mergeResult.evolutionPlans
                                                 |> Array.indexedMap
                                                     (\i ep ->
-                                                        Element.el [ EEvents.onClick (NewEvolutionPlanIndex i) ] <|
-                                                            Element.text <|
-                                                                ep.name
+                                                        noOutlineButton
+                                                            [ EEvents.onClick (NewEvolutionPlanIndex i)
+                                                            , Element.width Element.fill
+                                                            , Background.color
+                                                                (if fields.chosenEvolutionPlanIndex /= i then
+                                                                    colorScheme.navbar.topBackground
+
+                                                                 else
+                                                                    colorScheme.navbar.bottomBackground
+                                                                )
+                                                            , Element.mouseOver [ Background.color colorScheme.navbar.topHover ]
+                                                            , Element.padding 3
+                                                            ]
+                                                            { onPress = Just (NewEvolutionPlanIndex i)
+                                                            , label =
+                                                                Element.el
+                                                                    [ Element.centerX
+                                                                    , Font.color colorScheme.white
+                                                                    ]
+                                                                <|
+                                                                    Element.text ep.name
+                                                            }
                                                     )
                                                 |> Array.toList
                                             )
-                                        , Element.row []
+                                        , Element.row
+                                            [ Element.height <| Element.px 16
+                                            , Element.width Element.fill
+                                            , Background.color colorScheme.navbar.bottomBackground
+                                            ]
+                                            []
+                                        , Element.row [ Element.width Element.fill ]
                                             (currentEP.timePoints
                                                 |> Array.indexedMap
                                                     (\i tp ->
-                                                        Element.el [ EEvents.onClick (NewFeatureModelIndex i) ] <|
-                                                            Element.text <|
-                                                                String.fromInt <|
-                                                                    tp.time
+                                                        noOutlineButton
+                                                            [ EEvents.onClick (NewFeatureModelIndex i)
+                                                            , Element.width Element.fill
+                                                            , Background.color
+                                                                (if fields.chosenFeatureModelIndex /= i then
+                                                                    colorScheme.navbar.bottomBackground
+
+                                                                 else
+                                                                    colorScheme.navbar.background
+                                                                )
+                                                            , Element.mouseOver [ Background.color colorScheme.navbar.bottomHover ]
+                                                            , Border.widthEach { bottom = 0, left = 1, right = 1, top = 0 }
+                                                            , Border.solid
+                                                            , Border.color
+                                                                (if fields.chosenFeatureModelIndex /= i then
+                                                                    colorScheme.navbar.bottomHover
+
+                                                                 else
+                                                                    colorScheme.navbar.background
+                                                                )
+                                                            , Element.padding 3
+                                                            ]
+                                                            { onPress = Just (NewFeatureModelIndex i)
+                                                            , label =
+                                                                Element.el
+                                                                    [ Element.centerX
+                                                                    , Font.color
+                                                                        (if fields.chosenFeatureModelIndex /= i then
+                                                                            colorScheme.white
+
+                                                                         else
+                                                                            colorScheme.navbar.selectedTimePoint
+                                                                        )
+                                                                    ]
+                                                                <|
+                                                                    Element.text (String.fromInt tp.time)
+                                                            }
                                                     )
                                                 |> Array.toList
                                             )
                                         ]
-                                    , Element.text (Debug.toString model)
-                                    , Element.text (Debug.toString height)
                                     , Element.el
                                         [ Element.clip
                                         , Element.scrollbars
-                                        , Element.width (Element.px <| fields.width - 100)
-                                        , Element.height (Element.px <| fields.height - 100)
+                                        , Element.width (Element.px <| fields.width)
+                                        , Element.height (Element.px <| fields.height)
+                                        , Element.padding 20
+                                        , Element.centerX
                                         ]
                                       <|
                                         Element.el
@@ -378,7 +466,6 @@ view model =
                                                     ]
                                                     (computedTree |> drawTree 0 0)
                                                 )
-                                    , Element.el [] <| Element.text "Welcome to the bottom of the tree visualizer!"
                                     ]
 
 
