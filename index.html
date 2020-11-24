@@ -13552,31 +13552,24 @@ var $author$project$Main$view = function (model) {
 									[
 										$mdgriffith$elm_ui$Element$clip,
 										$mdgriffith$elm_ui$Element$scrollbars,
-										$mdgriffith$elm_ui$Element$width(
-										$mdgriffith$elm_ui$Element$px(fields.width)),
-										$mdgriffith$elm_ui$Element$height(
-										$mdgriffith$elm_ui$Element$px(fields.height)),
-										$mdgriffith$elm_ui$Element$padding(20),
-										$mdgriffith$elm_ui$Element$centerX
+										$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
+										$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$fill)
 									]),
 								A2(
 									$mdgriffith$elm_ui$Element$el,
 									_List_fromArray(
 										[
-											$mdgriffith$elm_ui$Element$width(
-											$mdgriffith$elm_ui$Element$px(
-												$elm$core$Basics$round(width))),
-											$mdgriffith$elm_ui$Element$height(
-											$mdgriffith$elm_ui$Element$px(
-												$elm$core$Basics$round(height)))
+											$mdgriffith$elm_ui$Element$padding(16)
 										]),
 									$mdgriffith$elm_ui$Element$html(
 										A2(
 											$elm$svg$Svg$svg,
 											_List_fromArray(
 												[
-													$elm$svg$Svg$Attributes$width('100%'),
-													$elm$svg$Svg$Attributes$height('100%'),
+													$elm$svg$Svg$Attributes$width(
+													$elm$core$String$fromFloat(width)),
+													$elm$svg$Svg$Attributes$height(
+													$elm$core$String$fromFloat(height)),
 													$elm$svg$Svg$Attributes$viewBox(
 													'0 0 ' + ($elm$core$String$fromFloat(width) + (' ' + $elm$core$String$fromFloat(height))))
 												]),

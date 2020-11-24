@@ -443,21 +443,15 @@ view model =
                                     , Element.el
                                         [ Element.clip
                                         , Element.scrollbars
-                                        , Element.width (Element.px <| fields.width)
-                                        , Element.height (Element.px <| fields.height)
-                                        , Element.padding 20
-                                        , Element.centerX
+                                        , Element.width Element.fill
+                                        , Element.height Element.fill
                                         ]
                                       <|
-                                        Element.el
-                                            [ Element.width <| Element.px <| round width
-                                            , Element.height <| Element.px <| round height
-                                            ]
-                                        <|
+                                        Element.el [ Element.padding 16 ] <|
                                             Element.html
                                                 (Svg.svg
-                                                    [ SvgA.width "100%"
-                                                    , SvgA.height "100%"
+                                                    [ SvgA.width <| String.fromFloat width
+                                                    , SvgA.height <| String.fromFloat height
                                                     , SvgA.viewBox <|
                                                         "0 0 "
                                                             ++ String.fromFloat width
