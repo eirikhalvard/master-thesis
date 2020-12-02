@@ -168,7 +168,7 @@ init flags =
 
         getMergeResult =
             Http.get
-                { url = "./elm-input.json"
+                { url = "./data/elm-input.json"
                 , expect =
                     Http.expectJson
                         GotMergeResult
