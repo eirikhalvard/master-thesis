@@ -380,17 +380,6 @@ viewEvolutionPlanBar fields =
         )
 
 
-buttonColors : Element.Color -> Element.Color -> Element.Color -> Bool -> List (Element.Attribute a)
-buttonColors base hover clicked isClicked =
-    if isClicked then
-        [ Background.color clicked ]
-
-    else
-        [ Background.color base
-        , Element.mouseOver [ Background.color colorScheme.navbar.topHover ]
-        ]
-
-
 viewEvolutionPlanButton : Fields -> Int -> EvolutionPlan -> Element Msg
 viewEvolutionPlanButton fields epIndex ep =
     noOutlineButton
