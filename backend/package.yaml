@@ -30,6 +30,9 @@ dependencies:
 - raw-strings-qq
 - prettyprinter
 - pretty-simple
+- hspec
+- QuickCheck
+
 
 default-extensions:
 - TemplateHaskell
