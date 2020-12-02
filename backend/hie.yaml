@@ -1,0 +1,13 @@
+cradle:
+  cabal:
+    - path: "src"
+      component: "lib:haskell-master"
+
+    - path: "app/Main.hs"
+      component: "haskell-master:exe:haskell-master-exe"
+
+    - path: "app/Paths_haskell_master.hs"
+      component: "haskell-master:exe:haskell-master-exe"
+
+    - path: "test"
+      component: "haskell-master:test:haskell-master-test"

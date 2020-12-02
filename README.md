@@ -7,4 +7,3 @@ By Eirik Halvard Sæther
 - [Frontend](./frontend)
 - [Backend](./backend)
 - [Thesis](./thesis)
-
