@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+echo "COMPILING HASKELL CODE, GENERATING DATA"
+cd backend
+stack run
+cd ../frontend
+echo "STARTING ELM SERVER"
+elm-live src/Main.elm  --open -- --debug
+
