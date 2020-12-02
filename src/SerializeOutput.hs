@@ -15,10 +15,10 @@ writeExampleToFile filename = do
   print $ "Writing json to file " ++ filename
   encodeFile filename $
     MergeResult
-      [ MergeEvolutionPlan "base" baseEvolutionPlan
-      , MergeEvolutionPlan "v1" v1EvolutionPlan
-      , MergeEvolutionPlan "v2" v2EvolutionPlan
-      , MergeEvolutionPlan "expected" expectedEvolutionPlan
+      [ MergeEvolutionPlan "Base" baseEvolutionPlan
+      , MergeEvolutionPlan "Version 1" v1EvolutionPlan
+      , MergeEvolutionPlan "Version 2" v2EvolutionPlan
+      , MergeEvolutionPlan "Expected" expectedEvolutionPlan
       ]
 
   let baseModificationEvolutionPlan = deriveChanges baseEvolutionPlan

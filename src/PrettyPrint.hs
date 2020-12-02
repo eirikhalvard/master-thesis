@@ -3,7 +3,6 @@
 
 module PrettyPrint where
 
-import Helpers
 import Types
 
 import Control.Lens
