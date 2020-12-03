@@ -1,7 +1,7 @@
+{-# LANGUAGE OverloadedLists #-}
+
 module Example where
 
-import qualified Data.Map as M
-import qualified Data.Set as S
 import Types
 
 baseEvolutionPlan :: AbstractedLevelEvolutionPlan FeatureModel
@@ -13,72 +13,87 @@ baseEvolutionPlan =
     , TimePoint 3 fm3
     ]
   where
-    fm0 = FeatureModel (Feature "feature:vending-machine" Mandatory "RootFeature" S.empty)
+    fm0 = FeatureModel (Feature "feature:vending-machine" Mandatory "RootFeature" [])
     fm1 =
       FeatureModel
-        ( Feature "feature:vending-machine" Mandatory "VendingMachine" $
-            S.fromList
-              [ Group "group:vending-machine-group" And $
-                  S.fromList [beverages]
-              ]
+        ( Feature
+            "feature:vending-machine"
+            Mandatory
+            "VendingMachine"
+            [Group "group:vending-machine-group" And [beverages]]
         )
     fm2 =
       FeatureModel
-        ( Feature "feature:vending-machine" Mandatory "VendingMachine" $
-            S.fromList
-              [ Group "group:vending-machine-group" And $
-                  S.fromList [beverages, size]
-              ]
+        ( Feature
+            "feature:vending-machine"
+            Mandatory
+            "VendingMachine"
+            [Group "group:vending-machine-group" And [beverages, size]]
         )
     fm3 =
       FeatureModel
-        ( Feature "feature:vending-machine" Mandatory "VendingMachine" $
-            S.fromList
-              [ Group "group:vending-machine-group" And $
-                  S.fromList [beverages, size, milk]
-              ]
+        ( Feature
+            "feature:vending-machine"
+            Mandatory
+            "VendingMachine"
+            [Group "group:vending-machine-group" And [beverages, size, milk]]
         )
     milk =
-      Feature "feature:milk" Optional "Milk" $
-        S.fromList
-          [ Group "group:milk-group" And $
-              S.fromList
-                [ Feature "feature:milk-type" Optional "Milk Type" $
-                    S.fromList
-                      [ Group "group:milk-type-group" Or $
-                          S.fromList
-                            [ Feature "feature:normal" Optional "Normal" S.empty
-                            , Feature "feature:lactose-free" Optional "Lactose Free" S.empty
-                            , Feature "feature:soy-milk" Optional "Soy Milk" S.empty
-                            ]
-                      ]
+      Feature
+        "feature:milk"
+        Optional
+        "Milk"
+        [ Group
+            "group:milk-group"
+            And
+            [ Feature
+                "feature:milk-type"
+                Optional
+                "Milk Type"
+                [ Group
+                    "group:milk-type-group"
+                    Or
+                    [ Feature "feature:normal" Optional "Normal" []
+                    , Feature "feature:lactose-free" Optional "Lactose Free" []
+                    , Feature "feature:soy-milk" Optional "Soy Milk" []
+                    ]
                 ]
-          ]
+            ]
+        ]
     beverages =
-      Feature "feature:beverages" Mandatory "Beverages" $
-        S.fromList
-          [ Group "group:beverages-group" Or $
-              S.fromList
-                [ Feature "feature:tea" Optional "Tea" S.empty
-                , Feature "feature:coffee" Optional "Coffee" S.empty
-                ]
-          ]
+      Feature
+        "feature:beverages"
+        Mandatory
+        "Beverages"
+        [ Group
+            "group:beverages-group"
+            Or
+            [ Feature "feature:tea" Optional "Tea" []
+            , Feature "feature:coffee" Optional "Coffee" []
+            ]
+        ]
     size =
-      Feature "feature:size" Optional "Size" $
-        S.fromList
-          [ Group "group:size-group" And $
-              S.fromList
-                [ Feature "feature:regular" Mandatory "Regular" S.empty
-                , Feature "feature:other" Mandatory "Other" $
-                    S.fromList
-                      [ Group "group:other-group" And $
-                          S.fromList
-                            [ Feature "feature:small" Mandatory "Small" S.empty
-                            , Feature "feature:large" Mandatory "Large" S.empty
-                            ]
-                      ]
+      Feature
+        "feature:size"
+        Optional
+        "Size"
+        [ Group
+            "group:size-group"
+            And
+            [ Feature "feature:regular" Mandatory "Regular" []
+            , Feature
+                "feature:other"
+                Mandatory
+                "Other"
+                [ Group
+                    "group:other-group"
+                    And
+                    [ Feature "feature:small" Mandatory "Small" []
+                    , Feature "feature:large" Mandatory "Large" []
+                    ]
                 ]
-          ]
+            ]
+        ]
 
 v1EvolutionPlan :: AbstractedLevelEvolutionPlan FeatureModel
 v1EvolutionPlan =
@@ -89,73 +104,88 @@ v1EvolutionPlan =
     , TimePoint 3 fm3
     ]
   where
-    fm0 = FeatureModel (Feature "feature:vending-machine" Mandatory "RootFeature" S.empty)
+    fm0 = FeatureModel (Feature "feature:vending-machine" Mandatory "RootFeature" [])
     fm1 =
       FeatureModel
-        ( Feature "feature:vending-machine" Mandatory "VendingMachine" $
-            S.fromList
-              [ Group "group:vending-machine-group" And $
-                  S.fromList [currency, beverages]
-              ]
+        ( Feature
+            "feature:vending-machine"
+            Mandatory
+            "VendingMachine"
+            [Group "group:vending-machine-group" And [currency, beverages]]
         )
     fm2 =
       FeatureModel
-        ( Feature "feature:vending-machine" Mandatory "VendingMachine" $
-            S.fromList
-              [ Group "group:vending-machine-group" And $
-                  S.fromList [currency, beverages, modifiedSize]
-              ]
+        ( Feature
+            "feature:vending-machine"
+            Mandatory
+            "VendingMachine"
+            [Group "group:vending-machine-group" And [currency, beverages, modifiedSize]]
         )
     fm3 =
       FeatureModel
-        ( Feature "feature:vending-machine" Mandatory "VendingMachine" $
-            S.fromList
-              [ Group "group:vending-machine-group" And $
-                  S.fromList [currency, beverages, modifiedSize, modifiedMilk]
-              ]
+        ( Feature
+            "feature:vending-machine"
+            Mandatory
+            "VendingMachine"
+            [Group "group:vending-machine-group" And [currency, beverages, modifiedSize, modifiedMilk]]
         )
     currency =
-      Feature "feature:currency" Mandatory "Currency" $
-        S.fromList
-          [ Group "group:currency-group" Alternative $
-              S.fromList
-                [ Feature "feature:euro" Optional "Euro" S.empty
-                , Feature "feature:dollar" Optional "Dollar" S.empty
-                ]
-          ]
+      Feature
+        "feature:currency"
+        Mandatory
+        "Currency"
+        [ Group
+            "group:currency-group"
+            Alternative
+            [ Feature "feature:euro" Optional "Euro" []
+            , Feature "feature:dollar" Optional "Dollar" []
+            ]
+        ]
     modifiedMilk =
-      Feature "feature:milk" Optional "Milk" $
-        S.fromList
-          [ Group "group:milk-group" And $
-              S.fromList
-                [ Feature "feature:milk-type" Optional "Milk Type" $
-                    S.fromList
-                      [ Group "group:milk-type-group" And $
-                          S.fromList
-                            [ Feature "feature:normal" Mandatory "Normal" S.empty
-                            , Feature "feature:lactose-free" Mandatory "Lactose Free" S.empty
-                            ]
-                      ]
+      Feature
+        "feature:milk"
+        Optional
+        "Milk"
+        [ Group
+            "group:milk-group"
+            And
+            [ Feature
+                "feature:milk-type"
+                Optional
+                "Milk Type"
+                [ Group
+                    "group:milk-type-group"
+                    And
+                    [ Feature "feature:normal" Mandatory "Normal" []
+                    , Feature "feature:lactose-free" Mandatory "Lactose Free" []
+                    ]
                 ]
-          ]
+            ]
+        ]
     beverages =
-      Feature "feature:beverages" Mandatory "Beverages" $
-        S.fromList
-          [ Group "group:beverages-group" Or $
-              S.fromList
-                [ Feature "feature:tea" Optional "Tea" S.empty
-                , Feature "feature:coffee" Optional "Coffee" S.empty
-                ]
-          ]
+      Feature
+        "feature:beverages"
+        Mandatory
+        "Beverages"
+        [ Group
+            "group:beverages-group"
+            Or
+            [ Feature "feature:tea" Optional "Tea" []
+            , Feature "feature:coffee" Optional "Coffee" []
+            ]
+        ]
     modifiedSize =
-      Feature "feature:size" Optional "Size" $
-        S.fromList
-          [ Group "group:size-group" And $
-              S.fromList
-                [ Feature "feature:regular" Mandatory "Regular" S.empty
-                , Feature "feature:large" Mandatory "Large" S.empty
-                ]
-          ]
+      Feature
+        "feature:size"
+        Optional
+        "Size"
+        [ Group
+            "group:size-group"
+            And
+            [ Feature "feature:regular" Mandatory "Regular" []
+            , Feature "feature:large" Mandatory "Large" []
+            ]
+        ]
 
 v2EvolutionPlan :: AbstractedLevelEvolutionPlan FeatureModel
 v2EvolutionPlan =
@@ -166,73 +196,88 @@ v2EvolutionPlan =
     , TimePoint 3 fm3
     ]
   where
-    fm0 = FeatureModel (Feature "feature:vending-machine" Mandatory "RootFeature" S.empty)
+    fm0 = FeatureModel (Feature "feature:vending-machine" Mandatory "RootFeature" [])
     fm1 =
       FeatureModel
-        ( Feature "feature:vending-machine" Mandatory "VendingMachine" $
-            S.fromList
-              [ Group "group:vending-machine-group" And $
-                  S.fromList [beverages]
-              ]
+        ( Feature
+            "feature:vending-machine"
+            Mandatory
+            "VendingMachine"
+            [Group "group:vending-machine-group" And [beverages]]
         )
     fm2 =
       FeatureModel
-        ( Feature "feature:vending-machine" Mandatory "VendingMachine" $
-            S.fromList
-              [ Group "group:vending-machine-group" And $
-                  S.fromList [beverages, size]
-              ]
+        ( Feature
+            "feature:vending-machine"
+            Mandatory
+            "VendingMachine"
+            [Group "group:vending-machine-group" And [beverages, size]]
         )
     fm3 =
       FeatureModel
-        ( Feature "feature:vending-machine" Mandatory "VendingMachine" $
-            S.fromList
-              [ Group "group:vending-machine-group" And $
-                  S.fromList [beverages, size, modifiedMilk]
-              ]
+        ( Feature
+            "feature:vending-machine"
+            Mandatory
+            "VendingMachine"
+            [Group "group:vending-machine-group" And [beverages, size, modifiedMilk]]
         )
     modifiedMilk =
-      Feature "feature:milk" Optional "Milk" $
-        S.fromList
-          [ Group "group:milk-group" And $
-              S.fromList
-                [ Feature "feature:milk-type" Optional "Milk Type" $
-                    S.fromList
-                      [ Group "group:milk-type-group" And $
-                          S.fromList
-                            [ Feature "feature:normal" Mandatory "Normal" S.empty
-                            , Feature "feature:lactose-free" Mandatory "Lactose Free" S.empty
-                            , Feature "feature:soy-milk" Mandatory "Soy Milk" S.empty
-                            ]
-                      ]
+      Feature
+        "feature:milk"
+        Optional
+        "Milk"
+        [ Group
+            "group:milk-group"
+            And
+            [ Feature
+                "feature:milk-type"
+                Optional
+                "Milk Type"
+                [ Group
+                    "group:milk-type-group"
+                    And
+                    [ Feature "feature:normal" Mandatory "Normal" []
+                    , Feature "feature:lactose-free" Mandatory "Lactose Free" []
+                    , Feature "feature:soy-milk" Mandatory "Soy Milk" []
+                    ]
                 ]
-          ]
+            ]
+        ]
     beverages =
-      Feature "feature:beverages" Mandatory "Beverages" $
-        S.fromList
-          [ Group "group:beverages-group" Or $
-              S.fromList
-                [ Feature "feature:tea" Optional "Tea" S.empty
-                , Feature "feature:coffee" Optional "Coffee" S.empty
-                , Feature "feature:cappuccino" Optional "Cappuccino" S.empty
-                ]
-          ]
+      Feature
+        "feature:beverages"
+        Mandatory
+        "Beverages"
+        [ Group
+            "group:beverages-group"
+            Or
+            [ Feature "feature:tea" Optional "Tea" []
+            , Feature "feature:coffee" Optional "Coffee" []
+            , Feature "feature:cappuccino" Optional "Cappuccino" []
+            ]
+        ]
     size =
-      Feature "feature:size" Optional "Size" $
-        S.fromList
-          [ Group "group:size-group" And $
-              S.fromList
-                [ Feature "feature:regular" Mandatory "Regular" S.empty
-                , Feature "feature:other" Mandatory "Other" $
-                    S.fromList
-                      [ Group "group:other-group" And $
-                          S.fromList
-                            [ Feature "feature:small" Mandatory "Small" S.empty
-                            , Feature "feature:large" Mandatory "Large" S.empty
-                            ]
-                      ]
+      Feature
+        "feature:size"
+        Optional
+        "Size"
+        [ Group
+            "group:size-group"
+            And
+            [ Feature "feature:regular" Mandatory "Regular" []
+            , Feature
+                "feature:other"
+                Mandatory
+                "Other"
+                [ Group
+                    "group:other-group"
+                    And
+                    [ Feature "feature:small" Mandatory "Small" []
+                    , Feature "feature:large" Mandatory "Large" []
+                    ]
                 ]
-          ]
+            ]
+        ]
 
 expectedEvolutionPlan :: AbstractedLevelEvolutionPlan FeatureModel
 expectedEvolutionPlan =
@@ -243,72 +288,87 @@ expectedEvolutionPlan =
     , TimePoint 3 fm3
     ]
   where
-    fm0 = FeatureModel (Feature "feature:vending-machine" Mandatory "RootFeature" S.empty)
+    fm0 = FeatureModel (Feature "feature:vending-machine" Mandatory "RootFeature" [])
     fm1 =
       FeatureModel
-        ( Feature "feature:vending-machine" Mandatory "VendingMachine" $
-            S.fromList
-              [ Group "group:vending-machine-group" And $
-                  S.fromList [currency, beverages]
-              ]
+        ( Feature
+            "feature:vending-machine"
+            Mandatory
+            "VendingMachine"
+            [Group "group:vending-machine-group" And [currency, beverages]]
         )
     fm2 =
       FeatureModel
-        ( Feature "feature:vending-machine" Mandatory "VendingMachine" $
-            S.fromList
-              [ Group "group:vending-machine-group" And $
-                  S.fromList [currency, beverages, mergedSize]
-              ]
+        ( Feature
+            "feature:vending-machine"
+            Mandatory
+            "VendingMachine"
+            [Group "group:vending-machine-group" And [currency, beverages, mergedSize]]
         )
     fm3 =
       FeatureModel
-        ( Feature "feature:vending-machine" Mandatory "VendingMachine" $
-            S.fromList
-              [ Group "group:vending-machine-group" And $
-                  S.fromList [currency, beverages, mergedSize, mergedMilk]
-              ]
+        ( Feature
+            "feature:vending-machine"
+            Mandatory
+            "VendingMachine"
+            [Group "group:vending-machine-group" And [currency, beverages, mergedSize, mergedMilk]]
         )
     currency =
-      Feature "feature:currency" Mandatory "Currency" $
-        S.fromList
-          [ Group "group:currency-group" Alternative $
-              S.fromList
-                [ Feature "feature:euro" Optional "Euro" S.empty
-                , Feature "feature:dollar" Optional "Dollar" S.empty
-                ]
-          ]
+      Feature
+        "feature:currency"
+        Mandatory
+        "Currency"
+        [ Group
+            "group:currency-group"
+            Alternative
+            [ Feature "feature:euro" Optional "Euro" []
+            , Feature "feature:dollar" Optional "Dollar" []
+            ]
+        ]
     mergedMilk =
-      Feature "feature:milk" Optional "Milk" $
-        S.fromList
-          [ Group "group:milk-group" And $
-              S.fromList
-                [ Feature "feature:milk-type" Optional "Milk Type" $
-                    S.fromList
-                      [ Group "group:milk-type-group" And $
-                          S.fromList
-                            [ Feature "feature:normal" Mandatory "Normal" S.empty
-                            , Feature "feature:lactose-free" Mandatory "Lactose Free" S.empty
-                            , Feature "feature:soy-milk" Mandatory "Soy Milk" S.empty
-                            ]
-                      ]
+      Feature
+        "feature:milk"
+        Optional
+        "Milk"
+        [ Group
+            "group:milk-group"
+            And
+            [ Feature
+                "feature:milk-type"
+                Optional
+                "Milk Type"
+                [ Group
+                    "group:milk-type-group"
+                    And
+                    [ Feature "feature:normal" Mandatory "Normal" []
+                    , Feature "feature:lactose-free" Mandatory "Lactose Free" []
+                    , Feature "feature:soy-milk" Mandatory "Soy Milk" []
+                    ]
                 ]
-          ]
+            ]
+        ]
     beverages =
-      Feature "feature:beverages" Mandatory "Beverages" $
-        S.fromList
-          [ Group "group:beverages-group" Or $
-              S.fromList
-                [ Feature "feature:tea" Optional "Tea" S.empty
-                , Feature "feature:coffee" Optional "Coffee" S.empty
-                , Feature "feature:cappuccino" Optional "Cappuccino" S.empty
-                ]
-          ]
+      Feature
+        "feature:beverages"
+        Mandatory
+        "Beverages"
+        [ Group
+            "group:beverages-group"
+            Or
+            [ Feature "feature:tea" Optional "Tea" []
+            , Feature "feature:coffee" Optional "Coffee" []
+            , Feature "feature:cappuccino" Optional "Cappuccino" []
+            ]
+        ]
     mergedSize =
-      Feature "feature:size" Optional "Size" $
-        S.fromList
-          [ Group "group:size-group" And $
-              S.fromList
-                [ Feature "feature:regular" Mandatory "Regular" S.empty
-                , Feature "feature:large" Mandatory "Large" S.empty
-                ]
-          ]
+      Feature
+        "feature:size"
+        Optional
+        "Size"
+        [ Group
+            "group:size-group"
+            And
+            [ Feature "feature:regular" Mandatory "Regular" []
+            , Feature "feature:large" Mandatory "Large" []
+            ]
+        ]
