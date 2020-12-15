@@ -64,43 +64,43 @@ colorScheme =
     }
 
 
-calcWidth : ComputedTree -> Float
-calcWidth (ComputedNode tree) =
-    tree.computedDimentions.treeWidth
+calcFeatureWidth : Feature ComputedDimentions ComputedDimentions -> Float
+calcFeatureWidth (Feature fields) =
+    fields.extra.treeWidth
 
 
-calcHeight : ComputedTree -> Float
-calcHeight tree =
-    let
-        treeDepth =
-            toFloat <| depth tree
-
-        nodeTotalHeight =
-            treeDepth * nodeHeight
-
-        spacingTotalHeight =
-            (treeDepth - 1) * spacingY
-    in
-    nodeTotalHeight + spacingTotalHeight
-
-
-depth : ComputedTree -> Int
-depth (ComputedNode node) =
-    case node.children |> List.map depth |> List.maximum of
+calcFeatureHeight : Feature ComputedDimentions ComputedDimentions -> Float
+calcFeatureHeight (Feature fields) =
+    case fields.groups |> List.map calcGroupHeight |> List.maximum of
         Nothing ->
-            1
+            featureHeight
 
-        Just n ->
-            n + 1
+        Just maxGroupHeight ->
+            featureHeight + spacingY + maxGroupHeight
+
+
+calcGroupHeight : Group ComputedDimentions ComputedDimentions -> Float
+calcGroupHeight (Group fields) =
+    case fields.features |> List.map calcFeatureHeight |> List.maximum of
+        Nothing ->
+            groupHeight
+
+        Just maxFeatureHeight ->
+            groupHeight + spacingY + maxFeatureHeight
 
 
 
 -- extra paddyo
 
 
-nodeHeight : Float
-nodeHeight =
+featureHeight : Float
+featureHeight =
     30
+
+
+groupHeight : Float
+groupHeight =
+    25
 
 
 spacingX : Float
@@ -110,7 +110,7 @@ spacingX =
 
 spacingY : Float
 spacingY =
-    80
+    50
 
 
 type Msg
@@ -307,18 +307,6 @@ subscriptions model =
     E.onResize NewWindowSize
 
 
-tempToTree : Feature () () -> Tree
-tempToTree (Feature fields) =
-    Node
-        { value = fields.name
-        , metaData = Just fields.featureType
-        , children =
-            fields.groups
-                |> List.concatMap (\(Group gFields) -> gFields.features)
-                |> List.map tempToTree
-        }
-
-
 noOutlineButton : List (Element.Attribute msg) -> { onPress : Maybe msg, label : Element msg } -> Element msg
 noOutlineButton attributes fields =
     ElementI.button (Element.htmlAttribute (HtmlA.style "box-shadow" "none") :: attributes) fields
@@ -466,13 +454,13 @@ viewTree : Fields -> EvolutionPlan () () -> TimePoint () () -> Element Msg
 viewTree fields currentEP currentFM =
     let
         computedTree =
-            computeTree <| tempToTree <| currentFM.featureModel.rootFeature
+            computeFeature <| currentFM.featureModel.rootFeature
 
         width =
-            calcWidth computedTree
+            calcFeatureWidth computedTree
 
         height =
-            calcHeight computedTree
+            calcFeatureHeight computedTree
     in
     Element.el
         [ Element.clip
@@ -492,74 +480,157 @@ viewTree fields currentEP currentFM =
                             ++ " "
                             ++ String.fromFloat height
                     ]
-                    (computedTree |> drawTree 0 0)
+                    (computedTree |> drawFeature 0 0)
                 )
 
 
-computeTree : Tree -> ComputedTree
-computeTree (Node tree) =
+computeFeature : Feature () () -> Feature ComputedDimentions ComputedDimentions
+computeFeature (Feature fields) =
     let
-        computedChildren =
-            List.map computeTree tree.children
+        computedGroups =
+            List.map computeGroup fields.groups
 
         childrenTotalWidth =
-            computedChildren
-                |> List.map (\(ComputedNode t) -> t.computedDimentions.treeWidth)
+            computedGroups
+                |> List.map (\(Group groupFields) -> groupFields.extra.treeWidth)
                 |> List.intersperse spacingX
                 |> List.sum
 
-        approxNodeWidth =
-            toFloat (String.length tree.value) * 15
-    in
-    ComputedNode
-        { value = tree.value
-        , metaData = tree.metaData
-        , children = computedChildren
-        , computedDimentions =
-            { approxNodeWidth = approxNodeWidth
-            , treeWidth = Basics.max approxNodeWidth childrenTotalWidth
+        approxFeatureWidth =
+            toFloat (String.length fields.name) * 15
+
+        extra =
+            { approxNodeWidth = approxFeatureWidth
+            , treeWidth = Basics.max approxFeatureWidth childrenTotalWidth
             }
+    in
+    Feature
+        { extra = extra
+        , id = fields.id
+        , featureType = fields.featureType
+        , name = fields.name
+        , groups = computedGroups
         }
 
 
-drawTree : Float -> Float -> ComputedTree -> List (Svg Msg)
-drawTree xStart yStart (ComputedNode tree) =
+computeGroup : Group () () -> Group ComputedDimentions ComputedDimentions
+computeGroup (Group fields) =
+    let
+        computedFeatures =
+            List.map computeFeature fields.features
+
+        childrenTotalWidth =
+            computedFeatures
+                |> List.map (\(Feature featureFields) -> featureFields.extra.treeWidth)
+                |> List.intersperse spacingX
+                |> List.sum
+
+        approxGroupWidth =
+            20.0
+
+        --TODO: find right value
+        extra =
+            { approxNodeWidth = approxGroupWidth
+            , treeWidth = Basics.max approxGroupWidth childrenTotalWidth
+            }
+    in
+    Group
+        { extra = extra
+        , id = fields.id
+        , groupType = fields.groupType
+        , features = computedFeatures
+        }
+
+
+drawFeature : Float -> Float -> Feature ComputedDimentions ComputedDimentions -> List (Svg Msg)
+drawFeature xStart yStart (Feature fields) =
     let
         childYLevel : Float
         childYLevel =
-            yStart + nodeHeight + spacingY
+            yStart + featureHeight + spacingY
 
         nodeXLevel : Float
         nodeXLevel =
-            xStart + (tree.computedDimentions.treeWidth / 2)
+            xStart + (fields.extra.treeWidth / 2)
 
-        drawChildren : Float -> List ComputedTree -> List (Svg Msg)
+        drawChildren : Float -> List (Group ComputedDimentions ComputedDimentions) -> List (Svg Msg)
         drawChildren childX children =
             case children of
                 [] ->
                     []
 
-                (ComputedNode child) :: rest ->
+                (Group groupFields) :: rest ->
                     [ drawLine
                         nodeXLevel
-                        (yStart + nodeHeight)
-                        (childX + (child.computedDimentions.treeWidth / 2))
+                        (yStart + featureHeight)
+                        (childX + groupFields.extra.treeWidth / 2)
                         childYLevel
                     ]
-                        ++ drawTree childX childYLevel (ComputedNode child)
+                        ++ drawGroup childX childYLevel (Group groupFields)
                         ++ drawChildren
                             (childX
-                                + child.computedDimentions.treeWidth
+                                + groupFields.extra.treeWidth
                                 + spacingX
                             )
                             rest
     in
-    drawNode nodeXLevel yStart (ComputedNode tree)
-        :: drawChildren xStart tree.children
+    drawFeatureNode nodeXLevel yStart (Feature fields)
+        :: drawChildren xStart fields.groups
 
 
-drawNode : Float -> Float -> ComputedTree -> Svg Msg
-drawNode x y (ComputedNode node) =
+drawGroup : Float -> Float -> Group ComputedDimentions ComputedDimentions -> List (Svg Msg)
+drawGroup xStart yStart (Group fields) =
+    let
+        childYLevel : Float
+        childYLevel =
+            yStart + groupHeight + spacingY
+
+        nodeXLevel : Float
+        nodeXLevel =
+            xStart + (fields.extra.treeWidth / 2)
+
+        drawChildren : Float -> List (Feature ComputedDimentions ComputedDimentions) -> List (Svg Msg)
+        drawChildren childX children =
+            case children of
+                [] ->
+                    []
+
+                (Feature featureFields) :: rest ->
+                    [ drawLine
+                        nodeXLevel
+                        (yStart + groupHeight)
+                        (childX + featureFields.extra.treeWidth / 2)
+                        childYLevel
+                    ]
+                        ++ drawFeature childX childYLevel (Feature featureFields)
+                        ++ drawChildren
+                            (childX
+                                + featureFields.extra.treeWidth
+                                + spacingX
+                            )
+                            rest
+    in
+    drawGroupNode nodeXLevel yStart (Group fields)
+        :: drawChildren xStart fields.features
+
+
+drawGroupNode : Float -> Float -> Group ComputedDimentions ComputedDimentions -> Svg Msg
+drawGroupNode x y (Group fields) =
+    let
+        groupSymbol =
+            case fields.groupType of
+                "And" ->
+                    "⋀"
+
+                "Or" ->
+                    "⋁"
+
+                "Alternative" ->
+                    "⊕"
+
+                _ ->
+                    "_"
+    in
     Svg.g
         [ SvgA.transform <|
             "translate("
@@ -568,18 +639,21 @@ drawNode x y (ComputedNode node) =
                 ++ String.fromFloat y
                 ++ ")"
         , SvgEvents.onMouseOver
-            (NodeHoverEntry <| Maybe.withDefault "-" node.metaData)
+            (NodeHoverEntry fields.groupType)
         , SvgEvents.onMouseOut NodeHoverExit
         , SvgA.cursor "pointer"
         ]
-        [ Svg.rect
+        [ Svg.circle
             [ SvgA.width <|
                 String.fromFloat
-                    node.computedDimentions.approxNodeWidth
-            , SvgA.height <| String.fromFloat nodeHeight
-            , SvgA.x <|
-                String.fromFloat <|
-                    -(node.computedDimentions.approxNodeWidth / 2)
+                    fields.extra.approxNodeWidth
+            , SvgA.height <| String.fromFloat featureHeight
+            , SvgA.r <| String.fromFloat (groupHeight / 2)
+            , SvgA.cy <| String.fromFloat (groupHeight / 2)
+
+            -- , SvgA.cx <|
+            --     String.fromFloat <|
+            --         -(fields.extra.approxNodeWidth / 2)
             , SvgA.fill colorScheme.darkPrimary
             , SvgA.strokeWidth "2"
             , SvgA.stroke colorScheme.dark
@@ -587,12 +661,50 @@ drawNode x y (ComputedNode node) =
             []
         , Svg.text_
             [ SvgA.x "0"
-            , SvgA.y <| String.fromFloat <| nodeHeight / 2
+            , SvgA.y <| String.fromFloat <| groupHeight / 2
             , SvgA.dominantBaseline "middle"
             , SvgA.textAnchor "middle"
             , SvgA.fill colorScheme.light
             ]
-            [ Svg.text node.value ]
+            [ Svg.text groupSymbol ]
+        ]
+
+
+drawFeatureNode : Float -> Float -> Feature ComputedDimentions ComputedDimentions -> Svg Msg
+drawFeatureNode x y (Feature fields) =
+    Svg.g
+        [ SvgA.transform <|
+            "translate("
+                ++ String.fromFloat x
+                ++ ", "
+                ++ String.fromFloat y
+                ++ ")"
+        , SvgEvents.onMouseOver
+            (NodeHoverEntry fields.featureType)
+        , SvgEvents.onMouseOut NodeHoverExit
+        , SvgA.cursor "pointer"
+        ]
+        [ Svg.rect
+            [ SvgA.width <|
+                String.fromFloat
+                    fields.extra.approxNodeWidth
+            , SvgA.height <| String.fromFloat featureHeight
+            , SvgA.x <|
+                String.fromFloat <|
+                    -(fields.extra.approxNodeWidth / 2)
+            , SvgA.fill colorScheme.darkPrimary
+            , SvgA.strokeWidth "2"
+            , SvgA.stroke colorScheme.dark
+            ]
+            []
+        , Svg.text_
+            [ SvgA.x "0"
+            , SvgA.y <| String.fromFloat <| featureHeight / 2
+            , SvgA.dominantBaseline "middle"
+            , SvgA.textAnchor "middle"
+            , SvgA.fill colorScheme.light
+            ]
+            [ Svg.text fields.name ]
         ]
 
 
