@@ -117,7 +117,7 @@ type Msg
     = NoOp
     | NewWindowSize Int Int
     | GotViewport Dom.Viewport
-    | GotMergeResult (Result Http.Error MergeResult)
+    | GotMergeResult (Result Http.Error (MergeResult () ()))
     | NodeHoverEntry String
     | NodeHoverExit
     | NewEvolutionPlanIndex Int
@@ -135,7 +135,7 @@ type Model
 
 type alias SomeFields =
     { mDimentions : Maybe ( Int, Int )
-    , mMergeResult : Maybe MergeResult
+    , mMergeResult : Maybe (MergeResult () ())
     }
 
 
@@ -143,7 +143,7 @@ type alias Fields =
     { device : Element.Device
     , width : Int
     , height : Int
-    , mergeResult : MergeResult
+    , mergeResult : MergeResult () ()
     , hoverData : Maybe String
     , chosenEvolutionPlanIndex : Int
     , chosenFeatureModelIndex : Int
@@ -292,7 +292,7 @@ updateViewport viewport model =
             model
 
 
-updateMergeResult : MergeResult -> Model -> Model
+updateMergeResult : MergeResult () () -> Model -> Model
 updateMergeResult mergeResult model =
     case model of
         UnInitialized someFields ->
@@ -307,7 +307,7 @@ subscriptions model =
     E.onResize NewWindowSize
 
 
-tempToTree : Feature -> Tree
+tempToTree : Feature () () -> Tree
 tempToTree (Feature fields) =
     Node
         { value = fields.name
@@ -348,7 +348,7 @@ view model =
     Element.layout [ Background.color colorScheme.navbar.background ] content
 
 
-viewInitialized : Fields -> EvolutionPlan -> TimePoint -> Element Msg
+viewInitialized : Fields -> EvolutionPlan () () -> TimePoint () () -> Element Msg
 viewInitialized fields currentEP currentFM =
     Element.column
         [ Element.height Element.fill
@@ -359,7 +359,7 @@ viewInitialized fields currentEP currentFM =
         ]
 
 
-viewNavbar : Fields -> EvolutionPlan -> Element Msg
+viewNavbar : Fields -> EvolutionPlan () () -> Element Msg
 viewNavbar fields currentEP =
     Element.column
         [ Element.width Element.fill ]
@@ -380,7 +380,7 @@ viewEvolutionPlanBar fields =
         )
 
 
-viewEvolutionPlanButton : Fields -> Int -> EvolutionPlan -> Element Msg
+viewEvolutionPlanButton : Fields -> Int -> EvolutionPlan () () -> Element Msg
 viewEvolutionPlanButton fields epIndex ep =
     noOutlineButton
         ([ EEvents.onClick (NewEvolutionPlanIndex epIndex)
@@ -417,7 +417,7 @@ viewNavbarSpacer fields =
         Element.none
 
 
-viewFeatureModelBar : Fields -> EvolutionPlan -> Element Msg
+viewFeatureModelBar : Fields -> EvolutionPlan () () -> Element Msg
 viewFeatureModelBar fields currentEP =
     Element.row [ Element.width Element.fill ]
         (currentEP.timePoints
@@ -426,7 +426,7 @@ viewFeatureModelBar fields currentEP =
         )
 
 
-viewFeatureModelButton : Fields -> Int -> TimePoint -> Element Msg
+viewFeatureModelButton : Fields -> Int -> TimePoint () () -> Element Msg
 viewFeatureModelButton fields fmIndex fm =
     noOutlineButton
         ([ EEvents.onClick (NewFeatureModelIndex fmIndex)
@@ -462,7 +462,7 @@ viewFeatureModelButton fields fmIndex fm =
         }
 
 
-viewTree : Fields -> EvolutionPlan -> TimePoint -> Element Msg
+viewTree : Fields -> EvolutionPlan () () -> TimePoint () () -> Element Msg
 viewTree fields currentEP currentFM =
     let
         computedTree =

@@ -15,48 +15,50 @@ type alias GroupId =
     String
 
 
-type alias MergeResult =
-    { evolutionPlans : Array EvolutionPlan
+type alias MergeResult extraFeatureFields extraGroupFields =
+    { evolutionPlans : Array (EvolutionPlan extraFeatureFields extraGroupFields)
     }
 
 
-type alias EvolutionPlan =
-    { timePoints : Array TimePoint
+type alias EvolutionPlan extraFeatureFields extraGroupFields =
+    { timePoints : Array (TimePoint extraFeatureFields extraGroupFields)
     , name : String
     }
 
 
-type alias TimePoint =
+type alias TimePoint extraFeatureFields extraGroupFields =
     { time : Time
-    , featureModel : FeatureModel
+    , featureModel : FeatureModel extraFeatureFields extraGroupFields
     }
 
 
-type alias FeatureModel =
-    { rootFeature : Feature
+type alias FeatureModel extraFeatureFields extraGroupFields =
+    { rootFeature : Feature extraFeatureFields extraGroupFields
     }
 
 
-type Feature
-    = Feature FeatureFields
+type Feature extraFeatureFields extraGroupFields
+    = Feature (FeatureFields extraFeatureFields extraGroupFields)
 
 
-type alias FeatureFields =
-    { id : FeatureId
+type alias FeatureFields extraFeatureFields extraGroupFields =
+    { extra : extraFeatureFields
+    , id : FeatureId
     , featureType : String
     , name : String
-    , groups : List Group
+    , groups : List (Group extraFeatureFields extraGroupFields)
     }
 
 
-type Group
-    = Group GroupFields
+type Group extraFeatureFields extraGroupFields
+    = Group (GroupFields extraFeatureFields extraGroupFields)
 
 
-type alias GroupFields =
-    { id : GroupId
+type alias GroupFields extraFeatureFields extraGroupFields =
+    { extra : extraGroupFields
+    , id : GroupId
     , groupType : String
-    , features : List Feature
+    , features : List (Feature extraFeatureFields extraGroupFields)
     }
 
 
