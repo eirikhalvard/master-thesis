@@ -589,29 +589,78 @@ drawGroup xStart yStart (Group fields) =
         nodeXLevel =
             xStart + (fields.extra.treeWidth / 2)
 
-        drawChildren : Float -> List (Feature ComputedDimentions ComputedDimentions) -> List (Svg Msg)
-        drawChildren childX children =
-            case children of
-                [] ->
-                    []
+        drawChildren : List (Feature ComputedDimentions ComputedDimentions) -> List (Svg Msg)
+        drawChildren children =
+            let
+                childWidths =
+                    children
+                        |> List.map (\(Feature featureFields) -> featureFields.extra.treeWidth)
 
-                (Feature featureFields) :: rest ->
-                    [ drawLine
-                        nodeXLevel
-                        (yStart + groupHeight)
-                        (childX + featureFields.extra.treeWidth / 2)
-                        childYLevel
-                    ]
-                        ++ drawFeature childX childYLevel (Feature featureFields)
-                        ++ drawChildren
-                            (childX
-                                + featureFields.extra.treeWidth
-                                + spacingX
-                            )
-                            rest
+                subTreePositions =
+                    childWidths
+                        |> List.scanl (\treeWidth accWidth -> treeWidth + spacingX + accWidth) xStart
+                        |> List.init
+                        |> Maybe.withDefault []
+
+                branchPositions =
+                    List.map2 (\pos width -> pos + width / 2) subTreePositions childWidths
+
+                branches =
+                    drawBranches nodeXLevel branchPositions (yStart + groupHeight) spacingY
+
+                subTrees =
+                    List.concat <| List.map2 (\childX feature -> drawFeature childX childYLevel feature) subTreePositions children
+            in
+            branches ++ subTrees
+
+        -- case children of
+        --     [] ->
+        --         []
+        --     (Feature featureFields) :: rest ->
+        --         [ drawLine
+        --             nodeXLevel
+        --             (yStart + groupHeight)
+        --             (childX + featureFields.extra.treeWidth / 2)
+        --             childYLevel
+        --         ]
+        --             ++ drawFeature childX childYLevel (Feature featureFields)
+        --             ++ drawChildren
+        --                 (childX
+        --                     + featureFields.extra.treeWidth
+        --                     + spacingX
+        --                 )
+        --                 rest
     in
     drawGroupNode nodeXLevel yStart (Group fields)
-        :: drawChildren xStart fields.features
+        :: drawChildren fields.features
+
+
+drawBranches : Float -> List Float -> Float -> Float -> List (Svg Msg)
+drawBranches xStart xStops yStart yStep =
+    case xStops of
+        [] ->
+            []
+
+        [ xStop ] ->
+            [ drawLine xStart yStart xStop (yStart + yStep) ]
+
+        _ ->
+            let
+                rootLine =
+                    drawLine xStart yStart xStart (yStart + yStep / 2)
+
+                horizontalLine =
+                    case ( List.head xStops, List.last xStops ) of
+                        ( Just firstX, Just lastX ) ->
+                            [ drawLine firstX (yStart + yStep / 2) lastX (yStart + yStep / 2) ]
+
+                        _ ->
+                            []
+
+                childrenLines =
+                    List.map (\xStop -> drawLine xStop (yStart + yStep / 2) xStop (yStart + yStep)) xStops
+            in
+            [ rootLine ] ++ horizontalLine ++ childrenLines
 
 
 drawGroupNode : Float -> Float -> Group ComputedDimentions ComputedDimentions -> Svg Msg
@@ -717,5 +766,6 @@ drawLine x1 y1 x2 y2 =
         , SvgA.y2 <| String.fromFloat y2
         , SvgA.strokeWidth "3"
         , SvgA.stroke colorScheme.dark
+        , SvgA.strokeLinecap "square"
         ]
         []
