@@ -1,10 +1,8 @@
 module SerializeOutput where
 
-import Control.Lens
 import Example
-import qualified Lenses as L
 import Merge.ChangeDetection
-import Merge.Merger
+import Merge.PlanMerging
 import Text.Pretty.Simple (pPrint)
 import Types
 

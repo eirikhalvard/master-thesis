@@ -1,23 +1,12 @@
-module Merge.Merger where
+module Merge.PlanMerging where
 
 import qualified Lenses as L
+import Merge.Types
 import Types
 
 import Control.Lens
 import qualified Data.Map as M
 import qualified Data.Map.Merge.Lazy as Merge
-
-data MergeConflict
-  = LocalConflict LocalConflict
-  | GlobalConflict GlobalConflict
-
-data LocalConflict
-  = ConflictingModifications
-  | OthersEtcEtcEtc
-
-data GlobalConflict
-  = DuplicateName
-  | EtcEtcEtc
 
 createMergePlan ::
   ModificationLevelEvolutionPlan FeatureModel' ->
@@ -71,6 +60,7 @@ collectAllTimePoints basePlans v1Plans v2Plans =
       | x < y = x : merge xs (y : ys)
       | otherwise = y : merge (x : xs) ys
     merge xs ys = xs ++ ys
+
 getModificationForTime :: [Plan Modifications] -> Time -> (Modifications, [Plan Modifications])
 getModificationForTime [] _ = (emptyModifications, [])
 getModificationForTime plans@(Plan planTime modification : rest) time =
@@ -174,12 +164,7 @@ mergeDerived =
     (Merge.mapMissing (const (OneVersion V2)))
     (Merge.zipWithMatched (const BothVersions))
 
-mergeAllChanges ::
-  MergeLevelEvolutionPlan FeatureModel ->
-  Either MergeConflict (ModificationLevelEvolutionPlan FeatureModel)
-mergeAllChanges mergeLevelEP = undefined
-
-deriveAbstractedEvolutionPlan ::
-  ModificationLevelEvolutionPlan FeatureModel ->
-  AbstractedLevelEvolutionPlan FeatureModel
-deriveAbstractedEvolutionPlan modificationLevelEP = undefined
+unifyMergePlan ::
+  MergeLevelEvolutionPlan FeatureModel' ->
+  Either Conflict (ModificationLevelEvolutionPlan FeatureModel')
+unifyMergePlan unmergedPlan = undefined
