@@ -6,13 +6,13 @@ import Json.Decode as Decode
 import Json.Encode as Encode
 
 
-mergeResult : Decode.Decoder MergeResult
+mergeResult : Decode.Decoder (MergeResult () ())
 mergeResult =
     Decode.map MergeResult
         (Decode.field "evolutionPlans" <| Decode.map Array.fromList <| Decode.list evolutionPlan)
 
 
-evolutionPlan : Decode.Decoder EvolutionPlan
+evolutionPlan : Decode.Decoder (EvolutionPlan () ())
 evolutionPlan =
     Decode.map2 EvolutionPlan
         (Decode.field "evolutionPlan"
@@ -21,25 +21,25 @@ evolutionPlan =
         (Decode.field "name" Decode.string)
 
 
-timePoint : Decode.Decoder TimePoint
+timePoint : Decode.Decoder (TimePoint () ())
 timePoint =
     Decode.map2 TimePoint
         (Decode.field "time" Decode.int)
         (Decode.field "featureModel" featureModel)
 
 
-featureModel : Decode.Decoder FeatureModel
+featureModel : Decode.Decoder (FeatureModel () ())
 featureModel =
     Decode.map FeatureModel
         (Decode.field "rootFeature" feature)
 
 
-feature : Decode.Decoder Feature
+feature : Decode.Decoder (Feature () ())
 feature =
     let
         field =
             Decode.map4
-                FeatureFields
+                (FeatureFields ())
                 (Decode.field "id" Decode.string)
                 (Decode.field "featureType" Decode.string)
                 (Decode.field "name" Decode.string)
@@ -48,12 +48,12 @@ feature =
     Decode.map Feature field
 
 
-group : Decode.Decoder Group
+group : Decode.Decoder (Group () ())
 group =
     let
         field =
             Decode.map3
-                GroupFields
+                (GroupFields ())
                 (Decode.field "id" Decode.string)
                 (Decode.field "groupType" Decode.string)
                 (Decode.field "features" <| Decode.list (Decode.lazy (\_ -> feature)))
