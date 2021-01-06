@@ -182,12 +182,13 @@ unifyTimePointResult ::
   Plan DiffResult ->
   Either Conflict (Plan Modifications)
 unifyTimePointResult (Plan timePoint (DiffResult features groups)) = do
-  features' <- unifyModificationsMap checkOverlappingFeatureChanges timePoint features
-  groups' <- unifyModificationsMap checkOverlappingGroupChanges timePoint groups
+  features' <- unifyModificationsMap FeatureConflict timePoint features
+  groups' <- unifyModificationsMap GroupConflict timePoint groups
   return $ Plan timePoint (Modifications features' groups')
 
 unifyModificationsMap ::
-  (BothChange modificationType -> Either Conflict (Maybe modificationType)) ->
+  Eq modificationType =>
+  (BothChange modificationType -> MergeConflict) ->
   Time ->
   M.Map modificationIdType (SingleDiffResult modificationType) ->
   Either Conflict (M.Map modificationIdType modificationType)
@@ -195,11 +196,12 @@ unifyModificationsMap checkBothOverlapping timePoint =
   M.traverseMaybeWithKey (const $ unifySingleDiffResult checkBothOverlapping timePoint)
 
 unifySingleDiffResult ::
-  (BothChange modificationType -> Either Conflict (Maybe modificationType)) ->
+  Eq modificationType =>
+  (BothChange modificationType -> MergeConflict) ->
   Time ->
   SingleDiffResult modificationType ->
   Either Conflict (Maybe modificationType)
-unifySingleDiffResult checkBothOverlapping timePoint singleDiffResult =
+unifySingleDiffResult overlappingToMergeConflict timePoint singleDiffResult =
   case singleDiffResult of
     NoChange baseModification ->
       Right (Just baseModification)
@@ -210,37 +212,27 @@ unifySingleDiffResult checkBothOverlapping timePoint singleDiffResult =
     ChangedInOne version (OneChangeWithoutBase (AddedModification derivedModification)) ->
       Right (Just derivedModification)
     ChangedInBoth bothChange ->
-      checkBothOverlapping bothChange
-
-checkOverlappingFeatureChanges ::
-  BothChange FeatureModification ->
-  Either Conflict (Maybe FeatureModification)
-checkOverlappingFeatureChanges =
-  checkOverlappingChanges
-    ConflictingFeatureModificationWithBase
-    ConflictingFeatureModificationWithoutBase
-
-checkOverlappingGroupChanges ::
-  BothChange GroupModification ->
-  Either Conflict (Maybe GroupModification)
-checkOverlappingGroupChanges =
-  checkOverlappingChanges
-    ConflictingGroupModificationWithBase
-    ConflictingGroupModificationWithoutBase
+      checkOverlappingChanges overlappingToMergeConflict timePoint bothChange
 
 checkOverlappingChanges ::
-  (mod -> mod -> mod -> MergeConflict) ->
-  (mod -> mod -> MergeConflict) ->
-  BothChange mod ->
-  Either Conflict (Maybe mod)
-checkOverlappingChanges conflictWithBase conflictWithoutBase bothChange =
+  Eq modificationType =>
+  (BothChange modificationType -> MergeConflict) ->
+  Time ->
+  BothChange modificationType ->
+  Either Conflict (Maybe modificationType)
+checkOverlappingChanges overlappingToMergeConflict timePoint bothChange =
   case bothChange of
-    BothChangeWithBase baseModification v1 v2 -> undefined
     BothChangeWithoutBase (AddedModification v1) (AddedModification v2) ->
-      undefined
-
--- unifySingleDiffResult timePoint (NoChange modificationType) = Right (Just modificationType)
--- unifySingleDiffResult timePoint (ChangedInOne version oneChange) =
---   Left (Panic timePoint "not implemented")
--- unifySingleDiffResult timePoint (ChangedInBoth bothChange) =
---   Left (Panic timePoint "not implemented")
+      ensureNotConflicting v1 v2
+    BothChangeWithBase base RemovedModification RemovedModification ->
+      Right Nothing
+    BothChangeWithBase base (ChangedModification v1) (ChangedModification v2) ->
+      ensureNotConflicting v1 v2
+    BothChangeWithBase _ _ _ ->
+      conflict
+  where
+    conflict = Left (Merge timePoint (overlappingToMergeConflict bothChange))
+    ensureNotConflicting v1Modification v2Modification =
+      if v1Modification == v2Modification
+        then Right (Just v1Modification)
+        else conflict
