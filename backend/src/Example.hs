@@ -238,7 +238,7 @@ v2EvolutionPlan =
                     And
                     [ Feature "feature:normal" Mandatory "Normal" []
                     , Feature "feature:lactose-free" Mandatory "Lactose Free" []
-                    , Feature "feature:soy-milk" Mandatory "Soy Milk" []
+                    , Feature "feature:soy-milk" Optional "Soy Milk" []
                     ]
                 ]
             ]
@@ -342,7 +342,6 @@ expectedEvolutionPlan =
                     And
                     [ Feature "feature:normal" Mandatory "Normal" []
                     , Feature "feature:lactose-free" Mandatory "Lactose Free" []
-                    , Feature "feature:soy-milk" Mandatory "Soy Milk" []
                     ]
                 ]
             ]

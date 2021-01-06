@@ -1,23 +1,16 @@
-module Merge.Merger where
+module Merge.PlanMerging where
 
 import qualified Lenses as L
+import Merge.Types
 import Types
 
 import Control.Lens
 import qualified Data.Map as M
 import qualified Data.Map.Merge.Lazy as Merge
 
-data MergeConflict
-  = LocalConflict LocalConflict
-  | GlobalConflict GlobalConflict
-
-data LocalConflict
-  = ConflictingModifications
-  | OthersEtcEtcEtc
-
-data GlobalConflict
-  = DuplicateName
-  | EtcEtcEtc
+------------------------------------------------------------------------
+--                         Create Merge Plan                          --
+------------------------------------------------------------------------
 
 createMergePlan ::
   ModificationLevelEvolutionPlan FeatureModel' ->
@@ -71,6 +64,7 @@ collectAllTimePoints basePlans v1Plans v2Plans =
       | x < y = x : merge xs (y : ys)
       | otherwise = y : merge (x : xs) ys
     merge xs ys = xs ++ ys
+
 getModificationForTime :: [Plan Modifications] -> Time -> (Modifications, [Plan Modifications])
 getModificationForTime [] _ = (emptyModifications, [])
 getModificationForTime plans@(Plan planTime modification : rest) time =
@@ -174,12 +168,71 @@ mergeDerived =
     (Merge.mapMissing (const (OneVersion V2)))
     (Merge.zipWithMatched (const BothVersions))
 
-mergeAllChanges ::
-  MergeLevelEvolutionPlan FeatureModel ->
-  Either MergeConflict (ModificationLevelEvolutionPlan FeatureModel)
-mergeAllChanges mergeLevelEP = undefined
+------------------------------------------------------------------------
+--                          Unify Merge Plan                          --
+------------------------------------------------------------------------
 
-deriveAbstractedEvolutionPlan ::
-  ModificationLevelEvolutionPlan FeatureModel ->
-  AbstractedLevelEvolutionPlan FeatureModel
-deriveAbstractedEvolutionPlan modificationLevelEP = undefined
+unifyMergePlan ::
+  MergeLevelEvolutionPlan FeatureModel' ->
+  Either Conflict (ModificationLevelEvolutionPlan FeatureModel')
+unifyMergePlan =
+  L.plans . traversed %%~ unifyTimePointResult
+
+unifyTimePointResult ::
+  Plan DiffResult ->
+  Either Conflict (Plan Modifications)
+unifyTimePointResult (Plan timePoint (DiffResult features groups)) = do
+  features' <- unifyModificationsMap FeatureConflict timePoint features
+  groups' <- unifyModificationsMap GroupConflict timePoint groups
+  return $ Plan timePoint (Modifications features' groups')
+
+unifyModificationsMap ::
+  Eq modificationType =>
+  (BothChange modificationType -> MergeConflict) ->
+  Time ->
+  M.Map modificationIdType (SingleDiffResult modificationType) ->
+  Either Conflict (M.Map modificationIdType modificationType)
+unifyModificationsMap checkBothOverlapping timePoint =
+  M.traverseMaybeWithKey (const $ unifySingleDiffResult checkBothOverlapping timePoint)
+
+unifySingleDiffResult ::
+  Eq modificationType =>
+  (BothChange modificationType -> MergeConflict) ->
+  Time ->
+  SingleDiffResult modificationType ->
+  Either Conflict (Maybe modificationType)
+unifySingleDiffResult overlappingToMergeConflict timePoint singleDiffResult =
+  case singleDiffResult of
+    NoChange baseModification ->
+      Right (Just baseModification)
+    ChangedInOne version (OneChangeWithBase baseModification RemovedModification) ->
+      Right Nothing
+    ChangedInOne version (OneChangeWithBase baseModification (ChangedModification derivedModification)) ->
+      Right (Just derivedModification)
+    ChangedInOne version (OneChangeWithoutBase (AddedModification derivedModification)) ->
+      Right (Just derivedModification)
+    ChangedInBoth bothChange ->
+      checkOverlappingChanges overlappingToMergeConflict timePoint bothChange
+
+checkOverlappingChanges ::
+  Eq modificationType =>
+  (BothChange modificationType -> MergeConflict) ->
+  Time ->
+  BothChange modificationType ->
+  Either Conflict (Maybe modificationType)
+checkOverlappingChanges overlappingToMergeConflict timePoint bothChange =
+  case bothChange of
+    BothChangeWithoutBase (AddedModification v1) (AddedModification v2) ->
+      ensureNotConflicting v1 v2
+    BothChangeWithBase base RemovedModification RemovedModification ->
+      Right Nothing
+    BothChangeWithBase base (ChangedModification v1) (ChangedModification v2) ->
+      ensureNotConflicting v1 v2
+    BothChangeWithBase _ _ _ ->
+      conflict
+  where
+    conflict = Left (Merge timePoint (overlappingToMergeConflict bothChange))
+    ensureNotConflicting v1Modification v2Modification =
+      if v1Modification == v2Modification
+        then Right (Just v1Modification)
+        else conflict

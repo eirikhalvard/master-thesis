@@ -7,15 +7,9 @@ import Control.Lens
 import qualified Data.Map as M
 import qualified Data.Map.Merge.Lazy as Merge
 
--- deriveChanges will transform the abstract level evolution plan to the
--- modification level evolution plan. This will be done by deriving what
--- modifications were done to each feature and group.  For every concecutive
--- pair of feature models, the changes between them will be derived
-
-deriveChanges ::
-  AbstractedLevelEvolutionPlan FeatureModel ->
-  ModificationLevelEvolutionPlan FeatureModel'
-deriveChanges = constructModificationLevelEP . flattenEvolutionPlan
+------------------------------------------------------------------------
+--                       Flatten Evolution Plan                       --
+------------------------------------------------------------------------
 
 flattenEvolutionPlan ::
   AbstractedLevelEvolutionPlan FeatureModel ->
@@ -40,6 +34,10 @@ flattenFeatureModel fm =
     flattenGroup parentFeature (Group id groupType features) =
       ([], [(id, Group' parentFeature groupType)])
         <> foldMap (flattenFeature (Just id)) features
+
+------------------------------------------------------------------------
+--            Construct Modification Level Evolution Plan             --
+------------------------------------------------------------------------
 
 constructModificationLevelEP ::
   AbstractedLevelEvolutionPlan FeatureModel' ->

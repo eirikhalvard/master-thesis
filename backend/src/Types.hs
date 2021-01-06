@@ -294,6 +294,12 @@ data DiffResult = DiffResult
   }
   deriving (Show, Eq, Read)
 
+type FeatureDiffResult =
+  SingleDiffResult FeatureModification
+
+type GroupDiffResult =
+  SingleDiffResult GroupModification
+
 -- Every possible combination that a feature- or group change could be modified
 data SingleDiffResult modificationType
   = NoChange modificationType
@@ -332,12 +338,6 @@ data Version
   = V1
   | V2
   deriving (Show, Eq, Read)
-
-type FeatureDiffResult =
-  SingleDiffResult FeatureModification
-
-type GroupDiffResult =
-  SingleDiffResult GroupModification
 
 --------------------
 --  Merge Result  --

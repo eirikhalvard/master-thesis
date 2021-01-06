@@ -1,10 +1,8 @@
 module SerializeOutput where
 
-import Control.Lens
 import Example
-import qualified Lenses as L
 import Merge.ChangeDetection
-import Merge.Merger
+import Merge.PlanMerging
 import Text.Pretty.Simple (pPrint)
 import Types
 
@@ -21,14 +19,29 @@ writeExampleToFile filename = do
       , MergeEvolutionPlan "Expected" expectedEvolutionPlan
       ]
 
-  let baseModificationEvolutionPlan = deriveChanges baseEvolutionPlan
-      v1ModificationEvolutionPlan = deriveChanges v1EvolutionPlan
-      v2ModificationEvolutionPlan = deriveChanges v2EvolutionPlan
+  let baseModificationEvolutionPlan =
+        constructModificationLevelEP
+          . flattenEvolutionPlan
+          $ baseEvolutionPlan
+      v1ModificationEvolutionPlan =
+        constructModificationLevelEP
+          . flattenEvolutionPlan
+          $ v1EvolutionPlan
+      v2ModificationEvolutionPlan =
+        constructModificationLevelEP
+          . flattenEvolutionPlan
+          $ v2EvolutionPlan
       mergePlan =
         createMergePlan
           baseModificationEvolutionPlan
           v1ModificationEvolutionPlan
           v2ModificationEvolutionPlan
+      unifiedMergePlan =
+        unifyMergePlan mergePlan
+      expectedEvolutionPlanTransformed =
+        constructModificationLevelEP
+          . flattenEvolutionPlan
+          $ expectedEvolutionPlan
 
   print "------- BASE ABSTRACTED EVOLUTION PLAN -------"
   pPrint baseEvolutionPlan
@@ -38,3 +51,12 @@ writeExampleToFile filename = do
 
   print "------- MERGE EVOLUTION PLAN -------"
   pPrint mergePlan
+
+  print "------- UNIFIED MERGE EVOLUTION PLAN -------"
+  pPrint unifiedMergePlan
+
+  print "------- EXPECTED EVOLUTION PLAN -------"
+  pPrint expectedEvolutionPlanTransformed
+
+  print "------- UNIFIED == EXPECTED -------"
+  print $ Right expectedEvolutionPlanTransformed == unifiedMergePlan
