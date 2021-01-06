@@ -36,6 +36,12 @@ writeExampleToFile filename = do
           baseModificationEvolutionPlan
           v1ModificationEvolutionPlan
           v2ModificationEvolutionPlan
+      unifiedMergePlan =
+        unifyMergePlan mergePlan
+      expectedEvolutionPlanTransformed =
+        constructModificationLevelEP
+          . flattenEvolutionPlan
+          $ expectedEvolutionPlan
 
   print "------- BASE ABSTRACTED EVOLUTION PLAN -------"
   pPrint baseEvolutionPlan
@@ -45,3 +51,12 @@ writeExampleToFile filename = do
 
   print "------- MERGE EVOLUTION PLAN -------"
   pPrint mergePlan
+
+  print "------- UNIFIED MERGE EVOLUTION PLAN -------"
+  pPrint unifiedMergePlan
+
+  print "------- EXPECTED EVOLUTION PLAN -------"
+  pPrint expectedEvolutionPlanTransformed
+
+  print "------- UNIFIED == EXPECTED -------"
+  print $ Right expectedEvolutionPlanTransformed == unifiedMergePlan
