@@ -1,13 +1,28 @@
 module Merge.Types where
 
+import Types
+
 data Conflict
-  = Merge MergeConflict
-  | Local LocalConflict
-  | Global GlobalConflict
-  | Panic String
+  = Merge Time MergeConflict
+  | Local Time LocalConflict
+  | Global Time GlobalConflict
+  | Panic Time String
 
 data MergeConflict
-  = MergeConflict String
+  = ConflictingFeatureModificationWithoutBase
+      FeatureModification
+      FeatureModification
+  | ConflictingGroupModificationWithoutBase
+      GroupModification
+      GroupModification
+  | ConflictingFeatureModificationWithBase
+      FeatureModification
+      FeatureModification
+      FeatureModification
+  | ConflictingGroupModificationWithBase
+      GroupModification
+      GroupModification
+      GroupModification
 
 data LocalConflict
   = ConflictingModifications

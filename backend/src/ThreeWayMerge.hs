@@ -1,6 +1,6 @@
-module Merge.ThreeWayMerge where
+module ThreeWayMerge where
 
-import Merge.ChangeDetection (deriveChanges)
+import Merge.ChangeDetection (constructModificationLevelEP, flattenEvolutionPlan)
 import Merge.CheckPlan (integrateAllModifications, unflattenEvolutionPlan)
 import Merge.PlanMerging (createMergePlan, unifyMergePlan)
 import Merge.Types
@@ -11,10 +11,13 @@ threeWayMerge ::
   AbstractedLevelEvolutionPlan FeatureModel ->
   AbstractedLevelEvolutionPlan FeatureModel ->
   Either Conflict (AbstractedLevelEvolutionPlan FeatureModel)
-threeWayMerge base v1 v2 = unifyMergePlan mergePlan >>= integrateAllModifications >>= unflattenEvolutionPlan
+threeWayMerge base v1 v2 =
+  unifyMergePlan mergePlan
+    >>= integrateAllModifications
+    >>= unflattenEvolutionPlan
   where
     mergePlan =
       createMergePlan
-        (deriveChanges base)
-        (deriveChanges v1)
-        (deriveChanges v2)
+        (constructModificationLevelEP . flattenEvolutionPlan $ base)
+        (constructModificationLevelEP . flattenEvolutionPlan $ v1)
+        (constructModificationLevelEP . flattenEvolutionPlan $ v2)

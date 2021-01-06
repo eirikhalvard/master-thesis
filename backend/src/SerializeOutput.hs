@@ -19,9 +19,18 @@ writeExampleToFile filename = do
       , MergeEvolutionPlan "Expected" expectedEvolutionPlan
       ]
 
-  let baseModificationEvolutionPlan = deriveChanges baseEvolutionPlan
-      v1ModificationEvolutionPlan = deriveChanges v1EvolutionPlan
-      v2ModificationEvolutionPlan = deriveChanges v2EvolutionPlan
+  let baseModificationEvolutionPlan =
+        constructModificationLevelEP
+          . flattenEvolutionPlan
+          $ baseEvolutionPlan
+      v1ModificationEvolutionPlan =
+        constructModificationLevelEP
+          . flattenEvolutionPlan
+          $ v1EvolutionPlan
+      v2ModificationEvolutionPlan =
+        constructModificationLevelEP
+          . flattenEvolutionPlan
+          $ v2EvolutionPlan
       mergePlan =
         createMergePlan
           baseModificationEvolutionPlan

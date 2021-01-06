@@ -8,6 +8,10 @@ import Control.Lens
 import qualified Data.Map as M
 import qualified Data.Map.Merge.Lazy as Merge
 
+------------------------------------------------------------------------
+--                         Create Merge Plan                          --
+------------------------------------------------------------------------
+
 createMergePlan ::
   ModificationLevelEvolutionPlan FeatureModel' ->
   ModificationLevelEvolutionPlan FeatureModel' ->
@@ -163,6 +167,10 @@ mergeDerived =
     (Merge.mapMissing (const (OneVersion V1)))
     (Merge.mapMissing (const (OneVersion V2)))
     (Merge.zipWithMatched (const BothVersions))
+
+------------------------------------------------------------------------
+--                          Unify Merge Plan                          --
+------------------------------------------------------------------------
 
 unifyMergePlan ::
   MergeLevelEvolutionPlan FeatureModel' ->
