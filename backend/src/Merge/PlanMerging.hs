@@ -228,7 +228,7 @@ checkOverlappingChanges overlappingToMergeConflict timePoint bothChange =
       Right Nothing
     BothChangeWithBase base (ChangedModification v1) (ChangedModification v2) ->
       ensureNotConflicting v1 v2
-    BothChangeWithBase _ _ _ ->
+    BothChangeWithBase{} ->
       conflict
   where
     conflict = Left (Merge timePoint (overlappingToMergeConflict bothChange))
