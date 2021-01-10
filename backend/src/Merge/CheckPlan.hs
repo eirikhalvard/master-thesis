@@ -5,6 +5,8 @@ import Merge.Types
 import Types
 
 import Control.Lens
+import Control.Monad.Error.Class
+import Control.Monad.Writer.Lazy
 import qualified Data.Map as M
 import qualified Data.Set as S
 
@@ -24,14 +26,15 @@ scanEvolutionPlan ::
 scanEvolutionPlan [] timePoint =
   return [timePoint]
 scanEvolutionPlan (plan : plans) currentTimePoint = do
-  nextTimePoint <- integrateSinglePlan plan currentTimePoint >>= checkGlobalConflict
+  (nextTimePointUnchecked, dependencies) <- runWriterT $ integrateSinglePlan plan currentTimePoint
+  nextTimePoint <- checkGlobalConflict dependencies nextTimePointUnchecked
   convertedEvolutionPlan <- scanEvolutionPlan plans nextTimePoint
   return $ currentTimePoint : convertedEvolutionPlan
 
 integrateSinglePlan ::
   Plan Modifications ->
   TimePoint FeatureModel' ->
-  Either Conflict (TimePoint FeatureModel')
+  WriterT [Dependency] (Either Conflict) (TimePoint FeatureModel')
 integrateSinglePlan (Plan nextTime modifications) (TimePoint prevTime featureModel) =
   TimePoint nextTime <$> newFeatureModel
   where
@@ -39,16 +42,19 @@ integrateSinglePlan (Plan nextTime modifications) (TimePoint prevTime featureMod
     integrateFeatures fm = foldlMOf (L.features . traversed) integrateFeature fm modifications
     integrateGroups fm = foldlMOf (L.groups . traversed) integrateGroup fm modifications
 
-integrateFeature :: FeatureModel' -> FeatureModification -> Either Conflict FeatureModel'
-integrateFeature fm featureModification = Right fm
+integrateFeature :: FeatureModel' -> FeatureModification -> WriterT [Dependency] (Either Conflict) FeatureModel'
+integrateFeature fm featureModification = do
+  tell [FeatureDependency featureModification (NoChildGroups "feature:placeholder:TODO")]
+  return fm
 
-integrateGroup :: FeatureModel' -> GroupModification -> Either Conflict FeatureModel'
-integrateGroup fm groupModification = Left $ Panic 42 "not implemented"
+integrateGroup :: FeatureModel' -> GroupModification -> WriterT [Dependency] (Either Conflict) FeatureModel'
+integrateGroup fm groupModification = throwError $ Panic 42 "not implemented"
 
 checkGlobalConflict ::
+  [Dependency] ->
   TimePoint FeatureModel' ->
   Either Conflict (TimePoint FeatureModel')
-checkGlobalConflict (TimePoint time featureModel) =
+checkGlobalConflict dependencies (TimePoint time featureModel) =
   undefined
 
 ------------------------------------------------------------------------
