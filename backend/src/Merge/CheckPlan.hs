@@ -39,16 +39,84 @@ integrateSinglePlan (Plan nextTime modifications) (TimePoint prevTime featureMod
   TimePoint nextTime <$> newFeatureModel
   where
     newFeatureModel = integrateFeatures featureModel >>= integrateGroups
-    integrateFeatures fm = foldlMOf (L.features . traversed) integrateFeature fm modifications
-    integrateGroups fm = foldlMOf (L.groups . traversed) integrateGroup fm modifications
+    integrateFeatures fm = ifoldlMOf (L.features . itraversed) (integrateFeature nextTime) fm modifications
+    integrateGroups fm = ifoldlMOf (L.groups . itraversed) (integrateGroup nextTime) fm modifications
 
-integrateFeature :: FeatureModel' -> FeatureModification -> WriterT [Dependency] (Either Conflict) FeatureModel'
-integrateFeature fm featureModification = do
-  tell [FeatureDependency featureModification (NoChildGroups "feature:placeholder:TODO")]
-  return fm
+integrateFeature ::
+  Time ->
+  FeatureId ->
+  FeatureModel' ->
+  FeatureModification ->
+  WriterT [Dependency] (Either Conflict) FeatureModel'
+integrateFeature time featureId fm featureModification =
+  case featureModification of
+    FeatureAdd parentGroupId featureType name ->
+      case M.lookup featureId (fm ^. L.features) of
+        Nothing -> do
+          tell . fmap (FeatureDependency featureModification) $
+            [ ParentGroupExists parentGroupId
+            , UniqueName name
+            , FeatureIsWellFormed featureId
+            ]
+          return $ fm & L.features . at featureId ?~ Feature' (Just parentGroupId) featureType name
+        Just oldFeature ->
+          throwError $ Local time (FeatureAlreadyExists featureModification featureId)
+    FeatureRemove ->
+      case M.lookup featureId (fm ^. L.features) of
+        Nothing ->
+          throwError $ Local time (FeatureNotExists featureModification featureId)
+        Just oldFeature -> do
+          tell . fmap (FeatureDependency featureModification) $
+            [NoChildGroups featureId]
+          return $ fm & L.features . at featureId .~ Nothing
+    FeatureModification parentGroupIdMod featureTypeMod nameMod ->
+      if has (L.features . ix featureId) fm
+        then
+          pure fm
+            >>= integrateParentMod
+            >>= integrateTypeMod
+            >>= integrateNameMod
+        else
+          throwError $
+            Local time (FeatureNotExists featureModification featureId)
+      where
+        integrateParentMod :: FeatureModel' -> WriterT [Dependency] (Either Conflict) FeatureModel'
+        integrateParentMod fm =
+          case parentGroupIdMod of
+            Nothing -> return fm
+            Just (FeatureParentModification newValue) -> do
+              tell . fmap (FeatureDependency featureModification) $
+                [ ParentGroupExists newValue
+                , NoCycleFromFeature featureId
+                , FeatureIsWellFormed featureId
+                ]
+              return $ fm & L.features . ix featureId . L.parentGroupId .~ Just newValue
 
-integrateGroup :: FeatureModel' -> GroupModification -> WriterT [Dependency] (Either Conflict) FeatureModel'
-integrateGroup fm groupModification = throwError $ Panic 42 "not implemented"
+        integrateTypeMod :: FeatureModel' -> WriterT [Dependency] (Either Conflict) FeatureModel'
+        integrateTypeMod fm =
+          case featureTypeMod of
+            Nothing -> return fm
+            Just (FeatureTypeModification newValue) -> do
+              tell . fmap (FeatureDependency featureModification) $
+                [FeatureIsWellFormed featureId]
+              return $ fm & L.features . ix featureId . L.featureType .~ newValue
+
+        integrateNameMod :: FeatureModel' -> WriterT [Dependency] (Either Conflict) FeatureModel'
+        integrateNameMod fm =
+          case nameMod of
+            Nothing -> return fm
+            Just (FeatureNameModification newValue) -> do
+              tell . fmap (FeatureDependency featureModification) $
+                [UniqueName newValue]
+              return $ fm & L.features . ix featureId . L.name .~ newValue
+
+integrateGroup ::
+  Time ->
+  GroupId ->
+  FeatureModel' ->
+  GroupModification ->
+  WriterT [Dependency] (Either Conflict) FeatureModel'
+integrateGroup time groupId fm groupModification = throwError $ Panic 42 "not implemented"
 
 checkGlobalConflict ::
   [Dependency] ->

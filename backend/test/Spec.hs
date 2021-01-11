@@ -65,15 +65,15 @@ main = hspec $ do
                     )
                   ,
                     ( "feature:beverages"
-                    , FeatureAdd (Just "group:vending-machine-group") Mandatory "Beverages"
+                    , FeatureAdd "group:vending-machine-group" Mandatory "Beverages"
                     )
                   ,
                     ( "feature:tea"
-                    , FeatureAdd (Just "group:beverages-group") Optional "Tea"
+                    , FeatureAdd "group:beverages-group" Optional "Tea"
                     )
                   ,
                     ( "feature:coffee"
-                    , FeatureAdd (Just "group:beverages-group") Optional "Coffee"
+                    , FeatureAdd "group:beverages-group" Optional "Coffee"
                     )
                   ]
                   [ ("group:vending-machine-group", GroupAdd "feature:vending-machine" And)

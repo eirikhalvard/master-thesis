@@ -15,7 +15,8 @@ data MergeConflict
   deriving (Show, Eq)
 
 data LocalConflict
-  = ConflictingModifications
+  = FeatureAlreadyExists FeatureModification FeatureId
+  | FeatureNotExists FeatureModification FeatureId
   | OthersEtcEtcEtc
   deriving (Show, Eq)
 
@@ -31,7 +32,7 @@ data Dependency
 
 data FeatureDependencyType
   = NoChildGroups FeatureId
-  | ParentFeatureExists FeatureId
+  | ParentGroupExists GroupId
   | NoCycleFromFeature FeatureId
   | FeatureIsWellFormed FeatureId
   | UniqueName String
@@ -39,7 +40,7 @@ data FeatureDependencyType
 
 data GroupDependencyType
   = NoChildFeatures GroupId
-  | ParentGroupExists GroupId
+  | ParentFeatureExists FeatureId
   | NoCycleFromGroup GroupId
   | GroupIsWellFormed GroupId
   deriving (Show, Eq)
