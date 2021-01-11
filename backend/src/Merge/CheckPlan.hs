@@ -171,8 +171,22 @@ checkGlobalConflict ::
   [Dependency] ->
   TimePoint FeatureModel' ->
   Either Conflict (TimePoint FeatureModel')
-checkGlobalConflict dependencies (TimePoint time featureModel) =
-  undefined
+checkGlobalConflict dependencies tp@(TimePoint time featureModel) =
+  mapM_ checkDependency dependencies >> Right tp
+  where
+    checkDependency (FeatureDependency featureMod dependencyType) =
+      case dependencyType of
+        NoChildGroups featureId -> undefined
+        ParentGroupExists groupId -> undefined
+        NoCycleFromFeature featureId -> undefined
+        FeatureIsWellFormed featureId -> undefined
+        UniqueName name -> undefined
+    checkDependency (GroupDependency groupMod dependencyType) =
+      case dependencyType of
+        NoChildFeatures groupId -> undefined
+        ParentFeatureExists featureId -> undefined
+        NoCycleFromGroup groupId -> undefined
+        GroupIsWellFormed groupId -> undefined
 
 ------------------------------------------------------------------------
 --                      Unflatten Evolution Plan                      --
