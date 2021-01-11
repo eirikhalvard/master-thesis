@@ -116,7 +116,56 @@ integrateGroup ::
   FeatureModel' ->
   GroupModification ->
   WriterT [Dependency] (Either Conflict) FeatureModel'
-integrateGroup time groupId fm groupModification = throwError $ Panic 42 "not implemented"
+integrateGroup time groupId fm groupModification =
+  case groupModification of
+    GroupAdd parentFeatureId groupType ->
+      case M.lookup groupId (fm ^. L.groups) of
+        Nothing -> do
+          tell . fmap (GroupDependency groupModification) $
+            [ ParentFeatureExists parentFeatureId
+            , GroupIsWellFormed groupId
+            ]
+          return $ fm & L.groups . at groupId ?~ Group' parentFeatureId groupType
+        Just oldGroup ->
+          throwError $ Local time (GroupAlreadyExists groupModification groupId)
+    GroupRemove ->
+      case M.lookup groupId (fm ^. L.groups) of
+        Nothing ->
+          throwError $ Local time (GroupNotExists groupModification groupId)
+        Just oldGroup -> do
+          tell . fmap (GroupDependency groupModification) $
+            [NoChildFeatures groupId]
+          return $ fm & L.groups . at groupId .~ Nothing
+    GroupModification parentFeatureIdMod groupTypeMod ->
+      if has (L.groups . ix groupId) fm
+        then
+          pure fm
+            >>= integrateParentMod
+            >>= integrateTypeMod
+        else
+          throwError $
+            Local time (GroupNotExists groupModification groupId)
+      where
+        integrateParentMod :: FeatureModel' -> WriterT [Dependency] (Either Conflict) FeatureModel'
+        integrateParentMod fm =
+          case parentFeatureIdMod of
+            Nothing -> return fm
+            Just (GroupParentModification newValue) -> do
+              tell . fmap (GroupDependency groupModification) $
+                [ ParentFeatureExists newValue
+                , NoCycleFromGroup groupId
+                , GroupIsWellFormed groupId
+                ]
+              return $ fm & L.groups . ix groupId . L.parentFeatureId .~ newValue
+
+        integrateTypeMod :: FeatureModel' -> WriterT [Dependency] (Either Conflict) FeatureModel'
+        integrateTypeMod fm =
+          case groupTypeMod of
+            Nothing -> return fm
+            Just (GroupTypeModification newValue) -> do
+              tell . fmap (GroupDependency groupModification) $
+                [GroupIsWellFormed groupId]
+              return $ fm & L.groups . ix groupId . L.groupType .~ newValue
 
 checkGlobalConflict ::
   [Dependency] ->

@@ -17,6 +17,8 @@ data MergeConflict
 data LocalConflict
   = FeatureAlreadyExists FeatureModification FeatureId
   | FeatureNotExists FeatureModification FeatureId
+  | GroupAlreadyExists GroupModification GroupId
+  | GroupNotExists GroupModification GroupId
   | OthersEtcEtcEtc
   deriving (Show, Eq)
 
