@@ -23,8 +23,7 @@ data LocalConflict
   deriving (Show, Eq)
 
 data GlobalConflict
-  = DuplicateName
-  | EtcEtcEtc
+  = FailedDependencies [Dependency]
   deriving (Show, Eq)
 
 data Dependency

@@ -172,21 +172,48 @@ checkGlobalConflict ::
   TimePoint FeatureModel' ->
   Either Conflict (TimePoint FeatureModel')
 checkGlobalConflict dependencies tp@(TimePoint time featureModel) =
-  mapM_ checkDependency dependencies >> Right tp
+  errorIfFailed . filter (not . checkDependency) $ dependencies
   where
+    errorIfFailed failedDeps =
+      case failedDeps of
+        [] -> Right tp
+        _ -> Left $ Global time (FailedDependencies failedDeps)
     checkDependency (FeatureDependency featureMod dependencyType) =
       case dependencyType of
-        NoChildGroups featureId -> undefined
-        ParentGroupExists groupId -> undefined
-        NoCycleFromFeature featureId -> undefined
-        FeatureIsWellFormed featureId -> undefined
-        UniqueName name -> undefined
+        NoChildGroups featureId ->
+          hasn't
+            ( L.groups
+                . traversed
+                . L.parentFeatureId
+                . filtered (== featureId)
+            )
+            featureModel
+        ParentGroupExists groupId ->
+          has
+            (L.groups . ix groupId)
+            featureModel
+        NoCycleFromFeature featureId -> True -- TODO: implement
+        FeatureIsWellFormed featureId -> True -- TODO: implement
+        UniqueName name ->
+          lengthOf
+            (L.features . traversed . L.name . filtered (== name))
+            featureModel
+            <= 1
     checkDependency (GroupDependency groupMod dependencyType) =
       case dependencyType of
-        NoChildFeatures groupId -> undefined
-        ParentFeatureExists featureId -> undefined
-        NoCycleFromGroup groupId -> undefined
-        GroupIsWellFormed groupId -> undefined
+        NoChildFeatures groupId ->
+          hasn't
+            ( L.features . traversed
+                . L.parentGroupId
+                . filtered (== groupId)
+            )
+            featureModel
+        ParentFeatureExists featureId ->
+          has
+            (L.features . ix featureId)
+            featureModel
+        NoCycleFromGroup groupId -> True -- TODO: implement
+        GroupIsWellFormed groupId -> True -- TODO: implement
 
 ------------------------------------------------------------------------
 --                      Unflatten Evolution Plan                      --
