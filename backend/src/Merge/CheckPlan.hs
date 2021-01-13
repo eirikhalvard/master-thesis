@@ -190,7 +190,8 @@ checkGlobalConflict dependencies tp@(TimePoint time featureModel) =
           has
             (L.groups . ix groupId)
             featureModel
-        NoCycleFromFeature featureId -> True -- TODO: implement
+        NoCycleFromFeature featureId ->
+          not $ featureInCycle S.empty featureId featureModel
         FeatureIsWellFormed featureId ->
           -- If feature is mandatory, parent has to be AND group
           -- === feature not mandatory or parent is and
@@ -223,7 +224,8 @@ checkGlobalConflict dependencies tp@(TimePoint time featureModel) =
           has
             (L.features . ix featureId)
             featureModel
-        NoCycleFromGroup groupId -> True -- TODO: implement
+        NoCycleFromGroup groupId ->
+          not $ groupInCycle S.empty groupId featureModel
         GroupIsWellFormed groupId ->
           -- Either the group is a AND group, or all child features are optional
           let groupType = featureModel ^?! L.groups . ix groupId . L.groupType
@@ -232,6 +234,45 @@ checkGlobalConflict dependencies tp@(TimePoint time featureModel) =
                   ^.. L.childFeaturesOfGroup groupId
                     . L.featureType
            in groupType == And || all (== Optional) childFeatureTypes
+
+featureInCycle ::
+  S.Set (Either FeatureId GroupId) ->
+  FeatureId ->
+  FeatureModel' ->
+  Bool
+featureInCycle visited featureId featureModel
+  | Left featureId `elem` visited = True
+  | otherwise =
+    case featureModel
+      ^? L.features
+        . ix featureId
+        . L.parentGroupId
+        . _Just of
+      Nothing -> False -- no parent group OR non existing feature
+      Just parentGroupId ->
+        groupInCycle
+          (S.insert (Left featureId) visited)
+          parentGroupId
+          featureModel
+
+groupInCycle ::
+  S.Set (Either FeatureId GroupId) ->
+  GroupId ->
+  FeatureModel' ->
+  Bool
+groupInCycle visited groupId featureModel
+  | Right groupId `elem` visited = True
+  | otherwise =
+    case featureModel
+      ^? L.groups
+        . ix groupId
+        . L.parentFeatureId of
+      Nothing -> False -- non existing group
+      Just parentFeatureId ->
+        featureInCycle
+          (S.insert (Right groupId) visited)
+          parentFeatureId
+          featureModel
 
 ------------------------------------------------------------------------
 --                      Unflatten Evolution Plan                      --
