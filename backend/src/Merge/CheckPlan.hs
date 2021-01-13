@@ -123,7 +123,6 @@ integrateGroup time groupId fm groupModification =
         Nothing -> do
           tell . fmap (GroupDependency groupModification) $
             [ ParentFeatureExists parentFeatureId
-            , GroupIsWellFormed groupId
             ]
           return $ fm & L.groups . at groupId ?~ Group' parentFeatureId groupType
         Just oldGroup ->
@@ -154,7 +153,6 @@ integrateGroup time groupId fm groupModification =
               tell . fmap (GroupDependency groupModification) $
                 [ ParentFeatureExists newValue
                 , NoCycleFromGroup groupId
-                , GroupIsWellFormed groupId
                 ]
               return $ fm & L.groups . ix groupId . L.parentFeatureId .~ newValue
 
@@ -193,7 +191,19 @@ checkGlobalConflict dependencies tp@(TimePoint time featureModel) =
             (L.groups . ix groupId)
             featureModel
         NoCycleFromFeature featureId -> True -- TODO: implement
-        FeatureIsWellFormed featureId -> True -- TODO: implement
+        FeatureIsWellFormed featureId ->
+          -- If feature is mandatory, parent has to be AND group
+          -- === feature not mandatory or parent is and
+          let featureType =
+                featureModel
+                  ^?! L.features
+                    . ix featureId
+                    . L.featureType
+              parentGroupType =
+                featureModel
+                  ^?! L.parentGroupOfFeature featureId
+                    . L.groupType
+           in featureType /= Mandatory || parentGroupType == And
         UniqueName name ->
           lengthOf
             (L.features . traversed . L.name . filtered (== name))
@@ -203,9 +213,10 @@ checkGlobalConflict dependencies tp@(TimePoint time featureModel) =
       case dependencyType of
         NoChildFeatures groupId ->
           hasn't
-            ( L.features . traversed
+            ( L.features
+                . traversed
                 . L.parentGroupId
-                . filtered (== groupId)
+                . filtered (== Just groupId)
             )
             featureModel
         ParentFeatureExists featureId ->
@@ -213,7 +224,14 @@ checkGlobalConflict dependencies tp@(TimePoint time featureModel) =
             (L.features . ix featureId)
             featureModel
         NoCycleFromGroup groupId -> True -- TODO: implement
-        GroupIsWellFormed groupId -> True -- TODO: implement
+        GroupIsWellFormed groupId ->
+          -- Either the group is a AND group, or all child features are optional
+          let groupType = featureModel ^?! L.groups . ix groupId . L.groupType
+              childFeatureTypes =
+                featureModel
+                  ^.. L.childFeaturesOfGroup groupId
+                    . L.featureType
+           in groupType == And || all (== Optional) childFeatureTypes
 
 ------------------------------------------------------------------------
 --                      Unflatten Evolution Plan                      --
