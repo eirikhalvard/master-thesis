@@ -9,6 +9,7 @@
 module Lenses where
 
 import Control.Lens
+import qualified Data.Map as M
 import Types
 
 makeFieldsNoPrefix ''FeatureModel
@@ -81,10 +82,16 @@ parentFeatureOfGroup gid handler fm =
 
 childGroupsOfFeature :: FeatureId -> Traversal' FeatureModel' Group'
 childGroupsOfFeature fid =
-  traverseOf
-    (groups . traversed . filtered ((fid ==) . view parentFeatureId))
+  groups . traversed . filtered ((fid ==) . view parentFeatureId)
+
+ichildGroupsOfFeature :: FeatureId -> IndexedTraversal' GroupId FeatureModel' Group'
+ichildGroupsOfFeature fid =
+  groups . itraversed . filtered ((fid ==) . view parentFeatureId)
 
 childFeaturesOfGroup :: GroupId -> Traversal' FeatureModel' Feature'
 childFeaturesOfGroup gid =
-  traverseOf
-    (features . traversed . filtered ((Just gid ==) . view parentGroupId))
+  features . traversed . filtered ((Just gid ==) . view parentGroupId)
+
+ichildFeaturesOfGroup :: GroupId -> IndexedTraversal' FeatureId FeatureModel' Feature'
+ichildFeaturesOfGroup gid =
+  features . itraversed . filtered ((Just gid ==) . view parentGroupId)

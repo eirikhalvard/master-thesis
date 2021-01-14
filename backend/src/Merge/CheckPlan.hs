@@ -281,4 +281,28 @@ groupInCycle visited groupId featureModel
 unflattenEvolutionPlan ::
   AbstractedLevelEvolutionPlan FeatureModel' ->
   Either Conflict (AbstractedLevelEvolutionPlan FeatureModel)
-unflattenEvolutionPlan flatEvolutionPlan = undefined
+unflattenEvolutionPlan =
+  L.timePoints
+    . traversed
+    %%~ unflattenTimePoint
+
+unflattenTimePoint :: TimePoint FeatureModel' -> Either Conflict (TimePoint FeatureModel)
+unflattenTimePoint (TimePoint time featureModel) =
+  TimePoint time . FeatureModel
+    <$> unflattenFeature featureModel (featureModel ^. L.rootId)
+
+unflattenFeature :: FeatureModel' -> FeatureId -> Either Conflict Feature
+unflattenFeature featureModel featureId =
+  Feature featureId featureType name <$> childGroupsM
+  where
+    childGroupIds = featureModel ^.. L.ichildGroupsOfFeature featureId . asIndex
+    childGroupsM = S.fromList <$> traverse (unflattenGroup featureModel) childGroupIds
+    (Feature' _ featureType name) = featureModel ^?! L.features . ix featureId
+
+unflattenGroup :: FeatureModel' -> GroupId -> Either Conflict Group
+unflattenGroup featureModel groupId =
+  Group groupId groupType <$> childFeaturesM
+  where
+    childFeatureIds = featureModel ^.. L.ichildFeaturesOfGroup groupId . asIndex
+    childFeaturesM = S.fromList <$> traverse (unflattenFeature featureModel) childFeatureIds
+    (Group' _ groupType) = featureModel ^?! L.groups . ix groupId
