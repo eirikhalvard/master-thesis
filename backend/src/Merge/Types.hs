@@ -15,11 +15,33 @@ data MergeConflict
   deriving (Show, Eq)
 
 data LocalConflict
-  = ConflictingModifications
+  = FeatureAlreadyExists FeatureModification FeatureId
+  | FeatureNotExists FeatureModification FeatureId
+  | GroupAlreadyExists GroupModification GroupId
+  | GroupNotExists GroupModification GroupId
   | OthersEtcEtcEtc
   deriving (Show, Eq)
 
 data GlobalConflict
-  = DuplicateName
-  | EtcEtcEtc
+  = FailedDependencies [Dependency]
+  deriving (Show, Eq)
+
+data Dependency
+  = FeatureDependency FeatureModification FeatureDependencyType
+  | GroupDependency GroupModification GroupDependencyType
+  deriving (Show, Eq)
+
+data FeatureDependencyType
+  = NoChildGroups FeatureId
+  | ParentGroupExists GroupId
+  | NoCycleFromFeature FeatureId
+  | FeatureIsWellFormed FeatureId
+  | UniqueName String
+  deriving (Show, Eq)
+
+data GroupDependencyType
+  = NoChildFeatures GroupId
+  | ParentFeatureExists FeatureId
+  | NoCycleFromGroup GroupId
+  | GroupIsWellFormed GroupId
   deriving (Show, Eq)

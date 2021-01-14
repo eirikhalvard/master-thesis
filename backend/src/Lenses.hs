@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 module Lenses where
@@ -55,3 +56,35 @@ makePrisms ''Version
 
 makeFieldsNoPrefix ''MergeEvolutionPlan
 makeFieldsNoPrefix ''MergeResult
+
+-- --- Optic helpers
+
+parentGroupOfFeature :: FeatureId -> Traversal' FeatureModel' Group'
+parentGroupOfFeature fid handler fm =
+  case fm ^? features . ix fid . parentGroupId . _Just of
+    Nothing -> pure fm
+    Just parentGroupIdValue ->
+      traverseOf
+        (groups . ix parentGroupIdValue)
+        handler
+        fm
+
+parentFeatureOfGroup :: GroupId -> Traversal' FeatureModel' Feature'
+parentFeatureOfGroup gid handler fm =
+  case fm ^? groups . ix gid . parentFeatureId of
+    Nothing -> pure fm
+    Just parentFeatureIdValue ->
+      traverseOf
+        (features . ix parentFeatureIdValue)
+        handler
+        fm
+
+childGroupsOfFeature :: FeatureId -> Traversal' FeatureModel' Group'
+childGroupsOfFeature fid =
+  traverseOf
+    (groups . traversed . filtered ((fid ==) . view parentFeatureId))
+
+childFeaturesOfGroup :: GroupId -> Traversal' FeatureModel' Feature'
+childFeaturesOfGroup gid =
+  traverseOf
+    (features . traversed . filtered ((Just gid ==) . view parentGroupId))

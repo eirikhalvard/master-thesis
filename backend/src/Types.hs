@@ -248,7 +248,7 @@ data Modifications = Modifications
   deriving (Show, Eq, Read)
 
 data FeatureModification
-  = FeatureAdd (Maybe GroupId) FeatureType String
+  = FeatureAdd GroupId FeatureType String
   | FeatureRemove
   | FeatureModification
       (Maybe FeatureParentModification)
@@ -257,7 +257,7 @@ data FeatureModification
   deriving (Show, Eq, Read)
 
 data FeatureParentModification
-  = FeatureParentModification (Maybe GroupId)
+  = FeatureParentModification GroupId
   deriving (Show, Eq, Read)
 
 data FeatureNameModification

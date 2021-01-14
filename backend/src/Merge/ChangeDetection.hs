@@ -66,8 +66,15 @@ diffFeatureModels prevFM currFM =
       Merge.merge
         (Merge.mapMissing (\_ _ -> FeatureRemove))
         ( Merge.mapMissing
-            ( \_ (Feature' parent featureType name) ->
-                FeatureAdd parent featureType name
+            ( \_ (Feature' mParent featureType name) ->
+                case mParent of
+                  Nothing ->
+                    error $
+                      "ERROR: When diffing two feature models, "
+                        ++ "the root feature is assumed to be the same in both version. "
+                        ++ "Since the root feature cannot be removed, there should never "
+                        ++ "be the case that the root feature was added"
+                  Just parent -> FeatureAdd parent featureType name
             )
         )
         ( Merge.zipWithMaybeMatched
@@ -79,9 +86,11 @@ diffFeatureModels prevFM currFM =
                     else
                       Just $
                         FeatureModification
-                          ( if prevParent == newParent
-                              then Nothing
-                              else Just (FeatureParentModification newParent)
+                          ( case (prevParent, newParent) of
+                              (Just prev, Just new) | prev /= new -> Just (FeatureParentModification new)
+                              -- NOTE: since the root is assumed to never change,
+                              -- we only record changes of non-root features
+                              _ -> Nothing
                           )
                           ( if prevFeatureType == newFeatureType
                               then Nothing

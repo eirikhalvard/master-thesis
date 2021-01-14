@@ -6,7 +6,8 @@ import Merge.PlanMerging
 import Text.Pretty.Simple (pPrint)
 import Types
 
-import Data.Aeson
+import Data.Aeson (encodeFile)
+import Merge.CheckPlan (integrateAllModifications)
 
 writeExampleToFile :: FilePath -> IO ()
 writeExampleToFile filename = do
@@ -38,6 +39,8 @@ writeExampleToFile filename = do
           v2ModificationEvolutionPlan
       unifiedMergePlan =
         unifyMergePlan mergePlan
+      checkedAndIntegratedPlan =
+        unifiedMergePlan >>= integrateAllModifications
       expectedEvolutionPlanTransformed =
         constructModificationLevelEP
           . flattenEvolutionPlan
@@ -60,3 +63,6 @@ writeExampleToFile filename = do
 
   print "------- UNIFIED == EXPECTED -------"
   print $ Right expectedEvolutionPlanTransformed == unifiedMergePlan
+
+  print "------- CHECKED AND INTEGRATED -------"
+  pPrint $ checkedAndIntegratedPlan
