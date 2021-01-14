@@ -1,6 +1,6 @@
 name:                haskell-master
 version:             0.1.0.0
-github:              "githubuser/haskell-master"
+github:              "eirikhalvard/haskell-master"
 license:             BSD3
 author:              "Eirik Halvard Sæther"
 maintainer:          "eirik.halvard.95@gmail.com"
@@ -33,6 +33,8 @@ dependencies:
 - hspec
 - QuickCheck
 
+ghc-options:
+  - -fwarn-incomplete-patterns
 
 default-extensions:
 - TemplateHaskell

@@ -1,6 +1,5 @@
 {-# LANGUAGE OverloadedLists #-}
 
-import Control.Exception (evaluate)
 import Control.Lens
 import Example
 import qualified Lenses as L
@@ -9,7 +8,7 @@ import qualified Merge.CheckPlan as CheckPlan
 import qualified Merge.PlanMerging as PlanMerging
 import Merge.Types
 import Test.Hspec
-import Test.QuickCheck
+import ThreeWayMerge (threeWayMerge)
 import Types
 
 baseModificationEvolutionPlan :: ModificationLevelEvolutionPlan FeatureModel'
@@ -44,6 +43,10 @@ unifiedMergePlan =
 integratedPlan :: Either Conflict (AbstractedLevelEvolutionPlan FeatureModel')
 integratedPlan =
   unifiedMergePlan >>= CheckPlan.integrateAllModifications
+
+unflattenedPlan :: Either Conflict (AbstractedLevelEvolutionPlan FeatureModel)
+unflattenedPlan =
+  integratedPlan >>= CheckPlan.unflattenEvolutionPlan
 
 expectedEvolutionPlanFlattened :: AbstractedLevelEvolutionPlan FeatureModel'
 expectedEvolutionPlanFlattened =
@@ -91,3 +94,8 @@ main = hspec $ do
   describe "Plan Checking" $ do
     it "checks local and global conflicts and returns no conflicts for example plan" $ do
       Right expectedEvolutionPlanFlattened `shouldBe` integratedPlan
+    it "unflattens correct plan correctly" $ do
+      Right expectedEvolutionPlan `shouldBe` unflattenedPlan
+    it "complete three way merge works for example" $ do
+      threeWayMerge baseEvolutionPlan v1EvolutionPlan v2EvolutionPlan
+        `shouldBe` Right expectedEvolutionPlan
