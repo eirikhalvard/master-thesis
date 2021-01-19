@@ -1,9 +1,10 @@
 module SerializeOutput where
 
-import Example
+import Examples.SoundExample
 import Merge.ChangeDetection
 import Merge.PlanMerging
 import Text.Pretty.Simple (pPrint)
+import ThreeWayMerge (threeWayMerge)
 import Types
 
 import Data.Aeson (encodeFile)
@@ -11,15 +12,6 @@ import Merge.CheckPlan (integrateAllModifications)
 
 writeExampleToFile :: FilePath -> IO ()
 writeExampleToFile filename = do
-  print $ "Writing json to file " ++ filename
-  encodeFile filename $
-    MergeResult
-      [ MergeEvolutionPlan "Base" baseEvolutionPlan
-      , MergeEvolutionPlan "Version 1" v1EvolutionPlan
-      , MergeEvolutionPlan "Version 2" v2EvolutionPlan
-      , MergeEvolutionPlan "Expected" expectedEvolutionPlan
-      ]
-
   let baseModificationEvolutionPlan =
         constructModificationLevelEP
           . flattenEvolutionPlan
@@ -45,24 +37,44 @@ writeExampleToFile filename = do
         constructModificationLevelEP
           . flattenEvolutionPlan
           $ expectedEvolutionPlan
+      actualResult =
+        threeWayMerge
+          baseEvolutionPlan
+          v1EvolutionPlan
+          v2EvolutionPlan
 
-  print "------- BASE ABSTRACTED EVOLUTION PLAN -------"
-  pPrint baseEvolutionPlan
+  print $ "Writing json to file " ++ filename
+  encodeFile filename $
+    MergeResult
+      [ MergeEvolutionPlan "Base" baseEvolutionPlan
+      , MergeEvolutionPlan "Version 1" v1EvolutionPlan
+      , MergeEvolutionPlan "Version 2" v2EvolutionPlan
+      , MergeEvolutionPlan "Expected" expectedEvolutionPlan
+      , MergeEvolutionPlan
+          "Actual"
+          $ either
+            (const $ error "merge not successful")
+            id
+            actualResult
+      ]
 
-  print "------- BASE MODIFICATION EVOLUTION PLAN -------"
-  pPrint baseModificationEvolutionPlan
+-- print "------- BASE ABSTRACTED EVOLUTION PLAN -------"
+-- pPrint baseEvolutionPlan
 
-  print "------- MERGE EVOLUTION PLAN -------"
-  pPrint mergePlan
+-- print "------- BASE MODIFICATION EVOLUTION PLAN -------"
+-- pPrint baseModificationEvolutionPlan
 
-  print "------- UNIFIED MERGE EVOLUTION PLAN -------"
-  pPrint unifiedMergePlan
+-- print "------- MERGE EVOLUTION PLAN -------"
+-- pPrint mergePlan
 
-  print "------- EXPECTED EVOLUTION PLAN -------"
-  pPrint expectedEvolutionPlanTransformed
+-- print "------- UNIFIED MERGE EVOLUTION PLAN -------"
+-- pPrint unifiedMergePlan
 
-  print "------- UNIFIED == EXPECTED -------"
-  print $ Right expectedEvolutionPlanTransformed == unifiedMergePlan
+-- print "------- EXPECTED EVOLUTION PLAN -------"
+-- pPrint expectedEvolutionPlanTransformed
 
-  print "------- CHECKED AND INTEGRATED -------"
-  pPrint $ checkedAndIntegratedPlan
+-- print "------- UNIFIED == EXPECTED -------"
+-- print $ Right expectedEvolutionPlanTransformed == unifiedMergePlan
+
+-- print "------- CHECKED AND INTEGRATED -------"
+-- pPrint $ checkedAndIntegratedPlan

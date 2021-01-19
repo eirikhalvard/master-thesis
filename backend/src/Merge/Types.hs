@@ -19,7 +19,6 @@ data LocalConflict
   | FeatureNotExists FeatureModification FeatureId
   | GroupAlreadyExists GroupModification GroupId
   | GroupNotExists GroupModification GroupId
-  | OthersEtcEtcEtc
   deriving (Show, Eq)
 
 data GlobalConflict
