@@ -1,5 +1,6 @@
 module SerializeOutput where
 
+import Examples.MergeConflictExample
 import Examples.SoundExample
 import Merge.ChangeDetection
 import Merge.PlanMerging
@@ -57,6 +58,7 @@ writeExampleToFile filename = do
             id
             actualResult
       ]
+  runFaultyTests
 
 -- print "------- BASE ABSTRACTED EVOLUTION PLAN -------"
 -- pPrint baseEvolutionPlan
@@ -78,3 +80,7 @@ writeExampleToFile filename = do
 
 -- print "------- CHECKED AND INTEGRATED -------"
 -- pPrint $ checkedAndIntegratedPlan
+
+runFaultyTests :: IO ()
+runFaultyTests = do
+  showExampleResult multipleAdd
