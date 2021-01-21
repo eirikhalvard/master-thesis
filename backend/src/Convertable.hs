@@ -19,55 +19,58 @@ import Types
 class ConvertableInput input output where
   convertFrom :: input -> output
 
-integrateAllSoundModifications :: ModFlat -> UserFlat
+integrateAllSoundModifications :: ModificationEvolutionPlan FlatFeatureModel -> UserEvolutionPlan FlatFeatureModel
 integrateAllSoundModifications =
   either (error . conflictErrorMsg) id
     . integrateAllModifications
 
-unflattenSoundEvolutionPlan :: UserFlat -> UserTree
+unflattenSoundEvolutionPlan :: UserEvolutionPlan FlatFeatureModel -> UserEvolutionPlan TreeFeatureModel
 unflattenSoundEvolutionPlan =
   either (error . conflictErrorMsg) id
     . unflattenEvolutionPlan
 
-instance ConvertableInput UserTree UserTree where
+instance ConvertableInput (UserEvolutionPlan TreeFeatureModel) (UserEvolutionPlan TreeFeatureModel) where
   convertFrom = id
 
-instance ConvertableInput UserTree UserFlat where
+instance ConvertableInput (UserEvolutionPlan TreeFeatureModel) (UserEvolutionPlan FlatFeatureModel) where
   convertFrom = flattenEvolutionPlan
 
-instance ConvertableInput UserTree ModFlat where
+instance ConvertableInput (UserEvolutionPlan TreeFeatureModel) (ModificationEvolutionPlan FlatFeatureModel) where
   convertFrom = constructModificationEP . flattenEvolutionPlan
 
-instance ConvertableInput UserFlat UserTree where
+instance ConvertableInput (UserEvolutionPlan FlatFeatureModel) (UserEvolutionPlan TreeFeatureModel) where
   convertFrom = unflattenSoundEvolutionPlan
 
-instance ConvertableInput UserFlat UserFlat where
+instance ConvertableInput (UserEvolutionPlan FlatFeatureModel) (UserEvolutionPlan FlatFeatureModel) where
   convertFrom = id
 
-instance ConvertableInput UserFlat ModFlat where
+instance ConvertableInput (UserEvolutionPlan FlatFeatureModel) (ModificationEvolutionPlan FlatFeatureModel) where
   convertFrom = constructModificationEP
 
-instance ConvertableInput ModFlat UserTree where
+instance ConvertableInput (ModificationEvolutionPlan FlatFeatureModel) (UserEvolutionPlan TreeFeatureModel) where
   convertFrom = unflattenSoundEvolutionPlan . integrateAllSoundModifications
 
-instance ConvertableInput ModFlat UserFlat where
+instance ConvertableInput (ModificationEvolutionPlan FlatFeatureModel) (UserEvolutionPlan FlatFeatureModel) where
   convertFrom = integrateAllSoundModifications
 
-instance ConvertableInput ModFlat ModFlat where
+instance ConvertableInput (ModificationEvolutionPlan FlatFeatureModel) (ModificationEvolutionPlan FlatFeatureModel) where
   convertFrom = id
 
 -- Defines a way of converting the result of the merge into the specified
--- output format. Since the merger both produces the ModFlat and AbsFlat
+-- output format. Since the merger both produces the (ModificationEvolutionPlan FlatFeatureModel) and AbsFlat
 -- evolution plans, we can utilize both in the convertion
 
 class ConvertableFromResult output where
-  convertFromMergeResult :: ModFlat -> UserFlat -> output
+  convertFromMergeResult ::
+    (ModificationEvolutionPlan FlatFeatureModel) ->
+    (UserEvolutionPlan FlatFeatureModel) ->
+    output
 
-instance ConvertableFromResult UserTree where
+instance ConvertableFromResult (UserEvolutionPlan TreeFeatureModel) where
   convertFromMergeResult _ userFlat = unflattenSoundEvolutionPlan userFlat
 
-instance ConvertableFromResult UserFlat where
+instance ConvertableFromResult (UserEvolutionPlan FlatFeatureModel) where
   convertFromMergeResult _ userFlat = userFlat
 
-instance ConvertableFromResult ModFlat where
+instance ConvertableFromResult (ModificationEvolutionPlan FlatFeatureModel) where
   convertFromMergeResult modFlat _ = modFlat

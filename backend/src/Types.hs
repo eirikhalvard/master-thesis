@@ -110,12 +110,6 @@ data GroupType
 --        changed, added or removed in several versions, which this
 --        representation encodes.
 
-type UserTree = UserEvolutionPlan TreeFeatureModel
-
-type UserFlat = UserEvolutionPlan FlatFeatureModel
-
-type ModFlat = ModificationEvolutionPlan FlatFeatureModel
-
 type Time = Int
 
 data UserEvolutionPlan featureModel = UserEvolutionPlan
