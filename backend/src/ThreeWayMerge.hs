@@ -6,10 +6,10 @@ import Merge.PlanMerging (createMergePlan, unifyMergePlan)
 import Types
 
 threeWayMerge ::
-  UserEvolutionPlan TreeFeatureModel ->
-  UserEvolutionPlan TreeFeatureModel ->
-  UserEvolutionPlan TreeFeatureModel ->
-  Either Conflict (UserEvolutionPlan TreeFeatureModel)
+  TreeUserEvolutionPlan ->
+  TreeUserEvolutionPlan ->
+  TreeUserEvolutionPlan ->
+  Either Conflict TreeUserEvolutionPlan
 threeWayMerge base v1 v2 =
   unifyMergePlan mergePlan
     >>= integrateAllModifications
@@ -22,10 +22,10 @@ threeWayMerge base v1 v2 =
         (constructModificationEP . flattenEvolutionPlan $ v2)
 
 threeWayMerge' ::
-  ModificationEvolutionPlan FlatFeatureModel ->
-  ModificationEvolutionPlan FlatFeatureModel ->
-  ModificationEvolutionPlan FlatFeatureModel ->
-  Either Conflict (UserEvolutionPlan TreeFeatureModel)
+  FlatModificationEvolutionPlan ->
+  FlatModificationEvolutionPlan ->
+  FlatModificationEvolutionPlan ->
+  Either Conflict TreeUserEvolutionPlan
 threeWayMerge' base v1 v2 =
   unifyMergePlan mergePlan
     >>= integrateAllModifications

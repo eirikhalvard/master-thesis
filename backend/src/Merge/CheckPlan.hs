@@ -14,8 +14,8 @@ import qualified Data.Set as S
 ------------------------------------------------------------------------
 
 integrateAllModifications ::
-  ModificationEvolutionPlan FlatFeatureModel ->
-  Either Conflict (UserEvolutionPlan FlatFeatureModel)
+  FlatModificationEvolutionPlan ->
+  Either Conflict FlatUserEvolutionPlan
 integrateAllModifications evolutionPlan = case evolutionPlan of
   TransformationEvolutionPlan initialTime initialFM plans ->
     UserEvolutionPlan <$> scanEvolutionPlan plans (TimePoint initialTime initialFM)
@@ -278,7 +278,7 @@ groupInCycle visited groupId featureModel
 ------------------------------------------------------------------------
 
 unflattenEvolutionPlan ::
-  UserEvolutionPlan FlatFeatureModel ->
+  FlatUserEvolutionPlan ->
   Either Conflict (UserEvolutionPlan TreeFeatureModel)
 unflattenEvolutionPlan =
   L.timePoints

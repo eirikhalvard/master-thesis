@@ -12,8 +12,8 @@ import qualified Data.Map.Merge.Lazy as Merge
 ------------------------------------------------------------------------
 
 flattenEvolutionPlan ::
-  UserEvolutionPlan TreeFeatureModel ->
-  UserEvolutionPlan FlatFeatureModel
+  TreeUserEvolutionPlan ->
+  FlatUserEvolutionPlan
 flattenEvolutionPlan =
   L.timePoints
     . traversed
@@ -40,8 +40,8 @@ flattenFeatureModel fm =
 ------------------------------------------------------------------------
 
 constructModificationEP ::
-  UserEvolutionPlan FlatFeatureModel ->
-  ModificationEvolutionPlan FlatFeatureModel
+  FlatUserEvolutionPlan ->
+  FlatModificationEvolutionPlan
 constructModificationEP (UserEvolutionPlan timePoints) = case timePoints of
   [] -> error "evolution plan has to have at least one time point!"
   ((TimePoint initialTime initialFM) : restTimePoints) ->
