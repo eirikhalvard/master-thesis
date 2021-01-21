@@ -281,10 +281,10 @@ data MergeArtifact evolutionPlan = MergeArtifact
   deriving (Show, Eq, Read, Generic, Functor)
 
 data ExampleResult = ExampleResult
-  { base :: ModificationEvolutionPlan FlatFeatureModel
-  , v1 :: ModificationEvolutionPlan FlatFeatureModel
-  , v2 :: ModificationEvolutionPlan FlatFeatureModel
-  , expected :: Either Conflict (UserEvolutionPlan TreeFeatureModel)
+  { base :: FlatModificationEvolutionPlan
+  , v1 :: FlatModificationEvolutionPlan
+  , v2 :: FlatModificationEvolutionPlan
+  , expected :: Either Conflict TreeUserEvolutionPlan
   }
 
 ------------------------------------------------------------------------
@@ -309,7 +309,7 @@ data NamedEvolutionPlan = NamedEvolutionPlan
   deriving (Show, Eq, Read, Generic)
 
 data MergeData
-  = EvolutionPlanResult (UserEvolutionPlan TreeFeatureModel)
+  = EvolutionPlanResult TreeUserEvolutionPlan
   | ConflictResult String
   deriving (Show, Eq, Read, Generic)
 
@@ -328,7 +328,7 @@ instance ToJSON MergeData where
   toJSON = genericToJSON customAesonOptions
   toEncoding = genericToEncoding customAesonOptions
 
-instance ToJSON (UserEvolutionPlan TreeFeatureModel) where
+instance ToJSON TreeUserEvolutionPlan where
   toJSON = genericToJSON customAesonOptions
   toEncoding = genericToEncoding customAesonOptions
 

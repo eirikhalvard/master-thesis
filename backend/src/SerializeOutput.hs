@@ -3,7 +3,7 @@ module SerializeOutput where
 import Examples.MergeConflictExample
 import Examples.SoundExample
 import Merge.ChangeDetection
-import Merge.CheckPlan (integrateAllModifications)
+import Merge.CheckPlan (integrateAndCheckModifications)
 import Merge.PlanMerging
 import ThreeWayMerge (conflictErrorMsg, threeWayMerge)
 import Types
@@ -13,16 +13,16 @@ import Data.Aeson (encodeFile)
 writeExampleToFile :: FilePath -> IO ()
 writeExampleToFile filename = do
   let baseModificationEvolutionPlan =
-        constructModificationEP
-          . flattenEvolutionPlan
+        deriveSoundModifications
+          . flattenSoundEvolutionPlan
           $ baseEvolutionPlan
       v1ModificationEvolutionPlan =
-        constructModificationEP
-          . flattenEvolutionPlan
+        deriveSoundModifications
+          . flattenSoundEvolutionPlan
           $ v1EvolutionPlan
       v2ModificationEvolutionPlan =
-        constructModificationEP
-          . flattenEvolutionPlan
+        deriveSoundModifications
+          . flattenSoundEvolutionPlan
           $ v2EvolutionPlan
       mergePlan =
         createMergePlan
@@ -32,10 +32,10 @@ writeExampleToFile filename = do
       unifiedMergePlan =
         unifyMergePlan mergePlan
       checkedAndIntegratedPlan =
-        unifiedMergePlan >>= integrateAllModifications
+        unifiedMergePlan >>= integrateAndCheckModifications
       expectedEvolutionPlanTransformed =
-        constructModificationEP
-          . flattenEvolutionPlan
+        deriveSoundModifications
+          . flattenSoundEvolutionPlan
           $ expectedEvolutionPlan
       actualResult =
         threeWayMerge

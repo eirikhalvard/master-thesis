@@ -1,7 +1,7 @@
 module ThreeWayMerge where
 
-import Merge.ChangeDetection (constructModificationEP, flattenEvolutionPlan)
-import Merge.CheckPlan (integrateAllModifications, unflattenEvolutionPlan)
+import Merge.ChangeDetection (deriveSoundModifications, flattenSoundEvolutionPlan)
+import Merge.CheckPlan (integrateAndCheckModifications, unflattenSoundEvolutionPlan)
 import Merge.PlanMerging (createMergePlan, unifyMergePlan)
 import Types
 
@@ -10,28 +10,28 @@ threeWayMerge ::
   TreeUserEvolutionPlan ->
   TreeUserEvolutionPlan ->
   Either Conflict TreeUserEvolutionPlan
-threeWayMerge base v1 v2 =
-  unifyMergePlan mergePlan
-    >>= integrateAllModifications
-    >>= unflattenEvolutionPlan
-  where
-    mergePlan =
-      createMergePlan
-        (constructModificationEP . flattenEvolutionPlan $ base)
-        (constructModificationEP . flattenEvolutionPlan $ v1)
-        (constructModificationEP . flattenEvolutionPlan $ v2)
+threeWayMerge base v1 v2 = do
+  let mergePlan =
+        createMergePlan
+          (deriveSoundModifications . flattenSoundEvolutionPlan $ base)
+          (deriveSoundModifications . flattenSoundEvolutionPlan $ v1)
+          (deriveSoundModifications . flattenSoundEvolutionPlan $ v2)
+  mergedModificationPlan <- unifyMergePlan mergePlan
+  checkedUserFlatPlan <- integrateAndCheckModifications mergedModificationPlan
+  return $ unflattenSoundEvolutionPlan checkedUserFlatPlan
 
 threeWayMerge' ::
   FlatModificationEvolutionPlan ->
   FlatModificationEvolutionPlan ->
   FlatModificationEvolutionPlan ->
   Either Conflict TreeUserEvolutionPlan
-threeWayMerge' base v1 v2 =
-  unifyMergePlan mergePlan
-    >>= integrateAllModifications
-    >>= unflattenEvolutionPlan
-  where
-    mergePlan = createMergePlan base v1 v2
+threeWayMerge' base v1 v2 = do
+  let mergePlan = createMergePlan base v1 v2
+  mergedModificationPlan <- unifyMergePlan mergePlan
+  checkedUserFlatPlan <- integrateAndCheckModifications mergedModificationPlan
+  return $ unflattenSoundEvolutionPlan checkedUserFlatPlan
 
 conflictErrorMsg :: Conflict -> String
-conflictErrorMsg conflict = "Legit error messages not implemented:)"
+conflictErrorMsg conflict =
+  "Legit error messages not implemented:) Using the Show instance of the conflict:\n"
+    ++ show conflict

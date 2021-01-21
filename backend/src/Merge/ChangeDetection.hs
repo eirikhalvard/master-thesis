@@ -8,20 +8,18 @@ import qualified Data.Map as M
 import qualified Data.Map.Merge.Lazy as Merge
 
 ------------------------------------------------------------------------
---                       Flatten Evolution Plan                       --
+--                    Flatten Sound Evolution Plan                    --
 ------------------------------------------------------------------------
 
-flattenEvolutionPlan ::
-  TreeUserEvolutionPlan ->
-  FlatUserEvolutionPlan
-flattenEvolutionPlan =
+flattenSoundEvolutionPlan :: TreeUserEvolutionPlan -> FlatUserEvolutionPlan
+flattenSoundEvolutionPlan =
   L.timePoints
     . traversed
     . L.featureModel
-    %~ flattenFeatureModel
+    %~ flattenSoundFeatureModel
 
-flattenFeatureModel :: TreeFeatureModel -> FlatFeatureModel
-flattenFeatureModel fm =
+flattenSoundFeatureModel :: TreeFeatureModel -> FlatFeatureModel
+flattenSoundFeatureModel fm =
   FlatFeatureModel
     (fm ^. L.rootFeature . L.id)
     (M.fromList features)
@@ -36,13 +34,11 @@ flattenFeatureModel fm =
         <> foldMap (flattenFeature (Just id)) features
 
 ------------------------------------------------------------------------
---            Construct Modification  Evolution Plan             --
+--                     Derive Sound Modifications                     --
 ------------------------------------------------------------------------
 
-constructModificationEP ::
-  FlatUserEvolutionPlan ->
-  FlatModificationEvolutionPlan
-constructModificationEP (UserEvolutionPlan timePoints) = case timePoints of
+deriveSoundModifications :: FlatUserEvolutionPlan -> FlatModificationEvolutionPlan
+deriveSoundModifications (UserEvolutionPlan timePoints) = case timePoints of
   [] -> error "evolution plan has to have at least one time point!"
   ((TimePoint initialTime initialFM) : restTimePoints) ->
     TransformationEvolutionPlan

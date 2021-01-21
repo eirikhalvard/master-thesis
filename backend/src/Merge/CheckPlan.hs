@@ -13,10 +13,8 @@ import qualified Data.Set as S
 --                    Integrate All Modifications                     --
 ------------------------------------------------------------------------
 
-integrateAllModifications ::
-  FlatModificationEvolutionPlan ->
-  Either Conflict FlatUserEvolutionPlan
-integrateAllModifications evolutionPlan = case evolutionPlan of
+integrateAndCheckModifications :: FlatModificationEvolutionPlan -> Either Conflict FlatUserEvolutionPlan
+integrateAndCheckModifications evolutionPlan = case evolutionPlan of
   TransformationEvolutionPlan initialTime initialFM plans ->
     UserEvolutionPlan <$> scanEvolutionPlan plans (TimePoint initialTime initialFM)
 
@@ -277,31 +275,32 @@ groupInCycle visited groupId featureModel
 --                      Unflatten Evolution Plan                      --
 ------------------------------------------------------------------------
 
-unflattenEvolutionPlan ::
+unflattenSoundEvolutionPlan ::
   FlatUserEvolutionPlan ->
-  Either Conflict (UserEvolutionPlan TreeFeatureModel)
-unflattenEvolutionPlan =
+  TreeUserEvolutionPlan
+unflattenSoundEvolutionPlan =
   L.timePoints
     . traversed
-    %%~ unflattenTimePoint
+    %~ unflattenTimePoint
 
-unflattenTimePoint :: TimePoint FlatFeatureModel -> Either Conflict (TimePoint TreeFeatureModel)
+unflattenTimePoint :: TimePoint FlatFeatureModel -> TimePoint TreeFeatureModel
 unflattenTimePoint (TimePoint time featureModel) =
-  TimePoint time . TreeFeatureModel
-    <$> unflattenFeature featureModel (featureModel ^. L.rootId)
+  TimePoint time $
+    TreeFeatureModel $
+      unflattenFeature featureModel (featureModel ^. L.rootId)
 
-unflattenFeature :: FlatFeatureModel -> FeatureId -> Either Conflict TreeFeature
+unflattenFeature :: FlatFeatureModel -> FeatureId -> TreeFeature
 unflattenFeature featureModel featureId =
-  TreeFeature featureId featureType name <$> childGroupsM
+  TreeFeature featureId featureType name childGroups
   where
     childGroupIds = featureModel ^.. L.ichildGroupsOfFeature featureId . asIndex
-    childGroupsM = S.fromList <$> traverse (unflattenGroup featureModel) childGroupIds
+    childGroups = S.fromList $ fmap (unflattenGroup featureModel) childGroupIds
     (FlatFeature _ featureType name) = featureModel ^?! L.features . ix featureId
 
-unflattenGroup :: FlatFeatureModel -> GroupId -> Either Conflict TreeGroup
+unflattenGroup :: FlatFeatureModel -> GroupId -> TreeGroup
 unflattenGroup featureModel groupId =
-  TreeGroup groupId groupType <$> childFeaturesM
+  TreeGroup groupId groupType $ childFeatures
   where
     childFeatureIds = featureModel ^.. L.ichildFeaturesOfGroup groupId . asIndex
-    childFeaturesM = S.fromList <$> traverse (unflattenFeature featureModel) childFeatureIds
+    childFeatures = S.fromList $ fmap (unflattenFeature featureModel) childFeatureIds
     (FlatGroup _ groupType) = featureModel ^?! L.groups . ix groupId

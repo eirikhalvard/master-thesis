@@ -19,22 +19,18 @@ import Types
 class ConvertableInput input output where
   convertFrom :: input -> output
 
-integrateAllSoundModifications :: FlatModificationEvolutionPlan -> FlatUserEvolutionPlan
-integrateAllSoundModifications =
-  either (error . conflictErrorMsg) id . integrateAllModifications
-
-unflattenSoundEvolutionPlan :: FlatUserEvolutionPlan -> TreeUserEvolutionPlan
-unflattenSoundEvolutionPlan =
-  either (error . conflictErrorMsg) id . unflattenEvolutionPlan
+integrateSoundModifications :: FlatModificationEvolutionPlan -> FlatUserEvolutionPlan
+integrateSoundModifications =
+  either (error . conflictErrorMsg) id . integrateAndCheckModifications
 
 instance ConvertableInput TreeUserEvolutionPlan TreeUserEvolutionPlan where
   convertFrom = id
 
 instance ConvertableInput TreeUserEvolutionPlan FlatUserEvolutionPlan where
-  convertFrom = flattenEvolutionPlan
+  convertFrom = flattenSoundEvolutionPlan
 
 instance ConvertableInput TreeUserEvolutionPlan FlatModificationEvolutionPlan where
-  convertFrom = constructModificationEP . flattenEvolutionPlan
+  convertFrom = deriveSoundModifications . flattenSoundEvolutionPlan
 
 instance ConvertableInput FlatUserEvolutionPlan TreeUserEvolutionPlan where
   convertFrom = unflattenSoundEvolutionPlan
@@ -43,13 +39,13 @@ instance ConvertableInput FlatUserEvolutionPlan FlatUserEvolutionPlan where
   convertFrom = id
 
 instance ConvertableInput FlatUserEvolutionPlan FlatModificationEvolutionPlan where
-  convertFrom = constructModificationEP
+  convertFrom = deriveSoundModifications
 
 instance ConvertableInput FlatModificationEvolutionPlan TreeUserEvolutionPlan where
-  convertFrom = unflattenSoundEvolutionPlan . integrateAllSoundModifications
+  convertFrom = unflattenSoundEvolutionPlan . integrateSoundModifications
 
 instance ConvertableInput FlatModificationEvolutionPlan FlatUserEvolutionPlan where
-  convertFrom = integrateAllSoundModifications
+  convertFrom = integrateSoundModifications
 
 instance ConvertableInput FlatModificationEvolutionPlan FlatModificationEvolutionPlan where
   convertFrom = id
