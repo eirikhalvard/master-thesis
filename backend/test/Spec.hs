@@ -6,7 +6,6 @@ import qualified Lenses as L
 import qualified Merge.ChangeDetection as ChangeDetection
 import qualified Merge.CheckPlan as CheckPlan
 import qualified Merge.PlanMerging as PlanMerging
-import Merge.Types
 import Test.Hspec
 import ThreeWayMerge (threeWayMerge)
 import Types

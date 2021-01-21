@@ -273,3 +273,130 @@ data MergeArtifact evolutionPlan = MergeArtifact
   , _v2 :: evolutionPlan
   }
   deriving (Show, Eq, Read, Generic, Functor)
+
+data ExampleResult = ExampleResult
+  { base :: ModificationEvolutionPlan FlatFeatureModel
+  , v1 :: ModificationEvolutionPlan FlatFeatureModel
+  , v2 :: ModificationEvolutionPlan FlatFeatureModel
+  , expected :: Either Conflict (UserEvolutionPlan TreeFeatureModel)
+  }
+
+------------------------------------------------------------------------
+--                   Merge Result And Json Encoding                   --
+------------------------------------------------------------------------
+
+data MergeExamples = MergeExamples
+  { _examples :: [MergeResult]
+  }
+  deriving (Show, Eq, Read, Generic)
+
+data MergeResult = MergeResult
+  { _name :: String
+  , _evolutionPlans :: [NamedEvolutionPlan]
+  }
+  deriving (Show, Eq, Read, Generic)
+
+data NamedEvolutionPlan = NamedEvolutionPlan
+  { _name :: String
+  , _mergeData :: MergeData
+  }
+  deriving (Show, Eq, Read, Generic)
+
+data MergeData
+  = EvolutionPlanResult (UserEvolutionPlan TreeFeatureModel)
+  | ConflictResult String
+  deriving (Show, Eq, Read, Generic)
+
+customAesonOptions :: Options
+customAesonOptions = defaultOptions{fieldLabelModifier = tail}
+
+instance ToJSON MergeResult where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON NamedEvolutionPlan where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON MergeData where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON (UserEvolutionPlan TreeFeatureModel) where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON (TimePoint TreeFeatureModel) where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON TreeFeatureModel where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON TreeFeature where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON TreeGroup where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON FeatureType where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON GroupType where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON evolutionPlan => ToJSON (MergeArtifact evolutionPlan) where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+------------------------------------------------------------------------
+--                              Conflict                              --
+------------------------------------------------------------------------
+
+data Conflict
+  = Merge Time MergeConflict
+  | Local Time LocalConflict
+  | Global Time GlobalConflict
+  | Panic Time String
+  deriving (Show, Eq)
+
+data MergeConflict
+  = FeatureConflict (BothChange FeatureModification)
+  | GroupConflict (BothChange GroupModification)
+  deriving (Show, Eq)
+
+data LocalConflict
+  = FeatureAlreadyExists FeatureModification FeatureId
+  | FeatureNotExists FeatureModification FeatureId
+  | GroupAlreadyExists GroupModification GroupId
+  | GroupNotExists GroupModification GroupId
+  deriving (Show, Eq)
+
+data GlobalConflict
+  = FailedDependencies [Dependency]
+  deriving (Show, Eq)
+
+data Dependency
+  = FeatureDependency FeatureModification FeatureDependencyType
+  | GroupDependency GroupModification GroupDependencyType
+  deriving (Show, Eq)
+
+data FeatureDependencyType
+  = NoChildGroups FeatureId
+  | ParentGroupExists GroupId
+  | NoCycleFromFeature FeatureId
+  | FeatureIsWellFormed FeatureId
+  | UniqueName String
+  deriving (Show, Eq)
+
+data GroupDependencyType
+  = NoChildFeatures GroupId
+  | ParentFeatureExists FeatureId
+  | NoCycleFromGroup GroupId
+  | GroupIsWellFormed GroupId
+  deriving (Show, Eq)

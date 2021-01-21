@@ -1,7 +1,3 @@
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE FlexibleInstances #-}
-
 module SerializeOutput where
 
 import Examples.MergeConflictExample
@@ -9,85 +5,10 @@ import Examples.SoundExample
 import Merge.ChangeDetection
 import Merge.CheckPlan (integrateAllModifications)
 import Merge.PlanMerging
-import Merge.Types
 import ThreeWayMerge (conflictErrorMsg, threeWayMerge)
 import Types
 
-import Data.Aeson
-import GHC.Generics
-
-------------------------------------------------------------------------
---                   Merge Result And Json Encoding                   --
-------------------------------------------------------------------------
-
-data MergeExamples = MergeExamples
-  { _examples :: [MergeResult]
-  }
-  deriving (Show, Eq, Read, Generic)
-
-data MergeResult = MergeResult
-  { _name :: String
-  , _evolutionPlans :: [NamedEvolutionPlan]
-  }
-  deriving (Show, Eq, Read, Generic)
-
-data NamedEvolutionPlan = NamedEvolutionPlan
-  { _name :: String
-  , _mergeData :: MergeData
-  }
-  deriving (Show, Eq, Read, Generic)
-
-data MergeData
-  = EvolutionPlanResult (UserEvolutionPlan TreeFeatureModel)
-  | ConflictResult String
-  deriving (Show, Eq, Read, Generic)
-
-customAesonOptions :: Options
-customAesonOptions = defaultOptions{fieldLabelModifier = tail}
-
-instance ToJSON MergeResult where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON NamedEvolutionPlan where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON MergeData where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON (UserEvolutionPlan TreeFeatureModel) where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON (TimePoint TreeFeatureModel) where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON TreeFeatureModel where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON TreeFeature where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON TreeGroup where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON FeatureType where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON GroupType where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON evolutionPlan => ToJSON (MergeArtifact evolutionPlan) where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
+import Data.Aeson (encodeFile)
 
 writeExampleToFile :: FilePath -> IO ()
 writeExampleToFile filename = do

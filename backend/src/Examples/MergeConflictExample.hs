@@ -3,7 +3,6 @@ module Examples.MergeConflictExample where
 import Control.Lens
 import Examples.SoundExample
 import qualified Lenses as L
-import Merge.Types
 import Text.Pretty.Simple
 import ThreeWayMerge
 import Types
@@ -19,13 +18,6 @@ import Types
 --   = FeatureConflict (BothChange FeatureModification)
 --   | GroupConflict (BothChange GroupModification)
 --   deriving (Show, Eq)
-
-data ExampleResult = ExampleResult
-  { base :: ModificationEvolutionPlan FlatFeatureModel
-  , v1 :: ModificationEvolutionPlan FlatFeatureModel
-  , v2 :: ModificationEvolutionPlan FlatFeatureModel
-  , expected :: Either Conflict (UserEvolutionPlan TreeFeatureModel)
-  }
 
 multipleAdd :: ExampleResult
 multipleAdd =

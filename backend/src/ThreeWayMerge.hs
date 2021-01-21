@@ -3,7 +3,6 @@ module ThreeWayMerge where
 import Merge.ChangeDetection (constructModificationEP, flattenEvolutionPlan)
 import Merge.CheckPlan (integrateAllModifications, unflattenEvolutionPlan)
 import Merge.PlanMerging (createMergePlan, unifyMergePlan)
-import Merge.Types
 import Types
 
 threeWayMerge ::

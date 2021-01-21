@@ -1,7 +1,6 @@
 module Merge.PlanMerging where
 
 import qualified Lenses as L
-import Merge.Types
 import Types
 
 import Control.Lens
