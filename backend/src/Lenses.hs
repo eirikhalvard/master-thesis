@@ -55,8 +55,7 @@ makePrisms ''RemovedOrChangedModification
 makeFieldsNoPrefix ''AddedModification
 makePrisms ''Version
 
-makeFieldsNoPrefix ''MergeEvolutionPlan
-makeFieldsNoPrefix ''MergeResult
+makeFieldsNoPrefix ''MergeArtifact
 
 -- --- Optic helpers
 

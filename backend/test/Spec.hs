@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedLists #-}
 
 import Control.Lens
-import Example
+import Examples.SoundExample
 import qualified Lenses as L
 import qualified Merge.ChangeDetection as ChangeDetection
 import qualified Merge.CheckPlan as CheckPlan
@@ -87,6 +87,21 @@ main = hspec $ do
                   ]
               )
           )
+
+  describe "Change Detection" $
+    it "flattens and constructs modification levle correctly fro sound example" $ do
+      ChangeDetection.constructModificationLevelEP
+        (ChangeDetection.flattenEvolutionPlan baseEvolutionPlan)
+        `shouldBe` baseConstructedEvolutionPlan
+      ChangeDetection.constructModificationLevelEP
+        (ChangeDetection.flattenEvolutionPlan v1EvolutionPlan)
+        `shouldBe` v1ConstructedEvolutionPlan
+      ChangeDetection.constructModificationLevelEP
+        (ChangeDetection.flattenEvolutionPlan v2EvolutionPlan)
+        `shouldBe` v2ConstructedEvolutionPlan
+      ChangeDetection.constructModificationLevelEP
+        (ChangeDetection.flattenEvolutionPlan expectedEvolutionPlan)
+        `shouldBe` expectedConstructedEvolutionPlan
   describe "Plan Merging" $ do
     it "result of example merge is equal to expected result" $ do
       Right expectedEvolutionPlanTransformed `shouldBe` unifiedMergePlan

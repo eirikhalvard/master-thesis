@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE FlexibleContexts #-}
@@ -339,56 +340,14 @@ data Version
   | V2
   deriving (Show, Eq, Read)
 
---------------------
---  Merge Result  --
---------------------
+------------------------------------------------------------------------
+--                           Merge Artifact                           --
+------------------------------------------------------------------------
 
-data MergeResult = MergeResult
-  { _evolutionPlans :: [MergeEvolutionPlan]
-  }
-  deriving (Show, Eq, Read, Generic)
-
-data MergeEvolutionPlan = MergeEvolutionPlan
+data MergeArtifact evolutionPlan = MergeArtifact
   { _name :: String
-  , _evolutionPlan :: AbstractedLevelEvolutionPlan FeatureModel
+  , _base :: evolutionPlan
+  , _v1 :: evolutionPlan
+  , _v2 :: evolutionPlan
   }
-  deriving (Show, Eq, Read, Generic)
-
--- customAesonOptions :: _
-customAesonOptions = defaultOptions{fieldLabelModifier = tail}
-
-instance ToJSON MergeResult where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON MergeEvolutionPlan where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON (AbstractedLevelEvolutionPlan FeatureModel) where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON (TimePoint FeatureModel) where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON FeatureModel where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON Feature where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON Group where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON FeatureType where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON GroupType where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
+  deriving (Show, Eq, Read, Generic, Functor)
