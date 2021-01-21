@@ -21,10 +21,10 @@ import Types
 --   deriving (Show, Eq)
 
 data ExampleResult = ExampleResult
-  { base :: ModificationLevelEvolutionPlan FeatureModel'
-  , v1 :: ModificationLevelEvolutionPlan FeatureModel'
-  , v2 :: ModificationLevelEvolutionPlan FeatureModel'
-  , expected :: Either Conflict (AbstractedLevelEvolutionPlan FeatureModel)
+  { base :: ModificationLevelEvolutionPlan FlatFeatureModel
+  , v1 :: ModificationLevelEvolutionPlan FlatFeatureModel
+  , v2 :: ModificationLevelEvolutionPlan FlatFeatureModel
+  , expected :: Either Conflict (AbstractedLevelEvolutionPlan TreeFeatureModel)
   }
 
 multipleAdd :: ExampleResult

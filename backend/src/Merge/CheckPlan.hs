@@ -15,14 +15,14 @@ import qualified Data.Set as S
 ------------------------------------------------------------------------
 
 integrateAllModifications ::
-  ModificationLevelEvolutionPlan FeatureModel' ->
-  Either Conflict (AbstractedLevelEvolutionPlan FeatureModel')
+  ModificationLevelEvolutionPlan FlatFeatureModel ->
+  Either Conflict (AbstractedLevelEvolutionPlan FlatFeatureModel)
 integrateAllModifications evolutionPlan = case evolutionPlan of
   TransformationEvolutionPlan initialTime initialFM plans ->
     AbstractedLevelEvolutionPlan <$> scanEvolutionPlan plans (TimePoint initialTime initialFM)
 
 scanEvolutionPlan ::
-  [Plan Modifications] -> TimePoint FeatureModel' -> Either Conflict [TimePoint FeatureModel']
+  [Plan Modifications] -> TimePoint FlatFeatureModel -> Either Conflict [TimePoint FlatFeatureModel]
 scanEvolutionPlan [] timePoint =
   return [timePoint]
 scanEvolutionPlan (plan : plans) currentTimePoint = do
@@ -33,8 +33,8 @@ scanEvolutionPlan (plan : plans) currentTimePoint = do
 
 integrateSinglePlan ::
   Plan Modifications ->
-  TimePoint FeatureModel' ->
-  WriterT [Dependency] (Either Conflict) (TimePoint FeatureModel')
+  TimePoint FlatFeatureModel ->
+  WriterT [Dependency] (Either Conflict) (TimePoint FlatFeatureModel)
 integrateSinglePlan (Plan nextTime modifications) (TimePoint prevTime featureModel) =
   TimePoint nextTime <$> newFeatureModel
   where
@@ -45,9 +45,9 @@ integrateSinglePlan (Plan nextTime modifications) (TimePoint prevTime featureMod
 integrateFeature ::
   Time ->
   FeatureId ->
-  FeatureModel' ->
+  FlatFeatureModel ->
   FeatureModification ->
-  WriterT [Dependency] (Either Conflict) FeatureModel'
+  WriterT [Dependency] (Either Conflict) FlatFeatureModel
 integrateFeature time featureId fm featureModification =
   case featureModification of
     FeatureAdd parentGroupId featureType name ->
@@ -58,7 +58,7 @@ integrateFeature time featureId fm featureModification =
             , UniqueName name
             , FeatureIsWellFormed featureId
             ]
-          return $ fm & L.features . at featureId ?~ Feature' (Just parentGroupId) featureType name
+          return $ fm & L.features . at featureId ?~ FlatFeature (Just parentGroupId) featureType name
         Just oldFeature ->
           throwError $ Local time (FeatureAlreadyExists featureModification featureId)
     FeatureRemove ->
@@ -80,7 +80,7 @@ integrateFeature time featureId fm featureModification =
           throwError $
             Local time (FeatureNotExists featureModification featureId)
       where
-        integrateParentMod :: FeatureModel' -> WriterT [Dependency] (Either Conflict) FeatureModel'
+        integrateParentMod :: FlatFeatureModel -> WriterT [Dependency] (Either Conflict) FlatFeatureModel
         integrateParentMod fm =
           case parentGroupIdMod of
             Nothing -> return fm
@@ -92,7 +92,7 @@ integrateFeature time featureId fm featureModification =
                 ]
               return $ fm & L.features . ix featureId . L.parentGroupId .~ Just newValue
 
-        integrateTypeMod :: FeatureModel' -> WriterT [Dependency] (Either Conflict) FeatureModel'
+        integrateTypeMod :: FlatFeatureModel -> WriterT [Dependency] (Either Conflict) FlatFeatureModel
         integrateTypeMod fm =
           case featureTypeMod of
             Nothing -> return fm
@@ -101,7 +101,7 @@ integrateFeature time featureId fm featureModification =
                 [FeatureIsWellFormed featureId]
               return $ fm & L.features . ix featureId . L.featureType .~ newValue
 
-        integrateNameMod :: FeatureModel' -> WriterT [Dependency] (Either Conflict) FeatureModel'
+        integrateNameMod :: FlatFeatureModel -> WriterT [Dependency] (Either Conflict) FlatFeatureModel
         integrateNameMod fm =
           case nameMod of
             Nothing -> return fm
@@ -113,9 +113,9 @@ integrateFeature time featureId fm featureModification =
 integrateGroup ::
   Time ->
   GroupId ->
-  FeatureModel' ->
+  FlatFeatureModel ->
   GroupModification ->
-  WriterT [Dependency] (Either Conflict) FeatureModel'
+  WriterT [Dependency] (Either Conflict) FlatFeatureModel
 integrateGroup time groupId fm groupModification =
   case groupModification of
     GroupAdd parentFeatureId groupType ->
@@ -124,7 +124,7 @@ integrateGroup time groupId fm groupModification =
           tell . fmap (GroupDependency groupModification) $
             [ ParentFeatureExists parentFeatureId
             ]
-          return $ fm & L.groups . at groupId ?~ Group' parentFeatureId groupType
+          return $ fm & L.groups . at groupId ?~ FlatGroup parentFeatureId groupType
         Just oldGroup ->
           throwError $ Local time (GroupAlreadyExists groupModification groupId)
     GroupRemove ->
@@ -145,7 +145,7 @@ integrateGroup time groupId fm groupModification =
           throwError $
             Local time (GroupNotExists groupModification groupId)
       where
-        integrateParentMod :: FeatureModel' -> WriterT [Dependency] (Either Conflict) FeatureModel'
+        integrateParentMod :: FlatFeatureModel -> WriterT [Dependency] (Either Conflict) FlatFeatureModel
         integrateParentMod fm =
           case parentFeatureIdMod of
             Nothing -> return fm
@@ -156,7 +156,7 @@ integrateGroup time groupId fm groupModification =
                 ]
               return $ fm & L.groups . ix groupId . L.parentFeatureId .~ newValue
 
-        integrateTypeMod :: FeatureModel' -> WriterT [Dependency] (Either Conflict) FeatureModel'
+        integrateTypeMod :: FlatFeatureModel -> WriterT [Dependency] (Either Conflict) FlatFeatureModel
         integrateTypeMod fm =
           case groupTypeMod of
             Nothing -> return fm
@@ -167,8 +167,8 @@ integrateGroup time groupId fm groupModification =
 
 checkGlobalConflict ::
   [Dependency] ->
-  TimePoint FeatureModel' ->
-  Either Conflict (TimePoint FeatureModel')
+  TimePoint FlatFeatureModel ->
+  Either Conflict (TimePoint FlatFeatureModel)
 checkGlobalConflict dependencies tp@(TimePoint time featureModel) =
   errorIfFailed . filter (not . checkDependency) $ dependencies
   where
@@ -238,7 +238,7 @@ checkGlobalConflict dependencies tp@(TimePoint time featureModel) =
 featureInCycle ::
   S.Set (Either FeatureId GroupId) ->
   FeatureId ->
-  FeatureModel' ->
+  FlatFeatureModel ->
   Bool
 featureInCycle visited featureId featureModel
   | Left featureId `elem` visited = True
@@ -258,7 +258,7 @@ featureInCycle visited featureId featureModel
 groupInCycle ::
   S.Set (Either FeatureId GroupId) ->
   GroupId ->
-  FeatureModel' ->
+  FlatFeatureModel ->
   Bool
 groupInCycle visited groupId featureModel
   | Right groupId `elem` visited = True
@@ -279,30 +279,30 @@ groupInCycle visited groupId featureModel
 ------------------------------------------------------------------------
 
 unflattenEvolutionPlan ::
-  AbstractedLevelEvolutionPlan FeatureModel' ->
-  Either Conflict (AbstractedLevelEvolutionPlan FeatureModel)
+  AbstractedLevelEvolutionPlan FlatFeatureModel ->
+  Either Conflict (AbstractedLevelEvolutionPlan TreeFeatureModel)
 unflattenEvolutionPlan =
   L.timePoints
     . traversed
     %%~ unflattenTimePoint
 
-unflattenTimePoint :: TimePoint FeatureModel' -> Either Conflict (TimePoint FeatureModel)
+unflattenTimePoint :: TimePoint FlatFeatureModel -> Either Conflict (TimePoint TreeFeatureModel)
 unflattenTimePoint (TimePoint time featureModel) =
-  TimePoint time . FeatureModel
+  TimePoint time . TreeFeatureModel
     <$> unflattenFeature featureModel (featureModel ^. L.rootId)
 
-unflattenFeature :: FeatureModel' -> FeatureId -> Either Conflict Feature
+unflattenFeature :: FlatFeatureModel -> FeatureId -> Either Conflict TreeFeature
 unflattenFeature featureModel featureId =
-  Feature featureId featureType name <$> childGroupsM
+  TreeFeature featureId featureType name <$> childGroupsM
   where
     childGroupIds = featureModel ^.. L.ichildGroupsOfFeature featureId . asIndex
     childGroupsM = S.fromList <$> traverse (unflattenGroup featureModel) childGroupIds
-    (Feature' _ featureType name) = featureModel ^?! L.features . ix featureId
+    (FlatFeature _ featureType name) = featureModel ^?! L.features . ix featureId
 
-unflattenGroup :: FeatureModel' -> GroupId -> Either Conflict Group
+unflattenGroup :: FlatFeatureModel -> GroupId -> Either Conflict TreeGroup
 unflattenGroup featureModel groupId =
-  Group groupId groupType <$> childFeaturesM
+  TreeGroup groupId groupType <$> childFeaturesM
   where
     childFeatureIds = featureModel ^.. L.ichildFeaturesOfGroup groupId . asIndex
     childFeaturesM = S.fromList <$> traverse (unflattenFeature featureModel) childFeatureIds
-    (Group' _ groupType) = featureModel ^?! L.groups . ix groupId
+    (FlatGroup _ groupType) = featureModel ^?! L.groups . ix groupId

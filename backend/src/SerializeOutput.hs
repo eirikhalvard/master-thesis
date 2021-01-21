@@ -38,7 +38,7 @@ data MergeEvolutionPlan = MergeEvolutionPlan
   deriving (Show, Eq, Read, Generic)
 
 data MergeData
-  = EvolutionPlanResult (AbstractedLevelEvolutionPlan FeatureModel)
+  = EvolutionPlanResult (AbstractedLevelEvolutionPlan TreeFeatureModel)
   | ConflictResult String
   deriving (Show, Eq, Read, Generic)
 
@@ -57,23 +57,23 @@ instance ToJSON MergeData where
   toJSON = genericToJSON customAesonOptions
   toEncoding = genericToEncoding customAesonOptions
 
-instance ToJSON (AbstractedLevelEvolutionPlan FeatureModel) where
+instance ToJSON (AbstractedLevelEvolutionPlan TreeFeatureModel) where
   toJSON = genericToJSON customAesonOptions
   toEncoding = genericToEncoding customAesonOptions
 
-instance ToJSON (TimePoint FeatureModel) where
+instance ToJSON (TimePoint TreeFeatureModel) where
   toJSON = genericToJSON customAesonOptions
   toEncoding = genericToEncoding customAesonOptions
 
-instance ToJSON FeatureModel where
+instance ToJSON TreeFeatureModel where
   toJSON = genericToJSON customAesonOptions
   toEncoding = genericToEncoding customAesonOptions
 
-instance ToJSON Feature where
+instance ToJSON TreeFeature where
   toJSON = genericToJSON customAesonOptions
   toEncoding = genericToEncoding customAesonOptions
 
-instance ToJSON Group where
+instance ToJSON TreeGroup where
   toJSON = genericToJSON customAesonOptions
   toEncoding = genericToEncoding customAesonOptions
 

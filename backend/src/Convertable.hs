@@ -8,10 +8,6 @@ import Merge.CheckPlan
 import ThreeWayMerge
 import Types
 
-type UserTree = AbstractedLevelEvolutionPlan FeatureModel
-type UserFlat = AbstractedLevelEvolutionPlan FeatureModel'
-type ModFlat = ModificationLevelEvolutionPlan FeatureModel'
-
 -- defines all combinations to convert between UserTree <-> UserFlat <-> ModFlat
 
 -- Defines a convertion between different evolution plans

@@ -13,10 +13,10 @@ import qualified Data.Map.Merge.Lazy as Merge
 ------------------------------------------------------------------------
 
 createMergePlan ::
-  ModificationLevelEvolutionPlan FeatureModel' ->
-  ModificationLevelEvolutionPlan FeatureModel' ->
-  ModificationLevelEvolutionPlan FeatureModel' ->
-  MergeLevelEvolutionPlan FeatureModel'
+  ModificationLevelEvolutionPlan FlatFeatureModel ->
+  ModificationLevelEvolutionPlan FlatFeatureModel ->
+  ModificationLevelEvolutionPlan FlatFeatureModel ->
+  MergeLevelEvolutionPlan FlatFeatureModel
 createMergePlan base v1 v2 =
   base & L.plans
     %~ \basePlans -> mergePlans basePlans (v1 ^. L.plans) (v2 ^. L.plans)
@@ -173,8 +173,8 @@ mergeDerived =
 ------------------------------------------------------------------------
 
 unifyMergePlan ::
-  MergeLevelEvolutionPlan FeatureModel' ->
-  Either Conflict (ModificationLevelEvolutionPlan FeatureModel')
+  MergeLevelEvolutionPlan FlatFeatureModel ->
+  Either Conflict (ModificationLevelEvolutionPlan FlatFeatureModel)
 unifyMergePlan =
   L.plans . traversed %%~ unifyTimePointResult
 

@@ -23,43 +23,43 @@ type GroupId = String
 
 --- Tree Structured Feature Model ---
 
-data FeatureModel = FeatureModel
-  { _rootFeature :: Feature
+data TreeFeatureModel = TreeFeatureModel
+  { _rootFeature :: TreeFeature
   }
   deriving (Show, Eq, Read, Generic)
 
-data Feature = Feature
+data TreeFeature = TreeFeature
   { _id :: FeatureId
   , _featureType :: FeatureType
   , _name :: String
-  , _groups :: S.Set Group
+  , _groups :: S.Set TreeGroup
   }
   deriving (Show, Eq, Read, Ord, Generic)
 
-data Group = Group
+data TreeGroup = TreeGroup
   { _id :: GroupId
   , _groupType :: GroupType
-  , _features :: S.Set Feature
+  , _features :: S.Set TreeFeature
   }
   deriving (Show, Eq, Read, Ord, Generic)
 
 --- Flat Structured Feature Model ---
 
-data FeatureModel' = FeatureModel'
+data FlatFeatureModel = FlatFeatureModel
   { _rootId :: FeatureId
-  , _features :: M.Map FeatureId Feature'
-  , _groups :: M.Map GroupId Group'
+  , _features :: M.Map FeatureId FlatFeature
+  , _groups :: M.Map GroupId FlatGroup
   }
   deriving (Show, Eq, Read)
 
-data Feature' = Feature'
+data FlatFeature = FlatFeature
   { _parentGroupId :: Maybe GroupId
   , _featureType :: FeatureType
   , _name :: String
   }
   deriving (Show, Eq, Read)
 
-data Group' = Group'
+data FlatGroup = FlatGroup
   { _parentFeatureId :: FeatureId
   , _groupType :: GroupType
   }
@@ -114,6 +114,12 @@ data GroupType
 --        version 2. In this representation, a feature might be planned to be
 --        changed, added or removed in several versions, which this
 --        representation encodes.
+
+type UserTree = AbstractedLevelEvolutionPlan TreeFeatureModel
+
+type UserFlat = AbstractedLevelEvolutionPlan FlatFeatureModel
+
+type ModFlat = ModificationLevelEvolutionPlan FlatFeatureModel
 
 type Time = Int
 

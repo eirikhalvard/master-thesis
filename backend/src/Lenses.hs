@@ -9,15 +9,14 @@
 module Lenses where
 
 import Control.Lens
-import qualified Data.Map as M
 import Types
 
-makeFieldsNoPrefix ''FeatureModel
-makeFieldsNoPrefix ''Feature
-makeFieldsNoPrefix ''Group
-makeFieldsNoPrefix ''FeatureModel'
-makeFieldsNoPrefix ''Feature'
-makeFieldsNoPrefix ''Group'
+makeFieldsNoPrefix ''TreeFeatureModel
+makeFieldsNoPrefix ''TreeFeature
+makeFieldsNoPrefix ''TreeGroup
+makeFieldsNoPrefix ''FlatFeatureModel
+makeFieldsNoPrefix ''FlatFeature
+makeFieldsNoPrefix ''FlatGroup
 makePrisms ''FeatureType
 makePrisms ''GroupType
 
@@ -59,7 +58,7 @@ makeFieldsNoPrefix ''MergeArtifact
 
 -- --- Optic helpers
 
-parentGroupOfFeature :: FeatureId -> Traversal' FeatureModel' Group'
+parentGroupOfFeature :: FeatureId -> Traversal' FlatFeatureModel FlatGroup
 parentGroupOfFeature fid handler fm =
   case fm ^? features . ix fid . parentGroupId . _Just of
     Nothing -> pure fm
@@ -69,7 +68,7 @@ parentGroupOfFeature fid handler fm =
         handler
         fm
 
-parentFeatureOfGroup :: GroupId -> Traversal' FeatureModel' Feature'
+parentFeatureOfGroup :: GroupId -> Traversal' FlatFeatureModel FlatFeature
 parentFeatureOfGroup gid handler fm =
   case fm ^? groups . ix gid . parentFeatureId of
     Nothing -> pure fm
@@ -79,18 +78,18 @@ parentFeatureOfGroup gid handler fm =
         handler
         fm
 
-childGroupsOfFeature :: FeatureId -> Traversal' FeatureModel' Group'
+childGroupsOfFeature :: FeatureId -> Traversal' FlatFeatureModel FlatGroup
 childGroupsOfFeature fid =
   groups . traversed . filtered ((fid ==) . view parentFeatureId)
 
-ichildGroupsOfFeature :: FeatureId -> IndexedTraversal' GroupId FeatureModel' Group'
+ichildGroupsOfFeature :: FeatureId -> IndexedTraversal' GroupId FlatFeatureModel FlatGroup
 ichildGroupsOfFeature fid =
   groups . itraversed . filtered ((fid ==) . view parentFeatureId)
 
-childFeaturesOfGroup :: GroupId -> Traversal' FeatureModel' Feature'
+childFeaturesOfGroup :: GroupId -> Traversal' FlatFeatureModel FlatFeature
 childFeaturesOfGroup gid =
   features . traversed . filtered ((Just gid ==) . view parentGroupId)
 
-ichildFeaturesOfGroup :: GroupId -> IndexedTraversal' FeatureId FeatureModel' Feature'
+ichildFeaturesOfGroup :: GroupId -> IndexedTraversal' FeatureId FlatFeatureModel FlatFeature
 ichildFeaturesOfGroup gid =
   features . itraversed . filtered ((Just gid ==) . view parentGroupId)
