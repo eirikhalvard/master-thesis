@@ -33,3 +33,6 @@ threeWayMerge' base v1 v2 =
     >>= unflattenEvolutionPlan
   where
     mergePlan = createMergePlan base v1 v2
+
+conflictErrorMsg :: Conflict -> String
+conflictErrorMsg conflict = "Legit error messages not implemented:)"
