@@ -27,18 +27,18 @@ data MergeExamples = MergeExamples
 
 data MergeResult = MergeResult
   { _name :: String
-  , _evolutionPlans :: [MergeEvolutionPlan]
+  , _evolutionPlans :: [NamedEvolutionPlan]
   }
   deriving (Show, Eq, Read, Generic)
 
-data MergeEvolutionPlan = MergeEvolutionPlan
+data NamedEvolutionPlan = NamedEvolutionPlan
   { _name :: String
   , _mergeData :: MergeData
   }
   deriving (Show, Eq, Read, Generic)
 
 data MergeData
-  = EvolutionPlanResult (UserLevelEvolutionPlan TreeFeatureModel)
+  = EvolutionPlanResult (UserEvolutionPlan TreeFeatureModel)
   | ConflictResult String
   deriving (Show, Eq, Read, Generic)
 
@@ -49,7 +49,7 @@ instance ToJSON MergeResult where
   toJSON = genericToJSON customAesonOptions
   toEncoding = genericToEncoding customAesonOptions
 
-instance ToJSON MergeEvolutionPlan where
+instance ToJSON NamedEvolutionPlan where
   toJSON = genericToJSON customAesonOptions
   toEncoding = genericToEncoding customAesonOptions
 
@@ -57,7 +57,7 @@ instance ToJSON MergeData where
   toJSON = genericToJSON customAesonOptions
   toEncoding = genericToEncoding customAesonOptions
 
-instance ToJSON (UserLevelEvolutionPlan TreeFeatureModel) where
+instance ToJSON (UserEvolutionPlan TreeFeatureModel) where
   toJSON = genericToJSON customAesonOptions
   toEncoding = genericToEncoding customAesonOptions
 
@@ -92,15 +92,15 @@ instance ToJSON evolutionPlan => ToJSON (MergeArtifact evolutionPlan) where
 writeExampleToFile :: FilePath -> IO ()
 writeExampleToFile filename = do
   let baseModificationEvolutionPlan =
-        constructModificationLevelEP
+        constructModificationEP
           . flattenEvolutionPlan
           $ baseEvolutionPlan
       v1ModificationEvolutionPlan =
-        constructModificationLevelEP
+        constructModificationEP
           . flattenEvolutionPlan
           $ v1EvolutionPlan
       v2ModificationEvolutionPlan =
-        constructModificationLevelEP
+        constructModificationEP
           . flattenEvolutionPlan
           $ v2EvolutionPlan
       mergePlan =
@@ -113,7 +113,7 @@ writeExampleToFile filename = do
       checkedAndIntegratedPlan =
         unifiedMergePlan >>= integrateAllModifications
       expectedEvolutionPlanTransformed =
-        constructModificationLevelEP
+        constructModificationEP
           . flattenEvolutionPlan
           $ expectedEvolutionPlan
       actualResult =
@@ -126,11 +126,11 @@ writeExampleToFile filename = do
   encodeFile filename $
     MergeResult
       "Sound Example"
-      [ MergeEvolutionPlan "Base" $ EvolutionPlanResult baseEvolutionPlan
-      , MergeEvolutionPlan "Version 1" $ EvolutionPlanResult v1EvolutionPlan
-      , MergeEvolutionPlan "Version 2" $ EvolutionPlanResult v2EvolutionPlan
-      , MergeEvolutionPlan "Expected" $ EvolutionPlanResult expectedEvolutionPlan
-      , MergeEvolutionPlan "Actual" $
+      [ NamedEvolutionPlan "Base" $ EvolutionPlanResult baseEvolutionPlan
+      , NamedEvolutionPlan "Version 1" $ EvolutionPlanResult v1EvolutionPlan
+      , NamedEvolutionPlan "Version 2" $ EvolutionPlanResult v2EvolutionPlan
+      , NamedEvolutionPlan "Expected" $ EvolutionPlanResult expectedEvolutionPlan
+      , NamedEvolutionPlan "Actual" $
           either
             (ConflictResult . conflictErrorMsg)
             EvolutionPlanResult

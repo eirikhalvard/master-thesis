@@ -96,13 +96,13 @@ data GroupType
 --      point. We define two different types of transformations, namely
 --      Modification level and merge level modifications.
 --
---      Modification Level Transformation:
+--      Modification  Transformation:
 --        Represents the transformation as a set of modifications. This
 --        representation guarantees that each there are no conflicting
 --        modifications, i.e. moving a feature twice. This allows for merging
 --        the modifications in an arbitrary ordering, since no modifications
 --        shadow others, etc.
---      Merge Level Transformation:
+--      Merge  Transformation:
 --        The merge level transformation represents the "planned"
 --        transformations from both versions in the merge. The transformation
 --        is essentially the union of the modifications of version 1 and
@@ -110,15 +110,15 @@ data GroupType
 --        changed, added or removed in several versions, which this
 --        representation encodes.
 
-type UserTree = UserLevelEvolutionPlan TreeFeatureModel
+type UserTree = UserEvolutionPlan TreeFeatureModel
 
-type UserFlat = UserLevelEvolutionPlan FlatFeatureModel
+type UserFlat = UserEvolutionPlan FlatFeatureModel
 
-type ModFlat = ModificationLevelEvolutionPlan FlatFeatureModel
+type ModFlat = ModificationEvolutionPlan FlatFeatureModel
 
 type Time = Int
 
-data UserLevelEvolutionPlan featureModel = UserLevelEvolutionPlan
+data UserEvolutionPlan featureModel = UserEvolutionPlan
   { _timePoints :: [TimePoint featureModel]
   }
   deriving (Show, Eq, Read, Generic)
@@ -142,9 +142,9 @@ data Plan transformation = Plan
   }
   deriving (Show, Eq, Read)
 
-type ModificationLevelEvolutionPlan featureModel = TransformationEvolutionPlan Modifications featureModel
+type ModificationEvolutionPlan featureModel = TransformationEvolutionPlan Modifications featureModel
 
-type MergeLevelEvolutionPlan featureModel = TransformationEvolutionPlan DiffResult featureModel
+type MergeEvolutionPlan featureModel = TransformationEvolutionPlan DiffResult featureModel
 
 ----------------------------
 --  TRANSFORMATION TYPES  --

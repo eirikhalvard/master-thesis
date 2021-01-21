@@ -36,7 +36,7 @@ instance ConvertableInput UserTree UserFlat where
   convertFrom = flattenEvolutionPlan
 
 instance ConvertableInput UserTree ModFlat where
-  convertFrom = constructModificationLevelEP . flattenEvolutionPlan
+  convertFrom = constructModificationEP . flattenEvolutionPlan
 
 instance ConvertableInput UserFlat UserTree where
   convertFrom = unflattenSoundEvolutionPlan
@@ -45,7 +45,7 @@ instance ConvertableInput UserFlat UserFlat where
   convertFrom = id
 
 instance ConvertableInput UserFlat ModFlat where
-  convertFrom = constructModificationLevelEP
+  convertFrom = constructModificationEP
 
 instance ConvertableInput ModFlat UserTree where
   convertFrom = unflattenSoundEvolutionPlan . integrateAllSoundModifications

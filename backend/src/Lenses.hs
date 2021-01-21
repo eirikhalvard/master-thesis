@@ -21,7 +21,7 @@ makePrisms ''FeatureType
 makePrisms ''GroupType
 
 -- Using makeLenses in order to get polymorphic lenses
-makeLenses ''UserLevelEvolutionPlan
+makeLenses ''UserEvolutionPlan
 makeLenses ''TimePoint
 makeLenses ''TransformationEvolutionPlan
 makeLenses ''Plan
