@@ -3,7 +3,6 @@ module Examples.MergeConflictExample where
 import Control.Lens
 import Examples.SoundExample
 import qualified Lenses as L
-import Merge.Types
 import Text.Pretty.Simple
 import ThreeWayMerge
 import Types
@@ -20,16 +19,9 @@ import Types
 --   | GroupConflict (BothChange GroupModification)
 --   deriving (Show, Eq)
 
-data ExampleResult = ExampleResult
-  { base :: ModificationLevelEvolutionPlan FeatureModel'
-  , v1 :: ModificationLevelEvolutionPlan FeatureModel'
-  , v2 :: ModificationLevelEvolutionPlan FeatureModel'
-  , expected :: Either Conflict (AbstractedLevelEvolutionPlan FeatureModel)
-  }
-
-multipleAdd :: ExampleResult
+multipleAdd :: OldMergeInput
 multipleAdd =
-  ExampleResult
+  OldMergeInput
     { base = baseConstructedEvolutionPlan
     , v1 =
         v1ConstructedEvolutionPlan
@@ -69,8 +61,8 @@ multipleAdd =
             )
     }
 
-showExampleResult :: ExampleResult -> IO ()
-showExampleResult (ExampleResult base v1 v2 expected) = do
+showExampleResult :: OldMergeInput -> IO ()
+showExampleResult (OldMergeInput base v1 v2 expected) = do
   let result = threeWayMerge' base v1 v2
   if result == expected
     then do

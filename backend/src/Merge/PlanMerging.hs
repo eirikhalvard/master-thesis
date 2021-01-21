@@ -1,7 +1,6 @@
 module Merge.PlanMerging where
 
 import qualified Lenses as L
-import Merge.Types
 import Types
 
 import Control.Lens
@@ -13,10 +12,10 @@ import qualified Data.Map.Merge.Lazy as Merge
 ------------------------------------------------------------------------
 
 createMergePlan ::
-  ModificationLevelEvolutionPlan FeatureModel' ->
-  ModificationLevelEvolutionPlan FeatureModel' ->
-  ModificationLevelEvolutionPlan FeatureModel' ->
-  MergeLevelEvolutionPlan FeatureModel'
+  FlatModificationEvolutionPlan ->
+  FlatModificationEvolutionPlan ->
+  FlatModificationEvolutionPlan ->
+  MergeEvolutionPlan FlatFeatureModel
 createMergePlan base v1 v2 =
   base & L.plans
     %~ \basePlans -> mergePlans basePlans (v1 ^. L.plans) (v2 ^. L.plans)
@@ -173,8 +172,8 @@ mergeDerived =
 ------------------------------------------------------------------------
 
 unifyMergePlan ::
-  MergeLevelEvolutionPlan FeatureModel' ->
-  Either Conflict (ModificationLevelEvolutionPlan FeatureModel')
+  MergeEvolutionPlan FlatFeatureModel ->
+  Either Conflict FlatModificationEvolutionPlan
 unifyMergePlan =
   L.plans . traversed %%~ unifyTimePointResult
 

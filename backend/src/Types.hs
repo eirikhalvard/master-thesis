@@ -23,43 +23,43 @@ type GroupId = String
 
 --- Tree Structured Feature Model ---
 
-data FeatureModel = FeatureModel
-  { _rootFeature :: Feature
+data TreeFeatureModel = TreeFeatureModel
+  { _rootFeature :: TreeFeature
   }
   deriving (Show, Eq, Read, Generic)
 
-data Feature = Feature
+data TreeFeature = TreeFeature
   { _id :: FeatureId
   , _featureType :: FeatureType
   , _name :: String
-  , _groups :: S.Set Group
+  , _groups :: S.Set TreeGroup
   }
   deriving (Show, Eq, Read, Ord, Generic)
 
-data Group = Group
+data TreeGroup = TreeGroup
   { _id :: GroupId
   , _groupType :: GroupType
-  , _features :: S.Set Feature
+  , _features :: S.Set TreeFeature
   }
   deriving (Show, Eq, Read, Ord, Generic)
 
 --- Flat Structured Feature Model ---
 
-data FeatureModel' = FeatureModel'
+data FlatFeatureModel = FlatFeatureModel
   { _rootId :: FeatureId
-  , _features :: M.Map FeatureId Feature'
-  , _groups :: M.Map GroupId Group'
+  , _features :: M.Map FeatureId FlatFeature
+  , _groups :: M.Map GroupId FlatGroup
   }
   deriving (Show, Eq, Read)
 
-data Feature' = Feature'
+data FlatFeature = FlatFeature
   { _parentGroupId :: Maybe GroupId
   , _featureType :: FeatureType
   , _name :: String
   }
   deriving (Show, Eq, Read)
 
-data Group' = Group'
+data FlatGroup = FlatGroup
   { _parentFeatureId :: FeatureId
   , _groupType :: GroupType
   }
@@ -81,9 +81,9 @@ data GroupType
 -----------------------
 
 --  Four different types of evolution plan representations. We categorize them in
---  two categories. Abstracted evolution plans and Tranformation evolution plans
+--  two categories. User evolution plans and Tranformation evolution plans
 --
---    Abstracted Evolution Plans:
+--    User Evolution Plans:
 --      Represents the evolution plan as a list of feature models, where each
 --      feature model is coupled with a time point. In this representation the
 --      exact changes between each feature model is implicit as the difference
@@ -93,21 +93,16 @@ data GroupType
 --      of plans, where each plan is a time point and a transformation. The
 --      transformation describes how the previous feature model should be
 --      transformed in order to achieve the feature model at the given time
---      point. We define three different types of transformations, namely
---      User level, modification level and merge level modifications.
+--      point. We define two different types of transformations, namely
+--      Modification level and merge level modifications.
 --
---      User Level Transformation:
---        Represents each transformation as a list of operations. The operations
---        will have to be executed in the given order, in order to ensure the
---        correct result. This representation reflects exactly how the user
---        achieved the given feature model from the previous time point.
---      Modification Level Transformation:
+--      Modification  Transformation:
 --        Represents the transformation as a set of modifications. This
 --        representation guarantees that each there are no conflicting
 --        modifications, i.e. moving a feature twice. This allows for merging
 --        the modifications in an arbitrary ordering, since no modifications
 --        shadow others, etc.
---      Merge Level Transformation:
+--      Merge  Transformation:
 --        The merge level transformation represents the "planned"
 --        transformations from both versions in the merge. The transformation
 --        is essentially the union of the modifications of version 1 and
@@ -115,9 +110,15 @@ data GroupType
 --        changed, added or removed in several versions, which this
 --        representation encodes.
 
+type TreeUserEvolutionPlan = UserEvolutionPlan TreeFeatureModel
+
+type FlatUserEvolutionPlan = UserEvolutionPlan FlatFeatureModel
+
+type FlatModificationEvolutionPlan = ModificationEvolutionPlan FlatFeatureModel
+
 type Time = Int
 
-data AbstractedLevelEvolutionPlan featureModel = AbstractedLevelEvolutionPlan
+data UserEvolutionPlan featureModel = UserEvolutionPlan
   { _timePoints :: [TimePoint featureModel]
   }
   deriving (Show, Eq, Read, Generic)
@@ -141,86 +142,13 @@ data Plan transformation = Plan
   }
   deriving (Show, Eq, Read)
 
-type UserLevelEvolutionPlan featureModel = TransformationEvolutionPlan Operations featureModel
+type ModificationEvolutionPlan featureModel = TransformationEvolutionPlan Modifications featureModel
 
-type ModificationLevelEvolutionPlan featureModel = TransformationEvolutionPlan Modifications featureModel
-
-type MergeLevelEvolutionPlan featureModel = TransformationEvolutionPlan DiffResult featureModel
+type MergeEvolutionPlan featureModel = TransformationEvolutionPlan DiffResult featureModel
 
 ----------------------------
 --  TRANSFORMATION TYPES  --
 ----------------------------
-
---- OPERATIONS ---
-
-type Operations = [Operation]
-
-data Operation
-  = AddFeature AddFeatureOp
-  | RemoveFeature RemoveFeatureOp
-  | MoveFeature MoveFeatureOp
-  | RenameFeature RenameFeatureOp
-  | ChangeFeatureType ChangeFeatureTypeOp
-  | AddGroup AddGroupOp
-  | RemoveGroup RemoveGroupOp
-  | ChangeGroupType ChangeGroupTypeOp
-  | MoveGroup MoveGroupOp
-  deriving (Show, Eq, Read)
-
-data AddFeatureOp = AddFeatureOp
-  { _featureId :: FeatureId
-  , _name :: String
-  , _parentGroupId :: GroupId
-  , _featureType :: FeatureType
-  }
-  deriving (Show, Eq, Read)
-
-data RemoveFeatureOp = RemoveFeatureOp
-  { _featureId :: FeatureId
-  }
-  deriving (Show, Eq, Read)
-
-data MoveFeatureOp = MoveFeatureOp
-  { _featureId :: FeatureId
-  , _groupId :: GroupId
-  }
-  deriving (Show, Eq, Read)
-
-data RenameFeatureOp = RenameFeatureOp
-  { _featureId :: FeatureId
-  , _name :: String
-  }
-  deriving (Show, Eq, Read)
-
-data ChangeFeatureTypeOp = ChangeFeatureTypeOp
-  { _featureId :: FeatureId
-  , _featureType :: FeatureType
-  }
-  deriving (Show, Eq, Read)
-
-data AddGroupOp = AddGroupOp
-  { _groupId :: GroupId
-  , _parentFeatureId :: FeatureId
-  , _groupType :: GroupType
-  }
-  deriving (Show, Eq, Read)
-
-data RemoveGroupOp = RemoveGroupOp
-  { _groupId :: GroupId
-  }
-  deriving (Show, Eq, Read)
-
-data ChangeGroupTypeOp = ChangeGroupTypeOp
-  { _groupId :: GroupId
-  , _groupType :: GroupType
-  }
-  deriving (Show, Eq, Read)
-
-data MoveGroupOp = MoveGroupOp
-  { _groupId :: GroupId
-  , _parentFeatureId :: FeatureId
-  }
-  deriving (Show, Eq, Read)
 
 --- MODIFICATIONS ---
 
@@ -344,10 +272,155 @@ data Version
 --                           Merge Artifact                           --
 ------------------------------------------------------------------------
 
-data MergeArtifact evolutionPlan = MergeArtifact
+data MergeInput evolutionPlan = MergeInput
   { _name :: String
   , _base :: evolutionPlan
   , _v1 :: evolutionPlan
   , _v2 :: evolutionPlan
   }
   deriving (Show, Eq, Read, Generic, Functor)
+
+data MergeInputWithExpected inputEvolutionPlan outputEvolutionPlan = MergeInputWithExpected
+  { _input :: MergeInput inputEvolutionPlan
+  , _expected :: MergeResult outputEvolutionPlan
+  }
+
+data MergeOutput
+  = UnsuccessfulMerge Conflict
+  | SuccessfulMerge FlatModificationEvolutionPlan FlatUserEvolutionPlan
+  deriving (Show, Eq, Read)
+
+data MergeResult evolutionPlan
+  = MergeFailure Conflict
+  | MergeSuccess evolutionPlan
+
+data OldMergeInput = OldMergeInput
+  { base :: FlatModificationEvolutionPlan
+  , v1 :: FlatModificationEvolutionPlan
+  , v2 :: FlatModificationEvolutionPlan
+  , expected :: Either Conflict TreeUserEvolutionPlan
+  }
+
+------------------------------------------------------------------------
+--                       Elm Data Serialization                       --
+------------------------------------------------------------------------
+
+data ElmDataExamples = ElmDataExamples
+  { _examples :: [ElmMergeResult]
+  }
+  deriving (Show, Eq, Read, Generic)
+
+data ElmMergeResult = ElmMergeResult
+  { _name :: String
+  , _evolutionPlans :: [ElmNamedEvolutionPlan]
+  }
+  deriving (Show, Eq, Read, Generic)
+
+data ElmNamedEvolutionPlan = ElmNamedEvolutionPlan
+  { _name :: String
+  , _mergeData :: ElmSingleEvolutionPlan
+  }
+  deriving (Show, Eq, Read, Generic)
+
+data ElmSingleEvolutionPlan
+  = EvolutionPlanResult TreeUserEvolutionPlan
+  | ConflictResult String
+  deriving (Show, Eq, Read, Generic)
+
+------------------------------------------------------------------------
+--                              Conflict                              --
+------------------------------------------------------------------------
+
+data Conflict
+  = Merge Time MergeConflict
+  | Local Time LocalConflict
+  | Global Time GlobalConflict
+  | Panic Time String
+  deriving (Show, Eq, Read)
+
+data MergeConflict
+  = FeatureConflict (BothChange FeatureModification)
+  | GroupConflict (BothChange GroupModification)
+  deriving (Show, Eq, Read)
+
+data LocalConflict
+  = FeatureAlreadyExists FeatureModification FeatureId
+  | FeatureNotExists FeatureModification FeatureId
+  | GroupAlreadyExists GroupModification GroupId
+  | GroupNotExists GroupModification GroupId
+  deriving (Show, Eq, Read)
+
+data GlobalConflict
+  = FailedDependencies [Dependency]
+  deriving (Show, Eq, Read)
+
+data Dependency
+  = FeatureDependency FeatureModification FeatureDependencyType
+  | GroupDependency GroupModification GroupDependencyType
+  deriving (Show, Eq, Read)
+
+data FeatureDependencyType
+  = NoChildGroups FeatureId
+  | ParentGroupExists GroupId
+  | NoCycleFromFeature FeatureId
+  | FeatureIsWellFormed FeatureId
+  | UniqueName String
+  deriving (Show, Eq, Read)
+
+data GroupDependencyType
+  = NoChildFeatures GroupId
+  | ParentFeatureExists FeatureId
+  | NoCycleFromGroup GroupId
+  | GroupIsWellFormed GroupId
+  deriving (Show, Eq, Read)
+
+------------------------------------------------------------------------
+--                         JSON Serialization                         --
+------------------------------------------------------------------------
+
+customAesonOptions :: Options
+customAesonOptions = defaultOptions{fieldLabelModifier = tail}
+
+instance ToJSON ElmMergeResult where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON ElmNamedEvolutionPlan where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON ElmSingleEvolutionPlan where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON TreeUserEvolutionPlan where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON (TimePoint TreeFeatureModel) where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON TreeFeatureModel where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON TreeFeature where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON TreeGroup where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON FeatureType where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON GroupType where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON evolutionPlan => ToJSON (MergeInput evolutionPlan) where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions

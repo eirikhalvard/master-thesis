@@ -1,38 +1,37 @@
 module ThreeWayMerge where
 
-import Merge.ChangeDetection (constructModificationLevelEP, flattenEvolutionPlan)
-import Merge.CheckPlan (integrateAllModifications, unflattenEvolutionPlan)
+import Merge.ChangeDetection (deriveSoundModifications, flattenSoundEvolutionPlan)
+import Merge.CheckPlan (integrateAndCheckModifications, unflattenSoundEvolutionPlan)
 import Merge.PlanMerging (createMergePlan, unifyMergePlan)
-import Merge.Types
 import Types
 
 threeWayMerge ::
-  AbstractedLevelEvolutionPlan FeatureModel ->
-  AbstractedLevelEvolutionPlan FeatureModel ->
-  AbstractedLevelEvolutionPlan FeatureModel ->
-  Either Conflict (AbstractedLevelEvolutionPlan FeatureModel)
-threeWayMerge base v1 v2 =
-  unifyMergePlan mergePlan
-    >>= integrateAllModifications
-    >>= unflattenEvolutionPlan
-  where
-    mergePlan =
-      createMergePlan
-        (constructModificationLevelEP . flattenEvolutionPlan $ base)
-        (constructModificationLevelEP . flattenEvolutionPlan $ v1)
-        (constructModificationLevelEP . flattenEvolutionPlan $ v2)
+  TreeUserEvolutionPlan ->
+  TreeUserEvolutionPlan ->
+  TreeUserEvolutionPlan ->
+  Either Conflict TreeUserEvolutionPlan
+threeWayMerge base v1 v2 = do
+  let mergePlan =
+        createMergePlan
+          (deriveSoundModifications . flattenSoundEvolutionPlan $ base)
+          (deriveSoundModifications . flattenSoundEvolutionPlan $ v1)
+          (deriveSoundModifications . flattenSoundEvolutionPlan $ v2)
+  mergedModificationPlan <- unifyMergePlan mergePlan
+  checkedUserFlatPlan <- integrateAndCheckModifications mergedModificationPlan
+  return $ unflattenSoundEvolutionPlan checkedUserFlatPlan
 
 threeWayMerge' ::
-  ModificationLevelEvolutionPlan FeatureModel' ->
-  ModificationLevelEvolutionPlan FeatureModel' ->
-  ModificationLevelEvolutionPlan FeatureModel' ->
-  Either Conflict (AbstractedLevelEvolutionPlan FeatureModel)
-threeWayMerge' base v1 v2 =
-  unifyMergePlan mergePlan
-    >>= integrateAllModifications
-    >>= unflattenEvolutionPlan
-  where
-    mergePlan = createMergePlan base v1 v2
+  FlatModificationEvolutionPlan ->
+  FlatModificationEvolutionPlan ->
+  FlatModificationEvolutionPlan ->
+  Either Conflict TreeUserEvolutionPlan
+threeWayMerge' base v1 v2 = do
+  let mergePlan = createMergePlan base v1 v2
+  mergedModificationPlan <- unifyMergePlan mergePlan
+  checkedUserFlatPlan <- integrateAndCheckModifications mergedModificationPlan
+  return $ unflattenSoundEvolutionPlan checkedUserFlatPlan
 
 conflictErrorMsg :: Conflict -> String
-conflictErrorMsg conflict = "Legit error messages not implemented:)"
+conflictErrorMsg conflict =
+  "Legit error messages not implemented:) Using the Show instance of the conflict:\n"
+    ++ show conflict

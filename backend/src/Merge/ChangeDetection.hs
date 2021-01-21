@@ -8,41 +8,37 @@ import qualified Data.Map as M
 import qualified Data.Map.Merge.Lazy as Merge
 
 ------------------------------------------------------------------------
---                       Flatten Evolution Plan                       --
+--                    Flatten Sound Evolution Plan                    --
 ------------------------------------------------------------------------
 
-flattenEvolutionPlan ::
-  AbstractedLevelEvolutionPlan FeatureModel ->
-  AbstractedLevelEvolutionPlan FeatureModel'
-flattenEvolutionPlan =
+flattenSoundEvolutionPlan :: TreeUserEvolutionPlan -> FlatUserEvolutionPlan
+flattenSoundEvolutionPlan =
   L.timePoints
     . traversed
     . L.featureModel
-    %~ flattenFeatureModel
+    %~ flattenSoundFeatureModel
 
-flattenFeatureModel :: FeatureModel -> FeatureModel'
-flattenFeatureModel fm =
-  FeatureModel'
+flattenSoundFeatureModel :: TreeFeatureModel -> FlatFeatureModel
+flattenSoundFeatureModel fm =
+  FlatFeatureModel
     (fm ^. L.rootFeature . L.id)
     (M.fromList features)
     (M.fromList groups)
   where
     (features, groups) = flattenFeature Nothing (fm ^. L.rootFeature)
-    flattenFeature mParentGroup (Feature id featureType name groups) =
-      ([(id, Feature' mParentGroup featureType name)], [])
+    flattenFeature mParentGroup (TreeFeature id featureType name groups) =
+      ([(id, FlatFeature mParentGroup featureType name)], [])
         <> foldMap (flattenGroup id) groups
-    flattenGroup parentFeature (Group id groupType features) =
-      ([], [(id, Group' parentFeature groupType)])
+    flattenGroup parentFeature (TreeGroup id groupType features) =
+      ([], [(id, FlatGroup parentFeature groupType)])
         <> foldMap (flattenFeature (Just id)) features
 
 ------------------------------------------------------------------------
---            Construct Modification Level Evolution Plan             --
+--                     Derive Sound Modifications                     --
 ------------------------------------------------------------------------
 
-constructModificationLevelEP ::
-  AbstractedLevelEvolutionPlan FeatureModel' ->
-  ModificationLevelEvolutionPlan FeatureModel'
-constructModificationLevelEP (AbstractedLevelEvolutionPlan timePoints) = case timePoints of
+deriveSoundModifications :: FlatUserEvolutionPlan -> FlatModificationEvolutionPlan
+deriveSoundModifications (UserEvolutionPlan timePoints) = case timePoints of
   [] -> error "evolution plan has to have at least one time point!"
   ((TimePoint initialTime initialFM) : restTimePoints) ->
     TransformationEvolutionPlan
@@ -51,12 +47,12 @@ constructModificationLevelEP (AbstractedLevelEvolutionPlan timePoints) = case ti
       (zipWith timePointsToPlan timePoints restTimePoints)
 
 timePointsToPlan ::
-  TimePoint FeatureModel' -> TimePoint FeatureModel' -> Plan Modifications
+  TimePoint FlatFeatureModel -> TimePoint FlatFeatureModel -> Plan Modifications
 timePointsToPlan (TimePoint _ prevFM) (TimePoint currTime currFM) =
   Plan currTime $ diffFeatureModels prevFM currFM
 
 -- diffFeatureModels will derive every modification
-diffFeatureModels :: FeatureModel' -> FeatureModel' -> Modifications
+diffFeatureModels :: FlatFeatureModel -> FlatFeatureModel -> Modifications
 diffFeatureModels prevFM currFM =
   Modifications
     featureModifications
@@ -66,7 +62,7 @@ diffFeatureModels prevFM currFM =
       Merge.merge
         (Merge.mapMissing (\_ _ -> FeatureRemove))
         ( Merge.mapMissing
-            ( \_ (Feature' mParent featureType name) ->
+            ( \_ (FlatFeature mParent featureType name) ->
                 case mParent of
                   Nothing ->
                     error $
@@ -79,8 +75,8 @@ diffFeatureModels prevFM currFM =
         )
         ( Merge.zipWithMaybeMatched
             ( \_
-               prev@(Feature' prevParent prevFeatureType prevName)
-               new@(Feature' newParent newFeatureType newName) ->
+               prev@(FlatFeature prevParent prevFeatureType prevName)
+               new@(FlatFeature newParent newFeatureType newName) ->
                   if prev == new
                     then Nothing
                     else
@@ -108,14 +104,14 @@ diffFeatureModels prevFM currFM =
       Merge.merge
         (Merge.mapMissing (\_ _ -> GroupRemove))
         ( Merge.mapMissing
-            ( \_ (Group' parent groupType) ->
+            ( \_ (FlatGroup parent groupType) ->
                 GroupAdd parent groupType
             )
         )
         ( Merge.zipWithMaybeMatched
             ( \_
-               prev@(Group' prevParent prevGroupType)
-               new@(Group' newParent newGroupType) ->
+               prev@(FlatGroup prevParent prevGroupType)
+               new@(FlatGroup newParent newGroupType) ->
                   if prev == new
                     then Nothing
                     else

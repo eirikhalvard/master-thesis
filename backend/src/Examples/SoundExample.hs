@@ -8,371 +8,371 @@ import Types
 --                     Tree Based Evolution Plan                      --
 ------------------------------------------------------------------------
 
-baseEvolutionPlan :: AbstractedLevelEvolutionPlan FeatureModel
+baseEvolutionPlan :: UserEvolutionPlan TreeFeatureModel
 baseEvolutionPlan =
-  AbstractedLevelEvolutionPlan
+  UserEvolutionPlan
     [ TimePoint 0 fm0
     , TimePoint 1 fm1
     , TimePoint 2 fm2
     , TimePoint 3 fm3
     ]
   where
-    fm0 = FeatureModel (Feature "feature:vending-machine" Mandatory "RootFeature" [])
+    fm0 = TreeFeatureModel (TreeFeature "feature:vending-machine" Mandatory "RootFeature" [])
     fm1 =
-      FeatureModel
-        ( Feature
+      TreeFeatureModel
+        ( TreeFeature
             "feature:vending-machine"
             Mandatory
             "VendingMachine"
-            [Group "group:vending-machine-group" And [beverages]]
+            [TreeGroup "group:vending-machine-group" And [beverages]]
         )
     fm2 =
-      FeatureModel
-        ( Feature
+      TreeFeatureModel
+        ( TreeFeature
             "feature:vending-machine"
             Mandatory
             "VendingMachine"
-            [Group "group:vending-machine-group" And [beverages, size]]
+            [TreeGroup "group:vending-machine-group" And [beverages, size]]
         )
     fm3 =
-      FeatureModel
-        ( Feature
+      TreeFeatureModel
+        ( TreeFeature
             "feature:vending-machine"
             Mandatory
             "VendingMachine"
-            [Group "group:vending-machine-group" And [beverages, size, milk]]
+            [TreeGroup "group:vending-machine-group" And [beverages, size, milk]]
         )
     milk =
-      Feature
+      TreeFeature
         "feature:milk"
         Optional
         "Milk"
-        [ Group
+        [ TreeGroup
             "group:milk-group"
             And
-            [ Feature
+            [ TreeFeature
                 "feature:milk-type"
                 Optional
                 "Milk Type"
-                [ Group
+                [ TreeGroup
                     "group:milk-type-group"
                     Or
-                    [ Feature "feature:normal" Optional "Normal" []
-                    , Feature "feature:lactose-free" Optional "Lactose Free" []
-                    , Feature "feature:soy-milk" Optional "Soy Milk" []
+                    [ TreeFeature "feature:normal" Optional "Normal" []
+                    , TreeFeature "feature:lactose-free" Optional "Lactose Free" []
+                    , TreeFeature "feature:soy-milk" Optional "Soy Milk" []
                     ]
                 ]
             ]
         ]
     beverages =
-      Feature
+      TreeFeature
         "feature:beverages"
         Mandatory
         "Beverages"
-        [ Group
+        [ TreeGroup
             "group:beverages-group"
             Or
-            [ Feature "feature:tea" Optional "Tea" []
-            , Feature "feature:coffee" Optional "Coffee" []
+            [ TreeFeature "feature:tea" Optional "Tea" []
+            , TreeFeature "feature:coffee" Optional "Coffee" []
             ]
         ]
     size =
-      Feature
+      TreeFeature
         "feature:size"
         Optional
         "Size"
-        [ Group
+        [ TreeGroup
             "group:size-group"
             And
-            [ Feature "feature:regular" Mandatory "Regular" []
-            , Feature
+            [ TreeFeature "feature:regular" Mandatory "Regular" []
+            , TreeFeature
                 "feature:other"
                 Mandatory
                 "Other"
-                [ Group
+                [ TreeGroup
                     "group:other-group"
                     And
-                    [ Feature "feature:small" Mandatory "Small" []
-                    , Feature "feature:large" Mandatory "Large" []
+                    [ TreeFeature "feature:small" Mandatory "Small" []
+                    , TreeFeature "feature:large" Mandatory "Large" []
                     ]
                 ]
             ]
         ]
 
-v1EvolutionPlan :: AbstractedLevelEvolutionPlan FeatureModel
+v1EvolutionPlan :: UserEvolutionPlan TreeFeatureModel
 v1EvolutionPlan =
-  AbstractedLevelEvolutionPlan
+  UserEvolutionPlan
     [ TimePoint 0 fm0
     , TimePoint 1 fm1
     , TimePoint 2 fm2
     , TimePoint 3 fm3
     ]
   where
-    fm0 = FeatureModel (Feature "feature:vending-machine" Mandatory "RootFeature" [])
+    fm0 = TreeFeatureModel (TreeFeature "feature:vending-machine" Mandatory "RootFeature" [])
     fm1 =
-      FeatureModel
-        ( Feature
+      TreeFeatureModel
+        ( TreeFeature
             "feature:vending-machine"
             Mandatory
             "VendingMachine"
-            [Group "group:vending-machine-group" And [currency, beverages]]
+            [TreeGroup "group:vending-machine-group" And [currency, beverages]]
         )
     fm2 =
-      FeatureModel
-        ( Feature
+      TreeFeatureModel
+        ( TreeFeature
             "feature:vending-machine"
             Mandatory
             "VendingMachine"
-            [Group "group:vending-machine-group" And [currency, beverages, modifiedSize]]
+            [TreeGroup "group:vending-machine-group" And [currency, beverages, modifiedSize]]
         )
     fm3 =
-      FeatureModel
-        ( Feature
+      TreeFeatureModel
+        ( TreeFeature
             "feature:vending-machine"
             Mandatory
             "VendingMachine"
-            [Group "group:vending-machine-group" And [currency, beverages, modifiedSize, modifiedMilk]]
+            [TreeGroup "group:vending-machine-group" And [currency, beverages, modifiedSize, modifiedMilk]]
         )
     currency =
-      Feature
+      TreeFeature
         "feature:currency"
         Mandatory
         "Currency"
-        [ Group
+        [ TreeGroup
             "group:currency-group"
             Alternative
-            [ Feature "feature:euro" Optional "Euro" []
-            , Feature "feature:dollar" Optional "Dollar" []
+            [ TreeFeature "feature:euro" Optional "Euro" []
+            , TreeFeature "feature:dollar" Optional "Dollar" []
             ]
         ]
     modifiedMilk =
-      Feature
+      TreeFeature
         "feature:milk"
         Optional
         "Milk"
-        [ Group
+        [ TreeGroup
             "group:milk-group"
             And
-            [ Feature
+            [ TreeFeature
                 "feature:milk-type"
                 Optional
                 "Milk Type"
-                [ Group
+                [ TreeGroup
                     "group:milk-type-group"
                     And
-                    [ Feature "feature:normal" Mandatory "Normal" []
-                    , Feature "feature:lactose-free" Mandatory "Lactose Free" []
+                    [ TreeFeature "feature:normal" Mandatory "Normal" []
+                    , TreeFeature "feature:lactose-free" Mandatory "Lactose Free" []
                     ]
                 ]
             ]
         ]
     beverages =
-      Feature
+      TreeFeature
         "feature:beverages"
         Mandatory
         "Beverages"
-        [ Group
+        [ TreeGroup
             "group:beverages-group"
             Or
-            [ Feature "feature:tea" Optional "Tea" []
-            , Feature "feature:coffee" Optional "Coffee" []
+            [ TreeFeature "feature:tea" Optional "Tea" []
+            , TreeFeature "feature:coffee" Optional "Coffee" []
             ]
         ]
     modifiedSize =
-      Feature
+      TreeFeature
         "feature:size"
         Optional
         "Size"
-        [ Group
+        [ TreeGroup
             "group:size-group"
             And
-            [ Feature "feature:regular" Mandatory "Regular" []
-            , Feature "feature:large" Mandatory "Large" []
+            [ TreeFeature "feature:regular" Mandatory "Regular" []
+            , TreeFeature "feature:large" Mandatory "Large" []
             ]
         ]
 
-v2EvolutionPlan :: AbstractedLevelEvolutionPlan FeatureModel
+v2EvolutionPlan :: UserEvolutionPlan TreeFeatureModel
 v2EvolutionPlan =
-  AbstractedLevelEvolutionPlan
+  UserEvolutionPlan
     [ TimePoint 0 fm0
     , TimePoint 1 fm1
     , TimePoint 2 fm2
     , TimePoint 3 fm3
     ]
   where
-    fm0 = FeatureModel (Feature "feature:vending-machine" Mandatory "RootFeature" [])
+    fm0 = TreeFeatureModel (TreeFeature "feature:vending-machine" Mandatory "RootFeature" [])
     fm1 =
-      FeatureModel
-        ( Feature
+      TreeFeatureModel
+        ( TreeFeature
             "feature:vending-machine"
             Mandatory
             "VendingMachine"
-            [Group "group:vending-machine-group" And [beverages]]
+            [TreeGroup "group:vending-machine-group" And [beverages]]
         )
     fm2 =
-      FeatureModel
-        ( Feature
+      TreeFeatureModel
+        ( TreeFeature
             "feature:vending-machine"
             Mandatory
             "VendingMachine"
-            [Group "group:vending-machine-group" And [beverages, size]]
+            [TreeGroup "group:vending-machine-group" And [beverages, size]]
         )
     fm3 =
-      FeatureModel
-        ( Feature
+      TreeFeatureModel
+        ( TreeFeature
             "feature:vending-machine"
             Mandatory
             "VendingMachine"
-            [Group "group:vending-machine-group" And [beverages, size, modifiedMilk]]
+            [TreeGroup "group:vending-machine-group" And [beverages, size, modifiedMilk]]
         )
     modifiedMilk =
-      Feature
+      TreeFeature
         "feature:milk"
         Optional
         "Milk"
-        [ Group
+        [ TreeGroup
             "group:milk-group"
             And
-            [ Feature
+            [ TreeFeature
                 "feature:milk-type"
                 Optional
                 "Milk Type"
-                [ Group
+                [ TreeGroup
                     "group:milk-type-group"
                     And
-                    [ Feature "feature:normal" Mandatory "Normal" []
-                    , Feature "feature:lactose-free" Mandatory "Lactose Free" []
-                    , Feature "feature:soy-milk" Optional "Soy Milk" []
+                    [ TreeFeature "feature:normal" Mandatory "Normal" []
+                    , TreeFeature "feature:lactose-free" Mandatory "Lactose Free" []
+                    , TreeFeature "feature:soy-milk" Optional "Soy Milk" []
                     ]
                 ]
             ]
         ]
     beverages =
-      Feature
+      TreeFeature
         "feature:beverages"
         Mandatory
         "Beverages"
-        [ Group
+        [ TreeGroup
             "group:beverages-group"
             Or
-            [ Feature "feature:tea" Optional "Tea" []
-            , Feature "feature:coffee" Optional "Coffee" []
-            , Feature "feature:cappuccino" Optional "Cappuccino" []
+            [ TreeFeature "feature:tea" Optional "Tea" []
+            , TreeFeature "feature:coffee" Optional "Coffee" []
+            , TreeFeature "feature:cappuccino" Optional "Cappuccino" []
             ]
         ]
     size =
-      Feature
+      TreeFeature
         "feature:size"
         Optional
         "Size"
-        [ Group
+        [ TreeGroup
             "group:size-group"
             And
-            [ Feature "feature:regular" Mandatory "Regular" []
-            , Feature
+            [ TreeFeature "feature:regular" Mandatory "Regular" []
+            , TreeFeature
                 "feature:other"
                 Mandatory
                 "Other"
-                [ Group
+                [ TreeGroup
                     "group:other-group"
                     And
-                    [ Feature "feature:small" Mandatory "Small" []
-                    , Feature "feature:large" Mandatory "Large" []
+                    [ TreeFeature "feature:small" Mandatory "Small" []
+                    , TreeFeature "feature:large" Mandatory "Large" []
                     ]
                 ]
             ]
         ]
 
-expectedEvolutionPlan :: AbstractedLevelEvolutionPlan FeatureModel
+expectedEvolutionPlan :: UserEvolutionPlan TreeFeatureModel
 expectedEvolutionPlan =
-  AbstractedLevelEvolutionPlan
+  UserEvolutionPlan
     [ TimePoint 0 fm0
     , TimePoint 1 fm1
     , TimePoint 2 fm2
     , TimePoint 3 fm3
     ]
   where
-    fm0 = FeatureModel (Feature "feature:vending-machine" Mandatory "RootFeature" [])
+    fm0 = TreeFeatureModel (TreeFeature "feature:vending-machine" Mandatory "RootFeature" [])
     fm1 =
-      FeatureModel
-        ( Feature
+      TreeFeatureModel
+        ( TreeFeature
             "feature:vending-machine"
             Mandatory
             "VendingMachine"
-            [Group "group:vending-machine-group" And [currency, beverages]]
+            [TreeGroup "group:vending-machine-group" And [currency, beverages]]
         )
     fm2 =
-      FeatureModel
-        ( Feature
+      TreeFeatureModel
+        ( TreeFeature
             "feature:vending-machine"
             Mandatory
             "VendingMachine"
-            [Group "group:vending-machine-group" And [currency, beverages, mergedSize]]
+            [TreeGroup "group:vending-machine-group" And [currency, beverages, mergedSize]]
         )
     fm3 =
-      FeatureModel
-        ( Feature
+      TreeFeatureModel
+        ( TreeFeature
             "feature:vending-machine"
             Mandatory
             "VendingMachine"
-            [Group "group:vending-machine-group" And [currency, beverages, mergedSize, mergedMilk]]
+            [TreeGroup "group:vending-machine-group" And [currency, beverages, mergedSize, mergedMilk]]
         )
     currency =
-      Feature
+      TreeFeature
         "feature:currency"
         Mandatory
         "Currency"
-        [ Group
+        [ TreeGroup
             "group:currency-group"
             Alternative
-            [ Feature "feature:euro" Optional "Euro" []
-            , Feature "feature:dollar" Optional "Dollar" []
+            [ TreeFeature "feature:euro" Optional "Euro" []
+            , TreeFeature "feature:dollar" Optional "Dollar" []
             ]
         ]
     mergedMilk =
-      Feature
+      TreeFeature
         "feature:milk"
         Optional
         "Milk"
-        [ Group
+        [ TreeGroup
             "group:milk-group"
             And
-            [ Feature
+            [ TreeFeature
                 "feature:milk-type"
                 Optional
                 "Milk Type"
-                [ Group
+                [ TreeGroup
                     "group:milk-type-group"
                     And
-                    [ Feature "feature:normal" Mandatory "Normal" []
-                    , Feature "feature:lactose-free" Mandatory "Lactose Free" []
+                    [ TreeFeature "feature:normal" Mandatory "Normal" []
+                    , TreeFeature "feature:lactose-free" Mandatory "Lactose Free" []
                     ]
                 ]
             ]
         ]
     beverages =
-      Feature
+      TreeFeature
         "feature:beverages"
         Mandatory
         "Beverages"
-        [ Group
+        [ TreeGroup
             "group:beverages-group"
             Or
-            [ Feature "feature:tea" Optional "Tea" []
-            , Feature "feature:coffee" Optional "Coffee" []
-            , Feature "feature:cappuccino" Optional "Cappuccino" []
+            [ TreeFeature "feature:tea" Optional "Tea" []
+            , TreeFeature "feature:coffee" Optional "Coffee" []
+            , TreeFeature "feature:cappuccino" Optional "Cappuccino" []
             ]
         ]
     mergedSize =
-      Feature
+      TreeFeature
         "feature:size"
         Optional
         "Size"
-        [ Group
+        [ TreeGroup
             "group:size-group"
             And
-            [ Feature "feature:regular" Mandatory "Regular" []
-            , Feature "feature:large" Mandatory "Large" []
+            [ TreeFeature "feature:regular" Mandatory "Regular" []
+            , TreeFeature "feature:large" Mandatory "Large" []
             ]
         ]
 
@@ -380,15 +380,15 @@ expectedEvolutionPlan =
 --                     Constructed Evolution Plan                     --
 ------------------------------------------------------------------------
 
-baseConstructedEvolutionPlan :: TransformationEvolutionPlan Modifications FeatureModel'
+baseConstructedEvolutionPlan :: TransformationEvolutionPlan Modifications FlatFeatureModel
 baseConstructedEvolutionPlan =
   TransformationEvolutionPlan
     0
-    ( FeatureModel'
+    ( FlatFeatureModel
         "feature:vending-machine"
         [
           ( "feature:vending-machine"
-          , Feature' Nothing Mandatory "RootFeature"
+          , FlatFeature Nothing Mandatory "RootFeature"
           )
         ]
         []
@@ -496,15 +496,15 @@ baseConstructedEvolutionPlan =
         )
     ]
 
-v1ConstructedEvolutionPlan :: TransformationEvolutionPlan Modifications FeatureModel'
+v1ConstructedEvolutionPlan :: TransformationEvolutionPlan Modifications FlatFeatureModel
 v1ConstructedEvolutionPlan =
   TransformationEvolutionPlan
     0
-    ( FeatureModel'
+    ( FlatFeatureModel
         "feature:vending-machine"
         [
           ( "feature:vending-machine"
-          , Feature' Nothing Mandatory "RootFeature"
+          , FlatFeature Nothing Mandatory "RootFeature"
           )
         ]
         []
@@ -612,15 +612,15 @@ v1ConstructedEvolutionPlan =
         )
     ]
 
-v2ConstructedEvolutionPlan :: TransformationEvolutionPlan Modifications FeatureModel'
+v2ConstructedEvolutionPlan :: TransformationEvolutionPlan Modifications FlatFeatureModel
 v2ConstructedEvolutionPlan =
   TransformationEvolutionPlan
     0
-    ( FeatureModel'
+    ( FlatFeatureModel
         "feature:vending-machine"
         [
           ( "feature:vending-machine"
-          , Feature' Nothing Mandatory "RootFeature"
+          , FlatFeature Nothing Mandatory "RootFeature"
           )
         ]
         []
@@ -732,15 +732,15 @@ v2ConstructedEvolutionPlan =
         )
     ]
 
-expectedConstructedEvolutionPlan :: TransformationEvolutionPlan Modifications FeatureModel'
+expectedConstructedEvolutionPlan :: TransformationEvolutionPlan Modifications FlatFeatureModel
 expectedConstructedEvolutionPlan =
   TransformationEvolutionPlan
     0
-    ( FeatureModel'
+    ( FlatFeatureModel
         "feature:vending-machine"
         [
           ( "feature:vending-machine"
-          , Feature' Nothing Mandatory "RootFeature"
+          , FlatFeature Nothing Mandatory "RootFeature"
           )
         ]
         []

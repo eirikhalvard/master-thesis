@@ -1,107 +1,28 @@
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE FlexibleInstances #-}
-
 module SerializeOutput where
 
 import Examples.MergeConflictExample
 import Examples.SoundExample
 import Merge.ChangeDetection
-import Merge.CheckPlan (integrateAllModifications)
+import Merge.CheckPlan (integrateAndCheckModifications)
 import Merge.PlanMerging
-import Merge.Types
 import ThreeWayMerge (conflictErrorMsg, threeWayMerge)
 import Types
 
-import Data.Aeson
-import GHC.Generics
-
-------------------------------------------------------------------------
---                   Merge Result And Json Encoding                   --
-------------------------------------------------------------------------
-
-data MergeExamples = MergeExamples
-  { _examples :: [MergeResult]
-  }
-  deriving (Show, Eq, Read, Generic)
-
-data MergeResult = MergeResult
-  { _name :: String
-  , _evolutionPlans :: [MergeEvolutionPlan]
-  }
-  deriving (Show, Eq, Read, Generic)
-
-data MergeEvolutionPlan = MergeEvolutionPlan
-  { _name :: String
-  , _mergeData :: MergeData
-  }
-  deriving (Show, Eq, Read, Generic)
-
-data MergeData
-  = EvolutionPlanResult (AbstractedLevelEvolutionPlan FeatureModel)
-  | ConflictResult String
-  deriving (Show, Eq, Read, Generic)
-
-customAesonOptions :: Options
-customAesonOptions = defaultOptions{fieldLabelModifier = tail}
-
-instance ToJSON MergeResult where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON MergeEvolutionPlan where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON MergeData where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON (AbstractedLevelEvolutionPlan FeatureModel) where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON (TimePoint FeatureModel) where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON FeatureModel where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON Feature where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON Group where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON FeatureType where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON GroupType where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON evolutionPlan => ToJSON (MergeArtifact evolutionPlan) where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
+import Data.Aeson (encodeFile)
 
 writeExampleToFile :: FilePath -> IO ()
 writeExampleToFile filename = do
   let baseModificationEvolutionPlan =
-        constructModificationLevelEP
-          . flattenEvolutionPlan
+        deriveSoundModifications
+          . flattenSoundEvolutionPlan
           $ baseEvolutionPlan
       v1ModificationEvolutionPlan =
-        constructModificationLevelEP
-          . flattenEvolutionPlan
+        deriveSoundModifications
+          . flattenSoundEvolutionPlan
           $ v1EvolutionPlan
       v2ModificationEvolutionPlan =
-        constructModificationLevelEP
-          . flattenEvolutionPlan
+        deriveSoundModifications
+          . flattenSoundEvolutionPlan
           $ v2EvolutionPlan
       mergePlan =
         createMergePlan
@@ -111,10 +32,10 @@ writeExampleToFile filename = do
       unifiedMergePlan =
         unifyMergePlan mergePlan
       checkedAndIntegratedPlan =
-        unifiedMergePlan >>= integrateAllModifications
+        unifiedMergePlan >>= integrateAndCheckModifications
       expectedEvolutionPlanTransformed =
-        constructModificationLevelEP
-          . flattenEvolutionPlan
+        deriveSoundModifications
+          . flattenSoundEvolutionPlan
           $ expectedEvolutionPlan
       actualResult =
         threeWayMerge
@@ -124,13 +45,13 @@ writeExampleToFile filename = do
 
   print $ "Writing json to file " ++ filename
   encodeFile filename $
-    MergeResult
+    ElmMergeResult
       "Sound Example"
-      [ MergeEvolutionPlan "Base" $ EvolutionPlanResult baseEvolutionPlan
-      , MergeEvolutionPlan "Version 1" $ EvolutionPlanResult v1EvolutionPlan
-      , MergeEvolutionPlan "Version 2" $ EvolutionPlanResult v2EvolutionPlan
-      , MergeEvolutionPlan "Expected" $ EvolutionPlanResult expectedEvolutionPlan
-      , MergeEvolutionPlan "Actual" $
+      [ ElmNamedEvolutionPlan "Base" $ EvolutionPlanResult baseEvolutionPlan
+      , ElmNamedEvolutionPlan "Version 1" $ EvolutionPlanResult v1EvolutionPlan
+      , ElmNamedEvolutionPlan "Version 2" $ EvolutionPlanResult v2EvolutionPlan
+      , ElmNamedEvolutionPlan "Expected" $ EvolutionPlanResult expectedEvolutionPlan
+      , ElmNamedEvolutionPlan "Actual" $
           either
             (ConflictResult . conflictErrorMsg)
             EvolutionPlanResult
