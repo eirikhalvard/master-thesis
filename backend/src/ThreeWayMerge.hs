@@ -7,10 +7,10 @@ import Merge.Types
 import Types
 
 threeWayMerge ::
-  AbstractedLevelEvolutionPlan TreeFeatureModel ->
-  AbstractedLevelEvolutionPlan TreeFeatureModel ->
-  AbstractedLevelEvolutionPlan TreeFeatureModel ->
-  Either Conflict (AbstractedLevelEvolutionPlan TreeFeatureModel)
+  UserLevelEvolutionPlan TreeFeatureModel ->
+  UserLevelEvolutionPlan TreeFeatureModel ->
+  UserLevelEvolutionPlan TreeFeatureModel ->
+  Either Conflict (UserLevelEvolutionPlan TreeFeatureModel)
 threeWayMerge base v1 v2 =
   unifyMergePlan mergePlan
     >>= integrateAllModifications
@@ -26,7 +26,7 @@ threeWayMerge' ::
   ModificationLevelEvolutionPlan FlatFeatureModel ->
   ModificationLevelEvolutionPlan FlatFeatureModel ->
   ModificationLevelEvolutionPlan FlatFeatureModel ->
-  Either Conflict (AbstractedLevelEvolutionPlan TreeFeatureModel)
+  Either Conflict (UserLevelEvolutionPlan TreeFeatureModel)
 threeWayMerge' base v1 v2 =
   unifyMergePlan mergePlan
     >>= integrateAllModifications

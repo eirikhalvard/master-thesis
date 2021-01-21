@@ -81,9 +81,9 @@ data GroupType
 -----------------------
 
 --  Four different types of evolution plan representations. We categorize them in
---  two categories. Abstracted evolution plans and Tranformation evolution plans
+--  two categories. User evolution plans and Tranformation evolution plans
 --
---    Abstracted Evolution Plans:
+--    User Evolution Plans:
 --      Represents the evolution plan as a list of feature models, where each
 --      feature model is coupled with a time point. In this representation the
 --      exact changes between each feature model is implicit as the difference
@@ -93,14 +93,9 @@ data GroupType
 --      of plans, where each plan is a time point and a transformation. The
 --      transformation describes how the previous feature model should be
 --      transformed in order to achieve the feature model at the given time
---      point. We define three different types of transformations, namely
---      User level, modification level and merge level modifications.
+--      point. We define two different types of transformations, namely
+--      Modification level and merge level modifications.
 --
---      User Level Transformation:
---        Represents each transformation as a list of operations. The operations
---        will have to be executed in the given order, in order to ensure the
---        correct result. This representation reflects exactly how the user
---        achieved the given feature model from the previous time point.
 --      Modification Level Transformation:
 --        Represents the transformation as a set of modifications. This
 --        representation guarantees that each there are no conflicting
@@ -115,15 +110,15 @@ data GroupType
 --        changed, added or removed in several versions, which this
 --        representation encodes.
 
-type UserTree = AbstractedLevelEvolutionPlan TreeFeatureModel
+type UserTree = UserLevelEvolutionPlan TreeFeatureModel
 
-type UserFlat = AbstractedLevelEvolutionPlan FlatFeatureModel
+type UserFlat = UserLevelEvolutionPlan FlatFeatureModel
 
 type ModFlat = ModificationLevelEvolutionPlan FlatFeatureModel
 
 type Time = Int
 
-data AbstractedLevelEvolutionPlan featureModel = AbstractedLevelEvolutionPlan
+data UserLevelEvolutionPlan featureModel = UserLevelEvolutionPlan
   { _timePoints :: [TimePoint featureModel]
   }
   deriving (Show, Eq, Read, Generic)
@@ -147,8 +142,6 @@ data Plan transformation = Plan
   }
   deriving (Show, Eq, Read)
 
-type UserLevelEvolutionPlan featureModel = TransformationEvolutionPlan Operations featureModel
-
 type ModificationLevelEvolutionPlan featureModel = TransformationEvolutionPlan Modifications featureModel
 
 type MergeLevelEvolutionPlan featureModel = TransformationEvolutionPlan DiffResult featureModel
@@ -156,77 +149,6 @@ type MergeLevelEvolutionPlan featureModel = TransformationEvolutionPlan DiffResu
 ----------------------------
 --  TRANSFORMATION TYPES  --
 ----------------------------
-
---- OPERATIONS ---
-
-type Operations = [Operation]
-
-data Operation
-  = AddFeature AddFeatureOp
-  | RemoveFeature RemoveFeatureOp
-  | MoveFeature MoveFeatureOp
-  | RenameFeature RenameFeatureOp
-  | ChangeFeatureType ChangeFeatureTypeOp
-  | AddGroup AddGroupOp
-  | RemoveGroup RemoveGroupOp
-  | ChangeGroupType ChangeGroupTypeOp
-  | MoveGroup MoveGroupOp
-  deriving (Show, Eq, Read)
-
-data AddFeatureOp = AddFeatureOp
-  { _featureId :: FeatureId
-  , _name :: String
-  , _parentGroupId :: GroupId
-  , _featureType :: FeatureType
-  }
-  deriving (Show, Eq, Read)
-
-data RemoveFeatureOp = RemoveFeatureOp
-  { _featureId :: FeatureId
-  }
-  deriving (Show, Eq, Read)
-
-data MoveFeatureOp = MoveFeatureOp
-  { _featureId :: FeatureId
-  , _groupId :: GroupId
-  }
-  deriving (Show, Eq, Read)
-
-data RenameFeatureOp = RenameFeatureOp
-  { _featureId :: FeatureId
-  , _name :: String
-  }
-  deriving (Show, Eq, Read)
-
-data ChangeFeatureTypeOp = ChangeFeatureTypeOp
-  { _featureId :: FeatureId
-  , _featureType :: FeatureType
-  }
-  deriving (Show, Eq, Read)
-
-data AddGroupOp = AddGroupOp
-  { _groupId :: GroupId
-  , _parentFeatureId :: FeatureId
-  , _groupType :: GroupType
-  }
-  deriving (Show, Eq, Read)
-
-data RemoveGroupOp = RemoveGroupOp
-  { _groupId :: GroupId
-  }
-  deriving (Show, Eq, Read)
-
-data ChangeGroupTypeOp = ChangeGroupTypeOp
-  { _groupId :: GroupId
-  , _groupType :: GroupType
-  }
-  deriving (Show, Eq, Read)
-
-data MoveGroupOp = MoveGroupOp
-  { _groupId :: GroupId
-  , _parentFeatureId :: FeatureId
-  }
-  deriving (Show, Eq, Read)
 
 --- MODIFICATIONS ---
 

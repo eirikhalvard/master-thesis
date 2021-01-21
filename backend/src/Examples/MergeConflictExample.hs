@@ -24,7 +24,7 @@ data ExampleResult = ExampleResult
   { base :: ModificationLevelEvolutionPlan FlatFeatureModel
   , v1 :: ModificationLevelEvolutionPlan FlatFeatureModel
   , v2 :: ModificationLevelEvolutionPlan FlatFeatureModel
-  , expected :: Either Conflict (AbstractedLevelEvolutionPlan TreeFeatureModel)
+  , expected :: Either Conflict (UserLevelEvolutionPlan TreeFeatureModel)
   }
 
 multipleAdd :: ExampleResult

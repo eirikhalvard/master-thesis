@@ -8,9 +8,9 @@ import Types
 --                     Tree Based Evolution Plan                      --
 ------------------------------------------------------------------------
 
-baseEvolutionPlan :: AbstractedLevelEvolutionPlan TreeFeatureModel
+baseEvolutionPlan :: UserLevelEvolutionPlan TreeFeatureModel
 baseEvolutionPlan =
-  AbstractedLevelEvolutionPlan
+  UserLevelEvolutionPlan
     [ TimePoint 0 fm0
     , TimePoint 1 fm1
     , TimePoint 2 fm2
@@ -99,9 +99,9 @@ baseEvolutionPlan =
             ]
         ]
 
-v1EvolutionPlan :: AbstractedLevelEvolutionPlan TreeFeatureModel
+v1EvolutionPlan :: UserLevelEvolutionPlan TreeFeatureModel
 v1EvolutionPlan =
-  AbstractedLevelEvolutionPlan
+  UserLevelEvolutionPlan
     [ TimePoint 0 fm0
     , TimePoint 1 fm1
     , TimePoint 2 fm2
@@ -191,9 +191,9 @@ v1EvolutionPlan =
             ]
         ]
 
-v2EvolutionPlan :: AbstractedLevelEvolutionPlan TreeFeatureModel
+v2EvolutionPlan :: UserLevelEvolutionPlan TreeFeatureModel
 v2EvolutionPlan =
-  AbstractedLevelEvolutionPlan
+  UserLevelEvolutionPlan
     [ TimePoint 0 fm0
     , TimePoint 1 fm1
     , TimePoint 2 fm2
@@ -283,9 +283,9 @@ v2EvolutionPlan =
             ]
         ]
 
-expectedEvolutionPlan :: AbstractedLevelEvolutionPlan TreeFeatureModel
+expectedEvolutionPlan :: UserLevelEvolutionPlan TreeFeatureModel
 expectedEvolutionPlan =
-  AbstractedLevelEvolutionPlan
+  UserLevelEvolutionPlan
     [ TimePoint 0 fm0
     , TimePoint 1 fm1
     , TimePoint 2 fm2

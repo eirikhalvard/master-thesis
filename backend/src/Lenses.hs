@@ -21,21 +21,10 @@ makePrisms ''FeatureType
 makePrisms ''GroupType
 
 -- Using makeLenses in order to get polymorphic lenses
-makeLenses ''AbstractedLevelEvolutionPlan
+makeLenses ''UserLevelEvolutionPlan
 makeLenses ''TimePoint
 makeLenses ''TransformationEvolutionPlan
 makeLenses ''Plan
-
-makePrisms ''Operation
-makeFieldsNoPrefix ''AddFeatureOp
-makeFieldsNoPrefix ''RemoveFeatureOp
-makeFieldsNoPrefix ''MoveFeatureOp
-makeFieldsNoPrefix ''RenameFeatureOp
-makeFieldsNoPrefix ''ChangeFeatureTypeOp
-makeFieldsNoPrefix ''AddGroupOp
-makeFieldsNoPrefix ''RemoveGroupOp
-makeFieldsNoPrefix ''ChangeGroupTypeOp
-makeFieldsNoPrefix ''MoveGroupOp
 
 makeFieldsNoPrefix ''Modifications
 makePrisms ''FeatureModification
