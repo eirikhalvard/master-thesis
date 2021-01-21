@@ -19,9 +19,9 @@ import Types
 --   | GroupConflict (BothChange GroupModification)
 --   deriving (Show, Eq)
 
-multipleAdd :: ExampleResult
+multipleAdd :: OldMergeInput
 multipleAdd =
-  ExampleResult
+  OldMergeInput
     { base = baseConstructedEvolutionPlan
     , v1 =
         v1ConstructedEvolutionPlan
@@ -61,8 +61,8 @@ multipleAdd =
             )
     }
 
-showExampleResult :: ExampleResult -> IO ()
-showExampleResult (ExampleResult base v1 v2 expected) = do
+showExampleResult :: OldMergeInput -> IO ()
+showExampleResult (OldMergeInput base v1 v2 expected) = do
   let result = threeWayMerge' base v1 v2
   if result == expected
     then do

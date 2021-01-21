@@ -43,8 +43,6 @@ makePrisms ''RemovedOrChangedModification
 makeFieldsNoPrefix ''AddedModification
 makePrisms ''Version
 
-makeFieldsNoPrefix ''MergeArtifact
-
 -- --- Optic helpers
 
 parentGroupOfFeature :: FeatureId -> Traversal' FlatFeatureModel FlatGroup

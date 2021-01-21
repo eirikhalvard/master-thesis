@@ -272,7 +272,7 @@ data Version
 --                           Merge Artifact                           --
 ------------------------------------------------------------------------
 
-data MergeArtifact evolutionPlan = MergeArtifact
+data MergeInput evolutionPlan = MergeInput
   { _name :: String
   , _base :: evolutionPlan
   , _v1 :: evolutionPlan
@@ -280,7 +280,21 @@ data MergeArtifact evolutionPlan = MergeArtifact
   }
   deriving (Show, Eq, Read, Generic, Functor)
 
-data ExampleResult = ExampleResult
+data MergeInputWithExpected inputEvolutionPlan outputEvolutionPlan = MergeInputWithExpected
+  { _input :: MergeInput inputEvolutionPlan
+  , _expected :: MergeResult outputEvolutionPlan
+  }
+
+data MergeOutput
+  = UnsuccessfulMerge Conflict
+  | SuccessfulMerge FlatModificationEvolutionPlan FlatUserEvolutionPlan
+  deriving (Show, Eq, Read)
+
+data MergeResult evolutionPlan
+  = MergeFailure Conflict
+  | MergeSuccess evolutionPlan
+
+data OldMergeInput = OldMergeInput
   { base :: FlatModificationEvolutionPlan
   , v1 :: FlatModificationEvolutionPlan
   , v2 :: FlatModificationEvolutionPlan
@@ -288,43 +302,94 @@ data ExampleResult = ExampleResult
   }
 
 ------------------------------------------------------------------------
---                   Merge Result And Json Encoding                   --
+--                       Elm Data Serialization                       --
 ------------------------------------------------------------------------
 
-data MergeExamples = MergeExamples
-  { _examples :: [MergeResult]
+data ElmDataExamples = ElmDataExamples
+  { _examples :: [ElmMergeResult]
   }
   deriving (Show, Eq, Read, Generic)
 
-data MergeResult = MergeResult
+data ElmMergeResult = ElmMergeResult
   { _name :: String
-  , _evolutionPlans :: [NamedEvolutionPlan]
+  , _evolutionPlans :: [ElmNamedEvolutionPlan]
   }
   deriving (Show, Eq, Read, Generic)
 
-data NamedEvolutionPlan = NamedEvolutionPlan
+data ElmNamedEvolutionPlan = ElmNamedEvolutionPlan
   { _name :: String
-  , _mergeData :: MergeData
+  , _mergeData :: ElmSingleEvolutionPlan
   }
   deriving (Show, Eq, Read, Generic)
 
-data MergeData
+data ElmSingleEvolutionPlan
   = EvolutionPlanResult TreeUserEvolutionPlan
   | ConflictResult String
   deriving (Show, Eq, Read, Generic)
 
+------------------------------------------------------------------------
+--                              Conflict                              --
+------------------------------------------------------------------------
+
+data Conflict
+  = Merge Time MergeConflict
+  | Local Time LocalConflict
+  | Global Time GlobalConflict
+  | Panic Time String
+  deriving (Show, Eq, Read)
+
+data MergeConflict
+  = FeatureConflict (BothChange FeatureModification)
+  | GroupConflict (BothChange GroupModification)
+  deriving (Show, Eq, Read)
+
+data LocalConflict
+  = FeatureAlreadyExists FeatureModification FeatureId
+  | FeatureNotExists FeatureModification FeatureId
+  | GroupAlreadyExists GroupModification GroupId
+  | GroupNotExists GroupModification GroupId
+  deriving (Show, Eq, Read)
+
+data GlobalConflict
+  = FailedDependencies [Dependency]
+  deriving (Show, Eq, Read)
+
+data Dependency
+  = FeatureDependency FeatureModification FeatureDependencyType
+  | GroupDependency GroupModification GroupDependencyType
+  deriving (Show, Eq, Read)
+
+data FeatureDependencyType
+  = NoChildGroups FeatureId
+  | ParentGroupExists GroupId
+  | NoCycleFromFeature FeatureId
+  | FeatureIsWellFormed FeatureId
+  | UniqueName String
+  deriving (Show, Eq, Read)
+
+data GroupDependencyType
+  = NoChildFeatures GroupId
+  | ParentFeatureExists FeatureId
+  | NoCycleFromGroup GroupId
+  | GroupIsWellFormed GroupId
+  deriving (Show, Eq, Read)
+
+------------------------------------------------------------------------
+--                         JSON Serialization                         --
+------------------------------------------------------------------------
+
 customAesonOptions :: Options
 customAesonOptions = defaultOptions{fieldLabelModifier = tail}
 
-instance ToJSON MergeResult where
+instance ToJSON ElmMergeResult where
   toJSON = genericToJSON customAesonOptions
   toEncoding = genericToEncoding customAesonOptions
 
-instance ToJSON NamedEvolutionPlan where
+instance ToJSON ElmNamedEvolutionPlan where
   toJSON = genericToJSON customAesonOptions
   toEncoding = genericToEncoding customAesonOptions
 
-instance ToJSON MergeData where
+instance ToJSON ElmSingleEvolutionPlan where
   toJSON = genericToJSON customAesonOptions
   toEncoding = genericToEncoding customAesonOptions
 
@@ -356,53 +421,6 @@ instance ToJSON GroupType where
   toJSON = genericToJSON customAesonOptions
   toEncoding = genericToEncoding customAesonOptions
 
-instance ToJSON evolutionPlan => ToJSON (MergeArtifact evolutionPlan) where
+instance ToJSON evolutionPlan => ToJSON (MergeInput evolutionPlan) where
   toJSON = genericToJSON customAesonOptions
   toEncoding = genericToEncoding customAesonOptions
-
-------------------------------------------------------------------------
---                              Conflict                              --
-------------------------------------------------------------------------
-
-data Conflict
-  = Merge Time MergeConflict
-  | Local Time LocalConflict
-  | Global Time GlobalConflict
-  | Panic Time String
-  deriving (Show, Eq)
-
-data MergeConflict
-  = FeatureConflict (BothChange FeatureModification)
-  | GroupConflict (BothChange GroupModification)
-  deriving (Show, Eq)
-
-data LocalConflict
-  = FeatureAlreadyExists FeatureModification FeatureId
-  | FeatureNotExists FeatureModification FeatureId
-  | GroupAlreadyExists GroupModification GroupId
-  | GroupNotExists GroupModification GroupId
-  deriving (Show, Eq)
-
-data GlobalConflict
-  = FailedDependencies [Dependency]
-  deriving (Show, Eq)
-
-data Dependency
-  = FeatureDependency FeatureModification FeatureDependencyType
-  | GroupDependency GroupModification GroupDependencyType
-  deriving (Show, Eq)
-
-data FeatureDependencyType
-  = NoChildGroups FeatureId
-  | ParentGroupExists GroupId
-  | NoCycleFromFeature FeatureId
-  | FeatureIsWellFormed FeatureId
-  | UniqueName String
-  deriving (Show, Eq)
-
-data GroupDependencyType
-  = NoChildFeatures GroupId
-  | ParentFeatureExists FeatureId
-  | NoCycleFromGroup GroupId
-  | GroupIsWellFormed GroupId
-  deriving (Show, Eq)

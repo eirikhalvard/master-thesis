@@ -45,13 +45,13 @@ writeExampleToFile filename = do
 
   print $ "Writing json to file " ++ filename
   encodeFile filename $
-    MergeResult
+    ElmMergeResult
       "Sound Example"
-      [ NamedEvolutionPlan "Base" $ EvolutionPlanResult baseEvolutionPlan
-      , NamedEvolutionPlan "Version 1" $ EvolutionPlanResult v1EvolutionPlan
-      , NamedEvolutionPlan "Version 2" $ EvolutionPlanResult v2EvolutionPlan
-      , NamedEvolutionPlan "Expected" $ EvolutionPlanResult expectedEvolutionPlan
-      , NamedEvolutionPlan "Actual" $
+      [ ElmNamedEvolutionPlan "Base" $ EvolutionPlanResult baseEvolutionPlan
+      , ElmNamedEvolutionPlan "Version 1" $ EvolutionPlanResult v1EvolutionPlan
+      , ElmNamedEvolutionPlan "Version 2" $ EvolutionPlanResult v2EvolutionPlan
+      , ElmNamedEvolutionPlan "Expected" $ EvolutionPlanResult expectedEvolutionPlan
+      , ElmNamedEvolutionPlan "Actual" $
           either
             (ConflictResult . conflictErrorMsg)
             EvolutionPlanResult
