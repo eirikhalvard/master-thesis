@@ -5,12 +5,11 @@ import Merge.CheckPlan (integrateAndCheckModifications, unflattenSoundEvolutionP
 import Merge.PlanMerging (createMergePlan, unifyMergePlan)
 import Types
 
+-- TODO: generelize with convertable and convertFrom
 threeWayMerge ::
-  TreeUserEvolutionPlan ->
-  TreeUserEvolutionPlan ->
-  TreeUserEvolutionPlan ->
-  Either Conflict TreeUserEvolutionPlan
-threeWayMerge base v1 v2 = do
+  MergeInput TreeUserEvolutionPlan ->
+  MergeOutput
+threeWayMerge (MergeInput _ base v1 v2) = do
   let mergePlan =
         createMergePlan
           (deriveSoundModifications . flattenSoundEvolutionPlan $ base)
@@ -18,8 +17,9 @@ threeWayMerge base v1 v2 = do
           (deriveSoundModifications . flattenSoundEvolutionPlan $ v2)
   mergedModificationPlan <- unifyMergePlan mergePlan
   checkedUserFlatPlan <- integrateAndCheckModifications mergedModificationPlan
-  return $ unflattenSoundEvolutionPlan checkedUserFlatPlan
+  return (mergedModificationPlan, checkedUserFlatPlan)
 
+-- TODO: depricate
 threeWayMerge' ::
   FlatModificationEvolutionPlan ->
   FlatModificationEvolutionPlan ->

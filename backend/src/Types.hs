@@ -12,9 +12,9 @@ import qualified Data.Set as S
 import Data.Aeson
 import GHC.Generics
 
-----------------------
---  FEATURE MODELS  --
-----------------------
+------------------------------------------------------------------------
+--                           Feature Models                           --
+------------------------------------------------------------------------
 
 type FeatureId = String
 
@@ -75,9 +75,9 @@ data GroupType
   | Alternative
   deriving (Show, Eq, Read, Ord, Generic)
 
------------------------
---  EVOLUTION PLANS  --
------------------------
+------------------------------------------------------------------------
+--                          Evolution Plans                           --
+------------------------------------------------------------------------
 
 --  Four different types of evolution plan representations. We categorize them in
 --  two categories. User evolution plans and Tranformation evolution plans
@@ -145,9 +145,9 @@ type ModificationEvolutionPlan featureModel = TransformationEvolutionPlan Modifi
 
 type MergeEvolutionPlan featureModel = TransformationEvolutionPlan DiffResult featureModel
 
-----------------------------
---  TRANSFORMATION TYPES  --
-----------------------------
+------------------------------------------------------------------------
+--                        Transformation Types                        --
+------------------------------------------------------------------------
 
 --- MODIFICATIONS ---
 
@@ -268,7 +268,7 @@ data Version
   deriving (Show, Eq, Read)
 
 ------------------------------------------------------------------------
---                           Merge Artifact                           --
+--                       Merge Input / Output                         --
 ------------------------------------------------------------------------
 
 data MergeInput evolutionPlan = MergeInput
@@ -279,19 +279,14 @@ data MergeInput evolutionPlan = MergeInput
   }
   deriving (Show, Eq, Read, Generic, Functor)
 
-data MergeInputWithExpected inputEvolutionPlan outputEvolutionPlan = MergeInputWithExpected
-  { _input :: MergeInput inputEvolutionPlan
-  , _expected :: MergeResult outputEvolutionPlan
+data MergeInputWithExpected evolutionPlan = MergeInputWithExpected
+  { _input :: MergeInput evolutionPlan
+  , _expected :: MergeResult evolutionPlan
   }
 
-data MergeOutput
-  = UnsuccessfulMerge Conflict
-  | SuccessfulMerge FlatModificationEvolutionPlan FlatUserEvolutionPlan
-  deriving (Show, Eq, Read)
+type MergeOutput = Either Conflict (FlatModificationEvolutionPlan, FlatUserEvolutionPlan)
 
-data MergeResult evolutionPlan
-  = MergeFailure Conflict
-  | MergeSuccess evolutionPlan
+type MergeResult evolutionPlan = Either Conflict evolutionPlan
 
 data OldMergeInput = OldMergeInput
   { base :: FlatModificationEvolutionPlan
@@ -305,11 +300,11 @@ data OldMergeInput = OldMergeInput
 ------------------------------------------------------------------------
 
 data ElmDataExamples = ElmDataExamples
-  { _examples :: [ElmMergeResult]
+  { _examples :: [ElmMergeExample]
   }
   deriving (Show, Eq, Read, Generic)
 
-data ElmMergeResult = ElmMergeResult
+data ElmMergeExample = ElmMergeExample
   { _name :: String
   , _evolutionPlans :: [ElmNamedEvolutionPlan]
   }
@@ -317,13 +312,8 @@ data ElmMergeResult = ElmMergeResult
 
 data ElmNamedEvolutionPlan = ElmNamedEvolutionPlan
   { _name :: String
-  , _mergeData :: ElmSingleEvolutionPlan
+  , _mergeData :: Either String TreeUserEvolutionPlan
   }
-  deriving (Show, Eq, Read, Generic)
-
-data ElmSingleEvolutionPlan
-  = EvolutionPlanResult TreeUserEvolutionPlan
-  | ConflictResult String
   deriving (Show, Eq, Read, Generic)
 
 ------------------------------------------------------------------------
@@ -380,15 +370,15 @@ data GroupDependencyType
 customAesonOptions :: Options
 customAesonOptions = defaultOptions{fieldLabelModifier = tail}
 
-instance ToJSON ElmMergeResult where
+instance ToJSON ElmDataExamples where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON ElmMergeExample where
   toJSON = genericToJSON customAesonOptions
   toEncoding = genericToEncoding customAesonOptions
 
 instance ToJSON ElmNamedEvolutionPlan where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON ElmSingleEvolutionPlan where
   toJSON = genericToJSON customAesonOptions
   toEncoding = genericToEncoding customAesonOptions
 

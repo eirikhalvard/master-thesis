@@ -8,7 +8,13 @@ import Types
 --                     Tree Based Evolution Plan                      --
 ------------------------------------------------------------------------
 
-baseEvolutionPlan :: UserEvolutionPlan TreeFeatureModel
+soundExample :: MergeInputWithExpected TreeUserEvolutionPlan
+soundExample =
+  MergeInputWithExpected
+    (MergeInput "Sound Example" baseEvolutionPlan v1EvolutionPlan v2EvolutionPlan)
+    (Right expectedEvolutionPlan)
+
+baseEvolutionPlan :: TreeUserEvolutionPlan
 baseEvolutionPlan =
   UserEvolutionPlan
     [ TimePoint 0 fm0
@@ -99,7 +105,7 @@ baseEvolutionPlan =
             ]
         ]
 
-v1EvolutionPlan :: UserEvolutionPlan TreeFeatureModel
+v1EvolutionPlan :: TreeUserEvolutionPlan
 v1EvolutionPlan =
   UserEvolutionPlan
     [ TimePoint 0 fm0
@@ -191,7 +197,7 @@ v1EvolutionPlan =
             ]
         ]
 
-v2EvolutionPlan :: UserEvolutionPlan TreeFeatureModel
+v2EvolutionPlan :: TreeUserEvolutionPlan
 v2EvolutionPlan =
   UserEvolutionPlan
     [ TimePoint 0 fm0
@@ -283,7 +289,7 @@ v2EvolutionPlan =
             ]
         ]
 
-expectedEvolutionPlan :: UserEvolutionPlan TreeFeatureModel
+expectedEvolutionPlan :: TreeUserEvolutionPlan
 expectedEvolutionPlan =
   UserEvolutionPlan
     [ TimePoint 0 fm0
@@ -380,7 +386,18 @@ expectedEvolutionPlan =
 --                     Constructed Evolution Plan                     --
 ------------------------------------------------------------------------
 
-baseConstructedEvolutionPlan :: TransformationEvolutionPlan Modifications FlatFeatureModel
+soundConstructedExample :: MergeInputWithExpected FlatModificationEvolutionPlan
+soundConstructedExample =
+  MergeInputWithExpected
+    ( MergeInput
+        "Sound Example"
+        baseConstructedEvolutionPlan
+        v1ConstructedEvolutionPlan
+        v2ConstructedEvolutionPlan
+    )
+    (Right expectedConstructedEvolutionPlan)
+
+baseConstructedEvolutionPlan :: FlatModificationEvolutionPlan
 baseConstructedEvolutionPlan =
   TransformationEvolutionPlan
     0
@@ -496,7 +513,7 @@ baseConstructedEvolutionPlan =
         )
     ]
 
-v1ConstructedEvolutionPlan :: TransformationEvolutionPlan Modifications FlatFeatureModel
+v1ConstructedEvolutionPlan :: FlatModificationEvolutionPlan
 v1ConstructedEvolutionPlan =
   TransformationEvolutionPlan
     0
@@ -612,7 +629,7 @@ v1ConstructedEvolutionPlan =
         )
     ]
 
-v2ConstructedEvolutionPlan :: TransformationEvolutionPlan Modifications FlatFeatureModel
+v2ConstructedEvolutionPlan :: FlatModificationEvolutionPlan
 v2ConstructedEvolutionPlan =
   TransformationEvolutionPlan
     0
@@ -732,7 +749,7 @@ v2ConstructedEvolutionPlan =
         )
     ]
 
-expectedConstructedEvolutionPlan :: TransformationEvolutionPlan Modifications FlatFeatureModel
+expectedConstructedEvolutionPlan :: FlatModificationEvolutionPlan
 expectedConstructedEvolutionPlan =
   TransformationEvolutionPlan
     0
