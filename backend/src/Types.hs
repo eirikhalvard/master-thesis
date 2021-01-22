@@ -6,7 +6,6 @@
 
 module Types where
 
-import Control.Lens
 import qualified Data.Map as M
 import qualified Data.Set as S
 
