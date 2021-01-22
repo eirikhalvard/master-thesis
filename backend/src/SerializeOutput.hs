@@ -14,11 +14,15 @@ import Data.Aeson (encodeFile)
 
 writeExampleToFile :: FilePath -> IO ()
 writeExampleToFile filename = do
-  let mergeInput@(MergeInputWithExpected input expected) = soundExample
+  let mergeInput@(MergeInputWithExpected input _) = soundExample
       mergeOutput = threeWayMerge input
-  print $ "Writing json to file " ++ filename
   encodeFile filename $ createElmExample mergeInput mergeOutput
-  runFaultyTests
+
+createElmExamples ::
+  (ConvertableInput evolutionPlan TreeUserEvolutionPlan) =>
+  [(MergeInputWithExpected evolutionPlan, MergeOutput)] ->
+  ElmDataExamples
+createElmExamples = ElmDataExamples . fmap (uncurry createElmExample)
 
 createElmExample ::
   (ConvertableInput evolutionPlan TreeUserEvolutionPlan) =>
