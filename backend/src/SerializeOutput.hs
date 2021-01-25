@@ -14,36 +14,39 @@ import Data.Aeson (encodeFile)
 
 writeExampleToFile :: FilePath -> IO ()
 writeExampleToFile filename = do
-  let mergeInput@(MergeInputWithExpected input _) = soundExample
+  let (MergeInputWithExpected input expected) = soundExample
       mergeOutput = threeWayMerge input
-  encodeFile filename $ createElmExample mergeInput mergeOutput
+  encodeFile filename $ createElmExample input (Just expected) mergeOutput
 
 createElmExamples ::
   (ConvertableInput evolutionPlan TreeUserEvolutionPlan) =>
-  [(MergeInputWithExpected evolutionPlan, MergeOutput)] ->
+  [(MergeInput evolutionPlan, Maybe (MergeResult evolutionPlan), MergeOutput)] ->
   ElmDataExamples
-createElmExamples = ElmDataExamples . fmap (uncurry createElmExample)
+createElmExamples = ElmDataExamples . fmap (\(input, mExpected, output) -> createElmExample input mExpected output)
 
 createElmExample ::
   (ConvertableInput evolutionPlan TreeUserEvolutionPlan) =>
-  MergeInputWithExpected evolutionPlan ->
+  MergeInput evolutionPlan ->
+  Maybe (MergeResult evolutionPlan) ->
   MergeOutput ->
   ElmMergeExample
-createElmExample (MergeInputWithExpected (MergeInput name base v1 v2) expected) result =
+createElmExample (MergeInput name base v1 v2) maybeExpected result =
   ElmMergeExample
     name
-    [ ElmNamedEvolutionPlan "Base" $
-        Right (convertFrom base)
-    , ElmNamedEvolutionPlan "Version 1" $
-        Right (convertFrom v1)
-    , ElmNamedEvolutionPlan "Version 2" $
-        Right (convertFrom v2)
-    , ElmNamedEvolutionPlan "Expected" $
-        bimap conflictErrorMsg convertFrom expected
-    , ElmNamedEvolutionPlan "Actual" $
-        bimap conflictErrorMsg (uncurry convertFromMergeResult) result
-    ]
-
+    ( [ ElmNamedEvolutionPlan "Base" $
+          Right (convertFrom base)
+      , ElmNamedEvolutionPlan "Version 1" $
+          Right (convertFrom v1)
+      , ElmNamedEvolutionPlan "Version 2" $
+          Right (convertFrom v2)
+      ]
+        ++ foldMap
+          (pure . ElmNamedEvolutionPlan "Expected" . bimap conflictErrorMsg convertFrom)
+          maybeExpected
+        ++ [ ElmNamedEvolutionPlan "Actual" $
+              bimap conflictErrorMsg (uncurry convertFromMergeResult) result
+           ]
+    )
 runFaultyTests :: IO ()
 runFaultyTests = do
   showExampleResult multipleAdd
