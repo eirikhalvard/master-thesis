@@ -1,9 +1,12 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 module Main where
 
+import Control.Monad
+import Data.Aeson (ToJSON)
 import qualified Data.Map as M
 
 import Convertable
-import Data.Aeson (ToJSON)
 import Examples.MergeConflictExample (multipleAdd)
 import Examples.SoundExample
 import SerializeOutput
@@ -28,37 +31,64 @@ mergeAll shouldPrint shouldWriteToElm =
     handleSingleMerge = undefined
 
 mergeSingle ::
-  (ConvertableFromResult outputEvolutionPlan, ToJSON outputEvolutionPlan) =>
+  ( ConvertableFromResult outputEvolutionPlan
+  , ConvertableInput TreeUserEvolutionPlan outputEvolutionPlan
+  , ConvertableInput FlatUserEvolutionPlan outputEvolutionPlan
+  , ConvertableInput FlatModificationEvolutionPlan outputEvolutionPlan
+  , Eq outputEvolutionPlan
+  , Show outputEvolutionPlan
+  , ToJSON outputEvolutionPlan
+  ) =>
   Bool ->
-  Bool ->
+  Maybe FilePath ->
   Maybe FilePath ->
   MergeInput ->
   IO (MergeResult outputEvolutionPlan)
-mergeSingle shouldPrint shouldWriteToElm maybeFilepath mergeInput = do
+mergeSingle shouldPrint maybeElmFilePath maybeFilepath mergeInput = do
   let mergeOutput = case mergeInput of
-        TreeUser ep -> threeWayMerge ep
-        FlatUser ep -> threeWayMerge ep
-        FlatModification ep -> threeWayMerge ep
+        TreeUser mergeInputData -> threeWayMerge mergeInputData
+        FlatUser mergeInputData -> threeWayMerge mergeInputData
+        FlatModification mergeInputData -> threeWayMerge mergeInputData
+      convertedInputData = case mergeInput of
+        TreeUser mergeInputData -> convertFrom <$> mergeInputData
+        FlatUser mergeInputData -> convertFrom <$> mergeInputData
+        FlatModification mergeInputData -> convertFrom <$> mergeInputData
       convertedResult = fmap (uncurry convertFromMergeResult) mergeOutput
 
-  if shouldPrint
-    then return ()
-    else return ()
+  when shouldPrint (printResult convertedInputData convertedResult)
 
-  if shouldWriteToElm
-    then return ()
-    else return ()
-
-  case maybeFilepath of
+  case maybeElmFilePath of
     Nothing -> return ()
-    Just filepath -> case convertedResult of
-      Left _ -> print "Could not write to file, conflict occured!"
-      Right resultingEvolutionPlan -> writeResultToFile filepath resultingEvolutionPlan
+    Just filepath ->
+      case mergeInput of
+        TreeUser mergeInputData ->
+          writeElmExamplesToFile filepath [(mergeInputData, mergeOutput)]
+        FlatUser mergeInputData ->
+          writeElmExamplesToFile filepath [(mergeInputData, mergeOutput)]
+        FlatModification mergeInputData ->
+          writeElmExamplesToFile filepath [(mergeInputData, mergeOutput)]
+
+  mapM_
+    ( \filepath -> case convertedResult of
+        Left _ -> print "Could not write to file, conflict occured!"
+        Right resultingEvolutionPlan -> writeResultToFile filepath resultingEvolutionPlan
+    )
+    maybeFilepath
 
   return convertedResult
 
 main :: IO ()
 main = do
-  writeElmExamplesToFile
-    "../frontend/data/elm-input.json"
-    [(soundExample, threeWayMerge soundExample)]
+  resultingSoundExample <- mergeOne "SoundExample"
+  return ()
+  where
+    mergeOne :: String -> IO (Maybe (MergeResult TreeUserEvolutionPlan))
+    mergeOne key = case M.lookup key mergeData of
+      Nothing -> print "key not found!" >> return Nothing
+      Just mergeInput -> do
+        Just
+          <$> mergeSingle
+            True
+            (Just "../frontend/data/elm-input.json")
+            Nothing
+            mergeInput

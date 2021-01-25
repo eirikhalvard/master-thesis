@@ -49,20 +49,20 @@ data FlatFeatureModel = FlatFeatureModel
   , _features :: M.Map FeatureId FlatFeature
   , _groups :: M.Map GroupId FlatGroup
   }
-  deriving (Show, Eq, Read)
+  deriving (Show, Eq, Read, Generic)
 
 data FlatFeature = FlatFeature
   { _parentGroupId :: Maybe GroupId
   , _featureType :: FeatureType
   , _name :: String
   }
-  deriving (Show, Eq, Read)
+  deriving (Show, Eq, Read, Generic)
 
 data FlatGroup = FlatGroup
   { _parentFeatureId :: FeatureId
   , _groupType :: GroupType
   }
-  deriving (Show, Eq, Read)
+  deriving (Show, Eq, Read, Generic)
 
 data FeatureType
   = Optional
@@ -394,6 +394,18 @@ instance ToJSON TreeFeature where
   toEncoding = genericToEncoding customAesonOptions
 
 instance ToJSON TreeGroup where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON FlatFeatureModel where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON FlatFeature where
+  toJSON = genericToJSON customAesonOptions
+  toEncoding = genericToEncoding customAesonOptions
+
+instance ToJSON FlatGroup where
   toJSON = genericToJSON customAesonOptions
   toEncoding = genericToEncoding customAesonOptions
 
