@@ -276,24 +276,13 @@ data MergeInput evolutionPlan = MergeInput
   , _base :: evolutionPlan
   , _v1 :: evolutionPlan
   , _v2 :: evolutionPlan
+  , _maybeExpected :: Maybe (MergeResult evolutionPlan)
   }
   deriving (Show, Eq, Read, Generic, Functor)
-
-data MergeInputWithExpected evolutionPlan = MergeInputWithExpected
-  { _input :: MergeInput evolutionPlan
-  , _expected :: MergeResult evolutionPlan
-  }
 
 type MergeOutput = Either Conflict (FlatModificationEvolutionPlan, FlatUserEvolutionPlan)
 
 type MergeResult evolutionPlan = Either Conflict evolutionPlan
-
-data OldMergeInput = OldMergeInput
-  { base :: FlatModificationEvolutionPlan
-  , v1 :: FlatModificationEvolutionPlan
-  , v2 :: FlatModificationEvolutionPlan
-  , expected :: Either Conflict TreeUserEvolutionPlan
-  }
 
 ------------------------------------------------------------------------
 --                       Elm Data Serialization                       --
@@ -407,9 +396,5 @@ instance ToJSON FeatureType where
   toEncoding = genericToEncoding customAesonOptions
 
 instance ToJSON GroupType where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance ToJSON evolutionPlan => ToJSON (MergeInput evolutionPlan) where
   toJSON = genericToJSON customAesonOptions
   toEncoding = genericToEncoding customAesonOptions

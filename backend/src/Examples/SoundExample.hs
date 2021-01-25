@@ -8,11 +8,14 @@ import Types
 --                     Tree Based Evolution Plan                      --
 ------------------------------------------------------------------------
 
-soundExample :: MergeInputWithExpected TreeUserEvolutionPlan
+soundExample :: MergeInput TreeUserEvolutionPlan
 soundExample =
-  MergeInputWithExpected
-    (MergeInput "Sound Example" baseEvolutionPlan v1EvolutionPlan v2EvolutionPlan)
-    (Right expectedEvolutionPlan)
+  MergeInput
+    "Sound Example"
+    baseEvolutionPlan
+    v1EvolutionPlan
+    v2EvolutionPlan
+    (Just $ Right expectedEvolutionPlan)
 
 baseEvolutionPlan :: TreeUserEvolutionPlan
 baseEvolutionPlan =
@@ -386,16 +389,14 @@ expectedEvolutionPlan =
 --                     Constructed Evolution Plan                     --
 ------------------------------------------------------------------------
 
-soundConstructedExample :: MergeInputWithExpected FlatModificationEvolutionPlan
+soundConstructedExample :: MergeInput FlatModificationEvolutionPlan
 soundConstructedExample =
-  MergeInputWithExpected
-    ( MergeInput
-        "Sound Example"
-        baseConstructedEvolutionPlan
-        v1ConstructedEvolutionPlan
-        v2ConstructedEvolutionPlan
-    )
-    (Right expectedConstructedEvolutionPlan)
+  MergeInput
+    "Sound Example"
+    baseConstructedEvolutionPlan
+    v1ConstructedEvolutionPlan
+    v2ConstructedEvolutionPlan
+    (Just $ Right expectedConstructedEvolutionPlan)
 
 baseConstructedEvolutionPlan :: FlatModificationEvolutionPlan
 baseConstructedEvolutionPlan =

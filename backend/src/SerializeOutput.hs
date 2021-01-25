@@ -2,35 +2,53 @@
 
 module SerializeOutput where
 
+import Conflict (conflictErrorMsg)
 import Convertable
 import Data.Bifunctor
 import Examples.MergeConflictExample
-import Examples.SoundExample
-import ThreeWayMerge (conflictErrorMsg, threeWayMerge)
+import Examples.SoundExample ()
 import Types
 
 import Control.Lens ()
 import Data.Aeson (encodeFile)
 
-writeExampleToFile :: FilePath -> IO ()
-writeExampleToFile filename = do
-  let (MergeInputWithExpected input expected) = soundExample
-      mergeOutput = threeWayMerge input
-  encodeFile filename $ createElmExample input (Just expected) mergeOutput
+writeExampleToFile ::
+  ( ConvertableInput evolutionPlan TreeUserEvolutionPlan
+  , ConvertableFromResult evolutionPlan
+  ) =>
+  FilePath ->
+  MergeInput evolutionPlan ->
+  MergeOutput ->
+  IO ()
+writeExampleToFile filename mergeInput mergeOutput = do
+  encodeFile filename $ createElmExample mergeInput mergeOutput
+
+writeExamplesToFile ::
+  ( ConvertableInput evolutionPlan TreeUserEvolutionPlan
+  , ConvertableFromResult evolutionPlan
+  ) =>
+  FilePath ->
+  [(MergeInput evolutionPlan, MergeOutput)] ->
+  IO ()
+writeExamplesToFile filename = do
+  encodeFile filename . fmap (uncurry createElmExample)
 
 createElmExamples ::
-  (ConvertableInput evolutionPlan TreeUserEvolutionPlan) =>
-  [(MergeInput evolutionPlan, Maybe (MergeResult evolutionPlan), MergeOutput)] ->
+  ( ConvertableInput evolutionPlan TreeUserEvolutionPlan
+  , ConvertableFromResult evolutionPlan
+  ) =>
+  [(MergeInput evolutionPlan, MergeOutput)] ->
   ElmDataExamples
-createElmExamples = ElmDataExamples . fmap (\(input, mExpected, output) -> createElmExample input mExpected output)
+createElmExamples = ElmDataExamples . fmap (uncurry createElmExample)
 
 createElmExample ::
-  (ConvertableInput evolutionPlan TreeUserEvolutionPlan) =>
+  ( ConvertableInput evolutionPlan TreeUserEvolutionPlan
+  , ConvertableFromResult evolutionPlan
+  ) =>
   MergeInput evolutionPlan ->
-  Maybe (MergeResult evolutionPlan) ->
   MergeOutput ->
   ElmMergeExample
-createElmExample (MergeInput name base v1 v2) maybeExpected result =
+createElmExample (MergeInput name base v1 v2 maybeExpected) result =
   ElmMergeExample
     name
     ( [ ElmNamedEvolutionPlan "Base" $
@@ -47,6 +65,7 @@ createElmExample (MergeInput name base v1 v2) maybeExpected result =
               bimap conflictErrorMsg (uncurry convertFromMergeResult) result
            ]
     )
+
 runFaultyTests :: IO ()
 runFaultyTests = do
   showExampleResult multipleAdd
