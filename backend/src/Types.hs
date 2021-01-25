@@ -271,7 +271,13 @@ data Version
 --                       Merge Input / Output                         --
 ------------------------------------------------------------------------
 
-data MergeInput evolutionPlan = MergeInput
+data MergeInput
+  = TreeUser (MergeInputData TreeUserEvolutionPlan)
+  | FlatUser (MergeInputData FlatUserEvolutionPlan)
+  | FlatModification (MergeInputData FlatModificationEvolutionPlan)
+  deriving (Show, Eq, Read)
+
+data MergeInputData evolutionPlan = MergeInputData
   { _name :: String
   , _base :: evolutionPlan
   , _v1 :: evolutionPlan

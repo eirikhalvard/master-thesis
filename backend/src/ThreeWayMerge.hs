@@ -9,9 +9,9 @@ import Types
 
 threeWayMerge ::
   ConvertableInput inputEvolutionPlan FlatModificationEvolutionPlan =>
-  MergeInput inputEvolutionPlan ->
+  MergeInputData inputEvolutionPlan ->
   MergeOutput
-threeWayMerge (MergeInput _ base v1 v2 _) = do
+threeWayMerge (MergeInputData _ base v1 v2 _) = do
   let mergePlan =
         createMergePlan (convertFrom base) (convertFrom v1) (convertFrom v2)
   mergedModificationPlan <- unifyMergePlan mergePlan

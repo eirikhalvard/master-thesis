@@ -8,9 +8,9 @@ import Types
 --                     Tree Based Evolution Plan                      --
 ------------------------------------------------------------------------
 
-soundExample :: MergeInput TreeUserEvolutionPlan
+soundExample :: MergeInputData TreeUserEvolutionPlan
 soundExample =
-  MergeInput
+  MergeInputData
     "Sound Example"
     baseEvolutionPlan
     v1EvolutionPlan
@@ -389,9 +389,9 @@ expectedEvolutionPlan =
 --                     Constructed Evolution Plan                     --
 ------------------------------------------------------------------------
 
-soundConstructedExample :: MergeInput FlatModificationEvolutionPlan
+soundConstructedExample :: MergeInputData FlatModificationEvolutionPlan
 soundConstructedExample =
-  MergeInput
+  MergeInputData
     "Sound Example"
     baseConstructedEvolutionPlan
     v1ConstructedEvolutionPlan

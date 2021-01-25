@@ -43,7 +43,8 @@ makePrisms ''RemovedOrChangedModification
 makeFieldsNoPrefix ''AddedModification
 makePrisms ''Version
 
-makeFieldsNoPrefix ''MergeInput
+makePrisms ''MergeInput
+makeFieldsNoPrefix ''MergeInputData
 
 makeFieldsNoPrefix ''ElmDataExamples
 makeFieldsNoPrefix ''ElmMergeExample

@@ -5,10 +5,8 @@ module Examples.MergeConflictExample where
 import Control.Lens
 import Text.Pretty.Simple
 
-import Convertable (ConvertableFromResult, ConvertableInput, convertFromMergeResult)
 import Examples.SoundExample
 import qualified Lenses as L
-import ThreeWayMerge
 import Types
 
 -- data Conflict
@@ -23,9 +21,9 @@ import Types
 --   | GroupConflict (BothChange GroupModification)
 --   deriving (Show, Eq)
 
-multipleAdd :: MergeInput FlatModificationEvolutionPlan
+multipleAdd :: MergeInputData FlatModificationEvolutionPlan
 multipleAdd =
-  MergeInput
+  MergeInputData
     "Multiple Add - Conflict"
     baseConstructedEvolutionPlan
     ( v1ConstructedEvolutionPlan
@@ -67,34 +65,27 @@ multipleAdd =
     )
 
 showExampleResult ::
-  ( ConvertableInput evolutionPlan FlatModificationEvolutionPlan
-  , ConvertableFromResult evolutionPlan
-  , Eq evolutionPlan
+  ( Eq evolutionPlan
   , Show evolutionPlan
   ) =>
-  MergeInput evolutionPlan ->
+  MergeInputData evolutionPlan ->
+  MergeResult evolutionPlan ->
   IO ()
-showExampleResult mergeInput@(MergeInput name base v1 v2 Nothing) = do
-  let result = threeWayMerge mergeInput
-  print $ "EXAMPLE " ++ name
-  print $ "NO EXPECTED OUTPUT GIVEN" ++ name
+showExampleResult mergeInput mergeResult = do
+  print $ "EXAMPLE " ++ mergeInput ^. L.name
+  case mergeInput ^. L.maybeExpected of
+    Nothing -> do
+      print $ "NO EXPECTED OUTPUT GIVEN"
+    Just expected -> do
+      if expected == mergeResult
+        then do
+          print "THE RESULT WERE AS EXPECTED"
+        else do
+          print "THE RESULT WERE NOT AS EXPECTED"
+          print "EXPECTED RESULT:"
+          pPrint expected
+
   print "ACTUAL RESULT:"
-  case result of
+  case mergeResult of
     Left err -> pPrint err
     Right model -> pPrint model
-showExampleResult mergeInput@(MergeInput name base v1 v2 (Just expected)) = do
-  let result = threeWayMerge mergeInput
-      converted = fmap (uncurry convertFromMergeResult) result
-  print $ "EXAMPLE " ++ name
-  if converted == expected
-    then do
-      print "THE RESULT WERE AS EXPECTED"
-      pPrint result
-    else do
-      print "THE RESULT WERE NOT AS EXPECTED"
-      print "EXPECTED RESULT:"
-      pPrint expected
-      print "ACTUAL RESULT:"
-      case result of
-        Left err -> pPrint err
-        Right model -> pPrint model
