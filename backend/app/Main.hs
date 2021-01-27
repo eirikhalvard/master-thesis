@@ -3,7 +3,7 @@
 module Main where
 
 import Control.Monad
-import Data.Aeson (ToJSON)
+import Data.Aeson (ToJSON, encodeFile)
 import qualified Data.Map as M
 
 import Convertable
@@ -21,14 +21,39 @@ mergeData =
     ]
 
 mergeAll ::
-  ConvertableFromResult outputEvolutionPlan =>
   Bool ->
-  Bool ->
-  IO [MergeResult outputEvolutionPlan]
-mergeAll shouldPrint shouldWriteToElm =
-  traverse handleSingleMerge $ M.elems mergeData
+  Maybe FilePath ->
+  IO ()
+mergeAll shouldPrint maybeElmFilePath = do
+  elmExamples <- ElmDataExamples <$> traverse handleSingleMerge (M.elems mergeData)
+  mapM_ (`encodeFile` elmExamples) maybeElmFilePath
   where
-    handleSingleMerge = undefined
+    handleSingleMerge :: MergeInput -> IO ElmMergeExample
+    handleSingleMerge mergeInput = case mergeInput of
+      TreeUser mergeInputData -> do
+        let mergeOutput = threeWayMerge mergeInputData
+            convertedInputData :: MergeInputData FlatModificationEvolutionPlan
+            convertedInputData = convertFrom <$> mergeInputData
+            convertedResult :: MergeResult FlatModificationEvolutionPlan
+            convertedResult = fmap (uncurry convertFromMergeResult) mergeOutput
+        when shouldPrint (printResult convertedInputData convertedResult)
+        return $ createElmExample mergeInputData mergeOutput
+      FlatUser mergeInputData -> do
+        let mergeOutput = threeWayMerge mergeInputData
+            convertedInputData :: MergeInputData FlatModificationEvolutionPlan
+            convertedInputData = convertFrom <$> mergeInputData
+            convertedResult :: MergeResult FlatModificationEvolutionPlan
+            convertedResult = fmap (uncurry convertFromMergeResult) mergeOutput
+        when shouldPrint (printResult convertedInputData convertedResult)
+        return $ createElmExample mergeInputData mergeOutput
+      FlatModification mergeInputData -> do
+        let mergeOutput = threeWayMerge mergeInputData
+            convertedInputData :: MergeInputData FlatModificationEvolutionPlan
+            convertedInputData = convertFrom <$> mergeInputData
+            convertedResult :: MergeResult FlatModificationEvolutionPlan
+            convertedResult = fmap (uncurry convertFromMergeResult) mergeOutput
+        when shouldPrint (printResult convertedInputData convertedResult)
+        return $ createElmExample mergeInputData mergeOutput
 
 mergeSingle ::
   ( ConvertableFromResult outputEvolutionPlan
@@ -79,7 +104,8 @@ mergeSingle shouldPrint maybeElmFilePath maybeFilepath mergeInput = do
 
 main :: IO ()
 main = do
-  resultingSoundExample <- mergeOne "SoundExample"
+  -- mergeOne "SoundExample"
+  mergeAll True (Just "../frontend/data/elm-input.json")
   return ()
   where
     mergeOne :: String -> IO (Maybe (MergeResult TreeUserEvolutionPlan))
