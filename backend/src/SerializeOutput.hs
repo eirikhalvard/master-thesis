@@ -1,85 +1,96 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 module SerializeOutput where
 
-import Examples.MergeConflictExample
-import Examples.SoundExample
-import Merge.ChangeDetection
-import Merge.CheckPlan (integrateAndCheckModifications)
-import Merge.PlanMerging
-import ThreeWayMerge (conflictErrorMsg, threeWayMerge)
+import Conflict (conflictErrorMsg)
+import Convertable
+import Examples.SoundExample ()
+import qualified Lenses as L
 import Types
 
-import Data.Aeson (encodeFile)
+import Control.Lens
+import Data.Aeson
+import Data.Bifunctor
+import Text.Pretty.Simple
 
-writeExampleToFile :: FilePath -> IO ()
-writeExampleToFile filename = do
-  let baseModificationEvolutionPlan =
-        deriveSoundModifications
-          . flattenSoundEvolutionPlan
-          $ baseEvolutionPlan
-      v1ModificationEvolutionPlan =
-        deriveSoundModifications
-          . flattenSoundEvolutionPlan
-          $ v1EvolutionPlan
-      v2ModificationEvolutionPlan =
-        deriveSoundModifications
-          . flattenSoundEvolutionPlan
-          $ v2EvolutionPlan
-      mergePlan =
-        createMergePlan
-          baseModificationEvolutionPlan
-          v1ModificationEvolutionPlan
-          v2ModificationEvolutionPlan
-      unifiedMergePlan =
-        unifyMergePlan mergePlan
-      checkedAndIntegratedPlan =
-        unifiedMergePlan >>= integrateAndCheckModifications
-      expectedEvolutionPlanTransformed =
-        deriveSoundModifications
-          . flattenSoundEvolutionPlan
-          $ expectedEvolutionPlan
-      actualResult =
-        threeWayMerge
-          baseEvolutionPlan
-          v1EvolutionPlan
-          v2EvolutionPlan
+------------------------------------------------------------------------
+--                       Merge Result Printing                        --
+------------------------------------------------------------------------
 
-  print $ "Writing json to file " ++ filename
-  encodeFile filename $
-    ElmMergeResult
-      "Sound Example"
-      [ ElmNamedEvolutionPlan "Base" $ EvolutionPlanResult baseEvolutionPlan
-      , ElmNamedEvolutionPlan "Version 1" $ EvolutionPlanResult v1EvolutionPlan
-      , ElmNamedEvolutionPlan "Version 2" $ EvolutionPlanResult v2EvolutionPlan
-      , ElmNamedEvolutionPlan "Expected" $ EvolutionPlanResult expectedEvolutionPlan
-      , ElmNamedEvolutionPlan "Actual" $
-          either
-            (ConflictResult . conflictErrorMsg)
-            EvolutionPlanResult
-            actualResult
+printResult ::
+  (Eq evolutionPlan, Show evolutionPlan) =>
+  MergeInputData evolutionPlan ->
+  MergeResult evolutionPlan ->
+  IO ()
+printResult mergeInput mergeResult = do
+  print $ "EXAMPLE " ++ mergeInput ^. L.name
+  case mergeInput ^. L.maybeExpected of
+    Nothing -> do
+      print $ "NO EXPECTED OUTPUT GIVEN"
+    Just expected -> do
+      if expected == mergeResult
+        then do
+          print "THE RESULT WERE AS EXPECTED"
+        else do
+          print "THE RESULT WERE NOT AS EXPECTED"
+          print "EXPECTED RESULT:"
+          pPrint expected
+  print "ACTUAL RESULT:"
+  case mergeResult of
+    Left err -> pPrint err
+    Right model -> pPrint model
+
+------------------------------------------------------------------------
+--                   Write Successful Merge To File                   --
+------------------------------------------------------------------------
+
+writeResultToFile ::
+  ToJSON evolutionPlan => FilePath -> evolutionPlan -> IO ()
+writeResultToFile = encodeFile
+
+------------------------------------------------------------------------
+--                  Elm Frontend Data Serialization                   --
+------------------------------------------------------------------------
+
+writeElmExamplesToFile ::
+  ( ConvertableInput evolutionPlan TreeUserEvolutionPlan
+  , ConvertableFromResult evolutionPlan
+  ) =>
+  FilePath ->
+  [(MergeInputData evolutionPlan, MergeOutput)] ->
+  IO ()
+writeElmExamplesToFile filename = do
+  encodeFile filename . fmap (uncurry createElmExample)
+
+createElmExamples ::
+  ( ConvertableInput evolutionPlan TreeUserEvolutionPlan
+  , ConvertableFromResult evolutionPlan
+  ) =>
+  [(MergeInputData evolutionPlan, MergeOutput)] ->
+  ElmDataExamples
+createElmExamples = ElmDataExamples . fmap (uncurry createElmExample)
+
+createElmExample ::
+  ( ConvertableInput evolutionPlan TreeUserEvolutionPlan
+  , ConvertableFromResult evolutionPlan
+  ) =>
+  MergeInputData evolutionPlan ->
+  MergeOutput ->
+  ElmMergeExample
+createElmExample (MergeInputData name base v1 v2 maybeExpected) result =
+  ElmMergeExample
+    name
+    ( [ ElmNamedEvolutionPlan "Base" $
+          Right (convertFrom base)
+      , ElmNamedEvolutionPlan "Version 1" $
+          Right (convertFrom v1)
+      , ElmNamedEvolutionPlan "Version 2" $
+          Right (convertFrom v2)
       ]
-  runFaultyTests
-
--- print "------- BASE ABSTRACTED EVOLUTION PLAN -------"
--- pPrint baseEvolutionPlan
-
--- print "------- BASE MODIFICATION EVOLUTION PLAN -------"
--- pPrint baseModificationEvolutionPlan
-
--- print "------- MERGE EVOLUTION PLAN -------"
--- pPrint mergePlan
-
--- print "------- UNIFIED MERGE EVOLUTION PLAN -------"
--- pPrint unifiedMergePlan
-
--- print "------- EXPECTED EVOLUTION PLAN -------"
--- pPrint expectedEvolutionPlanTransformed
-
--- print "------- UNIFIED == EXPECTED -------"
--- print $ Right expectedEvolutionPlanTransformed == unifiedMergePlan
-
--- print "------- CHECKED AND INTEGRATED -------"
--- pPrint $ checkedAndIntegratedPlan
-
-runFaultyTests :: IO ()
-runFaultyTests = do
-  showExampleResult multipleAdd
+        ++ foldMap
+          (pure . ElmNamedEvolutionPlan "Expected" . bimap conflictErrorMsg convertFrom)
+          maybeExpected
+        ++ [ ElmNamedEvolutionPlan "Actual" $
+              bimap conflictErrorMsg (uncurry convertFromMergeResult) result
+           ]
+    )

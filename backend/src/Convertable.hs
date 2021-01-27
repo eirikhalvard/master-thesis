@@ -3,9 +3,9 @@
 
 module Convertable where
 
+import Conflict
 import Merge.ChangeDetection
 import Merge.CheckPlan
-import ThreeWayMerge
 import Types
 
 -- defines all combinations to convert between UserTree <-> UserFlat <-> ModFlat

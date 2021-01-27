@@ -1,10 +1,11 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 module Examples.MergeConflictExample where
 
 import Control.Lens
+
 import Examples.SoundExample
 import qualified Lenses as L
-import Text.Pretty.Simple
-import ThreeWayMerge
 import Types
 
 -- data Conflict
@@ -19,32 +20,33 @@ import Types
 --   | GroupConflict (BothChange GroupModification)
 --   deriving (Show, Eq)
 
-multipleAdd :: OldMergeInput
+multipleAdd :: MergeInputData FlatModificationEvolutionPlan
 multipleAdd =
-  OldMergeInput
-    { base = baseConstructedEvolutionPlan
-    , v1 =
-        v1ConstructedEvolutionPlan
-          & L.plans
-            . traversed
-            . filtered (has $ L.timePoint . only 2)
-            . L.transformation
-            . L.features
-            . at "feature:tea"
-            ?~ FeatureRemove
-    , v2 =
-        v2ConstructedEvolutionPlan
-          & L.plans
-            . traversed
-            . filtered (has $ L.timePoint . only 2)
-            . L.transformation
-            . L.features
-            . at "feature:tea"
-            ?~ FeatureModification
-              Nothing
-              Nothing
-              (Just (FeatureNameModification "Tea Drink"))
-    , expected =
+  MergeInputData
+    "Multiple Add - Conflict"
+    baseConstructedEvolutionPlan
+    ( v1ConstructedEvolutionPlan
+        & L.plans
+          . traversed
+          . filtered (has $ L.timePoint . only 2)
+          . L.transformation
+          . L.features
+          . at "feature:tea"
+          ?~ FeatureRemove
+    )
+    ( v2ConstructedEvolutionPlan
+        & L.plans
+          . traversed
+          . filtered (has $ L.timePoint . only 2)
+          . L.transformation
+          . L.features
+          . at "feature:tea"
+          ?~ FeatureModification
+            Nothing
+            Nothing
+            (Just (FeatureNameModification "Tea Drink"))
+    )
+    ( Just $
         Left $
           Merge
             2
@@ -59,20 +61,4 @@ multipleAdd =
                       )
                   )
             )
-    }
-
-showExampleResult :: OldMergeInput -> IO ()
-showExampleResult (OldMergeInput base v1 v2 expected) = do
-  let result = threeWayMerge' base v1 v2
-  if result == expected
-    then do
-      print "THE RESULT WERE AS EXPECTED"
-      pPrint result
-    else do
-      print "THE RESULT WERE NOT AS EXPECTED"
-      print "EXPECTED RESULT:"
-      pPrint expected
-      print "ACTUAL RESULT:"
-      case result of
-        Left err -> pPrint err
-        Right model -> pPrint model
+    )

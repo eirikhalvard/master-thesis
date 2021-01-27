@@ -43,6 +43,13 @@ makePrisms ''RemovedOrChangedModification
 makeFieldsNoPrefix ''AddedModification
 makePrisms ''Version
 
+makePrisms ''MergeInput
+makeFieldsNoPrefix ''MergeInputData
+
+makeFieldsNoPrefix ''ElmDataExamples
+makeFieldsNoPrefix ''ElmMergeExample
+makeFieldsNoPrefix ''ElmNamedEvolutionPlan
+
 -- --- Optic helpers
 
 parentGroupOfFeature :: FeatureId -> Traversal' FlatFeatureModel FlatGroup
