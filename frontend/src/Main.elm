@@ -770,6 +770,21 @@ drawGroupNode x y (Group fields) =
 
 drawFeatureNode : Float -> Float -> Feature ComputedDimentions ComputedDimentions -> Svg Msg
 drawFeatureNode x y (Feature fields) =
+    let
+        textColor =
+            if fields.featureType == "Mandatory" then
+                colorScheme.light
+
+            else
+                colorScheme.darkPrimary
+
+        backgroundColor =
+            if fields.featureType == "Mandatory" then
+                colorScheme.darkPrimary
+
+            else
+                colorScheme.light
+    in
     Svg.g
         [ SvgA.transform <|
             "translate("
@@ -790,7 +805,7 @@ drawFeatureNode x y (Feature fields) =
             , SvgA.x <|
                 String.fromFloat <|
                     -(fields.extra.approxNodeWidth / 2)
-            , SvgA.fill colorScheme.darkPrimary
+            , SvgA.fill backgroundColor
             , SvgA.strokeWidth "2"
             , SvgA.stroke colorScheme.dark
             ]
@@ -800,7 +815,7 @@ drawFeatureNode x y (Feature fields) =
             , SvgA.y <| String.fromFloat <| featureHeight / 2
             , SvgA.dominantBaseline "middle"
             , SvgA.textAnchor "middle"
-            , SvgA.fill colorScheme.light
+            , SvgA.fill textColor
             ]
             [ Svg.text fields.name ]
         ]
