@@ -6,17 +6,36 @@ import Json.Decode as Decode
 import Json.Encode as Encode
 
 
+decodeResult : Decode.Decoder err -> Decode.Decoder ok -> Decode.Decoder (Result err ok)
+decodeResult err ok =
+    Decode.oneOf
+        [ Decode.map Err <| Decode.field "Left" err
+        , Decode.map Ok <| Decode.field "Right" ok
+        ]
+
+
+dataExamples : Decode.Decoder (DataExamples () ())
+dataExamples =
+    Decode.map
+        DataExamples
+        (Decode.field "examples" <| Decode.map Array.fromList <| Decode.list mergeResult)
+
+
 mergeResult : Decode.Decoder (MergeResult () ())
 mergeResult =
-    Decode.map MergeResult
+    Decode.map2 MergeResult
         (Decode.field "evolutionPlans" <| Decode.map Array.fromList <| Decode.list evolutionPlan)
+        (Decode.field "name" Decode.string)
 
 
 evolutionPlan : Decode.Decoder (EvolutionPlan () ())
 evolutionPlan =
     Decode.map2 EvolutionPlan
-        (Decode.field "evolutionPlan"
-            (Decode.field "timePoints" <| Decode.map Array.fromList <| Decode.list timePoint)
+        (Decode.field "mergeData"
+            (decodeResult
+                Decode.string
+                (Decode.field "timePoints" <| Decode.map Array.fromList <| Decode.list timePoint)
+            )
         )
         (Decode.field "name" Decode.string)
 

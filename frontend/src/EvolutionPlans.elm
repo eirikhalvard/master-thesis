@@ -15,13 +15,19 @@ type alias GroupId =
     String
 
 
+type alias DataExamples extraFeatureFields extraGroupFields =
+    { examples : Array (MergeResult extraFeatureFields extraGroupFields)
+    }
+
+
 type alias MergeResult extraFeatureFields extraGroupFields =
     { evolutionPlans : Array (EvolutionPlan extraFeatureFields extraGroupFields)
+    , name : String
     }
 
 
 type alias EvolutionPlan extraFeatureFields extraGroupFields =
-    { timePoints : Array (TimePoint extraFeatureFields extraGroupFields)
+    { mergeData : Result String (Array (TimePoint extraFeatureFields extraGroupFields))
     , name : String
     }
 

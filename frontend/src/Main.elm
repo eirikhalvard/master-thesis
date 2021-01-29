@@ -117,9 +117,10 @@ type Msg
     = NoOp
     | NewWindowSize Int Int
     | GotViewport Dom.Viewport
-    | GotMergeResult (Result Http.Error (MergeResult () ()))
-    | NodeHoverEntry String
+    | GotDataExamples (Result Http.Error (DataExamples () ()))
+    | NodeHoverEntry NodeInformation
     | NodeHoverExit
+    | NewExampleIndex Int
     | NewEvolutionPlanIndex Int
     | NewFeatureModelIndex Int
 
@@ -135,7 +136,7 @@ type Model
 
 type alias SomeFields =
     { mDimentions : Maybe ( Int, Int )
-    , mMergeResult : Maybe (MergeResult () ())
+    , mDataExamples : Maybe (DataExamples () ())
     }
 
 
@@ -143,10 +144,19 @@ type alias Fields =
     { device : Element.Device
     , width : Int
     , height : Int
-    , mergeResult : MergeResult () ()
-    , hoverData : Maybe String
+    , dataExamples : DataExamples () ()
+    , hoverData : Maybe NodeInformation
+    , chosenExampleIndex : Int
     , chosenEvolutionPlanIndex : Int
     , chosenFeatureModelIndex : Int
+    }
+
+
+type alias NodeInformation =
+    { node : String
+    , id : String
+    , nodeType : String
+    , name : Maybe String
     }
 
 
@@ -166,20 +176,20 @@ init flags =
         getViewport =
             Task.perform GotViewport Dom.getViewport
 
-        getMergeResult =
+        getDataExamples =
             Http.get
                 { url = "./data/elm-input.json"
                 , expect =
                     Http.expectJson
-                        GotMergeResult
-                        Decode.mergeResult
+                        GotDataExamples
+                        Decode.dataExamples
                 }
     in
     ( UnInitialized
-        { mMergeResult = Nothing
+        { mDataExamples = Nothing
         , mDimentions = Nothing
         }
-    , Cmd.batch [ getViewport, getMergeResult ]
+    , Cmd.batch [ getViewport, getDataExamples ]
     )
 
 
@@ -195,19 +205,32 @@ update msg model =
         GotViewport viewport ->
             ( updateViewport viewport model, Cmd.none )
 
-        GotMergeResult mergeResultErr ->
-            case mergeResultErr of
+        GotDataExamples dataExamplesErr ->
+            case dataExamplesErr of
                 Err _ ->
                     ( model, Cmd.none )
 
                 Ok t ->
-                    ( updateMergeResult t model, Cmd.none )
+                    ( updateDataExamples t model, Cmd.none )
 
         NodeHoverEntry hoverData ->
             ( updateIfInitialized (\f -> { f | hoverData = Just hoverData }) model, Cmd.none )
 
         NodeHoverExit ->
             ( updateIfInitialized (\f -> { f | hoverData = Nothing }) model, Cmd.none )
+
+        NewExampleIndex exIndex ->
+            ( updateIfInitialized
+                (\f ->
+                    { f
+                        | chosenExampleIndex = exIndex
+                        , chosenEvolutionPlanIndex = 0
+                        , chosenFeatureModelIndex = 0
+                    }
+                )
+                model
+            , Cmd.none
+            )
 
         NewEvolutionPlanIndex epIndex ->
             ( updateIfInitialized
@@ -223,7 +246,13 @@ update msg model =
             )
 
         NewFeatureModelIndex fmIndex ->
-            ( updateIfInitialized (\f -> { f | chosenFeatureModelIndex = fmIndex }) model, Cmd.none )
+            ( updateIfInitialized
+                (\f ->
+                    { f | chosenFeatureModelIndex = fmIndex }
+                )
+                model
+            , Cmd.none
+            )
 
 
 updateIfInitialized : (Fields -> Fields) -> Model -> Model
@@ -256,16 +285,17 @@ updateWindowSize w h model =
 
 convertIfInitialized : SomeFields -> Model
 convertIfInitialized someFields =
-    case ( someFields.mDimentions, someFields.mMergeResult ) of
-        ( Just ( w, h ), Just mergeResult ) ->
+    case ( someFields.mDimentions, someFields.mDataExamples ) of
+        ( Just ( w, h ), Just dataExamples ) ->
             Initialized
                 { width = w
                 , height = h
                 , device =
                     Element.classifyDevice
                         { width = w, height = h }
-                , mergeResult = mergeResult
+                , dataExamples = dataExamples
                 , hoverData = Nothing
+                , chosenExampleIndex = 0
                 , chosenEvolutionPlanIndex = 0
                 , chosenFeatureModelIndex = 0
                 }
@@ -292,11 +322,11 @@ updateViewport viewport model =
             model
 
 
-updateMergeResult : MergeResult () () -> Model -> Model
-updateMergeResult mergeResult model =
+updateDataExamples : DataExamples () () -> Model -> Model
+updateDataExamples dataExamples model =
     case model of
         UnInitialized someFields ->
-            convertIfInitialized { someFields | mMergeResult = Just mergeResult }
+            convertIfInitialized { someFields | mDataExamples = Just dataExamples }
 
         Initialized fields ->
             model
@@ -321,29 +351,127 @@ view model =
                     Element.text <| Debug.toString someFields
 
                 Initialized fields ->
-                    case Array.get fields.chosenEvolutionPlanIndex fields.mergeResult.evolutionPlans of
+                    case Array.get fields.chosenExampleIndex fields.dataExamples.examples of
                         Nothing ->
-                            Element.text "Evolution Plan index out of bounds"
+                            Element.text "Example index out of bounds"
 
-                        Just currentEP ->
-                            case Array.get fields.chosenFeatureModelIndex currentEP.timePoints of
+                        Just mergeExample ->
+                            case Array.get fields.chosenEvolutionPlanIndex mergeExample.evolutionPlans of
                                 Nothing ->
-                                    Element.text "Feature Model index out of bounds"
+                                    Element.text "Evolution Plan index out of bounds"
 
-                                Just currentFM ->
-                                    viewInitialized fields currentEP currentFM
+                                Just currentEP ->
+                                    case currentEP.mergeData of
+                                        Err errStr ->
+                                            viewInitialized fields currentEP (Err errStr)
+
+                                        Ok timePoints ->
+                                            case Array.get fields.chosenFeatureModelIndex timePoints of
+                                                Nothing ->
+                                                    Element.text "Feature Model index out of bounds"
+
+                                                Just currentFM ->
+                                                    viewInitialized fields currentEP (Ok currentFM)
     in
     Element.layout [ Background.color colorScheme.navbar.background ] content
 
 
-viewInitialized : Fields -> EvolutionPlan () () -> TimePoint () () -> Element Msg
-viewInitialized fields currentEP currentFM =
+viewInitialized : Fields -> EvolutionPlan () () -> Result String (TimePoint () ()) -> Element Msg
+viewInitialized fields currentEP currentFMOrErr =
+    let
+        fmOrErr =
+            case currentFMOrErr of
+                Err errStr ->
+                    Element.text errStr
+
+                Ok currentFM ->
+                    viewTree fields currentEP currentFM
+    in
     Element.column
         [ Element.height Element.fill
         , Element.width Element.fill
         ]
         [ viewNavbar fields currentEP
-        , viewTree fields currentEP currentFM
+        , Element.row
+            [ Element.width Element.fill
+            , Element.spaceEvenly
+            , Element.padding 10
+            , Element.height Element.fill
+            ]
+            [ Element.el
+                [ Element.clip
+                , Element.scrollbars
+                , Element.width Element.fill
+                , Element.height Element.fill
+                ]
+                fmOrErr
+            , Element.column
+                [ Element.spaceEvenly
+                , Element.height Element.fill
+                ]
+                [ viewExamples fields
+                , viewInformation fields
+                ]
+            ]
+        ]
+
+
+viewExamples : Fields -> Element Msg
+viewExamples fields =
+    Element.column [ Element.height Element.fill ]
+        [ Element.el
+            [ Font.size 22 ]
+          <|
+            Element.text "Examples"
+        , Element.column [] <|
+            (fields.dataExamples.examples
+                |> Array.indexedMap
+                    (\i example ->
+                        Element.el
+                            [ EEvents.onClick (NewExampleIndex i)
+                            , Element.pointer
+                            , Font.size 16
+                            , if i == fields.chosenExampleIndex then
+                                Font.color colorScheme.navbar.selectedTimePoint
+
+                              else
+                                Font.color <| Element.rgb255 0 0 0
+                            ]
+                        <|
+                            Element.text example.name
+                    )
+                |> Array.toList
+            )
+        ]
+
+
+viewInformation : Fields -> Element Msg
+viewInformation fields =
+    let
+        nodeInfo node id nodeType name =
+            [ Element.text <| "Node: " ++ node
+            , Element.text <| "Id: " ++ id
+            , Element.text <| "Type: " ++ nodeType
+            , Element.text <| "Name: " ++ name
+            ]
+    in
+    Element.column [ Element.height Element.fill ]
+        [ Element.el
+            [ Font.size 22 ]
+          <|
+            Element.text "Node Information"
+        , Element.column
+            [ Font.size 16 ]
+          <|
+            case fields.hoverData of
+                Nothing ->
+                    nodeInfo "-" "-" "-" "-"
+
+                Just hoverData ->
+                    nodeInfo hoverData.node
+                        hoverData.id
+                        hoverData.nodeType
+                        (Maybe.withDefault "-" hoverData.name)
         ]
 
 
@@ -362,9 +490,14 @@ viewEvolutionPlanBar fields =
     Element.row
         [ Element.width Element.fill
         ]
-        (fields.mergeResult.evolutionPlans
-            |> Array.indexedMap (viewEvolutionPlanButton fields)
-            |> Array.toList
+        (case Array.get fields.chosenExampleIndex fields.dataExamples.examples of
+            Nothing ->
+                [ Element.none ]
+
+            Just mergeExample ->
+                mergeExample.evolutionPlans
+                    |> Array.indexedMap (viewEvolutionPlanButton fields)
+                    |> Array.toList
         )
 
 
@@ -408,9 +541,28 @@ viewNavbarSpacer fields =
 viewFeatureModelBar : Fields -> EvolutionPlan () () -> Element Msg
 viewFeatureModelBar fields currentEP =
     Element.row [ Element.width Element.fill ]
-        (currentEP.timePoints
-            |> Array.indexedMap (viewFeatureModelButton fields)
-            |> Array.toList
+        (case currentEP.mergeData of
+            Err _ ->
+                [ Element.el
+                    [ Background.color colorScheme.navbar.bottomBackground
+                    , Border.widthEach { bottom = 0, left = 1, right = 1, top = 0 }
+                    , Border.solid
+                    , Element.width Element.fill
+                    , Element.padding 3
+                    ]
+                  <|
+                    Element.el
+                        [ Font.color <| Element.rgb255 138 0 0
+                        , Element.centerX
+                        ]
+                    <|
+                        Element.text "Error in Evolution Plan"
+                ]
+
+            Ok timePoints ->
+                timePoints
+                    |> Array.indexedMap (viewFeatureModelButton fields)
+                    |> Array.toList
         )
 
 
@@ -453,19 +605,20 @@ viewFeatureModelButton fields fmIndex fm =
 viewTree : Fields -> EvolutionPlan () () -> TimePoint () () -> Element Msg
 viewTree fields currentEP currentFM =
     let
+        strokeOffset =
+            10
+
         computedTree =
             computeFeature <| currentFM.featureModel.rootFeature
 
         width =
-            calcFeatureWidth computedTree
+            calcFeatureWidth computedTree + strokeOffset
 
         height =
-            calcFeatureHeight computedTree
+            calcFeatureHeight computedTree + strokeOffset
     in
     Element.el
-        [ Element.clip
-        , Element.scrollbars
-        , Element.width Element.fill
+        [ Element.width Element.fill
         , Element.height Element.fill
         ]
     <|
@@ -480,7 +633,7 @@ viewTree fields currentEP currentFM =
                             ++ " "
                             ++ String.fromFloat height
                     ]
-                    (computedTree |> drawFeature 0 0)
+                    (computedTree |> drawFeature (strokeOffset / 2) (strokeOffset / 2))
                 )
 
 
@@ -612,24 +765,6 @@ drawGroup xStart yStart (Group fields) =
                     List.concat <| List.map2 (\childX feature -> drawFeature childX childYLevel feature) subTreePositions children
             in
             branches ++ subTrees
-
-        -- case children of
-        --     [] ->
-        --         []
-        --     (Feature featureFields) :: rest ->
-        --         [ drawLine
-        --             nodeXLevel
-        --             (yStart + groupHeight)
-        --             (childX + featureFields.extra.treeWidth / 2)
-        --             childYLevel
-        --         ]
-        --             ++ drawFeature childX childYLevel (Feature featureFields)
-        --             ++ drawChildren
-        --                 (childX
-        --                     + featureFields.extra.treeWidth
-        --                     + spacingX
-        --                 )
-        --                 rest
     in
     drawGroupNode nodeXLevel yStart (Group fields)
         :: drawChildren fields.features
@@ -688,7 +823,9 @@ drawGroupNode x y (Group fields) =
                 ++ String.fromFloat y
                 ++ ")"
         , SvgEvents.onMouseOver
-            (NodeHoverEntry fields.groupType)
+            (NodeHoverEntry <|
+                NodeInformation "Group" fields.id fields.groupType Nothing
+            )
         , SvgEvents.onMouseOut NodeHoverExit
         , SvgA.cursor "pointer"
         ]
@@ -721,6 +858,21 @@ drawGroupNode x y (Group fields) =
 
 drawFeatureNode : Float -> Float -> Feature ComputedDimentions ComputedDimentions -> Svg Msg
 drawFeatureNode x y (Feature fields) =
+    let
+        textColor =
+            if fields.featureType == "Mandatory" then
+                colorScheme.light
+
+            else
+                colorScheme.darkPrimary
+
+        backgroundColor =
+            if fields.featureType == "Mandatory" then
+                colorScheme.darkPrimary
+
+            else
+                colorScheme.light
+    in
     Svg.g
         [ SvgA.transform <|
             "translate("
@@ -729,7 +881,13 @@ drawFeatureNode x y (Feature fields) =
                 ++ String.fromFloat y
                 ++ ")"
         , SvgEvents.onMouseOver
-            (NodeHoverEntry fields.featureType)
+            (NodeHoverEntry <|
+                NodeInformation
+                    "Feature"
+                    fields.id
+                    fields.featureType
+                    (Just fields.name)
+            )
         , SvgEvents.onMouseOut NodeHoverExit
         , SvgA.cursor "pointer"
         ]
@@ -741,17 +899,17 @@ drawFeatureNode x y (Feature fields) =
             , SvgA.x <|
                 String.fromFloat <|
                     -(fields.extra.approxNodeWidth / 2)
-            , SvgA.fill colorScheme.darkPrimary
+            , SvgA.fill backgroundColor
             , SvgA.strokeWidth "2"
             , SvgA.stroke colorScheme.dark
             ]
             []
         , Svg.text_
             [ SvgA.x "0"
-            , SvgA.y <| String.fromFloat <| featureHeight / 2
+            , SvgA.y <| String.fromFloat <| featureHeight / 1.9 -- dividing by half plus a little offset
             , SvgA.dominantBaseline "middle"
             , SvgA.textAnchor "middle"
-            , SvgA.fill colorScheme.light
+            , SvgA.fill textColor
             ]
             [ Svg.text fields.name ]
         ]
