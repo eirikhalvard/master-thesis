@@ -502,14 +502,17 @@ viewFeatureModelButton fields fmIndex fm =
 viewTree : Fields -> EvolutionPlan () () -> TimePoint () () -> Element Msg
 viewTree fields currentEP currentFM =
     let
+        strokeOffset =
+            10
+
         computedTree =
             computeFeature <| currentFM.featureModel.rootFeature
 
         width =
-            calcFeatureWidth computedTree
+            calcFeatureWidth computedTree + strokeOffset
 
         height =
-            calcFeatureHeight computedTree
+            calcFeatureHeight computedTree + strokeOffset
     in
     Element.el
         [ Element.clip
@@ -529,7 +532,7 @@ viewTree fields currentEP currentFM =
                             ++ " "
                             ++ String.fromFloat height
                     ]
-                    (computedTree |> drawFeature 0 0)
+                    (computedTree |> drawFeature (strokeOffset / 2) (strokeOffset / 2))
                 )
 
 
@@ -661,24 +664,6 @@ drawGroup xStart yStart (Group fields) =
                     List.concat <| List.map2 (\childX feature -> drawFeature childX childYLevel feature) subTreePositions children
             in
             branches ++ subTrees
-
-        -- case children of
-        --     [] ->
-        --         []
-        --     (Feature featureFields) :: rest ->
-        --         [ drawLine
-        --             nodeXLevel
-        --             (yStart + groupHeight)
-        --             (childX + featureFields.extra.treeWidth / 2)
-        --             childYLevel
-        --         ]
-        --             ++ drawFeature childX childYLevel (Feature featureFields)
-        --             ++ drawChildren
-        --                 (childX
-        --                     + featureFields.extra.treeWidth
-        --                     + spacingX
-        --                 )
-        --                 rest
     in
     drawGroupNode nodeXLevel yStart (Group fields)
         :: drawChildren fields.features
@@ -812,7 +797,7 @@ drawFeatureNode x y (Feature fields) =
             []
         , Svg.text_
             [ SvgA.x "0"
-            , SvgA.y <| String.fromFloat <| featureHeight / 2
+            , SvgA.y <| String.fromFloat <| featureHeight / 1.9 -- dividing by half plus a little offset
             , SvgA.dominantBaseline "middle"
             , SvgA.textAnchor "middle"
             , SvgA.fill textColor
