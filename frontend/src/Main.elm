@@ -118,7 +118,7 @@ type Msg
     | NewWindowSize Int Int
     | GotViewport Dom.Viewport
     | GotDataExamples (Result Http.Error (DataExamples () ()))
-    | NodeHoverEntry String
+    | NodeHoverEntry NodeInformation
     | NodeHoverExit
     | NewExampleIndex Int
     | NewEvolutionPlanIndex Int
@@ -145,10 +145,18 @@ type alias Fields =
     , width : Int
     , height : Int
     , dataExamples : DataExamples () ()
-    , hoverData : Maybe String
+    , hoverData : Maybe NodeInformation
     , chosenExampleIndex : Int
     , chosenEvolutionPlanIndex : Int
     , chosenFeatureModelIndex : Int
+    }
+
+
+type alias NodeInformation =
+    { node : String
+    , id : String
+    , nodeType : String
+    , name : Maybe String
     }
 
 
@@ -213,7 +221,13 @@ update msg model =
 
         NewExampleIndex exIndex ->
             ( updateIfInitialized
-                (\f -> { f | chosenExampleIndex = exIndex })
+                (\f ->
+                    { f
+                        | chosenExampleIndex = exIndex
+                        , chosenEvolutionPlanIndex = 0
+                        , chosenFeatureModelIndex = 0
+                    }
+                )
                 model
             , Cmd.none
             )
@@ -232,7 +246,13 @@ update msg model =
             )
 
         NewFeatureModelIndex fmIndex ->
-            ( updateIfInitialized (\f -> { f | chosenFeatureModelIndex = fmIndex }) model, Cmd.none )
+            ( updateIfInitialized
+                (\f ->
+                    { f | chosenFeatureModelIndex = fmIndex }
+                )
+                model
+            , Cmd.none
+            )
 
 
 updateIfInitialized : (Fields -> Fields) -> Model -> Model
@@ -358,17 +378,100 @@ view model =
 
 viewInitialized : Fields -> EvolutionPlan () () -> Result String (TimePoint () ()) -> Element Msg
 viewInitialized fields currentEP currentFMOrErr =
+    let
+        fmOrErr =
+            case currentFMOrErr of
+                Err errStr ->
+                    Element.text errStr
+
+                Ok currentFM ->
+                    viewTree fields currentEP currentFM
+    in
     Element.column
         [ Element.height Element.fill
         , Element.width Element.fill
         ]
         [ viewNavbar fields currentEP
-        , case currentFMOrErr of
-            Err errStr ->
-                Element.text errStr
+        , Element.row
+            [ Element.width Element.fill
+            , Element.spaceEvenly
+            , Element.padding 10
+            , Element.height Element.fill
+            ]
+            [ Element.el
+                [ Element.clip
+                , Element.scrollbars
+                , Element.width Element.fill
+                , Element.height Element.fill
+                ]
+                fmOrErr
+            , Element.column
+                [ Element.spaceEvenly
+                , Element.height Element.fill
+                ]
+                [ viewExamples fields
+                , viewInformation fields
+                ]
+            ]
+        ]
 
-            Ok currentFM ->
-                viewTree fields currentEP currentFM
+
+viewExamples : Fields -> Element Msg
+viewExamples fields =
+    Element.column [ Element.height Element.fill ]
+        [ Element.el
+            [ Font.size 22 ]
+          <|
+            Element.text "Examples"
+        , Element.column [] <|
+            (fields.dataExamples.examples
+                |> Array.indexedMap
+                    (\i example ->
+                        Element.el
+                            [ EEvents.onClick (NewExampleIndex i)
+                            , Element.pointer
+                            , Font.size 16
+                            , if i == fields.chosenExampleIndex then
+                                Font.color colorScheme.navbar.selectedTimePoint
+
+                              else
+                                Font.color <| Element.rgb255 0 0 0
+                            ]
+                        <|
+                            Element.text example.name
+                    )
+                |> Array.toList
+            )
+        ]
+
+
+viewInformation : Fields -> Element Msg
+viewInformation fields =
+    let
+        nodeInfo node id nodeType name =
+            [ Element.text <| "Node: " ++ node
+            , Element.text <| "Id: " ++ id
+            , Element.text <| "Type: " ++ nodeType
+            , Element.text <| "Name: " ++ name
+            ]
+    in
+    Element.column [ Element.height Element.fill ]
+        [ Element.el
+            [ Font.size 22 ]
+          <|
+            Element.text "Node Information"
+        , Element.column
+            [ Font.size 16 ]
+          <|
+            case fields.hoverData of
+                Nothing ->
+                    nodeInfo "-" "-" "-" "-"
+
+                Just hoverData ->
+                    nodeInfo hoverData.node
+                        hoverData.id
+                        hoverData.nodeType
+                        (Maybe.withDefault "-" hoverData.name)
         ]
 
 
@@ -515,9 +618,7 @@ viewTree fields currentEP currentFM =
             calcFeatureHeight computedTree + strokeOffset
     in
     Element.el
-        [ Element.clip
-        , Element.scrollbars
-        , Element.width Element.fill
+        [ Element.width Element.fill
         , Element.height Element.fill
         ]
     <|
@@ -722,7 +823,9 @@ drawGroupNode x y (Group fields) =
                 ++ String.fromFloat y
                 ++ ")"
         , SvgEvents.onMouseOver
-            (NodeHoverEntry fields.groupType)
+            (NodeHoverEntry <|
+                NodeInformation "Group" fields.id fields.groupType Nothing
+            )
         , SvgEvents.onMouseOut NodeHoverExit
         , SvgA.cursor "pointer"
         ]
@@ -778,7 +881,13 @@ drawFeatureNode x y (Feature fields) =
                 ++ String.fromFloat y
                 ++ ")"
         , SvgEvents.onMouseOver
-            (NodeHoverEntry fields.featureType)
+            (NodeHoverEntry <|
+                NodeInformation
+                    "Feature"
+                    fields.id
+                    fields.featureType
+                    (Just fields.name)
+            )
         , SvgEvents.onMouseOut NodeHoverExit
         , SvgA.cursor "pointer"
         ]
