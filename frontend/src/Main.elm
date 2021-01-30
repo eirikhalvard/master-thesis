@@ -39,6 +39,12 @@ type alias Color =
         , bottomHover : Element.Color
         , background : Element.Color
         , selectedTimePoint : Element.Color
+        , rightMenuBackground : Element.Color
+        , rightMenuTextColor : Element.Color
+        , rightMenuSelectedColor : Element.Color
+        , rightMenuHoverColor : Element.Color
+        , accent : Element.Color
+        , error : Element.Color
         }
     }
 
@@ -59,7 +65,13 @@ colorScheme =
         , bottomBackground = Element.rgb255 196 196 196
         , bottomHover = Element.rgb255 208 208 208
         , background = Element.rgb255 246 246 246
-        , selectedTimePoint = Element.rgb255 98 118 189
+        , selectedTimePoint = Element.rgb255 255 184 123
+        , rightMenuBackground = Element.rgb255 72 87 125
+        , rightMenuTextColor = Element.rgb255 211 220 242
+        , rightMenuSelectedColor = Element.rgb255 211 220 242
+        , rightMenuHoverColor = Element.rgb255 211 220 242
+        , accent = Element.rgb255 255 184 123
+        , error = Element.rgb255 138 0 0
         }
     }
 
@@ -382,66 +394,93 @@ viewInitialized fields currentEP currentFMOrErr =
         fmOrErr =
             case currentFMOrErr of
                 Err errStr ->
-                    Element.text errStr
+                    Element.el
+                        [ Element.centerX, Element.centerY ]
+                        (Element.text errStr)
 
                 Ok currentFM ->
                     viewTree fields currentEP currentFM
     in
-    Element.column
+    Element.row
         [ Element.height Element.fill
         , Element.width Element.fill
         ]
-        [ viewNavbar fields currentEP
-        , Element.row
-            [ Element.width Element.fill
-            , Element.spaceEvenly
-            , Element.padding 10
-            , Element.height Element.fill
+        [ Element.column
+            [ Element.height Element.fill
+            , Element.width <| Element.fillPortion 4
+            , Element.clip
+            , Element.scrollbars
             ]
-            [ Element.el
+            [ viewNavbar fields currentEP
+            , Element.el
                 [ Element.clip
                 , Element.scrollbars
                 , Element.width Element.fill
                 , Element.height Element.fill
                 ]
                 fmOrErr
-            , Element.column
-                [ Element.spaceEvenly
-                , Element.height Element.fill
-                ]
-                [ viewExamples fields
-                , viewInformation fields
-                ]
             ]
+        , viewRightMenu fields
+        ]
+
+
+viewRightMenu : Fields -> Element Msg
+viewRightMenu fields =
+    Element.column
+        [ Element.spaceEvenly
+        , Element.height Element.fill
+        , Background.color colorScheme.navbar.rightMenuBackground
+        , Font.color <| colorScheme.navbar.rightMenuTextColor
+        , Element.width (Element.px 270)
+        , Element.padding 10
+        ]
+        [ viewTopBox fields
+        , viewExamples fields
+        , viewInformation fields
+        ]
+
+
+viewTopBox : Fields -> Element Msg
+viewTopBox fields =
+    Element.column
+        [ Element.height <| Element.px 60
+        , Element.width Element.fill
+        ]
+        [ Element.el [ Element.centerX, Font.size 24 ] <| Element.text "Evolution Plan Merger"
+        , Element.el [ Element.centerX, Font.size 16, Element.centerY ] <| Element.text "By Eirik Sæther"
         ]
 
 
 viewExamples : Fields -> Element Msg
 viewExamples fields =
-    Element.column [ Element.height Element.fill ]
-        [ Element.el
-            [ Font.size 22 ]
-          <|
-            Element.text "Examples"
-        , Element.column [] <|
-            (fields.dataExamples.examples
+    let
+        exampleList =
+            fields.dataExamples.examples
                 |> Array.indexedMap
                     (\i example ->
                         Element.el
                             [ EEvents.onClick (NewExampleIndex i)
                             , Element.pointer
+                            , Element.centerX
                             , Font.size 16
                             , if i == fields.chosenExampleIndex then
-                                Font.color colorScheme.navbar.selectedTimePoint
+                                Font.color colorScheme.navbar.accent
 
                               else
-                                Font.color <| Element.rgb255 0 0 0
+                                Font.color <| colorScheme.navbar.rightMenuTextColor
                             ]
-                        <|
-                            Element.text example.name
+                            (Element.paragraph [ Font.center ] [ Element.text example.name ])
                     )
                 |> Array.toList
-            )
+    in
+    Element.column
+        [ Element.height Element.fill
+        , Element.width Element.fill
+        , Element.spacing 10
+        , Element.paddingXY 0 40
+        ]
+        [ Element.el [ Element.centerX, Font.size 22 ] (Element.text "Examples")
+        , Element.column [ Element.width Element.fill, Element.spacing 4 ] exampleList
         ]
 
 
@@ -449,19 +488,31 @@ viewInformation : Fields -> Element Msg
 viewInformation fields =
     let
         nodeInfo node id nodeType name =
-            [ Element.text <| "Node: " ++ node
-            , Element.text <| "Id: " ++ id
-            , Element.text <| "Type: " ++ nodeType
-            , Element.text <| "Name: " ++ name
+            [ infoLine "Node" node
+            , infoLine "Id " id
+            , infoLine "Type" nodeType
+            , infoLine "Name" name
             ]
+
+        infoLine infoType infoContent =
+            Element.paragraph [ Font.center, Element.width Element.fill ]
+                [ Element.el [ Font.semiBold ] <| Element.text infoType
+                , Element.text ": "
+                , Element.text infoContent
+                ]
     in
-    Element.column [ Element.height Element.fill ]
+    Element.column
+        [ Element.height Element.fill
+        , Element.width Element.fill
+        , Element.spacing 10
+        , Element.paddingXY 0 40
+        ]
         [ Element.el
-            [ Font.size 22 ]
+            [ Element.centerX, Font.size 22 ]
           <|
             Element.text "Node Information"
         , Element.column
-            [ Font.size 16 ]
+            [ Font.size 16, Element.width Element.fill, Element.spacing 4 ]
           <|
             case fields.hoverData of
                 Nothing ->
@@ -552,7 +603,7 @@ viewFeatureModelBar fields currentEP =
                     ]
                   <|
                     Element.el
-                        [ Font.color <| Element.rgb255 138 0 0
+                        [ Font.color colorScheme.navbar.error
                         , Element.centerX
                         ]
                     <|
@@ -617,24 +668,19 @@ viewTree fields currentEP currentFM =
         height =
             calcFeatureHeight computedTree + strokeOffset
     in
-    Element.el
-        [ Element.width Element.fill
-        , Element.height Element.fill
-        ]
-    <|
-        Element.el [ Element.padding 16 ] <|
-            Element.html
-                (Svg.svg
-                    [ SvgA.width <| String.fromFloat width
-                    , SvgA.height <| String.fromFloat height
-                    , SvgA.viewBox <|
-                        "0 0 "
-                            ++ String.fromFloat width
-                            ++ " "
-                            ++ String.fromFloat height
-                    ]
-                    (computedTree |> drawFeature (strokeOffset / 2) (strokeOffset / 2))
-                )
+    Element.el [ Element.padding 16 ] <|
+        Element.html
+            (Svg.svg
+                [ SvgA.width <| String.fromFloat width
+                , SvgA.height <| String.fromFloat height
+                , SvgA.viewBox <|
+                    "0 0 "
+                        ++ String.fromFloat width
+                        ++ " "
+                        ++ String.fromFloat height
+                ]
+                (computedTree |> drawFeature (strokeOffset / 2) (strokeOffset / 2))
+            )
 
 
 computeFeature : Feature () () -> Feature ComputedDimentions ComputedDimentions
