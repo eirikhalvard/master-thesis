@@ -7,7 +7,8 @@ import Data.Aeson (ToJSON, encodeFile)
 import qualified Data.Map as M
 
 import Convertable
-import Examples.MergeConflictExample (multipleAdd)
+import Examples.LocalConflictExample
+import Examples.MergeConflictExample
 import Examples.SoundExample
 import SerializeOutput
 import ThreeWayMerge
@@ -18,6 +19,10 @@ mergeData =
   M.fromList
     [ ("SoundExample", TreeUser soundExample)
     , ("ConflictMultipleAdd", FlatModification multipleAdd)
+    , ("ConflictRemoveAndChange", FlatModification removeAndChangeModification)
+    , ("MovedAddition", FlatModification movedFeatureAddition)
+    , ("ConflictingAdditionMove", FlatModification conflictingAdditionMove)
+    , ("ConflictingGroupRemove", FlatModification conflictingGroupRemove)
     ]
 
 mergeAll ::
