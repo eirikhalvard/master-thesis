@@ -11,7 +11,7 @@ import Types
 soundExample :: MergeInputData TreeUserEvolutionPlan
 soundExample =
   MergeInputData
-    "Sound Example"
+    "Sound - Basic Example"
     baseEvolutionPlan
     v1EvolutionPlan
     v2EvolutionPlan
@@ -392,7 +392,7 @@ expectedEvolutionPlan =
 soundConstructedExample :: MergeInputData FlatModificationEvolutionPlan
 soundConstructedExample =
   MergeInputData
-    "Sound Example"
+    "Sound - Basic Example (Constructed)"
     baseConstructedEvolutionPlan
     v1ConstructedEvolutionPlan
     v2ConstructedEvolutionPlan
