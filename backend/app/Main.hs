@@ -26,6 +26,7 @@ mergeData =
     , ("ConflictingGroupRemove", FlatModification conflictingGroupRemove)
     , ("MoveGroupCycle", FlatModification groupMoveCycle)
     , ("WellFormedViolation", FlatModification violatingFeatureWellFormed)
+    , ("MissingParentFeature", FlatModification missingParentFeature)
     ]
 
 mergeAll ::
