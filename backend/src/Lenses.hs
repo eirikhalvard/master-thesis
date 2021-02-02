@@ -50,6 +50,10 @@ makeFieldsNoPrefix ''ElmDataExamples
 makeFieldsNoPrefix ''ElmMergeExample
 makeFieldsNoPrefix ''ElmNamedEvolutionPlan
 
+makePrisms ''EvolutionPlanType
+makePrisms ''Mode
+makeFieldsNoPrefix ''CliOptions
+
 -- --- Optic helpers
 
 parentGroupOfFeature :: FeatureId -> Traversal' FlatFeatureModel FlatGroup
