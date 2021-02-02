@@ -359,6 +359,32 @@ data GroupDependencyType
   deriving (Show, Eq, Read)
 
 ------------------------------------------------------------------------
+--                            CLI OPTIONS                             --
+------------------------------------------------------------------------
+
+data EvolutionPlanType
+  = TreeUserType
+  | FlatUserType
+  | FlatModificationType
+  deriving (Show, Eq, Read)
+
+data Mode
+  = GenerateOne String
+  | GenerateAll
+  | FromFile FilePath
+  deriving (Show, Eq, Read)
+
+data CliOptions = CliOptions
+  { _mode :: Mode
+  , _fromType :: EvolutionPlanType
+  , _toType :: EvolutionPlanType
+  , _print :: Bool
+  , _generateElm :: Bool
+  , _toFile :: Maybe FilePath
+  }
+  deriving (Show, Eq, Read)
+
+------------------------------------------------------------------------
 --                         JSON Serialization                         --
 ------------------------------------------------------------------------
 

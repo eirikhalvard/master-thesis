@@ -5,7 +5,9 @@ module Main where
 import Control.Monad
 import Data.Aeson (ToJSON, encodeFile)
 import qualified Data.Map as M
+import Text.Pretty.Simple
 
+import Cli
 import Convertable
 import Examples.GlobalConflictExample
 import Examples.LocalConflictExample
@@ -111,10 +113,17 @@ mergeSingle shouldPrint maybeElmFilePath maybeFilepath mergeInput = do
 
   return convertedResult
 
+runProgram :: CliOptions -> IO ()
+runProgram options = do
+  print "The program will be run with the following options:"
+  pPrint options
+
 main :: IO ()
 main = do
+  runProgram =<< executeParser
+
   -- mergeOne "SoundExample"
-  mergeAll True (Just "../frontend/data/elm-input.json")
+  -- mergeAll True (Just "../frontend/data/elm-input.json")
   return ()
   where
     mergeOne :: String -> IO (Maybe (MergeResult TreeUserEvolutionPlan))
