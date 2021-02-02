@@ -7,6 +7,7 @@ import Data.Aeson (ToJSON, encodeFile)
 import qualified Data.Map as M
 
 import Convertable
+import Examples.GlobalConflictExample
 import Examples.LocalConflictExample
 import Examples.MergeConflictExample
 import Examples.SoundExample
@@ -23,6 +24,9 @@ mergeData =
     , ("MovedAddition", FlatModification movedFeatureAddition)
     , ("ConflictingAdditionMove", FlatModification conflictingAdditionMove)
     , ("ConflictingGroupRemove", FlatModification conflictingGroupRemove)
+    , ("MoveGroupCycle", FlatModification groupMoveCycle)
+    , ("WellFormedViolation", FlatModification violatingFeatureWellFormed)
+    , ("MissingParentFeature", FlatModification missingParentFeature)
     ]
 
 mergeAll ::
