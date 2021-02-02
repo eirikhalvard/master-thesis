@@ -369,7 +369,7 @@ data EvolutionPlanType
   deriving (Show, Eq, Read)
 
 data Mode
-  = GenerateOneExample String
+  = GenerateOne String
   | GenerateAll
   | FromFile FilePath
   deriving (Show, Eq, Read)
