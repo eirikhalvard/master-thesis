@@ -1,0 +1,115 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.33.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 0122c67cdb9484451fd9a9ca8161f630ab8e046db4a8fddb85f11a920a440486
+
+name:           evolution-plan-merger
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/eirikhalvard/master-thesis#readme>
+homepage:       https://github.com/eirikhalvard/master-thesis#readme
+bug-reports:    https://github.com/eirikhalvard/master-thesis/issues
+author:         Eirik Halvard Sæther
+maintainer:     eirik.halvard.95@gmail.com
+copyright:      2021 Eirik Halvard Sæther
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/eirikhalvard/master-thesis
+
+library
+  exposed-modules:
+      Cli
+      Conflict
+      Convertable
+      Examples.GlobalConflictExample
+      Examples.LocalConflictExample
+      Examples.MergeConflictExample
+      Examples.SoundExample
+      Lenses
+      Merge.ChangeDetection
+      Merge.CheckPlan
+      Merge.PlanMerging
+      SerializeOutput
+      ThreeWayMerge
+      Types
+  other-modules:
+      Paths_evolution_plan_merger
+  hs-source-dirs:
+      src
+  default-extensions: TemplateHaskell QuasiQuotes OverloadedStrings
+  ghc-options: -fwarn-incomplete-patterns
+  build-depends:
+      QuickCheck
+    , aeson
+    , base >=4.7 && <5
+    , containers
+    , hspec
+    , lens
+    , lens-aeson
+    , mtl
+    , optparse-applicative
+    , pretty-simple
+    , prettyprinter
+    , raw-strings-qq
+    , text
+  default-language: Haskell2010
+
+executable epmerge
+  main-is: Main.hs
+  other-modules:
+      Paths_evolution_plan_merger
+  hs-source-dirs:
+      app
+  default-extensions: TemplateHaskell QuasiQuotes OverloadedStrings
+  ghc-options: -fwarn-incomplete-patterns -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      QuickCheck
+    , aeson
+    , base >=4.7 && <5
+    , containers
+    , evolution-plan-merger
+    , hspec
+    , lens
+    , lens-aeson
+    , mtl
+    , optparse-applicative
+    , pretty-simple
+    , prettyprinter
+    , raw-strings-qq
+    , text
+  default-language: Haskell2010
+
+test-suite haskell-master-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_evolution_plan_merger
+  hs-source-dirs:
+      test
+  default-extensions: TemplateHaskell QuasiQuotes OverloadedStrings
+  ghc-options: -fwarn-incomplete-patterns -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      QuickCheck
+    , aeson
+    , base >=4.7 && <5
+    , containers
+    , evolution-plan-merger
+    , hspec
+    , lens
+    , lens-aeson
+    , mtl
+    , optparse-applicative
+    , pretty-simple
+    , prettyprinter
+    , raw-strings-qq
+    , text
+  default-language: Haskell2010

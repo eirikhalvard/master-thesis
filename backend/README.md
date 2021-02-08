@@ -13,3 +13,5 @@
 - `stack build` Will build and compile the project
 - `stack install` Will install the executable on the PATH
 - `haskell-master-exe` Will run the installed executable
+
+

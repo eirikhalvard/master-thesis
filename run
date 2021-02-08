@@ -2,7 +2,9 @@
 
 echo "COMPILING HASKELL CODE, GENERATING DATA"
 cd backend
-stack run
+stack build
+stack install
+epmerge --generateAll --generateElm --print
 cd ../frontend
 echo "STARTING ELM SERVER"
 elm-live src/Main.elm  --open -- --debug

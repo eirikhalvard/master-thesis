@@ -123,7 +123,7 @@ main = do
   runProgram =<< executeParser
 
   -- mergeOne "SoundExample"
-  -- mergeAll True (Just "../frontend/data/elm-input.json")
+  mergeAll True (Just "../frontend/data/elm-input.json")
   return ()
   where
     mergeOne :: String -> IO (Maybe (MergeResult TreeUserEvolutionPlan))

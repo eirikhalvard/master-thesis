@@ -1,10 +1,10 @@
-name:                haskell-master
+name:                evolution-plan-merger
 version:             0.1.0.0
-github:              "eirikhalvard/haskell-master"
+github:              "eirikhalvard/master-thesis"
 license:             BSD3
 author:              "Eirik Halvard Sæther"
 maintainer:          "eirik.halvard.95@gmail.com"
-copyright:           "2019 Eirik Halvard Sæther"
+copyright:           "2021 Eirik Halvard Sæther"
 
 extra-source-files:
 - README.md
@@ -17,7 +17,7 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/eirikhalvard/haskell-master#readme>
+description:         Please see the README on GitHub at <https://github.com/eirikhalvard/master-thesis#readme>
 
 dependencies:
 - base >= 4.7 && < 5
@@ -46,7 +46,7 @@ library:
   source-dirs: src
 
 executables:
-  haskell-master-exe:
+  epmerge:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -54,7 +54,7 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - haskell-master
+    - evolution-plan-merger
 
 tests:
   haskell-master-test:
@@ -65,4 +65,4 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - haskell-master
+    - evolution-plan-merger
