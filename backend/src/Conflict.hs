@@ -86,11 +86,11 @@ instance ConflictShow FeatureModification where
       FeatureAdd parentGroupId featureType name ->
         "Feature Addition"
           ++ ": parent = "
-          ++ parentGroupId
+          ++ show parentGroupId
           ++ ", type = "
           ++ show featureType
           ++ ", name = "
-          ++ name
+          ++ show name
       FeatureRemove -> "Feature Removal"
       FeatureModification mParent mType mName ->
         "Feature Modification: "
@@ -102,13 +102,13 @@ instance ConflictShow FeatureModification where
              )
 
 instance ConflictShow FeatureParentModification where
-  toErrorMessage (FeatureParentModification parent) = parent
+  toErrorMessage (FeatureParentModification parent) = show parent
 
 instance ConflictShow FeatureTypeModification where
   toErrorMessage (FeatureTypeModification featureType) = show featureType
 
 instance ConflictShow FeatureNameModification where
-  toErrorMessage (FeatureNameModification featureName) = featureName
+  toErrorMessage (FeatureNameModification featureName) = show featureName
 
 instance ConflictShow GroupModification where
   toErrorMessage groupModification =
@@ -129,37 +129,48 @@ instance ConflictShow GroupModification where
              )
 
 instance ConflictShow GroupParentModification where
-  toErrorMessage (GroupParentModification groupParent) = groupParent
+  toErrorMessage (GroupParentModification groupParent) = show groupParent
 
 instance ConflictShow GroupTypeModification where
   toErrorMessage (GroupTypeModification groupType) = show groupType
-
-instance ConflictShow LocalConflict where
-  toErrorMessage localConflict = show localConflict
-
-instance ConflictShow GlobalConflict where
-  toErrorMessage globalConflict = show globalConflict
 
 ------------------------------------------------------------------------
 --                           LOCAL CONFLICT                           --
 ------------------------------------------------------------------------
 
-constructLocalConflict :: LocalConflict -> String
-constructLocalConflict localConflict = show localConflict
-
--- data LocalConflict
---   = FeatureAlreadyExists FeatureModification FeatureId
---   | FeatureNotExists FeatureModification FeatureId
---   | GroupAlreadyExists GroupModification GroupId
---   | GroupNotExists GroupModification GroupId
---   deriving (Show, Eq, Read)
+instance ConflictShow LocalConflict where
+  toErrorMessage localConflict =
+    "the following modification could not be integrated into the merged plan\n"
+      ++ reason
+    where
+      reason = case localConflict of
+        FeatureAlreadyExists featureModification featureId ->
+          toErrorMessage featureModification
+            ++ "\non feature id "
+            ++ featureId
+            ++ "\nbecause the feature already exists!"
+        FeatureNotExists featureModification featureId ->
+          toErrorMessage featureModification
+            ++ "\non feature id "
+            ++ featureId
+            ++ "\nbecause the feature does not exist!"
+        GroupAlreadyExists groupModification groupId ->
+          toErrorMessage groupModification
+            ++ "\non group id "
+            ++ groupId
+            ++ "\nbecause the group already exists!"
+        GroupNotExists groupModification groupId ->
+          toErrorMessage groupModification
+            ++ "\non group id "
+            ++ groupId
+            ++ "\nbecause the group does not exist!"
 
 ------------------------------------------------------------------------
 --                          GLOBAL CONFLICT                           --
 ------------------------------------------------------------------------
 
-constructGlobalConflict :: GlobalConflict -> String
-constructGlobalConflict globalConflict = show globalConflict
+instance ConflictShow GlobalConflict where
+  toErrorMessage globalConflict = show globalConflict
 
 -- data GlobalConflict
 --   = FailedDependencies [Dependency]
