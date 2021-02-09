@@ -323,8 +323,8 @@ data Conflict
   deriving (Show, Eq, Read)
 
 data MergeConflict
-  = FeatureConflict (BothChange FeatureModification)
-  | GroupConflict (BothChange GroupModification)
+  = FeatureConflict FeatureId (BothChange FeatureModification)
+  | GroupConflict GroupId (BothChange GroupModification)
   deriving (Show, Eq, Read)
 
 data LocalConflict

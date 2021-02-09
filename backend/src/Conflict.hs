@@ -29,9 +29,9 @@ constructErrorMsg time reason =
     ++ reason
 
 instance ConflictShow MergeConflict where
-  toErrorMessage (FeatureConflict bothChange) =
+  toErrorMessage (FeatureConflict id bothChange) =
     toErrorMessage bothChange
-  toErrorMessage (GroupConflict bothChange) =
+  toErrorMessage (GroupConflict id bothChange) =
     toErrorMessage bothChange
 
 instance ConflictShow modificationType => ConflictShow (BothChange modificationType) where
@@ -64,7 +64,11 @@ instance ConflictShow modificationType => ConflictShow (BothChange modificationT
           ++ toErrorMessage newMod
 
 instance ConflictShow FeatureModification where
-  toErrorMessage featureModification = show featureModification
+  toErrorMessage featureModification =
+    case featureModification of
+      FeatureAdd parentGroupId featureType name -> undefined
+      FeatureRemove -> undefined
+      FeatureModification mParent mType mName -> undefined
 
 instance ConflictShow GroupModification where
   toErrorMessage groupModification = show groupModification
