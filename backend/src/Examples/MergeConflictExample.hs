@@ -41,7 +41,7 @@ multipleAdd =
         Left $
           Merge
             2
-            ( FeatureConflict $
+            ( FeatureConflict "feature:tea" $
                 BothChangeWithoutBase
                   (AddedModification FeatureRemove)
                   ( AddedModification
@@ -76,7 +76,7 @@ removeAndChangeModification =
         Left $
           Merge
             3
-            ( FeatureConflict $
+            ( FeatureConflict "feature:soy-milk" $
                 BothChangeWithBase
                   (FeatureAdd "group:milk-type-group" Optional "Soy Milk")
                   RemovedModification

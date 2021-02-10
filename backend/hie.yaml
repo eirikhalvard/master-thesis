@@ -1,13 +1,13 @@
 cradle:
   cabal:
     - path: "src"
-      component: "lib:haskell-master"
+      component: "lib:evolution-plan-merger"
 
     - path: "app/Main.hs"
-      component: "haskell-master:exe:haskell-master-exe"
+      component: "evolution-plan-merger:exe:epmerge"
 
-    - path: "app/Paths_haskell_master.hs"
-      component: "haskell-master:exe:haskell-master-exe"
+    - path: "app/Paths_evolution_plan_merger.hs"
+      component: "evolution-plan-merger:exe:epmerge"
 
     - path: "test"
-      component: "haskell-master:test:haskell-master-test"
+      component: "evolution-plan-merger:test:haskell-master-test"
