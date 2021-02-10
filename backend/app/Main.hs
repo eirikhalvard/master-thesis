@@ -2,8 +2,9 @@
 
 module Main where
 
+import Control.Lens
 import Control.Monad
-import Data.Aeson (ToJSON, encodeFile)
+import Data.Aeson (ToJSON, decodeFileStrict, encodeFile)
 import qualified Data.Map as M
 import Text.Pretty.Simple
 
@@ -13,6 +14,7 @@ import Examples.GlobalConflictExample
 import Examples.LocalConflictExample
 import Examples.MergeConflictExample
 import Examples.SoundExample
+import qualified Lenses as L
 import SerializeOutput
 import ThreeWayMerge
 import Types
@@ -115,8 +117,23 @@ mergeSingle shouldPrint maybeElmFilePath maybeFilepath mergeInput = do
 
 runProgram :: CliOptions -> IO ()
 runProgram options = do
-  print "The program will be run with the following options:"
-  pPrint options
+  case options ^. L.mode of
+    GenerateAll ->
+      undefined
+    GenerateOne toGenerate ->
+      undefined
+    FromFile filepath ->
+      undefined
+
+mergeInputFromFile :: CliOptions -> FilePath -> IO (Maybe MergeInput)
+mergeInputFromFile options filepath =
+  case options ^. L.fromType of
+    TreeUserType ->
+      (fmap . fmap) TreeUser (decodeFileStrict filepath)
+    FlatUserType ->
+      (fmap . fmap) FlatUser (decodeFileStrict filepath)
+    FlatModificationType ->
+      (fmap . fmap) FlatModification (decodeFileStrict filepath)
 
 main :: IO ()
 main = do
