@@ -4,6 +4,7 @@ import Array
 import EvolutionPlans exposing (..)
 import Json.Decode as Decode
 import Json.Encode as Encode
+import List
 
 
 decodeResult : Decode.Decoder err -> Decode.Decoder ok -> Decode.Decoder (Result err ok)
@@ -18,7 +19,12 @@ dataExamples : Decode.Decoder (DataExamples () ())
 dataExamples =
     Decode.map
         DataExamples
-        (Decode.field "examples" <| Decode.map Array.fromList <| Decode.list mergeResult)
+        (mergeResult
+            |> Decode.list
+            |> Decode.field "examples"
+            |> Decode.map (List.sortBy .name)
+            |> Decode.map Array.fromList
+        )
 
 
 mergeResult : Decode.Decoder (MergeResult () ())

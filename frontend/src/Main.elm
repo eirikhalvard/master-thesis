@@ -385,7 +385,12 @@ view model =
                                                 Just currentFM ->
                                                     viewInitialized fields currentEP (Ok currentFM)
     in
-    Element.layout [ Background.color colorScheme.navbar.background ] content
+    Element.layout
+        [ Background.color colorScheme.navbar.background
+        , Element.height Element.fill
+        , Element.width Element.fill
+        ]
+        content
 
 
 viewInitialized : Fields -> EvolutionPlan () () -> Result String (TimePoint () ()) -> Element Msg
@@ -394,9 +399,7 @@ viewInitialized fields currentEP currentFMOrErr =
         fmOrErr =
             case currentFMOrErr of
                 Err errStr ->
-                    Element.el
-                        [ Element.centerX, Element.centerY ]
-                        (Element.text errStr)
+                    viewError fields errStr
 
                 Ok currentFM ->
                     viewTree fields currentEP currentFM
@@ -424,30 +427,73 @@ viewInitialized fields currentEP currentFMOrErr =
         ]
 
 
+viewError : Fields -> String -> Element Msg
+viewError fields errStr =
+    Element.el
+        [ Element.padding 30
+        , Element.centerY
+        ]
+    <|
+        Element.el
+            [ Element.centerX
+            , Element.centerY
+            ]
+            (Element.text errStr)
+
+
 viewRightMenu : Fields -> Element Msg
 viewRightMenu fields =
-    Element.column
-        [ Element.spaceEvenly
-        , Element.height Element.fill
+    Element.el
+        [ Element.height Element.fill
         , Background.color colorScheme.navbar.rightMenuBackground
         , Font.color <| colorScheme.navbar.rightMenuTextColor
         , Element.width (Element.px 270)
         , Element.padding 10
+        , Element.clipY
+        , Element.scrollbarY
         ]
-        [ viewTopBox fields
-        , viewExamples fields
-        , viewInformation fields
-        ]
+    <|
+        Element.column
+            [ Element.spaceEvenly
+            , Element.clipY
+            , Element.height Element.fill
+            ]
+            [ viewTopBox fields
+            , viewExamples fields
+            , viewInformation fields
+            ]
 
 
 viewTopBox : Fields -> Element Msg
 viewTopBox fields =
+    let
+        githubLink =
+            Element.newTabLink []
+                { url = "https://github.com/eirikhalvard/master-thesis/"
+                , label =
+                    Element.image
+                        [ Element.width <| Element.px 24
+                        , Element.height <| Element.px 24
+                        ]
+                        { src = "./data/githublogo.png", description = "Github link" }
+                }
+    in
     Element.column
         [ Element.height <| Element.px 60
         , Element.width Element.fill
         ]
         [ Element.el [ Element.centerX, Font.size 24 ] <| Element.text "Evolution Plan Merger"
-        , Element.el [ Element.centerX, Font.size 16, Element.centerY ] <| Element.text "By Eirik Sæther"
+        , Element.row
+            [ Element.centerX
+            , Font.size 16
+            , Element.centerY
+            , Element.spaceEvenly
+            , Element.width Element.fill
+            , Element.paddingXY 16 0
+            ]
+            [ Element.text "By Eirik Sæther"
+            , githubLink
+            ]
         ]
 
 
