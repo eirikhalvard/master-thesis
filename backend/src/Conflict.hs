@@ -31,7 +31,7 @@ constructErrorMsg time reason =
   "A conflict occured at time\n"
     ++ show time
     ++ "\n---\n"
-    ++ "The conflict occured because of "
+    ++ "The conflict occured because "
     ++ reason
 
 ------------------------------------------------------------------------
@@ -54,7 +54,7 @@ instance
         baseModification
         removedOrChangedV1
         removedOrChangedV2 ->
-          "conflicting operations for "
+          "of conflicting operations for "
             ++ id
             ++ "\n"
             ++ "The base version originally had the following operation:\n"
@@ -66,13 +66,14 @@ instance
       BothChangeWithoutBase
         (AddedModification v1Modification)
         (AddedModification v2Modification) ->
-          "conflicting operations\n"
+          "of conflicting operations for "
+            ++ id
+            ++ "\n"
             ++ "Version 1 tried to add the following operation\n"
             ++ toErrorMessage v1Modification
             ++ "\n"
             ++ "Version 2 tried to add the following operation\n"
             ++ toErrorMessage v2Modification
-            ++ "\n"
     where
       removeChangeHelper RemovedModification =
         "remove the operation\n"
@@ -170,28 +171,63 @@ instance ConflictShow LocalConflict where
 ------------------------------------------------------------------------
 
 instance ConflictShow GlobalConflict where
-  toErrorMessage globalConflict = show globalConflict
+  toErrorMessage globalConflict =
+    case globalConflict of
+      FailedDependencies dependencies ->
+        "the resulting feature model was unsound\n"
+          ++ "All the modification at the timepoint could merge, "
+          ++ "but one or more of the modifications lead to conflicts in the feature model:"
+          ++ concatMap (("\n\n" ++) . toErrorMessage) dependencies
 
--- data GlobalConflict
---   = FailedDependencies [Dependency]
---   deriving (Show, Eq, Read)
-
--- data Dependency
---   = FeatureDependency FeatureModification FeatureDependencyType
---   | GroupDependency GroupModification GroupDependencyType
---   deriving (Show, Eq, Read)
-
--- data FeatureDependencyType
---   = NoChildGroups FeatureId
---   | ParentGroupExists GroupId
---   | NoCycleFromFeature FeatureId
---   | FeatureIsWellFormed FeatureId
---   | UniqueName String
---   deriving (Show, Eq, Read)
-
--- data GroupDependencyType
---   = NoChildFeatures GroupId
---   | ParentFeatureExists FeatureId
---   | NoCycleFromGroup GroupId
---   | GroupIsWellFormed GroupId
---   deriving (Show, Eq, Read)
+-- TODO: add feature/group id to type
+instance ConflictShow Dependency where
+  toErrorMessage dependency =
+    "the following modification could not be integrated into the merged plan\n"
+      ++ modificationError
+      ++ "\n"
+      ++ reason
+    where
+      modificationError =
+        case dependency of
+          FeatureDependency featureModification _ ->
+            toErrorMessage featureModification
+          GroupDependency groupModification _ ->
+            toErrorMessage groupModification
+      reason =
+        case dependency of
+          FeatureDependency _ (NoChildGroups featureId) ->
+            "because feature with id "
+              ++ show featureId
+              ++ " has one or more child groups"
+          FeatureDependency _ (ParentGroupExists groupId) ->
+            "because the features parent group "
+              ++ show groupId
+              ++ " does not exist"
+          FeatureDependency _ (NoCycleFromFeature featureId) ->
+            "because the feature with id "
+              ++ show featureId
+              ++ " forms a cycle"
+          FeatureDependency _ (FeatureIsWellFormed featureId) ->
+            "because the feature with id "
+              ++ show featureId
+              ++ " is not well formed"
+          FeatureDependency _ (UniqueName name) ->
+            "because the name "
+              ++ show name
+              ++ " is not unique"
+          GroupDependency _ (NoChildFeatures groupId) ->
+            "because group with id "
+              ++ show groupId
+              ++ " has one or more child features"
+          GroupDependency _ (ParentFeatureExists featureId) ->
+            "because the groups parent feature "
+              ++ show featureId
+              ++ " does not exist"
+          GroupDependency _ (NoCycleFromGroup groupId) ->
+            "because the group with id "
+              ++ show groupId
+              ++ " forms a cycle"
+          GroupDependency _ (GroupIsWellFormed groupId) ->
+            "because the group with id "
+              ++ show groupId
+              ++ " is not well formed"
