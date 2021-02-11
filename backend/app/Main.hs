@@ -3,12 +3,11 @@
 module Main where
 
 import Control.Lens
-import Control.Monad
-import Data.Aeson (ToJSON, decodeFileStrict, encodeFile)
+import Control.Monad (when)
+import Data.Aeson (ToJSON, decodeFileStrict)
 import qualified Data.Map as M
-import Text.Pretty.Simple
 
-import Cli
+import Cli (executeParser)
 import Convertable
 import Examples.GlobalConflictExample
 import Examples.LocalConflictExample
@@ -16,71 +15,74 @@ import Examples.MergeConflictExample
 import Examples.SoundExample
 import qualified Lenses as L
 import SerializeOutput
-import ThreeWayMerge
+import ThreeWayMerge (threeWayMerge)
 import Types
 
-mergeData :: M.Map String MergeInput
-mergeData =
-  M.fromList
-    [ ("SoundExample", TreeUser soundExample)
-    , ("ConflictMultipleAdd", FlatModification multipleAdd)
-    , ("ConflictRemoveAndChange", FlatModification removeAndChangeModification)
-    , ("MovedAddition", FlatModification movedFeatureAddition)
-    , ("ConflictingAdditionMove", FlatModification conflictingAdditionMove)
-    , ("ConflictingGroupRemove", FlatModification conflictingGroupRemove)
-    , ("MoveGroupCycle", FlatModification groupMoveCycle)
-    , ("WellFormedViolation", FlatModification violatingFeatureWellFormed)
-    , ("MissingParentFeature", FlatModification missingParentFeature)
-    ]
-
-mergeAll ::
-  Bool ->
-  Maybe FilePath ->
-  IO ()
-mergeAll shouldPrint maybeElmFilePath = do
-  elmExamples <- ElmDataExamples <$> traverse handleSingleMerge (M.elems mergeData)
-  mapM_ (`encodeFile` elmExamples) maybeElmFilePath
-  where
-    handleSingleMerge :: MergeInput -> IO ElmMergeExample
-    handleSingleMerge mergeInput = undefined
-
--- case mergeInput of
---   TreeUser mergeInputData -> do
---     let mergeOutput = threeWayMerge mergeInputData
---         convertedInputData :: MergeInputData FlatModificationEvolutionPlan
---         convertedInputData = convertFrom <$> mergeInputData
---         convertedResult :: MergeResult FlatModificationEvolutionPlan
---         convertedResult = fmap (uncurry convertFromMergeResult) mergeOutput
---     when shouldPrint (printResult convertedInputData convertedResult)
---     return $ createElmExample mergeInputData mergeOutput
---   FlatUser mergeInputData -> do
---     let mergeOutput = threeWayMerge mergeInputData
---         convertedInputData :: MergeInputData FlatModificationEvolutionPlan
---         convertedInputData = convertFrom <$> mergeInputData
---         convertedResult :: MergeResult FlatModificationEvolutionPlan
---         convertedResult = fmap (uncurry convertFromMergeResult) mergeOutput
---     when shouldPrint (printResult convertedInputData convertedResult)
---     return $ createElmExample mergeInputData mergeOutput
---   FlatModification mergeInputData -> do
---     let mergeOutput = threeWayMerge mergeInputData
---         convertedInputData :: MergeInputData FlatModificationEvolutionPlan
---         convertedInputData = convertFrom <$> mergeInputData
---         convertedResult :: MergeResult FlatModificationEvolutionPlan
---         convertedResult = fmap (uncurry convertFromMergeResult) mergeOutput
---     when shouldPrint (printResult convertedInputData convertedResult)
---     return $ createElmExample mergeInputData mergeOutput
-
-elmDataPath :: FilePath
-elmDataPath = "../frontend/data/elm-input.json"
-
 ------------------------------------------------------------------------
---                            Merge Single                            --
+--                              Program                               --
 ------------------------------------------------------------------------
 
-mergeSingle ::
-  CliOptions ->
-  MergeInput ->
-  IO ()
+main :: IO ()
+main = runProgram =<< executeParser
+
+runProgram :: CliOptions -> IO ()
+runProgram options = do
+  case options ^. L.mode of
+    GenerateAll ->
+      runGenerateAll options
+    GenerateOne toGenerate ->
+      runGenerateOne options toGenerate
+    FromFile filepath ->
+      runFromFile options filepath
+
+------------------------------------------------------------------------
+--                            Generate All                            --
+------------------------------------------------------------------------
+
+runGenerateAll :: CliOptions -> IO ()
+runGenerateAll options =
+  mergeAll options
+
+------------------------------------------------------------------------
+--                            Generate One                            --
+------------------------------------------------------------------------
+
+runGenerateOne :: CliOptions -> String -> IO ()
+runGenerateOne options toGenerate = undefined
+
+-- mergeOne :: String -> IO (Maybe (MergeResult TreeUserEvolutionPlan))
+-- mergeOne key = case M.lookup key mergeData of
+--   Nothing -> print "key not found!" >> return Nothing
+--   Just mergeInput -> do
+--     Just
+--       <$> mergeSingle
+--         True
+--         (Just "../frontend/data/elm-input.json")
+--         Nothing
+--         mergeInput
+
+------------------------------------------------------------------------
+--                             From File                              --
+------------------------------------------------------------------------
+
+runFromFile :: CliOptions -> FilePath -> IO ()
+runFromFile options filepath = undefined
+
+mergeInputFromFile :: CliOptions -> FilePath -> IO (Maybe MergeInput)
+mergeInputFromFile options filepath =
+  case options ^. L.fromType of
+    TreeUserType ->
+      (fmap . fmap) TreeUser (decodeFileStrict filepath)
+    FlatUserType ->
+      (fmap . fmap) FlatUser (decodeFileStrict filepath)
+    FlatModificationType ->
+      (fmap . fmap) FlatModification (decodeFileStrict filepath)
+
+------------------------------------------------------------------------
+--                       Full Merge Algorithms                        --
+------------------------------------------------------------------------
+
+mergeSingle :: CliOptions -> MergeInput -> IO ()
 mergeSingle options mergeInput = do
   -- we convert from and to every representation
   -- this is still efficient because haskell is lazy
@@ -105,52 +107,37 @@ mergeSingle options mergeInput = do
       maybePrintResult options flatModificationInput flatModificationResult
       maybeWriteToFile options flatModificationResult
 
-runProgram :: CliOptions -> IO ()
-runProgram options = do
-  case options ^. L.mode of
-    GenerateAll ->
-      undefined
-    GenerateOne toGenerate ->
-      undefined
-    FromFile filepath ->
-      undefined
-
-mergeInputFromFile :: CliOptions -> FilePath -> IO (Maybe MergeInput)
-mergeInputFromFile options filepath =
-  case options ^. L.fromType of
-    TreeUserType ->
-      (fmap . fmap) TreeUser (decodeFileStrict filepath)
-    FlatUserType ->
-      (fmap . fmap) FlatUser (decodeFileStrict filepath)
-    FlatModificationType ->
-      (fmap . fmap) FlatModification (decodeFileStrict filepath)
-
-main :: IO ()
-main = do
-  runProgram =<< executeParser
-
-  -- mergeOne "SoundExample"
-  mergeAll True (Just "../frontend/data/elm-input.json")
-  return ()
+mergeAll :: CliOptions -> IO ()
+mergeAll options = do
+  elmData <- traverse handleSingleMerge (M.elems mergeData)
+  maybeWriteToElm options elmData
   where
+    handleSingleMerge mergeInput = do
+      -- we convert from and to every representation
+      -- this is still efficient because haskell is lazy
+      let (treeUserInput, flatUserInput, flatModificationInput) =
+            getAllMergeInputRepresentations mergeInput
 
--- mergeOne :: String -> IO (Maybe (MergeResult TreeUserEvolutionPlan))
--- mergeOne key = case M.lookup key mergeData of
---   Nothing -> print "key not found!" >> return Nothing
---   Just mergeInput -> do
---     Just
---       <$> mergeSingle
---         True
---         (Just "../frontend/data/elm-input.json")
---         Nothing
---         mergeInput
-------------------------------------------------------------------------
---                             Merge All                              --
-------------------------------------------------------------------------
+          mergeOutput = threeWayMerge flatModificationInput
+
+          (treeUserResult, flatUserResult, flatModificationResult) =
+            getAllMergeOutputRepresentations mergeOutput
+
+      case options ^. L.toType of
+        TreeUserType ->
+          maybePrintResult options treeUserInput treeUserResult
+        FlatUserType ->
+          maybePrintResult options flatUserInput flatUserResult
+        FlatModificationType ->
+          maybePrintResult options flatModificationInput flatModificationResult
+
+      return (treeUserInput, treeUserResult)
 
 ------------------------------------------------------------------------
 --                              Helpers                               --
 ------------------------------------------------------------------------
+
+-- converting between representations
 
 getAllMergeInputRepresentations ::
   MergeInput ->
@@ -188,6 +175,8 @@ getAllMergeOutputRepresentations mergeOutput =
   , uncurry convertFromMergeResult <$> mergeOutput
   )
 
+-- printing and file writing
+
 maybePrintResult ::
   (Eq evolutionPlan, Show evolutionPlan) =>
   CliOptions ->
@@ -223,3 +212,24 @@ maybeWriteToFile options result =
           writeResultToFile filepath resultingEvolutionPlan
     )
     (options ^. L.toFile)
+
+------------------------------------------------------------------------
+--                                Data                                --
+------------------------------------------------------------------------
+
+elmDataPath :: FilePath
+elmDataPath = "../frontend/data/elm-input.json"
+
+mergeData :: M.Map String MergeInput
+mergeData =
+  M.fromList
+    [ ("SoundExample", TreeUser soundExample)
+    , ("ConflictMultipleAdd", FlatModification multipleAdd)
+    , ("ConflictRemoveAndChange", FlatModification removeAndChangeModification)
+    , ("MovedAddition", FlatModification movedFeatureAddition)
+    , ("ConflictingAdditionMove", FlatModification conflictingAdditionMove)
+    , ("ConflictingGroupRemove", FlatModification conflictingGroupRemove)
+    , ("MoveGroupCycle", FlatModification groupMoveCycle)
+    , ("WellFormedViolation", FlatModification violatingFeatureWellFormed)
+    , ("MissingParentFeature", FlatModification missingParentFeature)
+    ]
