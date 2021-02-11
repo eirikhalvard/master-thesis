@@ -48,21 +48,25 @@ runGenerateAll = mergeAll
 ------------------------------------------------------------------------
 
 runGenerateOne :: CliOptions -> String -> IO ()
-runGenerateOne options toGenerate = do
-  case M.lookup toGenerate mergeData of
-    Nothing ->
-      print $
+runGenerateOne options toGenerate =
+  let errMsg =
         "Example to generate (toGenerate option) not found!"
           ++ "Try one of the following:\n"
           ++ (intercalate ", " . fmap show . M.keys $ mergeData)
-    Just mergeInput -> mergeSingle options mergeInput
+   in maybe
+        (print errMsg)
+        (mergeSingle options)
+        (M.lookup toGenerate mergeData)
 
 ------------------------------------------------------------------------
 --                             From File                              --
 ------------------------------------------------------------------------
 
 runFromFile :: CliOptions -> FilePath -> IO ()
-runFromFile options filepath = undefined
+runFromFile options filepath =
+  let errMsg = "Could not parse file! something went wrong. Did you set the right input format?"
+   in mergeInputFromFile options filepath
+        >>= maybe (print errMsg) (mergeSingle options)
 
 mergeInputFromFile :: CliOptions -> FilePath -> IO (Maybe MergeInput)
 mergeInputFromFile options filepath =
