@@ -8,10 +8,7 @@ import qualified Data.Map as M
 
 import Cli (executeParser)
 import Convertable
-import Examples.GlobalConflictExample
-import Examples.LocalConflictExample
-import Examples.MergeConflictExample
-import Examples.SoundExample
+import Examples.Examples
 import qualified Lenses as L
 import SerializeOutput
 import ThreeWayMerge (threeWayMerge)
@@ -23,6 +20,9 @@ import Types
 
 main :: IO ()
 main = runProgram =<< executeParser
+
+elmDataPath :: FilePath
+elmDataPath = "../frontend/data/elm-input.json"
 
 runProgram :: CliOptions -> IO ()
 runProgram options = do
@@ -210,24 +210,3 @@ maybeWriteToFile options result =
           writeResultToFile filepath resultingEvolutionPlan
     )
     (options ^. L.toFile)
-
-------------------------------------------------------------------------
---                                Data                                --
-------------------------------------------------------------------------
-
-elmDataPath :: FilePath
-elmDataPath = "../frontend/data/elm-input.json"
-
-mergeData :: M.Map String MergeInput
-mergeData =
-  M.fromList
-    [ ("SoundExample", TreeUser soundExample)
-    , ("ConflictMultipleAdd", FlatModification multipleAdd)
-    , ("ConflictRemoveAndChange", FlatModification removeAndChangeModification)
-    , ("MovedAddition", FlatModification movedFeatureAddition)
-    , ("ConflictingAdditionMove", FlatModification conflictingAdditionMove)
-    , ("ConflictingGroupRemove", FlatModification conflictingGroupRemove)
-    , ("MoveGroupCycle", FlatModification groupMoveCycle)
-    , ("WellFormedViolation", FlatModification violatingFeatureWellFormed)
-    , ("MissingParentFeature", FlatModification missingParentFeature)
-    ]

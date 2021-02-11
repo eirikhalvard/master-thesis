@@ -1,9 +1,11 @@
 {-# LANGUAGE OverloadedLists #-}
 
 import Control.Lens
+import qualified Data.Map as M
 import Test.Hspec
 
 import Convertable
+import Examples.Examples
 import Examples.SoundExample
 import qualified Lenses as L
 import qualified Merge.ChangeDetection as ChangeDetection
@@ -115,3 +117,22 @@ main = hspec $ do
     it "complete three way merge works for example" $ do
       uncurry convertFromMergeResult <$> threeWayMerge soundExample
         `shouldBe` Right expectedEvolutionPlan
+  describe "Full Examples - checking result vs expected" $ do
+    mapM_ checkSingle $ M.elems mergeData
+  where
+    checkSingle wrappedExample =
+      case wrappedExample of
+        TreeUser example -> do
+          checkExample example
+        FlatUser example ->
+          checkExample example
+        FlatModification example ->
+          checkExample example
+    checkExample example =
+      mapM_
+        ( \expected ->
+            it ("checking example: " ++ show (example ^. L.name)) $ do
+              uncurry convertFromMergeResult <$> threeWayMerge example
+                `shouldBe` expected
+        )
+        (example ^. L.maybeExpected)
