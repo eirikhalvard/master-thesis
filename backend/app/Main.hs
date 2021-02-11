@@ -5,6 +5,7 @@ module Main where
 import Control.Lens
 import Control.Monad (when)
 import Data.Aeson (ToJSON, decodeFileStrict)
+import Data.List (intercalate)
 import qualified Data.Map as M
 
 import Cli (executeParser)
@@ -40,26 +41,21 @@ runProgram options = do
 ------------------------------------------------------------------------
 
 runGenerateAll :: CliOptions -> IO ()
-runGenerateAll options =
-  mergeAll options
+runGenerateAll = mergeAll
 
 ------------------------------------------------------------------------
 --                            Generate One                            --
 ------------------------------------------------------------------------
 
 runGenerateOne :: CliOptions -> String -> IO ()
-runGenerateOne options toGenerate = undefined
-
--- mergeOne :: String -> IO (Maybe (MergeResult TreeUserEvolutionPlan))
--- mergeOne key = case M.lookup key mergeData of
---   Nothing -> print "key not found!" >> return Nothing
---   Just mergeInput -> do
---     Just
---       <$> mergeSingle
---         True
---         (Just "../frontend/data/elm-input.json")
---         Nothing
---         mergeInput
+runGenerateOne options toGenerate = do
+  case M.lookup toGenerate mergeData of
+    Nothing ->
+      print $
+        "Example to generate (toGenerate option) not found!"
+          ++ "Try one of the following:\n"
+          ++ (intercalate ", " . fmap show . M.keys $ mergeData)
+    Just mergeInput -> mergeSingle options mergeInput
 
 ------------------------------------------------------------------------
 --                             From File                              --
