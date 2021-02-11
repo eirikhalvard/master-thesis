@@ -8,12 +8,15 @@ import Merge.PlanMerging (createMergePlan, unifyMergePlan)
 import Types
 
 threeWayMerge ::
-  ConvertableInput inputEvolutionPlan FlatModificationEvolutionPlan =>
+  ConvertableInput inputEvolutionPlan =>
   MergeInputData inputEvolutionPlan ->
   MergeOutput
 threeWayMerge (MergeInputData _ base v1 v2 _) = do
   let mergePlan =
-        createMergePlan (convertFrom base) (convertFrom v1) (convertFrom v2)
+        createMergePlan
+          (toFlatModification base)
+          (toFlatModification v1)
+          (toFlatModification v2)
   mergedModificationPlan <- unifyMergePlan mergePlan
   checkedUserFlatPlan <- integrateAndCheckModifications mergedModificationPlan
   return (mergedModificationPlan, checkedUserFlatPlan)

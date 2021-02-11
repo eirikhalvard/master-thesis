@@ -1,5 +1,4 @@
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
 
 module Convertable where
 
@@ -16,45 +15,36 @@ import Types
 -- Therefor we define "unsafe" variants that just works on sound evolution
 -- plans
 
-class ConvertableInput input output where
-  convertFrom :: input -> output
+class ConvertableInput input where
+  toTreeUser :: input -> TreeUserEvolutionPlan
+  toFlatUser :: input -> FlatUserEvolutionPlan
+  toFlatModification :: input -> FlatModificationEvolutionPlan
 
 integrateSoundModifications :: FlatModificationEvolutionPlan -> FlatUserEvolutionPlan
 integrateSoundModifications =
   either (error . conflictErrorMsg) id . integrateAndCheckModifications
 
-instance ConvertableInput TreeUserEvolutionPlan TreeUserEvolutionPlan where
-  convertFrom = id
+instance ConvertableInput TreeUserEvolutionPlan where
+  toTreeUser = id
+  toFlatUser = flattenSoundEvolutionPlan
+  toFlatModification = deriveSoundModifications . flattenSoundEvolutionPlan
 
-instance ConvertableInput TreeUserEvolutionPlan FlatUserEvolutionPlan where
-  convertFrom = flattenSoundEvolutionPlan
+instance ConvertableInput FlatUserEvolutionPlan where
+  toTreeUser = unflattenSoundEvolutionPlan
+  toFlatUser = id
+  toFlatModification = deriveSoundModifications
 
-instance ConvertableInput TreeUserEvolutionPlan FlatModificationEvolutionPlan where
-  convertFrom = deriveSoundModifications . flattenSoundEvolutionPlan
-
-instance ConvertableInput FlatUserEvolutionPlan TreeUserEvolutionPlan where
-  convertFrom = unflattenSoundEvolutionPlan
-
-instance ConvertableInput FlatUserEvolutionPlan FlatUserEvolutionPlan where
-  convertFrom = id
-
-instance ConvertableInput FlatUserEvolutionPlan FlatModificationEvolutionPlan where
-  convertFrom = deriveSoundModifications
-
-instance ConvertableInput FlatModificationEvolutionPlan TreeUserEvolutionPlan where
-  convertFrom = unflattenSoundEvolutionPlan . integrateSoundModifications
-
-instance ConvertableInput FlatModificationEvolutionPlan FlatUserEvolutionPlan where
-  convertFrom = integrateSoundModifications
-
-instance ConvertableInput FlatModificationEvolutionPlan FlatModificationEvolutionPlan where
-  convertFrom = id
+instance ConvertableInput FlatModificationEvolutionPlan where
+  toTreeUser = unflattenSoundEvolutionPlan . integrateSoundModifications
+  toFlatUser = integrateSoundModifications
+  toFlatModification = id
 
 -- Defines a way of converting the result of the merge into the specified
 -- output format. Since the merger both produces the
 -- FlatModificationEvolutionPlan and AbsFlat evolution plans, we can utilize
 -- both in the convertion
 
+-- TODO: rename as ConvertableOutput
 class ConvertableFromResult output where
   convertFromMergeResult :: FlatModificationEvolutionPlan -> FlatUserEvolutionPlan -> output
 

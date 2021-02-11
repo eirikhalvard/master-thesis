@@ -3,7 +3,6 @@
 module SerializeOutput where
 
 import Conflict (conflictErrorMsg)
-import Convertable
 import Examples.SoundExample ()
 import qualified Lenses as L
 import Types
@@ -52,45 +51,40 @@ writeResultToFile = encodeFile
 --                  Elm Frontend Data Serialization                   --
 ------------------------------------------------------------------------
 
-writeElmExamplesToFile ::
-  ( ConvertableInput evolutionPlan TreeUserEvolutionPlan
-  , ConvertableFromResult evolutionPlan
-  ) =>
+writeToElm ::
   FilePath ->
-  [(MergeInputData evolutionPlan, MergeOutput)] ->
+  [ ( MergeInputData TreeUserEvolutionPlan
+    , MergeResult TreeUserEvolutionPlan
+    )
+  ] ->
   IO ()
-writeElmExamplesToFile filename = do
-  encodeFile filename . fmap (uncurry createElmExample)
+writeToElm filepath =
+  encodeFile filepath . createElmExamples
 
 createElmExamples ::
-  ( ConvertableInput evolutionPlan TreeUserEvolutionPlan
-  , ConvertableFromResult evolutionPlan
-  ) =>
-  [(MergeInputData evolutionPlan, MergeOutput)] ->
+  [ ( MergeInputData TreeUserEvolutionPlan
+    , MergeResult TreeUserEvolutionPlan
+    )
+  ] ->
   ElmDataExamples
 createElmExamples = ElmDataExamples . fmap (uncurry createElmExample)
 
 createElmExample ::
-  ( ConvertableInput evolutionPlan TreeUserEvolutionPlan
-  , ConvertableFromResult evolutionPlan
-  ) =>
-  MergeInputData evolutionPlan ->
-  MergeOutput ->
+  MergeInputData TreeUserEvolutionPlan ->
+  MergeResult TreeUserEvolutionPlan ->
   ElmMergeExample
 createElmExample (MergeInputData name base v1 v2 maybeExpected) result =
   ElmMergeExample
     name
     ( [ ElmNamedEvolutionPlan "Base" $
-          Right (convertFrom base)
+          Right base
       , ElmNamedEvolutionPlan "Version 1" $
-          Right (convertFrom v1)
+          Right v1
       , ElmNamedEvolutionPlan "Version 2" $
-          Right (convertFrom v2)
+          Right v2
       ]
         ++ foldMap
-          (pure . ElmNamedEvolutionPlan "Expected" . bimap conflictErrorMsg convertFrom)
+          (pure . ElmNamedEvolutionPlan "Expected" . first conflictErrorMsg)
           maybeExpected
-        ++ [ ElmNamedEvolutionPlan "Actual" $
-              bimap conflictErrorMsg (uncurry convertFromMergeResult) result
-           ]
+        ++ [ElmNamedEvolutionPlan "Actual" (first conflictErrorMsg result)]
     )
