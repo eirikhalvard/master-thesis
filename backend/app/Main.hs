@@ -52,7 +52,7 @@ runGenerateOne options toGenerate =
           ++ "Try one of the following:\n"
           ++ (intercalate ", " . fmap show . M.keys $ mergeData)
    in maybe
-        (print errMsg)
+        (putStrLn errMsg)
         (mergeSingle options)
         (M.lookup toGenerate mergeData)
 
@@ -64,7 +64,7 @@ runFromFile :: CliOptions -> FilePath -> IO ()
 runFromFile options filepath =
   let errMsg = "Could not parse file! something went wrong. Did you set the right input format?"
    in mergeInputFromFile options filepath
-        >>= maybe (print errMsg) (mergeSingle options)
+        >>= maybe (putStrLn errMsg) (mergeSingle options)
 
 mergeInputFromFile :: CliOptions -> FilePath -> IO (Maybe MergeInput)
 mergeInputFromFile options filepath =

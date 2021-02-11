@@ -1,59 +1,61 @@
 {-# LANGUAGE OverloadedLists #-}
 
 import Control.Lens
+import Test.Hspec
+
+import Convertable
 import Examples.SoundExample
 import qualified Lenses as L
 import qualified Merge.ChangeDetection as ChangeDetection
 import qualified Merge.CheckPlan as CheckPlan
 import qualified Merge.PlanMerging as PlanMerging
-import Test.Hspec
 import ThreeWayMerge (threeWayMerge)
 import Types
 
-baseModificationEvolutionPlan :: ModificationLevelEvolutionPlan FeatureModel'
+baseModificationEvolutionPlan :: FlatModificationEvolutionPlan
 baseModificationEvolutionPlan =
-  ChangeDetection.constructModificationLevelEP
-    . ChangeDetection.flattenEvolutionPlan
+  ChangeDetection.deriveSoundModifications
+    . ChangeDetection.flattenSoundEvolutionPlan
     $ baseEvolutionPlan
 
-v1ModificationEvolutionPlan :: ModificationLevelEvolutionPlan FeatureModel'
+v1ModificationEvolutionPlan :: FlatModificationEvolutionPlan
 v1ModificationEvolutionPlan =
-  ChangeDetection.constructModificationLevelEP
-    . ChangeDetection.flattenEvolutionPlan
+  ChangeDetection.deriveSoundModifications
+    . ChangeDetection.flattenSoundEvolutionPlan
     $ v1EvolutionPlan
 
-v2ModificationEvolutionPlan :: ModificationLevelEvolutionPlan FeatureModel'
+v2ModificationEvolutionPlan :: FlatModificationEvolutionPlan
 v2ModificationEvolutionPlan =
-  ChangeDetection.constructModificationLevelEP
-    . ChangeDetection.flattenEvolutionPlan
+  ChangeDetection.deriveSoundModifications
+    . ChangeDetection.flattenSoundEvolutionPlan
     $ v2EvolutionPlan
 
-mergePlan :: MergeLevelEvolutionPlan FeatureModel'
+mergePlan :: TransformationEvolutionPlan DiffResult FlatFeatureModel
 mergePlan =
   PlanMerging.createMergePlan
     baseModificationEvolutionPlan
     v1ModificationEvolutionPlan
     v2ModificationEvolutionPlan
 
-unifiedMergePlan :: Either Conflict (ModificationLevelEvolutionPlan FeatureModel')
+unifiedMergePlan :: Either Conflict FlatModificationEvolutionPlan
 unifiedMergePlan =
   PlanMerging.unifyMergePlan mergePlan
 
-integratedPlan :: Either Conflict (AbstractedLevelEvolutionPlan FeatureModel')
+integratedPlan :: Either Conflict FlatUserEvolutionPlan
 integratedPlan =
-  unifiedMergePlan >>= CheckPlan.integrateAllModifications
+  unifiedMergePlan >>= CheckPlan.integrateAndCheckModifications
 
-unflattenedPlan :: Either Conflict (AbstractedLevelEvolutionPlan FeatureModel)
+unflattenedPlan :: Either Conflict TreeUserEvolutionPlan
 unflattenedPlan =
-  integratedPlan >>= CheckPlan.unflattenEvolutionPlan
+  CheckPlan.unflattenSoundEvolutionPlan <$> integratedPlan
 
-expectedEvolutionPlanFlattened :: AbstractedLevelEvolutionPlan FeatureModel'
+expectedEvolutionPlanFlattened :: FlatUserEvolutionPlan
 expectedEvolutionPlanFlattened =
-  ChangeDetection.flattenEvolutionPlan expectedEvolutionPlan
+  ChangeDetection.flattenSoundEvolutionPlan expectedEvolutionPlan
 
-expectedEvolutionPlanTransformed :: ModificationLevelEvolutionPlan FeatureModel'
+expectedEvolutionPlanTransformed :: FlatModificationEvolutionPlan
 expectedEvolutionPlanTransformed =
-  ChangeDetection.constructModificationLevelEP expectedEvolutionPlanFlattened
+  ChangeDetection.deriveSoundModifications expectedEvolutionPlanFlattened
 
 main :: IO ()
 main = hspec $ do
@@ -89,17 +91,17 @@ main = hspec $ do
 
   describe "Change Detection" $
     it "flattens and constructs modification levle correctly fro sound example" $ do
-      ChangeDetection.constructModificationLevelEP
-        (ChangeDetection.flattenEvolutionPlan baseEvolutionPlan)
+      ChangeDetection.deriveSoundModifications
+        (ChangeDetection.flattenSoundEvolutionPlan baseEvolutionPlan)
         `shouldBe` baseConstructedEvolutionPlan
-      ChangeDetection.constructModificationLevelEP
-        (ChangeDetection.flattenEvolutionPlan v1EvolutionPlan)
+      ChangeDetection.deriveSoundModifications
+        (ChangeDetection.flattenSoundEvolutionPlan v1EvolutionPlan)
         `shouldBe` v1ConstructedEvolutionPlan
-      ChangeDetection.constructModificationLevelEP
-        (ChangeDetection.flattenEvolutionPlan v2EvolutionPlan)
+      ChangeDetection.deriveSoundModifications
+        (ChangeDetection.flattenSoundEvolutionPlan v2EvolutionPlan)
         `shouldBe` v2ConstructedEvolutionPlan
-      ChangeDetection.constructModificationLevelEP
-        (ChangeDetection.flattenEvolutionPlan expectedEvolutionPlan)
+      ChangeDetection.deriveSoundModifications
+        (ChangeDetection.flattenSoundEvolutionPlan expectedEvolutionPlan)
         `shouldBe` expectedConstructedEvolutionPlan
   describe "Plan Merging" $ do
     it "result of example merge is equal to expected result" $ do
@@ -111,5 +113,5 @@ main = hspec $ do
     it "unflattens correct plan correctly" $ do
       Right expectedEvolutionPlan `shouldBe` unflattenedPlan
     it "complete three way merge works for example" $ do
-      threeWayMerge baseEvolutionPlan v1EvolutionPlan v2EvolutionPlan
+      uncurry convertFromMergeResult <$> threeWayMerge soundExample
         `shouldBe` Right expectedEvolutionPlan
