@@ -42,78 +42,68 @@ mergeAll shouldPrint maybeElmFilePath = do
   mapM_ (`encodeFile` elmExamples) maybeElmFilePath
   where
     handleSingleMerge :: MergeInput -> IO ElmMergeExample
-    handleSingleMerge mergeInput = case mergeInput of
-      TreeUser mergeInputData -> do
-        let mergeOutput = threeWayMerge mergeInputData
-            convertedInputData :: MergeInputData FlatModificationEvolutionPlan
-            convertedInputData = convertFrom <$> mergeInputData
-            convertedResult :: MergeResult FlatModificationEvolutionPlan
-            convertedResult = fmap (uncurry convertFromMergeResult) mergeOutput
-        when shouldPrint (printResult convertedInputData convertedResult)
-        return $ createElmExample mergeInputData mergeOutput
-      FlatUser mergeInputData -> do
-        let mergeOutput = threeWayMerge mergeInputData
-            convertedInputData :: MergeInputData FlatModificationEvolutionPlan
-            convertedInputData = convertFrom <$> mergeInputData
-            convertedResult :: MergeResult FlatModificationEvolutionPlan
-            convertedResult = fmap (uncurry convertFromMergeResult) mergeOutput
-        when shouldPrint (printResult convertedInputData convertedResult)
-        return $ createElmExample mergeInputData mergeOutput
-      FlatModification mergeInputData -> do
-        let mergeOutput = threeWayMerge mergeInputData
-            convertedInputData :: MergeInputData FlatModificationEvolutionPlan
-            convertedInputData = convertFrom <$> mergeInputData
-            convertedResult :: MergeResult FlatModificationEvolutionPlan
-            convertedResult = fmap (uncurry convertFromMergeResult) mergeOutput
-        when shouldPrint (printResult convertedInputData convertedResult)
-        return $ createElmExample mergeInputData mergeOutput
+    handleSingleMerge mergeInput = undefined
+
+-- case mergeInput of
+--   TreeUser mergeInputData -> do
+--     let mergeOutput = threeWayMerge mergeInputData
+--         convertedInputData :: MergeInputData FlatModificationEvolutionPlan
+--         convertedInputData = convertFrom <$> mergeInputData
+--         convertedResult :: MergeResult FlatModificationEvolutionPlan
+--         convertedResult = fmap (uncurry convertFromMergeResult) mergeOutput
+--     when shouldPrint (printResult convertedInputData convertedResult)
+--     return $ createElmExample mergeInputData mergeOutput
+--   FlatUser mergeInputData -> do
+--     let mergeOutput = threeWayMerge mergeInputData
+--         convertedInputData :: MergeInputData FlatModificationEvolutionPlan
+--         convertedInputData = convertFrom <$> mergeInputData
+--         convertedResult :: MergeResult FlatModificationEvolutionPlan
+--         convertedResult = fmap (uncurry convertFromMergeResult) mergeOutput
+--     when shouldPrint (printResult convertedInputData convertedResult)
+--     return $ createElmExample mergeInputData mergeOutput
+--   FlatModification mergeInputData -> do
+--     let mergeOutput = threeWayMerge mergeInputData
+--         convertedInputData :: MergeInputData FlatModificationEvolutionPlan
+--         convertedInputData = convertFrom <$> mergeInputData
+--         convertedResult :: MergeResult FlatModificationEvolutionPlan
+--         convertedResult = fmap (uncurry convertFromMergeResult) mergeOutput
+--     when shouldPrint (printResult convertedInputData convertedResult)
+--     return $ createElmExample mergeInputData mergeOutput
+
+elmDataPath :: FilePath
+elmDataPath = "../frontend/data/elm-input.json"
+
+------------------------------------------------------------------------
+--                            Merge Single                            --
+------------------------------------------------------------------------
 
 mergeSingle ::
-  ( ConvertableFromResult outputEvolutionPlan
-  , ConvertableInput TreeUserEvolutionPlan outputEvolutionPlan
-  , ConvertableInput FlatUserEvolutionPlan outputEvolutionPlan
-  , ConvertableInput FlatModificationEvolutionPlan outputEvolutionPlan
-  , Eq outputEvolutionPlan
-  , Show outputEvolutionPlan
-  , ToJSON outputEvolutionPlan
-  ) =>
-  Bool ->
-  Maybe FilePath ->
-  Maybe FilePath ->
+  CliOptions ->
   MergeInput ->
-  IO (MergeResult outputEvolutionPlan)
-mergeSingle shouldPrint maybeElmFilePath maybeFilepath mergeInput = do
-  let mergeOutput = case mergeInput of
-        TreeUser mergeInputData -> threeWayMerge mergeInputData
-        FlatUser mergeInputData -> threeWayMerge mergeInputData
-        FlatModification mergeInputData -> threeWayMerge mergeInputData
-      convertedInputData = case mergeInput of
-        TreeUser mergeInputData -> convertFrom <$> mergeInputData
-        FlatUser mergeInputData -> convertFrom <$> mergeInputData
-        FlatModification mergeInputData -> convertFrom <$> mergeInputData
-      convertedResult = fmap (uncurry convertFromMergeResult) mergeOutput
+  IO ()
+mergeSingle options mergeInput = do
+  -- we convert from and to every representation
+  -- this is still efficient because haskell is lazy
+  let (treeUserInput, flatUserInput, flatModificationInput) =
+        getAllMergeInputRepresentations mergeInput
 
-  when shouldPrint (printResult convertedInputData convertedResult)
+      mergeOutput = threeWayMerge flatModificationInput
 
-  case maybeElmFilePath of
-    Nothing -> return ()
-    Just filepath ->
-      case mergeInput of
-        TreeUser mergeInputData ->
-          writeElmExamplesToFile filepath [(mergeInputData, mergeOutput)]
-        FlatUser mergeInputData ->
-          writeElmExamplesToFile filepath [(mergeInputData, mergeOutput)]
-        FlatModification mergeInputData ->
-          writeElmExamplesToFile filepath [(mergeInputData, mergeOutput)]
+      (treeUserResult, flatUserResult, flatModificationResult) =
+        getAllMergeOutputRepresentations mergeOutput
 
-  mapM_
-    ( \filepath -> case convertedResult of
-        Left _ -> print "Could not write to file, conflict occured!"
-        Right resultingEvolutionPlan -> writeResultToFile filepath resultingEvolutionPlan
-    )
-    maybeFilepath
+  maybeWriteToElm options [(treeUserInput, treeUserResult)]
 
-  return convertedResult
+  case options ^. L.toType of
+    TreeUserType -> do
+      maybePrintResult options treeUserInput treeUserResult
+      maybeWriteToFile options treeUserResult
+    FlatUserType -> do
+      maybePrintResult options flatUserInput flatUserResult
+      maybeWriteToFile options flatUserResult
+    FlatModificationType -> do
+      maybePrintResult options flatModificationInput flatModificationResult
+      maybeWriteToFile options flatModificationResult
 
 runProgram :: CliOptions -> IO ()
 runProgram options = do
@@ -143,13 +133,93 @@ main = do
   mergeAll True (Just "../frontend/data/elm-input.json")
   return ()
   where
-    mergeOne :: String -> IO (Maybe (MergeResult TreeUserEvolutionPlan))
-    mergeOne key = case M.lookup key mergeData of
-      Nothing -> print "key not found!" >> return Nothing
-      Just mergeInput -> do
-        Just
-          <$> mergeSingle
-            True
-            (Just "../frontend/data/elm-input.json")
-            Nothing
-            mergeInput
+
+-- mergeOne :: String -> IO (Maybe (MergeResult TreeUserEvolutionPlan))
+-- mergeOne key = case M.lookup key mergeData of
+--   Nothing -> print "key not found!" >> return Nothing
+--   Just mergeInput -> do
+--     Just
+--       <$> mergeSingle
+--         True
+--         (Just "../frontend/data/elm-input.json")
+--         Nothing
+--         mergeInput
+------------------------------------------------------------------------
+--                             Merge All                              --
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+--                              Helpers                               --
+------------------------------------------------------------------------
+
+getAllMergeInputRepresentations ::
+  MergeInput ->
+  ( MergeInputData TreeUserEvolutionPlan
+  , MergeInputData FlatUserEvolutionPlan
+  , MergeInputData FlatModificationEvolutionPlan
+  )
+getAllMergeInputRepresentations mergeInput =
+  case mergeInput of
+    TreeUser input ->
+      ( toTreeUser <$> input
+      , toFlatUser <$> input
+      , toFlatModification <$> input
+      )
+    FlatUser input ->
+      ( toTreeUser <$> input
+      , toFlatUser <$> input
+      , toFlatModification <$> input
+      )
+    FlatModification input ->
+      ( toTreeUser <$> input
+      , toFlatUser <$> input
+      , toFlatModification <$> input
+      )
+
+getAllMergeOutputRepresentations ::
+  MergeOutput ->
+  ( MergeResult TreeUserEvolutionPlan
+  , MergeResult FlatUserEvolutionPlan
+  , MergeResult FlatModificationEvolutionPlan
+  )
+getAllMergeOutputRepresentations mergeOutput =
+  ( uncurry convertFromMergeResult <$> mergeOutput
+  , uncurry convertFromMergeResult <$> mergeOutput
+  , uncurry convertFromMergeResult <$> mergeOutput
+  )
+
+maybePrintResult ::
+  (Eq evolutionPlan, Show evolutionPlan) =>
+  CliOptions ->
+  MergeInputData evolutionPlan ->
+  MergeResult evolutionPlan ->
+  IO ()
+maybePrintResult options mergeInput mergeResult =
+  when (options ^. L.print) (printResult mergeInput mergeResult)
+
+maybeWriteToElm ::
+  CliOptions ->
+  [ ( MergeInputData TreeUserEvolutionPlan
+    , MergeResult TreeUserEvolutionPlan
+    )
+  ] ->
+  IO ()
+maybeWriteToElm options elmData =
+  when
+    (options ^. L.generateElm)
+    (writeToElm elmDataPath elmData)
+
+maybeWriteToFile ::
+  ToJSON evolutionPlan =>
+  CliOptions ->
+  MergeResult evolutionPlan ->
+  IO ()
+maybeWriteToFile options result =
+  mapM_
+    ( \filepath -> case result of
+        Left _ ->
+          print "Could not write to file, conflict occured!"
+        Right resultingEvolutionPlan ->
+          writeResultToFile filepath resultingEvolutionPlan
+    )
+    (options ^. L.toFile)
