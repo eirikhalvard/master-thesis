@@ -51,7 +51,6 @@ parseMode = generateOne <|> generateAll <|> fromFile
               <> help "Read a three way merge plan from file"
           )
 
--- TODO: Add the different options to the help page
 parseFromType :: Parser EvolutionPlanType
 parseFromType =
   option
@@ -59,12 +58,14 @@ parseFromType =
     ( long "fromType"
         <> short 'F'
         <> metavar "FROMTYPE"
-        <> help "The type to convert from (useful only when reading from file)"
+        <> help
+          ( "The type to convert from (useful only when reading from file)"
+              ++ "(choices: TreeUser | FlatUser | FlatModification)"
+          )
         <> value TreeUserType
         <> showDefaultWith fromEvolutionPlanType
     )
 
--- TODO: Add the different options to the help page
 parseToType :: Parser EvolutionPlanType
 parseToType =
   option
@@ -72,7 +73,10 @@ parseToType =
     ( long "toType"
         <> short 'T'
         <> metavar "TOTYPE"
-        <> help "The type to convert to (useful when printing and writing to file)"
+        <> help
+          ( "The type to convert to (useful when printing and writing to file)"
+              ++ "(choices: TreeUser | FlatUser | FlatModification)"
+          )
         <> value FlatModificationType
         <> showDefaultWith fromEvolutionPlanType
     )
