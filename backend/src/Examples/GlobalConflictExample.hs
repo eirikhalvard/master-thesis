@@ -80,7 +80,7 @@ violatingFeatureWellFormed =
             ( FailedDependencies
                 [ GroupDependency
                     (GroupModification Nothing (Just $ GroupTypeModification Or))
-                    (GroupIsWellFormed "group:size-group")
+                    (GroupIsWellFormed "group:vending-machine-group")
                 ]
             )
     )

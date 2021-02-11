@@ -8,10 +8,7 @@ import qualified Data.Map as M
 
 import Cli (executeParser)
 import Convertable
-import Examples.GlobalConflictExample
-import Examples.LocalConflictExample
-import Examples.MergeConflictExample
-import Examples.SoundExample
+import Examples.Examples
 import qualified Lenses as L
 import SerializeOutput
 import ThreeWayMerge (threeWayMerge)
@@ -23,6 +20,9 @@ import Types
 
 main :: IO ()
 main = runProgram =<< executeParser
+
+elmDataPath :: FilePath
+elmDataPath = "../frontend/data/elm-input.json"
 
 runProgram :: CliOptions -> IO ()
 runProgram options = do
@@ -52,7 +52,7 @@ runGenerateOne options toGenerate =
           ++ "Try one of the following:\n"
           ++ (intercalate ", " . fmap show . M.keys $ mergeData)
    in maybe
-        (print errMsg)
+        (putStrLn errMsg)
         (mergeSingle options)
         (M.lookup toGenerate mergeData)
 
@@ -64,7 +64,7 @@ runFromFile :: CliOptions -> FilePath -> IO ()
 runFromFile options filepath =
   let errMsg = "Could not parse file! something went wrong. Did you set the right input format?"
    in mergeInputFromFile options filepath
-        >>= maybe (print errMsg) (mergeSingle options)
+        >>= maybe (putStrLn errMsg) (mergeSingle options)
 
 mergeInputFromFile :: CliOptions -> FilePath -> IO (Maybe MergeInput)
 mergeInputFromFile options filepath =
@@ -210,24 +210,3 @@ maybeWriteToFile options result =
           writeResultToFile filepath resultingEvolutionPlan
     )
     (options ^. L.toFile)
-
-------------------------------------------------------------------------
---                                Data                                --
-------------------------------------------------------------------------
-
-elmDataPath :: FilePath
-elmDataPath = "../frontend/data/elm-input.json"
-
-mergeData :: M.Map String MergeInput
-mergeData =
-  M.fromList
-    [ ("SoundExample", TreeUser soundExample)
-    , ("ConflictMultipleAdd", FlatModification multipleAdd)
-    , ("ConflictRemoveAndChange", FlatModification removeAndChangeModification)
-    , ("MovedAddition", FlatModification movedFeatureAddition)
-    , ("ConflictingAdditionMove", FlatModification conflictingAdditionMove)
-    , ("ConflictingGroupRemove", FlatModification conflictingGroupRemove)
-    , ("MoveGroupCycle", FlatModification groupMoveCycle)
-    , ("WellFormedViolation", FlatModification violatingFeatureWellFormed)
-    , ("MissingParentFeature", FlatModification missingParentFeature)
-    ]
