@@ -44,15 +44,14 @@ instance ConvertableInput FlatModificationEvolutionPlan where
 -- FlatModificationEvolutionPlan and AbsFlat evolution plans, we can utilize
 -- both in the convertion
 
--- TODO: rename as ConvertableOutput
-class ConvertableFromResult output where
-  convertFromMergeResult :: FlatModificationEvolutionPlan -> FlatUserEvolutionPlan -> output
+class ConvertableOutput output where
+  fromMergeOutput :: FlatModificationEvolutionPlan -> FlatUserEvolutionPlan -> output
 
-instance ConvertableFromResult TreeUserEvolutionPlan where
-  convertFromMergeResult _ userFlat = unflattenSoundEvolutionPlan userFlat
+instance ConvertableOutput TreeUserEvolutionPlan where
+  fromMergeOutput _ userFlat = unflattenSoundEvolutionPlan userFlat
 
-instance ConvertableFromResult FlatUserEvolutionPlan where
-  convertFromMergeResult _ userFlat = userFlat
+instance ConvertableOutput FlatUserEvolutionPlan where
+  fromMergeOutput _ userFlat = userFlat
 
-instance ConvertableFromResult FlatModificationEvolutionPlan where
-  convertFromMergeResult modFlat _ = modFlat
+instance ConvertableOutput FlatModificationEvolutionPlan where
+  fromMergeOutput modFlat _ = modFlat
