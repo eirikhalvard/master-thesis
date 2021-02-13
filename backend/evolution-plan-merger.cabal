@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 80f306f937b3c0a7966e317022dde4a7c61afa44a5e5e72dc75f11c64f1657a6
+-- hash: 3554cef10d319f904fc251cab75498215a8807d6d05b1a41e793fc6ea71df8b7
 
 name:           evolution-plan-merger
 version:        0.1.0.0
@@ -39,6 +39,7 @@ library
       Merge.ChangeDetection
       Merge.CheckPlan
       Merge.PlanMerging
+      Program
       SerializeOutput
       ThreeWayMerge
       Types
@@ -53,6 +54,7 @@ library
     , aeson
     , base >=4.7 && <5
     , containers
+    , deriving-aeson
     , hspec
     , lens
     , lens-aeson
@@ -77,6 +79,7 @@ executable epmerge
     , aeson
     , base >=4.7 && <5
     , containers
+    , deriving-aeson
     , evolution-plan-merger
     , hspec
     , lens
@@ -103,6 +106,7 @@ test-suite haskell-master-test
     , aeson
     , base >=4.7 && <5
     , containers
+    , deriving-aeson
     , evolution-plan-merger
     , hspec
     , lens

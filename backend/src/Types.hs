@@ -1,5 +1,7 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -10,6 +12,7 @@ import qualified Data.Map as M
 import qualified Data.Set as S
 
 import Data.Aeson
+import Deriving.Aeson
 import GHC.Generics
 
 ------------------------------------------------------------------------
