@@ -2,7 +2,7 @@ module Program where
 
 import Control.Lens
 import Control.Monad (when)
-import Data.Aeson (ToJSON, decodeFileStrict)
+import Data.Aeson (ToJSON, decodeFileStrict, encodeFile)
 import Data.List (intercalate)
 import qualified Data.Map as M
 
@@ -25,8 +25,8 @@ runProgram options = do
       runGenerateAll options
     GenerateOne toGenerate ->
       runGenerateOne options toGenerate
-    FromFile filepath ->
-      runFromFile options filepath
+    FromFile filePath ->
+      runFromFile options filePath
 
 elmDataPath :: FilePath
 elmDataPath = "../frontend/data/elm-input.json"
@@ -58,20 +58,20 @@ runGenerateOne options toGenerate =
 ------------------------------------------------------------------------
 
 runFromFile :: CliOptions -> FilePath -> IO ()
-runFromFile options filepath =
+runFromFile options filePath =
   let errMsg = "Could not parse file! something went wrong. Did you set the right input format?"
-   in mergeInputFromFile options filepath
+   in mergeInputFromFile options filePath
         >>= maybe (putStrLn errMsg) (mergeSingle options)
 
 mergeInputFromFile :: CliOptions -> FilePath -> IO (Maybe MergeInput)
-mergeInputFromFile options filepath =
+mergeInputFromFile options filePath =
   case options ^. L.fromType of
     TreeUserType ->
-      (fmap . fmap) TreeUser (decodeFileStrict filepath)
+      (fmap . fmap) TreeUser (decodeFileStrict filePath)
     FlatUserType ->
-      (fmap . fmap) FlatUser (decodeFileStrict filepath)
+      (fmap . fmap) FlatUser (decodeFileStrict filePath)
     FlatModificationType ->
-      (fmap . fmap) FlatModification (decodeFileStrict filepath)
+      (fmap . fmap) FlatModification (decodeFileStrict filePath)
 
 ------------------------------------------------------------------------
 --                       Full Merge Algorithms                        --
@@ -200,10 +200,38 @@ maybeWriteToFile ::
   IO ()
 maybeWriteToFile options result =
   mapM_
-    ( \filepath -> case result of
+    ( \filePath -> case result of
         Left _ ->
           print "Could not write to file, conflict occured!"
         Right resultingEvolutionPlan ->
-          writeResultToFile filepath resultingEvolutionPlan
+          writeResultToFile filePath resultingEvolutionPlan
     )
     (options ^. L.toFile)
+
+------------------------------------------------------------------------
+--                           Write To File                            --
+------------------------------------------------------------------------
+
+writeExampleToFile :: FilePath -> String -> EvolutionPlanType -> IO ()
+writeExampleToFile filePath key epType = do
+  case M.lookup key mergeData of
+    Nothing -> putStrLn $ "ERROR: key " ++ show key ++ " not in mergeData map"
+    Just mergeInput ->
+      let (treeUserInput, flatUserInput, flatModificationInput) =
+            getAllMergeInputRepresentations mergeInput
+       in case epType of
+            TreeUserType -> encodeFile filePath treeUserInput
+            FlatUserType -> encodeFile filePath flatUserInput
+            FlatModificationType -> encodeFile filePath flatModificationInput
+
+writeSomeExamples :: IO ()
+writeSomeExamples = do
+  -- sound
+  writeExampleToFile "./data/sound_treeuser.json" "SoundExample" TreeUserType
+  writeExampleToFile "./data/sound_flatuser.json" "SoundExample" FlatUserType
+  writeExampleToFile "./data/sound_flatmodification.json" "SoundExample" FlatModificationType
+
+  -- error : missing parent feature
+  writeExampleToFile "./data/errormissingparent_treeuser.json" "MissingParentFeature" TreeUserType
+  writeExampleToFile "./data/errormissingparent_flatuser.json" "MissingParentFeature" FlatUserType
+  writeExampleToFile "./data/errormissingparent_flatmodification.json" "MissingParentFeature" FlatModificationType

@@ -33,6 +33,7 @@ dependencies:
 - hspec
 - QuickCheck
 - optparse-applicative
+- deriving-aeson 
 
 ghc-options:
   - -fwarn-incomplete-patterns

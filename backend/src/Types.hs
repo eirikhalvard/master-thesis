@@ -1,5 +1,7 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -10,6 +12,8 @@ import qualified Data.Map as M
 import qualified Data.Set as S
 
 import Data.Aeson
+import Deriving.Aeson
+import Deriving.Aeson.Stock
 import GHC.Generics
 
 ------------------------------------------------------------------------
@@ -26,6 +30,9 @@ data TreeFeatureModel = TreeFeatureModel
   { _rootFeature :: TreeFeature
   }
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" TreeFeatureModel
 
 data TreeFeature = TreeFeature
   { _id :: FeatureId
@@ -34,6 +41,9 @@ data TreeFeature = TreeFeature
   , _groups :: S.Set TreeGroup
   }
   deriving (Show, Eq, Read, Ord, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" TreeFeature
 
 data TreeGroup = TreeGroup
   { _id :: GroupId
@@ -41,6 +51,9 @@ data TreeGroup = TreeGroup
   , _features :: S.Set TreeFeature
   }
   deriving (Show, Eq, Read, Ord, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" TreeGroup
 
 --- Flat Structured Feature Model ---
 
@@ -50,6 +63,9 @@ data FlatFeatureModel = FlatFeatureModel
   , _groups :: M.Map GroupId FlatGroup
   }
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" FlatFeatureModel
 
 data FlatFeature = FlatFeature
   { _parentGroupId :: Maybe GroupId
@@ -57,23 +73,35 @@ data FlatFeature = FlatFeature
   , _name :: String
   }
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" FlatFeature
 
 data FlatGroup = FlatGroup
   { _parentFeatureId :: FeatureId
   , _groupType :: GroupType
   }
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" FlatGroup
 
 data FeatureType
   = Optional
   | Mandatory
   deriving (Show, Eq, Read, Ord, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" FeatureType
 
 data GroupType
   = And
   | Or
   | Alternative
   deriving (Show, Eq, Read, Ord, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" GroupType
 
 ------------------------------------------------------------------------
 --                          Evolution Plans                           --
@@ -121,12 +149,18 @@ data UserEvolutionPlan featureModel = UserEvolutionPlan
   { _timePoints :: [TimePoint featureModel]
   }
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" (UserEvolutionPlan featureModel)
 
 data TimePoint featureModel = TimePoint
   { _time :: Time
   , _featureModel :: featureModel
   }
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" (TimePoint featureModel)
 
 data TransformationEvolutionPlan transformation featureModel = TransformationEvolutionPlan
   { _initialTime :: Time
@@ -134,12 +168,18 @@ data TransformationEvolutionPlan transformation featureModel = TransformationEvo
   , _plans :: [Plan transformation]
   }
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" (TransformationEvolutionPlan transformation featureModel)
 
 data Plan transformation = Plan
   { _timePoint :: Time
   , _transformation :: transformation
   }
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" (Plan transformation)
 
 type ModificationEvolutionPlan featureModel = TransformationEvolutionPlan Modifications featureModel
 
@@ -174,6 +214,9 @@ data Modifications = Modifications
   , _groups :: M.Map GroupId GroupModification
   }
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" Modifications
 
 data FeatureModification
   = FeatureAdd GroupId FeatureType String
@@ -183,18 +226,30 @@ data FeatureModification
       (Maybe FeatureTypeModification)
       (Maybe FeatureNameModification)
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" FeatureModification
 
 data FeatureParentModification
   = FeatureParentModification GroupId
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" FeatureParentModification
 
 data FeatureNameModification
   = FeatureNameModification String
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" FeatureNameModification
 
 data FeatureTypeModification
   = FeatureTypeModification FeatureType
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" FeatureTypeModification
 
 data GroupModification
   = GroupAdd FeatureId GroupType
@@ -203,14 +258,23 @@ data GroupModification
       (Maybe GroupParentModification)
       (Maybe GroupTypeModification)
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" GroupModification
 
 data GroupParentModification
   = GroupParentModification FeatureId
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" GroupParentModification
 
 data GroupTypeModification
   = GroupTypeModification GroupType
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" GroupTypeModification
 
 --- DIFF RESULT ---
 
@@ -221,6 +285,9 @@ data DiffResult = DiffResult
   , _groups :: M.Map GroupId GroupDiffResult
   }
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" DiffResult
 
 type FeatureDiffResult =
   SingleDiffResult FeatureModification
@@ -234,6 +301,9 @@ data SingleDiffResult modificationType
   | ChangedInOne Version (OneChange modificationType)
   | ChangedInBoth (BothChange modificationType)
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" (SingleDiffResult modificationType)
 
 data OneChange modificationType
   = OneChangeWithBase
@@ -242,6 +312,9 @@ data OneChange modificationType
   | OneChangeWithoutBase
       (AddedModification modificationType) -- Derived (V1 or V2) modification
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" (OneChange modificationType)
 
 data BothChange modificationType
   = BothChangeWithBase
@@ -252,20 +325,32 @@ data BothChange modificationType
       (AddedModification modificationType) -- V1 modification
       (AddedModification modificationType) -- V2 modification
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" (BothChange modificationType)
 
 data RemovedOrChangedModification modificationType
   = RemovedModification
   | ChangedModification modificationType
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" (RemovedOrChangedModification modificationType)
 
 data AddedModification modificationType
   = AddedModification modificationType
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" (AddedModification modificationType)
 
 data Version
   = V1
   | V2
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" Version
 
 ------------------------------------------------------------------------
 --                       Merge Input / Output                         --
@@ -285,6 +370,9 @@ data MergeInputData evolutionPlan = MergeInputData
   , _maybeExpected :: Maybe (MergeResult evolutionPlan)
   }
   deriving (Show, Eq, Read, Generic, Functor)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" (MergeInputData evolutionPlan)
 
 type MergeOutput = Either Conflict (FlatModificationEvolutionPlan, FlatUserEvolutionPlan)
 
@@ -298,18 +386,27 @@ data ElmDataExamples = ElmDataExamples
   { _examples :: [ElmMergeExample]
   }
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" ElmDataExamples
 
 data ElmMergeExample = ElmMergeExample
   { _name :: String
   , _evolutionPlans :: [ElmNamedEvolutionPlan]
   }
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" ElmMergeExample
 
 data ElmNamedEvolutionPlan = ElmNamedEvolutionPlan
   { _name :: String
   , _mergeData :: Either String TreeUserEvolutionPlan
   }
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" ElmNamedEvolutionPlan
 
 ------------------------------------------------------------------------
 --                              Conflict                              --
@@ -321,11 +418,17 @@ data Conflict
   | Global Time GlobalConflict
   | Panic Time String
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" Conflict
 
 data MergeConflict
   = FeatureConflict FeatureId (BothChange FeatureModification)
   | GroupConflict GroupId (BothChange GroupModification)
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" MergeConflict
 
 data LocalConflict
   = FeatureAlreadyExists FeatureModification FeatureId
@@ -333,15 +436,24 @@ data LocalConflict
   | GroupAlreadyExists GroupModification GroupId
   | GroupNotExists GroupModification GroupId
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" LocalConflict
 
 data GlobalConflict
   = FailedDependencies [Dependency]
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" GlobalConflict
 
 data Dependency
   = FeatureDependency FeatureModification FeatureDependencyType
   | GroupDependency GroupModification GroupDependencyType
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" Dependency
 
 data FeatureDependencyType
   = NoChildGroups FeatureId
@@ -350,6 +462,9 @@ data FeatureDependencyType
   | FeatureIsWellFormed FeatureId
   | UniqueName String
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" FeatureDependencyType
 
 data GroupDependencyType
   = NoChildFeatures GroupId
@@ -357,6 +472,9 @@ data GroupDependencyType
   | NoCycleFromGroup GroupId
   | GroupIsWellFormed GroupId
   deriving (Show, Eq, Read, Generic)
+  deriving
+    (FromJSON, ToJSON)
+    via Prefixed "_" GroupDependencyType
 
 ------------------------------------------------------------------------
 --                            CLI OPTIONS                             --
@@ -383,203 +501,3 @@ data CliOptions = CliOptions
   , _toFile :: Maybe FilePath
   }
   deriving (Show, Eq, Read)
-
-------------------------------------------------------------------------
---                         JSON Serialization                         --
-------------------------------------------------------------------------
-
-customAesonOptions :: Options
-customAesonOptions = defaultOptions{fieldLabelModifier = tail}
-
--- serialization
-
-instance FromJSON evolutionPlan => FromJSON (MergeInputData evolutionPlan)
-instance ToJSON evolutionPlan => ToJSON (MergeInputData evolutionPlan) where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON ElmDataExamples
-instance ToJSON ElmDataExamples where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON ElmMergeExample
-instance ToJSON ElmMergeExample where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON ElmNamedEvolutionPlan
-instance ToJSON ElmNamedEvolutionPlan where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
--- evolution plans
-
-instance FromJSON featureModel => FromJSON (UserEvolutionPlan featureModel)
-instance ToJSON featureModel => ToJSON (UserEvolutionPlan featureModel) where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON featureModel => FromJSON (TimePoint featureModel)
-instance ToJSON featureModel => ToJSON (TimePoint featureModel) where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
--- feature models
-
-instance FromJSON TreeFeatureModel
-instance ToJSON TreeFeatureModel where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON TreeFeature
-instance ToJSON TreeFeature where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON TreeGroup
-instance ToJSON TreeGroup where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON FlatFeatureModel
-instance ToJSON FlatFeatureModel where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON FlatFeature
-instance ToJSON FlatFeature where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON FlatGroup
-instance ToJSON FlatGroup where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON FeatureType
-instance ToJSON FeatureType where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON GroupType
-instance ToJSON GroupType where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
--- conflicts
-
-instance FromJSON Conflict
-instance ToJSON Conflict where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON MergeConflict
-instance ToJSON MergeConflict where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON LocalConflict
-instance ToJSON LocalConflict where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON GlobalConflict
-instance ToJSON GlobalConflict where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON Dependency
-instance ToJSON Dependency where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON FeatureDependencyType
-instance ToJSON FeatureDependencyType where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON GroupDependencyType
-instance ToJSON GroupDependencyType where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance (FromJSON transformation, FromJSON featureModel) => FromJSON (TransformationEvolutionPlan transformation featureModel)
-instance (ToJSON transformation, ToJSON featureModel) => ToJSON (TransformationEvolutionPlan transformation featureModel) where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON transformation => FromJSON (Plan transformation)
-instance ToJSON transformation => ToJSON (Plan transformation) where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON Modifications
-instance ToJSON Modifications where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON FeatureModification
-instance ToJSON FeatureModification where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON FeatureParentModification
-instance ToJSON FeatureParentModification where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON FeatureNameModification
-instance ToJSON FeatureNameModification where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON FeatureTypeModification
-instance ToJSON FeatureTypeModification where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON GroupModification
-instance ToJSON GroupModification where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON GroupParentModification
-instance ToJSON GroupParentModification where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON GroupTypeModification
-instance ToJSON GroupTypeModification where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON modificationType => FromJSON (SingleDiffResult modificationType)
-instance ToJSON modificationType => ToJSON (SingleDiffResult modificationType) where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON modificationType => FromJSON (OneChange modificationType)
-instance ToJSON modificationType => ToJSON (OneChange modificationType) where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON modificationType => FromJSON (BothChange modificationType)
-instance ToJSON modificationType => ToJSON (BothChange modificationType) where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON modificationType => FromJSON (RemovedOrChangedModification modificationType)
-instance ToJSON modificationType => ToJSON (RemovedOrChangedModification modificationType) where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON modificationType => FromJSON (AddedModification modificationType)
-instance ToJSON modificationType => ToJSON (AddedModification modificationType) where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
-
-instance FromJSON Version
-instance ToJSON Version where
-  toJSON = genericToJSON customAesonOptions
-  toEncoding = genericToEncoding customAesonOptions
