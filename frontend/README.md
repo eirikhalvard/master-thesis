@@ -12,3 +12,13 @@ The frontend will give you a list of examples, and each example consists of a _b
 
 - `elm-live src/Main.elm` Runs the frontend, with compile on save
 - `elm-live src/Main.elm -- --debug` Same as above, except with elm debugger tools
+
+## Examples
+
+### Sound Example
+
+![Sound example](../img/sound_example.png)
+
+### Conflict Example
+
+![Conflict example image](../img/error_example.png)
