@@ -1,0 +1,638 @@
+{
+  "name": "Conflict, Global - Missing Parent Feature",
+  "base": {
+    "initialTime": 0,
+    "initialFM": {
+      "rootId": "feature:vending-machine",
+      "features": {
+        "feature:vending-machine": {
+          "parentGroupId": null,
+          "featureType": "Mandatory",
+          "name": "RootFeature"
+        }
+      },
+      "groups": {}
+    },
+    "plans": [
+      {
+        "timePoint": 1,
+        "transformation": {
+          "features": {
+            "feature:beverages": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:vending-machine-group",
+                "Mandatory",
+                "Beverages"
+              ]
+            },
+            "feature:coffee": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:beverages-group",
+                "Optional",
+                "Coffee"
+              ]
+            },
+            "feature:tea": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:beverages-group",
+                "Optional",
+                "Tea"
+              ]
+            },
+            "feature:vending-machine": {
+              "tag": "FeatureModification",
+              "contents": [
+                null,
+                null,
+                "VendingMachine"
+              ]
+            }
+          },
+          "groups": {
+            "group:beverages-group": {
+              "tag": "GroupAdd",
+              "contents": [
+                "feature:beverages",
+                "Or"
+              ]
+            },
+            "group:vending-machine-group": {
+              "tag": "GroupAdd",
+              "contents": [
+                "feature:vending-machine",
+                "And"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "timePoint": 2,
+        "transformation": {
+          "features": {
+            "feature:large": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:other-group",
+                "Mandatory",
+                "Large"
+              ]
+            },
+            "feature:other": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:size-group",
+                "Mandatory",
+                "Other"
+              ]
+            },
+            "feature:regular": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:size-group",
+                "Mandatory",
+                "Regular"
+              ]
+            },
+            "feature:size": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:vending-machine-group",
+                "Optional",
+                "Size"
+              ]
+            },
+            "feature:small": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:other-group",
+                "Mandatory",
+                "Small"
+              ]
+            }
+          },
+          "groups": {
+            "group:other-group": {
+              "tag": "GroupAdd",
+              "contents": [
+                "feature:other",
+                "And"
+              ]
+            },
+            "group:size-group": {
+              "tag": "GroupAdd",
+              "contents": [
+                "feature:size",
+                "And"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "timePoint": 3,
+        "transformation": {
+          "features": {
+            "feature:lactose-free": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:milk-type-group",
+                "Optional",
+                "Lactose Free"
+              ]
+            },
+            "feature:milk": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:vending-machine-group",
+                "Optional",
+                "Milk"
+              ]
+            },
+            "feature:milk-type": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:milk-group",
+                "Optional",
+                "Milk Type"
+              ]
+            },
+            "feature:normal": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:milk-type-group",
+                "Optional",
+                "Normal"
+              ]
+            },
+            "feature:soy-milk": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:milk-type-group",
+                "Optional",
+                "Soy Milk"
+              ]
+            }
+          },
+          "groups": {
+            "group:milk-group": {
+              "tag": "GroupAdd",
+              "contents": [
+                "feature:milk",
+                "And"
+              ]
+            },
+            "group:milk-type-group": {
+              "tag": "GroupAdd",
+              "contents": [
+                "feature:milk-type",
+                "Or"
+              ]
+            }
+          }
+        }
+      }
+    ]
+  },
+  "v1": {
+    "initialTime": 0,
+    "initialFM": {
+      "rootId": "feature:vending-machine",
+      "features": {
+        "feature:vending-machine": {
+          "parentGroupId": null,
+          "featureType": "Mandatory",
+          "name": "RootFeature"
+        }
+      },
+      "groups": {}
+    },
+    "plans": [
+      {
+        "timePoint": 1,
+        "transformation": {
+          "features": {
+            "feature:beverages": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:vending-machine-group",
+                "Mandatory",
+                "Beverages"
+              ]
+            },
+            "feature:coffee": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:beverages-group",
+                "Optional",
+                "Coffee"
+              ]
+            },
+            "feature:currency": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:vending-machine-group",
+                "Mandatory",
+                "Currency"
+              ]
+            },
+            "feature:dollar": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:currency-group",
+                "Optional",
+                "Dollar"
+              ]
+            },
+            "feature:euro": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:currency-group",
+                "Optional",
+                "Euro"
+              ]
+            },
+            "feature:tea": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:beverages-group",
+                "Optional",
+                "Tea"
+              ]
+            },
+            "feature:vending-machine": {
+              "tag": "FeatureModification",
+              "contents": [
+                null,
+                null,
+                "VendingMachine"
+              ]
+            }
+          },
+          "groups": {
+            "group:beverages-group": {
+              "tag": "GroupAdd",
+              "contents": [
+                "feature:beverages",
+                "Or"
+              ]
+            },
+            "group:currency-group": {
+              "tag": "GroupAdd",
+              "contents": [
+                "feature:currency",
+                "Alternative"
+              ]
+            },
+            "group:vending-machine-group": {
+              "tag": "GroupAdd",
+              "contents": [
+                "feature:vending-machine",
+                "And"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "timePoint": 2,
+        "transformation": {
+          "features": {
+            "feature:coffee": {
+              "tag": "FeatureRemove"
+            },
+            "feature:large": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:size-group",
+                "Mandatory",
+                "Large"
+              ]
+            },
+            "feature:regular": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:size-group",
+                "Mandatory",
+                "Regular"
+              ]
+            },
+            "feature:size": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:vending-machine-group",
+                "Optional",
+                "Size"
+              ]
+            }
+          },
+          "groups": {
+            "group:size-group": {
+              "tag": "GroupAdd",
+              "contents": [
+                "feature:size",
+                "And"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "timePoint": 3,
+        "transformation": {
+          "features": {
+            "feature:lactose-free": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:milk-type-group",
+                "Mandatory",
+                "Lactose Free"
+              ]
+            },
+            "feature:milk": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:vending-machine-group",
+                "Optional",
+                "Milk"
+              ]
+            },
+            "feature:milk-type": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:milk-group",
+                "Optional",
+                "Milk Type"
+              ]
+            },
+            "feature:normal": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:milk-type-group",
+                "Mandatory",
+                "Normal"
+              ]
+            }
+          },
+          "groups": {
+            "group:milk-group": {
+              "tag": "GroupAdd",
+              "contents": [
+                "feature:milk",
+                "And"
+              ]
+            },
+            "group:milk-type-group": {
+              "tag": "GroupAdd",
+              "contents": [
+                "feature:milk-type",
+                "And"
+              ]
+            }
+          }
+        }
+      }
+    ]
+  },
+  "v2": {
+    "initialTime": 0,
+    "initialFM": {
+      "rootId": "feature:vending-machine",
+      "features": {
+        "feature:vending-machine": {
+          "parentGroupId": null,
+          "featureType": "Mandatory",
+          "name": "RootFeature"
+        }
+      },
+      "groups": {}
+    },
+    "plans": [
+      {
+        "timePoint": 1,
+        "transformation": {
+          "features": {
+            "feature:beverages": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:vending-machine-group",
+                "Mandatory",
+                "Beverages"
+              ]
+            },
+            "feature:cappuccino": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:beverages-group",
+                "Optional",
+                "Cappuccino"
+              ]
+            },
+            "feature:coffee": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:beverages-group",
+                "Optional",
+                "Coffee"
+              ]
+            },
+            "feature:tea": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:beverages-group",
+                "Optional",
+                "Tea"
+              ]
+            },
+            "feature:vending-machine": {
+              "tag": "FeatureModification",
+              "contents": [
+                null,
+                null,
+                "VendingMachine"
+              ]
+            }
+          },
+          "groups": {
+            "group:beverages-group": {
+              "tag": "GroupAdd",
+              "contents": [
+                "feature:beverages",
+                "Or"
+              ]
+            },
+            "group:vending-machine-group": {
+              "tag": "GroupAdd",
+              "contents": [
+                "feature:vending-machine",
+                "And"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "timePoint": 2,
+        "transformation": {
+          "features": {
+            "feature:large": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:other-group",
+                "Mandatory",
+                "Large"
+              ]
+            },
+            "feature:other": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:size-group",
+                "Mandatory",
+                "Other"
+              ]
+            },
+            "feature:regular": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:size-group",
+                "Mandatory",
+                "Regular"
+              ]
+            },
+            "feature:size": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:vending-machine-group",
+                "Optional",
+                "Size"
+              ]
+            },
+            "feature:small": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:other-group",
+                "Mandatory",
+                "Small"
+              ]
+            }
+          },
+          "groups": {
+            "group:other-group": {
+              "tag": "GroupAdd",
+              "contents": [
+                "feature:other",
+                "And"
+              ]
+            },
+            "group:size-group": {
+              "tag": "GroupAdd",
+              "contents": [
+                "feature:size",
+                "And"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "timePoint": 3,
+        "transformation": {
+          "features": {
+            "feature:lactose-free": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:milk-type-group",
+                "Mandatory",
+                "Lactose Free"
+              ]
+            },
+            "feature:milk": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:vending-machine-group",
+                "Optional",
+                "Milk"
+              ]
+            },
+            "feature:milk-type": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:milk-group",
+                "Optional",
+                "Milk Type"
+              ]
+            },
+            "feature:normal": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:milk-type-group",
+                "Mandatory",
+                "Normal"
+              ]
+            },
+            "feature:soy-milk": {
+              "tag": "FeatureAdd",
+              "contents": [
+                "group:milk-type-group",
+                "Optional",
+                "Soy Milk"
+              ]
+            }
+          },
+          "groups": {
+            "group:milk-group": {
+              "tag": "GroupAdd",
+              "contents": [
+                "feature:milk",
+                "And"
+              ]
+            },
+            "group:milk-type-group": {
+              "tag": "GroupAdd",
+              "contents": [
+                "feature:milk-type",
+                "And"
+              ]
+            },
+            "group:new-coffee-group": {
+              "tag": "GroupAdd",
+              "contents": [
+                "feature:coffee",
+                "And"
+              ]
+            }
+          }
+        }
+      }
+    ]
+  },
+  "maybeExpected": {
+    "Left": {
+      "tag": "Global",
+      "contents": [
+        3,
+        [
+          {
+            "tag": "GroupDependency",
+            "contents": [
+              {
+                "tag": "GroupAdd",
+                "contents": [
+                  "feature:coffee",
+                  "And"
+                ]
+              },
+              {
+                "tag": "ParentFeatureExists",
+                "contents": "feature:coffee"
+              }
+            ]
+          }
+        ]
+      ]
+    }
+  }
+}

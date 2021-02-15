@@ -1,0 +1,755 @@
+{
+  "name": "Conflict, Global - Missing Parent Feature",
+  "base": {
+    "timePoints": [
+      {
+        "time": 0,
+        "featureModel": {
+          "rootId": "feature:vending-machine",
+          "features": {
+            "feature:vending-machine": {
+              "parentGroupId": null,
+              "featureType": "Mandatory",
+              "name": "RootFeature"
+            }
+          },
+          "groups": {}
+        }
+      },
+      {
+        "time": 1,
+        "featureModel": {
+          "rootId": "feature:vending-machine",
+          "features": {
+            "feature:beverages": {
+              "parentGroupId": "group:vending-machine-group",
+              "featureType": "Mandatory",
+              "name": "Beverages"
+            },
+            "feature:coffee": {
+              "parentGroupId": "group:beverages-group",
+              "featureType": "Optional",
+              "name": "Coffee"
+            },
+            "feature:tea": {
+              "parentGroupId": "group:beverages-group",
+              "featureType": "Optional",
+              "name": "Tea"
+            },
+            "feature:vending-machine": {
+              "parentGroupId": null,
+              "featureType": "Mandatory",
+              "name": "VendingMachine"
+            }
+          },
+          "groups": {
+            "group:beverages-group": {
+              "parentFeatureId": "feature:beverages",
+              "groupType": "Or"
+            },
+            "group:vending-machine-group": {
+              "parentFeatureId": "feature:vending-machine",
+              "groupType": "And"
+            }
+          }
+        }
+      },
+      {
+        "time": 2,
+        "featureModel": {
+          "rootId": "feature:vending-machine",
+          "features": {
+            "feature:beverages": {
+              "parentGroupId": "group:vending-machine-group",
+              "featureType": "Mandatory",
+              "name": "Beverages"
+            },
+            "feature:coffee": {
+              "parentGroupId": "group:beverages-group",
+              "featureType": "Optional",
+              "name": "Coffee"
+            },
+            "feature:large": {
+              "parentGroupId": "group:other-group",
+              "featureType": "Mandatory",
+              "name": "Large"
+            },
+            "feature:other": {
+              "parentGroupId": "group:size-group",
+              "featureType": "Mandatory",
+              "name": "Other"
+            },
+            "feature:regular": {
+              "parentGroupId": "group:size-group",
+              "featureType": "Mandatory",
+              "name": "Regular"
+            },
+            "feature:size": {
+              "parentGroupId": "group:vending-machine-group",
+              "featureType": "Optional",
+              "name": "Size"
+            },
+            "feature:small": {
+              "parentGroupId": "group:other-group",
+              "featureType": "Mandatory",
+              "name": "Small"
+            },
+            "feature:tea": {
+              "parentGroupId": "group:beverages-group",
+              "featureType": "Optional",
+              "name": "Tea"
+            },
+            "feature:vending-machine": {
+              "parentGroupId": null,
+              "featureType": "Mandatory",
+              "name": "VendingMachine"
+            }
+          },
+          "groups": {
+            "group:beverages-group": {
+              "parentFeatureId": "feature:beverages",
+              "groupType": "Or"
+            },
+            "group:other-group": {
+              "parentFeatureId": "feature:other",
+              "groupType": "And"
+            },
+            "group:size-group": {
+              "parentFeatureId": "feature:size",
+              "groupType": "And"
+            },
+            "group:vending-machine-group": {
+              "parentFeatureId": "feature:vending-machine",
+              "groupType": "And"
+            }
+          }
+        }
+      },
+      {
+        "time": 3,
+        "featureModel": {
+          "rootId": "feature:vending-machine",
+          "features": {
+            "feature:beverages": {
+              "parentGroupId": "group:vending-machine-group",
+              "featureType": "Mandatory",
+              "name": "Beverages"
+            },
+            "feature:coffee": {
+              "parentGroupId": "group:beverages-group",
+              "featureType": "Optional",
+              "name": "Coffee"
+            },
+            "feature:lactose-free": {
+              "parentGroupId": "group:milk-type-group",
+              "featureType": "Optional",
+              "name": "Lactose Free"
+            },
+            "feature:large": {
+              "parentGroupId": "group:other-group",
+              "featureType": "Mandatory",
+              "name": "Large"
+            },
+            "feature:milk": {
+              "parentGroupId": "group:vending-machine-group",
+              "featureType": "Optional",
+              "name": "Milk"
+            },
+            "feature:milk-type": {
+              "parentGroupId": "group:milk-group",
+              "featureType": "Optional",
+              "name": "Milk Type"
+            },
+            "feature:normal": {
+              "parentGroupId": "group:milk-type-group",
+              "featureType": "Optional",
+              "name": "Normal"
+            },
+            "feature:other": {
+              "parentGroupId": "group:size-group",
+              "featureType": "Mandatory",
+              "name": "Other"
+            },
+            "feature:regular": {
+              "parentGroupId": "group:size-group",
+              "featureType": "Mandatory",
+              "name": "Regular"
+            },
+            "feature:size": {
+              "parentGroupId": "group:vending-machine-group",
+              "featureType": "Optional",
+              "name": "Size"
+            },
+            "feature:small": {
+              "parentGroupId": "group:other-group",
+              "featureType": "Mandatory",
+              "name": "Small"
+            },
+            "feature:soy-milk": {
+              "parentGroupId": "group:milk-type-group",
+              "featureType": "Optional",
+              "name": "Soy Milk"
+            },
+            "feature:tea": {
+              "parentGroupId": "group:beverages-group",
+              "featureType": "Optional",
+              "name": "Tea"
+            },
+            "feature:vending-machine": {
+              "parentGroupId": null,
+              "featureType": "Mandatory",
+              "name": "VendingMachine"
+            }
+          },
+          "groups": {
+            "group:beverages-group": {
+              "parentFeatureId": "feature:beverages",
+              "groupType": "Or"
+            },
+            "group:milk-group": {
+              "parentFeatureId": "feature:milk",
+              "groupType": "And"
+            },
+            "group:milk-type-group": {
+              "parentFeatureId": "feature:milk-type",
+              "groupType": "Or"
+            },
+            "group:other-group": {
+              "parentFeatureId": "feature:other",
+              "groupType": "And"
+            },
+            "group:size-group": {
+              "parentFeatureId": "feature:size",
+              "groupType": "And"
+            },
+            "group:vending-machine-group": {
+              "parentFeatureId": "feature:vending-machine",
+              "groupType": "And"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "v1": {
+    "timePoints": [
+      {
+        "time": 0,
+        "featureModel": {
+          "rootId": "feature:vending-machine",
+          "features": {
+            "feature:vending-machine": {
+              "parentGroupId": null,
+              "featureType": "Mandatory",
+              "name": "RootFeature"
+            }
+          },
+          "groups": {}
+        }
+      },
+      {
+        "time": 1,
+        "featureModel": {
+          "rootId": "feature:vending-machine",
+          "features": {
+            "feature:beverages": {
+              "parentGroupId": "group:vending-machine-group",
+              "featureType": "Mandatory",
+              "name": "Beverages"
+            },
+            "feature:coffee": {
+              "parentGroupId": "group:beverages-group",
+              "featureType": "Optional",
+              "name": "Coffee"
+            },
+            "feature:currency": {
+              "parentGroupId": "group:vending-machine-group",
+              "featureType": "Mandatory",
+              "name": "Currency"
+            },
+            "feature:dollar": {
+              "parentGroupId": "group:currency-group",
+              "featureType": "Optional",
+              "name": "Dollar"
+            },
+            "feature:euro": {
+              "parentGroupId": "group:currency-group",
+              "featureType": "Optional",
+              "name": "Euro"
+            },
+            "feature:tea": {
+              "parentGroupId": "group:beverages-group",
+              "featureType": "Optional",
+              "name": "Tea"
+            },
+            "feature:vending-machine": {
+              "parentGroupId": null,
+              "featureType": "Mandatory",
+              "name": "VendingMachine"
+            }
+          },
+          "groups": {
+            "group:beverages-group": {
+              "parentFeatureId": "feature:beverages",
+              "groupType": "Or"
+            },
+            "group:currency-group": {
+              "parentFeatureId": "feature:currency",
+              "groupType": "Alternative"
+            },
+            "group:vending-machine-group": {
+              "parentFeatureId": "feature:vending-machine",
+              "groupType": "And"
+            }
+          }
+        }
+      },
+      {
+        "time": 2,
+        "featureModel": {
+          "rootId": "feature:vending-machine",
+          "features": {
+            "feature:beverages": {
+              "parentGroupId": "group:vending-machine-group",
+              "featureType": "Mandatory",
+              "name": "Beverages"
+            },
+            "feature:currency": {
+              "parentGroupId": "group:vending-machine-group",
+              "featureType": "Mandatory",
+              "name": "Currency"
+            },
+            "feature:dollar": {
+              "parentGroupId": "group:currency-group",
+              "featureType": "Optional",
+              "name": "Dollar"
+            },
+            "feature:euro": {
+              "parentGroupId": "group:currency-group",
+              "featureType": "Optional",
+              "name": "Euro"
+            },
+            "feature:large": {
+              "parentGroupId": "group:size-group",
+              "featureType": "Mandatory",
+              "name": "Large"
+            },
+            "feature:regular": {
+              "parentGroupId": "group:size-group",
+              "featureType": "Mandatory",
+              "name": "Regular"
+            },
+            "feature:size": {
+              "parentGroupId": "group:vending-machine-group",
+              "featureType": "Optional",
+              "name": "Size"
+            },
+            "feature:tea": {
+              "parentGroupId": "group:beverages-group",
+              "featureType": "Optional",
+              "name": "Tea"
+            },
+            "feature:vending-machine": {
+              "parentGroupId": null,
+              "featureType": "Mandatory",
+              "name": "VendingMachine"
+            }
+          },
+          "groups": {
+            "group:beverages-group": {
+              "parentFeatureId": "feature:beverages",
+              "groupType": "Or"
+            },
+            "group:currency-group": {
+              "parentFeatureId": "feature:currency",
+              "groupType": "Alternative"
+            },
+            "group:size-group": {
+              "parentFeatureId": "feature:size",
+              "groupType": "And"
+            },
+            "group:vending-machine-group": {
+              "parentFeatureId": "feature:vending-machine",
+              "groupType": "And"
+            }
+          }
+        }
+      },
+      {
+        "time": 3,
+        "featureModel": {
+          "rootId": "feature:vending-machine",
+          "features": {
+            "feature:beverages": {
+              "parentGroupId": "group:vending-machine-group",
+              "featureType": "Mandatory",
+              "name": "Beverages"
+            },
+            "feature:currency": {
+              "parentGroupId": "group:vending-machine-group",
+              "featureType": "Mandatory",
+              "name": "Currency"
+            },
+            "feature:dollar": {
+              "parentGroupId": "group:currency-group",
+              "featureType": "Optional",
+              "name": "Dollar"
+            },
+            "feature:euro": {
+              "parentGroupId": "group:currency-group",
+              "featureType": "Optional",
+              "name": "Euro"
+            },
+            "feature:lactose-free": {
+              "parentGroupId": "group:milk-type-group",
+              "featureType": "Mandatory",
+              "name": "Lactose Free"
+            },
+            "feature:large": {
+              "parentGroupId": "group:size-group",
+              "featureType": "Mandatory",
+              "name": "Large"
+            },
+            "feature:milk": {
+              "parentGroupId": "group:vending-machine-group",
+              "featureType": "Optional",
+              "name": "Milk"
+            },
+            "feature:milk-type": {
+              "parentGroupId": "group:milk-group",
+              "featureType": "Optional",
+              "name": "Milk Type"
+            },
+            "feature:normal": {
+              "parentGroupId": "group:milk-type-group",
+              "featureType": "Mandatory",
+              "name": "Normal"
+            },
+            "feature:regular": {
+              "parentGroupId": "group:size-group",
+              "featureType": "Mandatory",
+              "name": "Regular"
+            },
+            "feature:size": {
+              "parentGroupId": "group:vending-machine-group",
+              "featureType": "Optional",
+              "name": "Size"
+            },
+            "feature:tea": {
+              "parentGroupId": "group:beverages-group",
+              "featureType": "Optional",
+              "name": "Tea"
+            },
+            "feature:vending-machine": {
+              "parentGroupId": null,
+              "featureType": "Mandatory",
+              "name": "VendingMachine"
+            }
+          },
+          "groups": {
+            "group:beverages-group": {
+              "parentFeatureId": "feature:beverages",
+              "groupType": "Or"
+            },
+            "group:currency-group": {
+              "parentFeatureId": "feature:currency",
+              "groupType": "Alternative"
+            },
+            "group:milk-group": {
+              "parentFeatureId": "feature:milk",
+              "groupType": "And"
+            },
+            "group:milk-type-group": {
+              "parentFeatureId": "feature:milk-type",
+              "groupType": "And"
+            },
+            "group:size-group": {
+              "parentFeatureId": "feature:size",
+              "groupType": "And"
+            },
+            "group:vending-machine-group": {
+              "parentFeatureId": "feature:vending-machine",
+              "groupType": "And"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "v2": {
+    "timePoints": [
+      {
+        "time": 0,
+        "featureModel": {
+          "rootId": "feature:vending-machine",
+          "features": {
+            "feature:vending-machine": {
+              "parentGroupId": null,
+              "featureType": "Mandatory",
+              "name": "RootFeature"
+            }
+          },
+          "groups": {}
+        }
+      },
+      {
+        "time": 1,
+        "featureModel": {
+          "rootId": "feature:vending-machine",
+          "features": {
+            "feature:beverages": {
+              "parentGroupId": "group:vending-machine-group",
+              "featureType": "Mandatory",
+              "name": "Beverages"
+            },
+            "feature:cappuccino": {
+              "parentGroupId": "group:beverages-group",
+              "featureType": "Optional",
+              "name": "Cappuccino"
+            },
+            "feature:coffee": {
+              "parentGroupId": "group:beverages-group",
+              "featureType": "Optional",
+              "name": "Coffee"
+            },
+            "feature:tea": {
+              "parentGroupId": "group:beverages-group",
+              "featureType": "Optional",
+              "name": "Tea"
+            },
+            "feature:vending-machine": {
+              "parentGroupId": null,
+              "featureType": "Mandatory",
+              "name": "VendingMachine"
+            }
+          },
+          "groups": {
+            "group:beverages-group": {
+              "parentFeatureId": "feature:beverages",
+              "groupType": "Or"
+            },
+            "group:vending-machine-group": {
+              "parentFeatureId": "feature:vending-machine",
+              "groupType": "And"
+            }
+          }
+        }
+      },
+      {
+        "time": 2,
+        "featureModel": {
+          "rootId": "feature:vending-machine",
+          "features": {
+            "feature:beverages": {
+              "parentGroupId": "group:vending-machine-group",
+              "featureType": "Mandatory",
+              "name": "Beverages"
+            },
+            "feature:cappuccino": {
+              "parentGroupId": "group:beverages-group",
+              "featureType": "Optional",
+              "name": "Cappuccino"
+            },
+            "feature:coffee": {
+              "parentGroupId": "group:beverages-group",
+              "featureType": "Optional",
+              "name": "Coffee"
+            },
+            "feature:large": {
+              "parentGroupId": "group:other-group",
+              "featureType": "Mandatory",
+              "name": "Large"
+            },
+            "feature:other": {
+              "parentGroupId": "group:size-group",
+              "featureType": "Mandatory",
+              "name": "Other"
+            },
+            "feature:regular": {
+              "parentGroupId": "group:size-group",
+              "featureType": "Mandatory",
+              "name": "Regular"
+            },
+            "feature:size": {
+              "parentGroupId": "group:vending-machine-group",
+              "featureType": "Optional",
+              "name": "Size"
+            },
+            "feature:small": {
+              "parentGroupId": "group:other-group",
+              "featureType": "Mandatory",
+              "name": "Small"
+            },
+            "feature:tea": {
+              "parentGroupId": "group:beverages-group",
+              "featureType": "Optional",
+              "name": "Tea"
+            },
+            "feature:vending-machine": {
+              "parentGroupId": null,
+              "featureType": "Mandatory",
+              "name": "VendingMachine"
+            }
+          },
+          "groups": {
+            "group:beverages-group": {
+              "parentFeatureId": "feature:beverages",
+              "groupType": "Or"
+            },
+            "group:other-group": {
+              "parentFeatureId": "feature:other",
+              "groupType": "And"
+            },
+            "group:size-group": {
+              "parentFeatureId": "feature:size",
+              "groupType": "And"
+            },
+            "group:vending-machine-group": {
+              "parentFeatureId": "feature:vending-machine",
+              "groupType": "And"
+            }
+          }
+        }
+      },
+      {
+        "time": 3,
+        "featureModel": {
+          "rootId": "feature:vending-machine",
+          "features": {
+            "feature:beverages": {
+              "parentGroupId": "group:vending-machine-group",
+              "featureType": "Mandatory",
+              "name": "Beverages"
+            },
+            "feature:cappuccino": {
+              "parentGroupId": "group:beverages-group",
+              "featureType": "Optional",
+              "name": "Cappuccino"
+            },
+            "feature:coffee": {
+              "parentGroupId": "group:beverages-group",
+              "featureType": "Optional",
+              "name": "Coffee"
+            },
+            "feature:lactose-free": {
+              "parentGroupId": "group:milk-type-group",
+              "featureType": "Mandatory",
+              "name": "Lactose Free"
+            },
+            "feature:large": {
+              "parentGroupId": "group:other-group",
+              "featureType": "Mandatory",
+              "name": "Large"
+            },
+            "feature:milk": {
+              "parentGroupId": "group:vending-machine-group",
+              "featureType": "Optional",
+              "name": "Milk"
+            },
+            "feature:milk-type": {
+              "parentGroupId": "group:milk-group",
+              "featureType": "Optional",
+              "name": "Milk Type"
+            },
+            "feature:normal": {
+              "parentGroupId": "group:milk-type-group",
+              "featureType": "Mandatory",
+              "name": "Normal"
+            },
+            "feature:other": {
+              "parentGroupId": "group:size-group",
+              "featureType": "Mandatory",
+              "name": "Other"
+            },
+            "feature:regular": {
+              "parentGroupId": "group:size-group",
+              "featureType": "Mandatory",
+              "name": "Regular"
+            },
+            "feature:size": {
+              "parentGroupId": "group:vending-machine-group",
+              "featureType": "Optional",
+              "name": "Size"
+            },
+            "feature:small": {
+              "parentGroupId": "group:other-group",
+              "featureType": "Mandatory",
+              "name": "Small"
+            },
+            "feature:soy-milk": {
+              "parentGroupId": "group:milk-type-group",
+              "featureType": "Optional",
+              "name": "Soy Milk"
+            },
+            "feature:tea": {
+              "parentGroupId": "group:beverages-group",
+              "featureType": "Optional",
+              "name": "Tea"
+            },
+            "feature:vending-machine": {
+              "parentGroupId": null,
+              "featureType": "Mandatory",
+              "name": "VendingMachine"
+            }
+          },
+          "groups": {
+            "group:beverages-group": {
+              "parentFeatureId": "feature:beverages",
+              "groupType": "Or"
+            },
+            "group:milk-group": {
+              "parentFeatureId": "feature:milk",
+              "groupType": "And"
+            },
+            "group:milk-type-group": {
+              "parentFeatureId": "feature:milk-type",
+              "groupType": "And"
+            },
+            "group:new-coffee-group": {
+              "parentFeatureId": "feature:coffee",
+              "groupType": "And"
+            },
+            "group:other-group": {
+              "parentFeatureId": "feature:other",
+              "groupType": "And"
+            },
+            "group:size-group": {
+              "parentFeatureId": "feature:size",
+              "groupType": "And"
+            },
+            "group:vending-machine-group": {
+              "parentFeatureId": "feature:vending-machine",
+              "groupType": "And"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "maybeExpected": {
+    "Left": {
+      "tag": "Global",
+      "contents": [
+        3,
+        [
+          {
+            "tag": "GroupDependency",
+            "contents": [
+              {
+                "tag": "GroupAdd",
+                "contents": [
+                  "feature:coffee",
+                  "And"
+                ]
+              },
+              {
+                "tag": "ParentFeatureExists",
+                "contents": "feature:coffee"
+              }
+            ]
+          }
+        ]
+      ]
+    }
+  }
+}
