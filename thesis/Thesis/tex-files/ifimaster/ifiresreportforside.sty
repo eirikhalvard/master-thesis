@@ -1,0 +1,20 @@
+%% Identification part:
+
+\NeedsTeXFormat{LaTeX2e}[1994/12/01]
+
+\ProvidesClass{ifiresreportforside}[2014/01/02 v1.2b Ifi document class]
+
+%% Initial code part:
+
+\def \IfiF@background {resreport}
+
+%% The document kind should be "Research Report #nn":
+
+\newcommand{\IfiF@kind}{\@date}
+
+
+%% Load generic part:
+
+\input{ifikompendium}
+
+\endinput
