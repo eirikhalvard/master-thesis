@@ -1,0 +1,12 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGZlt{}   sum = 0
+\PYGZlt{}   for i in range(0, n):
+\PYGZlt{}     sum += i
+\PYGZlt{}   print(sum)
+\PYGZhy{}\PYGZhy{}\PYGZhy{}
+\PYGZgt{}   if isinstance(n, int):
+\PYGZgt{}     sum = 0
+\PYGZgt{}     for i in range(0, n):
+\PYGZgt{}       sum += i
+\PYGZgt{}     print(sum)
+\end{Verbatim}
