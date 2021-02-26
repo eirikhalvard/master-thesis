@@ -5,11 +5,14 @@
 \usepackage{hyperref}
 \usepackage{pdfsync}
 \usepackage{csquotes}
+\usepackage{graphicx}
 \usepackage{minted}
 \usepackage{varioref}
+\usepackage{parskip}
 \usepackage[backend=biber]{biblatex}
 
 \addbibresource{citations.bib}
+\graphicspath{ {./illustrations/} }
 
 \newcommand{\todo}[1]{\textcolor{red}{[[TODO: #1]]}\PackageWarning{TODO:}{#1!}}
 
@@ -19,10 +22,10 @@
 \synctex=1
 
 \begin{document}
+
 \duoforside[dept={Department of Informatics},
 program={Informatics: Programming and Systems Architecture},
 long]
-
 \frontmatter{}
 
 \chapter*{Acknowledgements}
@@ -33,6 +36,9 @@ Thanks to Ingrid and Crystal
 
 Thanks to Germans, everyone on the LTEP project for input etc.
 
+\newpage
+\thispagestyle{empty}
+\mbox{}
 \chapter*{Abstract}
 
 \todo{write abstract}
@@ -67,6 +73,15 @@ something about summer project?
 \chapter{Background}%
 \label{cha:background}
 
+\section{Software Product Lines}%
+\label{sec:software_product_lines}
+
+\section{Evolution Planning}%
+\label{sec:evolution_planning}
+
+\section{Haskell and Algebraic Data Types}%
+\label{sec:haskell_and_algebraic_data_types}
+
 \chapter{Formal Semantics of Feature Model Evolution Plans}%
 \label{cha:formal_semantics_of_feature_model_evolution_plans}
 
@@ -76,8 +91,49 @@ something about summer project?
 \section{Algorithm Overview}%
 \label{sec:algorithm_overview}
 
+\subsection{Three-Way Merging of Evolution Plans}%
+\label{sub:three_way_merging_of_evolution_plans}
+
+The three-way merge algorithm for feature model evolution plans will take two different versions of an evolution plan, \textit{version 1} and \textit{version 2}, and attempt to merge the evolution plans into a single plan. In order to do so, a third evolution plan has to be provided, which is the common evolution plan they were derived from. The common evolution plan, called \textit{base}, will implicitly provide information about what things were added, removed and changed in each of the derived evolution plans.
+
+\subsection{Soundness Assumption}%
+\label{sub:soundness_assumption}
+
+The three-way merge algorithm will assume that the three evolution plans provided are sound. By assuming the soundness of the plans, the algorithm can leverage this to create a better merge result. But more importantly, the assumption is based around the fact that there is no point in merging an evolution plan you know violates soundness in some way.
+
+\subsection{Algorithm Phases}%
+\label{sub:algorithm_phases}
+
+In order to merge the different versions of the evolution plan, the algorithm is separated into several distinct phases. The different steps and phases of the algorithm can be seen in Figure~\ref{fig:merge_outline}.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\linewidth]{merge_outline}
+  \caption{Outline of the three-way merge algorithm}%
+  \label{fig:merge_outline}
+\end{figure}
+
+The first phase is transforming the three different evolution plans into representations that is more suitable for merging. This includes converting both the way feature models are represented as well as the way the entire evolution plan is represented. This phase includes the \texttt{flattenEvolutionPlan} and \texttt{deriveModifications}, which is described in further detail in \vref{sec:converting_to_a_suitable_representation}
+
+After changing the way evolution plans are represented, the second phase of the algorithm will calculate the differences between the \textit{base} evolution plan and both derived evolution plans, \textit{version 1}, and \textit{version 2}. This will let us know what were added, changed and removed in each of the derived evolution plans. This phase is part of the \texttt{mergePlan} function, which is described in further detail in \vref{sec:detecting_the_changes_between_versions}
+
+The information from the previous phase will be used to create a single merged evolution plan. This evolution plan is simply just the \textit{base} evolution plan integrated with all the changes from \textit{version 1} and \textit{version 2}. This phase is part of the \texttt{mergePlan} function, which is described in further detail in \vref{sec:merging_intended_changes}
+
+Now that a single merged evolution plan is provided, the last step is to ensure that the plan is following the structural and semantic requirements of an evolution plan. Merging all changes from both versions might yield various inconsistencies. This includes structural conflicts such as orphan features, entire subtrees forming cycles, removing non-empty features, etc. The last phase includes converting back to the original representation, as well as ensuring soundness while doing so. This phase is part of the \texttt{integrateModifications}, \texttt{checkModifications} and \texttt{unflattenEvolutionPlan} functions, which is explained further in \vref{sec:ensuring_structural_and_semantic_soundness_of_merge_result}
+
+\subsection{Conflicts}%
+\label{sub:conflicts}
+
+During the different phases of the merge algorithm, different kind of conflicts or errors could occur. Depending on what part of the algorithm a conflict occurred, the conflicts might be either a \textit{merge}, \textit{local} or \textit{global} conflict. For example, if both versions perform different operations on the same feature at the same time point, the 
+
 \section{Converting To a Suitable Representation}%
 \label{sec:converting_to_a_suitable_representation}
+
+\subsection{Representing Feature Models}%
+\label{sub:representing_feature_models}
+
+\subsection{Representing Evolution Plans}%
+\label{sub:representing_evolution_plans}
 
 \section{Detecting the Changes Between Versions}%
 \label{sec:detecting_the_changes_between_versions}
@@ -85,7 +141,7 @@ something about summer project?
 \section{Merging Intended Changes}%
 \label{sec:merging_intended_changes}
 
-\section{Ensuring structural and semantic soundness of merge result}%
+\section{Ensuring structural and semantic soundness of the merge result}%
 \label{sec:ensuring_structural_and_semantic_soundness_of_merge_result}
 
 \chapter{Conclusion and Future Work}%
