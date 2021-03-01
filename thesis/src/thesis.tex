@@ -10,6 +10,7 @@
 \usepackage{varioref}
 \usepackage{parskip}
 \usepackage[backend=biber]{biblatex}
+\usepackage[toc,page]{appendix}
 
 \addbibresource{citations.bib}
 \graphicspath{ {./illustrations/} }
@@ -35,6 +36,10 @@ Thanks to Ida
 Thanks to Ingrid and Crystal
 
 Thanks to Germans, everyone on the LTEP project for input etc.
+
+Thanks to ifi, all the people i have met
+
+Thanks to friends and family
 
 \newpage
 \thispagestyle{empty}
@@ -64,8 +69,39 @@ something about summer project?
 \chapter{Introduction}%
 \label{cha:introduction}
 
+\section{Motivation}%
+\label{sec:motivation}
+
+
+\section{Problem Statement}%
+\label{sec:problem_statement}
+
+
+\section{Research Questions}%
+\label{sec:research_questions}
+
+
+\section{Contributions}%
+\label{sec:contributions}
+
+what i have done
+
+including formalizing and implementing a 3wm algo that preserves soundness
+implemented the algorithm in haskell
+created an entire program with a command line interface, that handles different formats, reads/writes to JSON files, logging, etc.
+Created a frontend in Elm for a dynamic, actual presentation of the input and results of the program
+Created examples and tests, checking that the program behaves as intended.
+
+\todo{WRITE}
+
 \section{Chapter Overview}%
 \label{sec:chapter_overview}
+
+\textbf{Chapter~\ref{cha:background}} something about background
+
+\textbf{Chapter~\ref{cha:three_way_merge_algorithm}} something about the bigboy algo
+
+\todo{WRITE}
 
 \section{Project Source Code}%
 \label{sec:project_source_code}
@@ -253,7 +289,13 @@ Now that a single merged evolution plan is provided, the last step is to ensure 
 \subsection{Conflicts}%
 \label{sub:conflicts}
 
-During the different phases of the merge algorithm, different kind of conflicts or errors could occur. Depending on what part of the algorithm a conflict occurred, the conflicts might be either a \textit{merge}, \textit{local} or \textit{global} conflict. For example, if both versions perform different operations on the same feature at the same time point, the 
+During the different phases of the merge algorithm, different kind of conflicts or errors could occur. Depending on what part of the algorithm a conflict occurred, the conflicts might be either a \textit{merge}, \textit{local} or \textit{global} conflict. At what phase each conflict could occur can also be seen in Figure~\vref{fig:merge_outline}, but a short description of the different conflicts are described below. 
+
+\textit{Merge Conflicts} occur because of conflicting operations on a single feature or group. This could happen if one version tries to remove a feature, while the other tries to change the type of a feature. This could also happen if there originally existed a modification in the \textit{base} version, and one of the derived versions try to change the modification, while the other tries to remove the modification.
+
+\textit{Local Conflicts} occur when a modification is not possible to be applied because of the existence or non-existence of a feature or group. For example, if we try to add a feature with an id that already exist, or try to change the type of a group that does not exist.
+
+\textit{Global Conflicts} is the last kind of error that could occur. When all the modifications has been integrated into the evolution plan, each feature model is checked for certain structural or semantical errors. At this point, each change \textit{local} to a feature or group is valid, so we check for potential errors that occur because of dependencies between the features and groups, \textit{global} to the entire feature model. The structural errors is typically modifications that lead to anomalies in the tree structure. These violations of the structure could happen if you add features to parents that don't exist, remove groups that has children, or move features in such a way that cycles are formed. Other violations to the semantics are also checked. This could for example be violations of well-formedness, that could happen if we change the type of a feature to something incompatible with its group.
 
 \section{Converting To a Suitable Representation}%
 \label{sec:converting_to_a_suitable_representation}
@@ -277,6 +319,35 @@ During the different phases of the merge algorithm, different kind of conflicts 
 \label{cha:conclusion_and_future_work}
 
 \backmatter{}
+
+\begin{appendices}
+
+\chapter{Types}%
+\label{cha:types_appendix}
+
+\inputminted[linenos, breaklines]{haskell}{../../backend/src/Types.hs}
+
+\chapter{Three Way Merge Algorithm}%
+\label{cha:three_way_merge_appendix}
+
+\inputminted[linenos, breaklines]{haskell}{../../backend/src/ThreeWayMerge.hs}
+
+\section{Change Detection}%
+\label{sec:change_detection_appendix}
+
+\inputminted[linenos, breaklines]{haskell}{../../backend/src/Merge/ChangeDetection.hs}
+
+\section{Plan Merging}%
+\label{sec:plan_merging_appendix}
+
+\inputminted[linenos, breaklines]{haskell}{../../backend/src/Merge/PlanMerging.hs}
+
+\section{Check Plan}%
+\label{sec:check_plan_appendix}
+
+\inputminted[linenos, breaklines]{haskell}{../../backend/src/Merge/CheckPlan.hs}
+
+\end{appendices}
 
 \printbibliography
 
