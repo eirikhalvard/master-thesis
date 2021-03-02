@@ -93,36 +93,33 @@ Evolution plans are designed to help engineers cope with the long-term evolution
 
 The objective of my thesis is to design and implement a three-way merge algorithm for evolution plans. To achieve an effective and accurate algorithm, good data structures and representations for evolution plans has to be chosen. The three-way merge algorithm will consider a base evolution plan, and two derived evolution plans, all following the formally defined structure and semantics. The algorithm will then try to merge the two derived plans, with the base model as a reference to what changes were made. Any conflict that occur when merging will be dealt with by consulting the user and providing options for what to do. When all conflicts are dealt with, a new merged evolution plan is produced, where the algorithm ensures that the merged plan follows the strict structure and semantics defined. This task is not trivial, and the algorithm should follow some specified heuristics to ensure a plan that follows the users intent as closely as possible, without creating an unnecessary amount of conflicts and warnings. The algorithm should also find a good balance between complexity and usability.
 
-\section{Problem Statement}%
-\label{sec:problem_statement}
-
-
 \section{Research Questions}%
 \label{sec:research_questions}
 
 As the goal of the thesis is to provide tools aiding developers and engineers cooperate in planning the evolution of a software product line, we propose some research questions (RQ). The research questions are concrete questions that we want to answer as a result of this thesis:
 
 \begin{itemize}
-  \item \textbf{RQ1}: In what way should we represent an evolution plan in order to do an effective merge?%
-  \label{rq1}
-  \item \textbf{RQ2}: How should we design the three-way merge algorithm in order to produce a sound evolution plan?%
-  \label{rq2}
-  \item \textbf{RQ3}: How do we create a merge tool that produces predictable, transparent results?%
-  \label{rq3}
+  \item \textbf{RQ1}: In what way should we represent an evolution plan in order to do an effective merge?
+  \item \textbf{RQ2}: How should we design the three-way merge algorithm in order to produce a sound evolution plan?
+  \item \textbf{RQ3}: How do we create a merge tool that produces predictable, transparent results?
 \end{itemize}
 
 \section{Contributions}%
 \label{sec:contributions}
 
-what i have done
+The main contribution of this thesis is a three-way merge algorithm for feature model evolution plans that ensures a well-formed, sound plan upon a successful merge. In order to achieve this, we have created a new representation of evolution plans more suitable for merging. With such a representation of evolution plans, the algorithm will include alterations from both derived versions, combining them into a single evolution plan, which are then checked to ensure a sound, well-formed evolution plan.
 
-including formalizing and implementing a 3wm algo that preserves soundness
-implemented the algorithm in haskell
-created an entire program with a command line interface, that handles different formats, reads/writes to JSON files, logging, etc.
-Created a frontend in Elm for a dynamic, actual presentation of the input and results of the program
-Created examples and tests, checking that the program behaves as intended.
+The three-way merge algorithm is implemented in the strongly-typed, functional programming language Haskell. The Haskell program is created as an \textit{command line interface (CLI)}, to handle reading and writing from file, logging the output of the algorithm, checking for correct behaviour, etc. The CLI allows a variety of different input formats for the evolution plans, as well as the option for generating some predefined examples, both sound and unsound. Since feature models and evolution plans often are very hard to read in textual format, a frontend visualization tool has also been created using a language similar to Haskell, namely Elm. The Elm application is a web application that can display the evolution plans as visual tree structures, and lets users explore what the merge algorithm produces. Several examples and test cases have also been implemented, checking that the expected behaviour of the program matches the actual output.
 
-\todo{WRITE}
+To summarize, the contributions include:
+
+\begin{itemize}
+  \item Created a formal definition of evolution plans suitable for merging
+  \item Constructed a three-way merge algorithm producing sound, well-formed evolution plans
+  \item Implemented the algorithm as part of a command line interface in Haskell
+  \item Created a visualization tools for exploring the results of the merge in Elm
+  \item Provided test cases and examples that results in both sound evolution plans and merge conflicts
+\end{itemize}
 
 \section{Chapter Overview}%
 \label{sec:chapter_overview}
