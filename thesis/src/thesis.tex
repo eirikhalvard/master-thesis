@@ -17,7 +17,7 @@
 
 \newcommand{\todo}[1]{\textcolor{red}{[[TODO: #1]]}\PackageWarning{TODO:}{#1!}}
 
-\title{Three Way Merge for Feature Model Evolution Plans}
+\title{Three Way Merge for Feature Model Evolution Planning}
 \date{May 2021}
 \author{Eirik Halvard Sæther}
 \synctex=1
@@ -66,18 +66,32 @@ something about the LTEP project
 something about summer project?
 
 \mainmatter{}
+
 \chapter{Introduction}%
 \label{cha:introduction}
 
-introdusere problemstillingen. si hva spl, fm, ep er på ett høynivå
+A \textit{Software Product Line (SPL)} is a collection of closely-related software products. The different software products in the SPL have several things in common, as well aspects that separate them. As an software development paradigm, SPLs allows the developers to leverage the softwares commonalities and variabilities in order to improve a variety of factors.
 
-i introduksjon, fortelle hva feature models er, hva det kan brukes til. ikke tekniske detaljer! engineering practice, software family. referanser. styrker. videre inn i planlegging, vanskelig. flere teams som må planlegge. hvordan hjelpe dette. gjenbruke kode.
-scope: her modellerer jeg bare planlegging.
-hvordan min oppgave skal leses.
+This variability and commonalities can be captured by \textit{feature models (FM)}, which uses \textit{features} to capture the different aspects of an SPL. Each feature in the feature model corresponds to a certain increment in program functionality. The particular \textit{variant} of the software product line is defined by a unique combination of features \cite{cite:don_batory_fm_grammar_prop}. The feature model organizes the features in a tree structure to capture the variability of the SPL.
+
+Since SPLs undergo continuous evolution, planning for the long-term evolution of a software product line is often crucial. The evolution of the SPL is mostly handled as an informal procedure relying on the intuition and experience of individual engineers. Without formal tools, long-term goals might not be addressed properly, increasing the risk of significantly increased development costs.
+
+We address the lack of tools for long-term evolution planning with \textit{feature model evolution plans}, or just \textit{evolution plans}, which not only models the current feature model, but all intended future feature models. This allows engineers as well as non-technical stakeholders to have a concrete tool for planning the long-term development of the software product line. The evolution plan makes it possible to plan when certain features are introduced or removed, or simply changing the way the features are related to each other. 
+
+Planning the evolution of the software product line often involves multiple engineers changing and evolving the plan. Therefore, creating tools for evolution planning requires synchronization techniques for allowing collaborators to work independently. Naively integrating each persons changes to the evolution plan may yield inconsistencies and conflicts, so we investigate different merging strategies to ensure a sound, well-formed evolution plan is produced after the merge.
+
+\todo{scope: her modellerer jeg bare planlegging.}
+\todo{hvordan min oppgave skal leses.}
 
 \section{Motivation}%
 \label{sec:motivation}
 
+Evolution plans are designed to help engineers cope with the long-term evolution of software. Designing the software is an iterative and dynamic process, which is subject to change. Having several engineers working in parallel on the same evolution plan can be beneficial in handling the dynamic nature of evolution planning. This requires good synchronization tools for handling several engineers working and changing the evolution plan.
+
+\section{Objective}%
+\label{sec:objective}
+
+The objective of my thesis is to design and implement a three-way merge algorithm for evolution plans. To achieve an effective and accurate algorithm, good data structures and representations for evolution plans has to be chosen. The three-way merge algorithm will consider a base evolution plan, and two derived evolution plans, all following the formally defined structure and semantics. The algorithm will then try to merge the two derived plans, with the base model as a reference to what changes were made. Any conflict that occur when merging will be dealt with by consulting the user and providing options for what to do. When all conflicts are dealt with, a new merged evolution plan is produced, where the algorithm ensures that the merged plan follows the strict structure and semantics defined. This task is not trivial, and the algorithm should follow some specified heuristics to ensure a plan that follows the users intent as closely as possible, without creating an unnecessary amount of conflicts and warnings. The algorithm should also find a good balance between complexity and usability.
 
 \section{Problem Statement}%
 \label{sec:problem_statement}
@@ -86,17 +100,16 @@ hvordan min oppgave skal leses.
 \section{Research Questions}%
 \label{sec:research_questions}
 
-forskningsspørsmål/mål. hva skal jeg undersøke/belyse. motivere, hvorfor gjør jeg det jeg gjør
-konkrete spørsmål. how? what? in what way? type spm
-hvordan formalisere endring?
-hva er en god effektiv implementasjon?
-fornuftig algoritme som tar hensyn til semantikk og struktur?
-identifisere hva som er utfordringen.
-3 stk ca.
-for å addressere spm så må jeg se på følgende:
+As the goal of the thesis is to provide tools aiding developers and engineers cooperate in planning the evolution of a software product line, we propose some research questions (RQ). The research questions are concrete questions that we want to answer as a result of this thesis:
 
-
-hvor er de store utfordringene? finne riktig representasjon? rekkefølge på operasjoner? hva gjør problemstillingen vrien?
+\begin{itemize}
+  \item \textbf{RQ1}: In what way should we represent an evolution plan in order to do an effective merge?%
+  \label{rq1}
+  \item \textbf{RQ2}: How should we design the three-way merge algorithm in order to produce a sound evolution plan?%
+  \label{rq2}
+  \item \textbf{RQ3}: How do we create a merge tool that produces predictable, transparent results?%
+  \label{rq3}
+\end{itemize}
 
 \section{Contributions}%
 \label{sec:contributions}
@@ -134,7 +147,7 @@ i bakgrunnseksjon: diskutere litt hvordan forskjellige merge teknikker har forde
 \section{Software product lines}%
 \label{sec:software_product_lines}
 
-A software product line (SPL) is a family of closely related software systems. These systems will often have several features in common, as well as variations that makes each piece of software unique. SPLs are used to make highly configurable systems, where each product in the SPL, called a \textit{variant}, is defined by the combination of features chosen.
+A software product line (SPL) is a family of closely related software systems. These systems will often have several features in common, as well as variations that makes each piece of software unique. SPLs are used to make highly configurable systems, where each product in the SPL, called a \textit{variant}, is defined by the combination of features chosen. Several large scale companies such as Hewlett-Packard and Nokia are finding remarkable quantitative improvements in product quality, customer satisfaction, and more by using a software product line approach \cite{cite:northrop_spl_tenets}.
 
 Software product line engineering is a discipline for efficiently developing such families of software systems. Instead of maintaining potentially hundreds of different software artifacts, these engineering methods have ways of capitalizing on the similarities and differences between each variant. The number of variants are subject to combinatorial explosion, with additions of new features may double the amount of variants. Developing software product lines can be very time efficient, because you can maintain one code base, instead of one code base per variant. This simplifies additions of features or bug fixes greatly.
 
@@ -268,6 +281,11 @@ Semantic mergers takes these kinds of conflicts into consideration while merging
 
 \section{Haskell and Algebraic Data Types}%
 \label{sec:haskell_and_algebraic_data_types}
+
+\section{Problem Definition}%
+\label{sec:problem_definition}
+
+
 
 \chapter{Formal Semantics of Feature Model Evolution Plans}%
 \label{cha:formal_semantics_of_feature_model_evolution_plans}
