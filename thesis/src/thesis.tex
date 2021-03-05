@@ -4,6 +4,7 @@
 \usepackage{babel,duomasterforside}
 \usepackage{hyperref}
 \usepackage{pdfsync}
+\usepackage{wrapfig}
 \usepackage{csquotes}
 \usepackage{graphicx}
 \usepackage{minted}
@@ -385,6 +386,9 @@ There is a few important things to note in this representation. Each feature and
 \subsection{Evolution Plan Definition - User Level Representation}%
 \label{sub:evolution_plan_definition_user_level_representation}
 
+\subsubsection*{Polymorphic User Level Evolution Plan}%
+\label{ssub:polymorphic_user_level_evolution_plan}
+
 Now that we have a suitable definition feature models, we define evolution plans. In this representation, we want the evolution plans to mirror what the user interacts with, so we define the evolution plan as a list of feature models. In later stages of the merge algorithm, we will reuse this \textit{user level} definition of evolution plans, only with a different definition of feature models. This allows us to leverage Haskell's polymorphic type system, which spares us from defining it twice.
 
 \begin{minted}{haskell}
@@ -400,11 +404,94 @@ data TimePoint featureModel = TimePoint
   }
 \end{minted}
 
+\subsubsection*{Instantiated User Level Evolution Plan (Tree Feature Model)}%
+\label{ssub:instantiated_user_level_evolution_plan_tree_feature_model_}
+
+
+
 Now that a generalized representation for evolution plans are defined, using a representation with a list of feature models, we can instantiate the polymorphic evolution plan to create our normal form, \texttt{TreeUserEvolutionPlan}. This is relatively straight forward, the only thing we have to do is replace the \texttt{featureModel} argument with our concrete feature model, namely \texttt{TreeFeatureModel}.
 
 \begin{minted}{haskell}
 type TreeUserEvolutionPlan = UserEvolutionPlan TreeFeatureModel
 \end{minted}
+
+\subsection{Example Representation}%
+\label{sub:example_representation}
+
+Now that we have defined the normal form for evolution plans formally, we will give a concrete example and how it is represented in this formalization. The example we will showcase is a small example containing three time points. The initial feature model at time 0 is simply just the root feature. The next time point at time 1 adds a new group and two features belonging to this group. The last time point removes one of the features and alters the name of the root and type of the group. A visualization of this simple evolution plan can be seen in Figure~\ref{fig:simpleep_treeuser}. Below is the Haskell code necessary for encoding this example.
+
+\begin{minted}{haskell}
+simpleExample :: TreeUserEvolutionPlan
+simpleExample =
+  UserEvolutionPlan
+    [ TimePoint 0 fm0
+    , TimePoint 1 fm1
+    , TimePoint 2 fm2
+    ]
+  where
+    fm0 =
+      TreeFeatureModel
+        ( TreeFeature
+            "rootFeature"
+            Mandatory
+            "Feature 1"
+            Set.empty
+        )
+    fm1 =
+      TreeFeatureModel
+        ( TreeFeature
+            "rootFeature"
+            Mandatory
+            "Feature 1"
+            ( Set.fromList
+                [ TreeGroup
+                    "group"
+                    And
+                    ( Set.fromList
+                        [ TreeFeature
+                            "feature2"
+                            Optional
+                            "Feature 2"
+                            Set.empty
+                        , TreeFeature
+                            "feature3"
+                            Mandatory
+                            "Feature 3"
+                            Set.empty
+                        ]
+                    )
+                ]
+            )
+        )
+    fm2 =
+      TreeFeatureModel
+        ( TreeFeature
+            "rootFeature"
+            Mandatory
+            "Root Feature"
+            ( Set.fromList
+                [ TreeGroup
+                    "group"
+                    Or
+                    ( Set.fromList
+                        [ TreeFeature
+                            "feature2"
+                            Optional
+                            "Feature 2"
+                            Set.empty
+                        ]
+                    )
+                ]
+            )
+        )
+\end{minted}
+
+\begin{figure}[htpb]
+  \centering
+  \includegraphics[]{simpleep_treeuser.pdf}
+  \caption{A Simple Evolution Plan Example}%
+  \label{fig:simpleep_treeuser}
+\end{figure}
 
 \subsection{Naming Scheme}%
 \label{sub:naming_scheme}
