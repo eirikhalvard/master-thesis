@@ -285,7 +285,7 @@ Semantic mergers takes these kinds of conflicts into consideration while merging
 \section{Haskell and Algebraic Data Types}%
 \label{sec:haskell_and_algebraic_data_types}
 
-\todo{write about type synonyms, data types including records and sum types. show polymorphic data types. maybe something about deriving, maybe lens generation? etc}
+\todo{write about type synonyms, data types including records and sum types. show polymorphic data types. maybe something about deriving, maybe lens generation? etc. something about maybe? expressive and strict type system}
 
 \section{Problem Definition}%
 \label{sec:problem_definition}
@@ -309,8 +309,6 @@ However, when we design an approach to merging two evolution plans, the exact wa
 Since part of the goal is to produce a sound result, we cannot simply rearrange the ordering of operations without complications. Some operations might be dependent on other operations, and rearranging the operations might result in an unsound plan. 
 
 To counter these issues, one might naïvely find an standardized ordering of operations so one could sort the operations, or simply just store them as a set of operations instead of a list. However, as we will see, the order of the operations still matter, and changing the ordering can have varying effects. We observe three different ordering related scenarios for operations; non-dependent operations, dependent operations, and shadowed operations. By swapping the operations in a plan, you might achieve one of these scenarios. In the following sections, We investigate the scenarios in the following sections, which is also illustrated in Figure~\ref{fig:operation_swap_effect}.
-
-\todo{include drawing}
 
 \subsection*{Non-dependent Operations}%
 \label{sub:non_dependent_operations}
@@ -349,11 +347,6 @@ The exact representation of \texttt{TreeUserEvolutionPlan} are defined formally 
 First, we will look at the tree representation for feature models, formalized as \texttt{TreeFeatureModel}.
 
 \begin{minted}{haskell}
---- Tree Structured Feature Model ---
-
-type FeatureId = String
-type GroupId = String
-
 data TreeFeatureModel = TreeFeatureModel
   { rootFeature :: TreeFeature
   }
@@ -379,6 +372,10 @@ data GroupType
   = And
   | Or
   | Alternative
+
+type FeatureId = String
+
+type GroupId = String
 \end{minted}
 
 There is a few important things to note in this representation. Each feature and groups id is unique across the entire feature model, which we will leverage when merging. Each feature and group can have an arbitrary number of children. The children is organized in a \texttt{Set}, not a \texttt{List}, noting that the ordering is irrelevant. In order for the feature model to be sound, some combination of parent group type and child feature types are prohibited. If a group is of type \texttt{Alternative} or \texttt{Or}, every child feature has to be of type \texttt{Optional}.
@@ -418,7 +415,7 @@ type TreeUserEvolutionPlan = UserEvolutionPlan TreeFeatureModel
 \subsection{Example Representation}%
 \label{sub:example_representation}
 
-Now that we have defined the normal form for evolution plans formally, we will give a concrete example and how it is represented in this formalization. The example we will showcase is a small example containing three time points. The initial feature model at time 0 is simply just the root feature. The next time point at time 1 adds a new group and two features belonging to this group. The last time point removes one of the features and alters the name of the root and type of the group. A visualization of this simple evolution plan can be seen in Figure~\ref{fig:simpleep_treeuser}. Below is the Haskell code necessary for encoding this example.
+Now that we have defined the normal form for evolution plans formally, we will give a concrete example and how it is represented in this formalization. The example we will showcase is a small example containing three time points. The initial feature model at time 0 is simply just the root feature. The next time point at time 1 adds a new group and two features belonging to this group. The last time point removes one of the features and alters the name of the root and type of the group. A visualization of this simple evolution plan can be seen in Figure~\vref{fig:simpleep_treeuser}. Below is the Haskell code necessary for encoding this example.
 
 \begin{minted}{haskell}
 simpleExample :: TreeUserEvolutionPlan
@@ -493,14 +490,54 @@ simpleExample =
   \label{fig:simpleep_treeuser}
 \end{figure}
 
-\subsection{Naming Scheme}%
-\label{sub:naming_scheme}
-
-
-
-
 \section{A Suitable Representation of Evolution}%
 \label{sec:a_suitable_representation_of_evolution}
+
+The evolution plan formalization defined above, \texttt{TreeUserEvolutionPlan}, works well for capturing the essence of evolution plans. It represents evolution plans in terms of what the user actually deals with. However, in order to do an effective merge of two evolution plans, we need to represent the evolution plan a bit differently.
+
+Refactoring the evolution plan doesn't just involve modifying the last time point, but replanning the other time points earlier in the plan. When users are replanning such time points, the additions, deletions and modifications has an effect not just on the time point at hand, but all subsequent time points. When a user adds a new feature in the middle of the plan, the feature would appear on the specified time points as well as all the time points beyond. When calculating the changes made, we don't want to look at this like a feature was added in all the time points, but rather just the specified time. In order to capture the essence of the changes made to each evolution plan, we would need to find a representation capturing the actual changes more explicitly.
+
+In order to to capture the explicit modifications between each time point in the evolution plan, we would need to figure out an approach to calculating the difference between two subsequent feature models. However, with our current tree-based feature model, \texttt{TreeFeatureModel}, this can be a bit cumbersome, requiring us to traverse the two trees simultaneously. In some cases this is not very straight forward, i.e. handling \texttt{Move}-operations that relocates entire subtrees.
+
+\subsection{Feature Model Definition - Flat Representation}%
+\label{sub:feature_model_definition_flat_representation}
+
+We define a new representation for feature models, \texttt{FlatFeatureModel}, in order to have a structure better suited for detecting and applying changes to the tree-structure. This is achievable due to our features and groups having unique ids. This allows for a simple mapping-structure, where we each feature and group can be looked up by its id. The edges and relations in the tree are modeled as node-id references instead of a recursive structure. Every node only stores its parent relation, not its child relations as well. This makes moving entire subtrees straight forward, requiring changing only the parent-field of the node to move.
+
+\begin{minted}{haskell}
+data FlatFeatureModel = FlatFeatureModel
+  { rootId :: FeatureId
+  , features :: Map FeatureId FlatFeature
+  , groups :: Map GroupId FlatGroup
+  }
+
+data FlatFeature = FlatFeature
+  { parentGroupId :: Maybe GroupId
+  , featureType :: FeatureType
+  , name :: String
+  }
+
+data FlatGroup = FlatGroup
+  { parentFeatureId :: FeatureId
+  , groupType :: GroupType
+  }
+\end{minted}
+
+The definition of \texttt{FeatureType}, \texttt{FeatureId}, \texttt{GroupType} and \texttt{GroupId} is still the same as defined in Section~\vref{sub:feature_model_definition_tree_representation}.
+
+\todo{The new definition of feature models also has advantages we will exploit when defining a new.......... something about temporarily damaging..}
+
+\todo{something about it allowing for modifications that temporarily  damage the structure. one could add a child before adding the parent, if you know for certain that the resulting plan is correct}
+
+\subsection{Evolution Plan Definition - Modification Level Representation}%
+\label{sub:evolution_plan_definition_modification_level_representation}
+
+% As discussed in Section~\ref{sec:issues_with_using_a_list_based_approach}, the list-based operation approach is problematic in order to achieve a desired merge result.
+
+% An important part in merging the efforts of two collaborators is figuring out exactly what changes each collaborators did to the common base evolution plan. With our current representation of evolution plans, \texttt{TreeUserEvolutionPlan}, detecting changes in the tree can be quite difficult.
+
+
+
 
 \todo{kan snakke om operasjonene, hva de betyr på høynivå. referere til artikkel for detaljer.}
 \todo{arbeid er basert på sunn plan.}
