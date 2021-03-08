@@ -114,3 +114,50 @@ simpleExampleFlat =
           )
         ]
         [("group", FlatGroup "rootFeature" Or)]
+
+simpleExampleMod :: FlatModificationEvolutionPlan
+simpleExampleMod =
+  TransformationEvolutionPlan
+    0
+    initial
+    [Plan 1 modifications1, Plan 2 modifications2]
+  where
+    initial =
+      FlatFeatureModel
+        "rootFeature"
+        [
+          ( "rootFeature"
+          , FlatFeature Nothing Mandatory "Feature 1"
+          )
+        ]
+        []
+    modifications1 =
+      Modifications
+        [
+          ( "feature2"
+          , FeatureAdd "group" Optional "Feature 2"
+          )
+        ,
+          ( "feature3"
+          , FeatureAdd "group" Mandatory "Feature 3"
+          )
+        ]
+        [("group", GroupAdd "rootFeature" And)]
+    modifications2 =
+      Modifications
+        [ ("feature3", FeatureRemove)
+        ,
+          ( "rootFeature"
+          , FeatureModification
+              Nothing
+              Nothing
+              (Just (FeatureNameModification "Root Feature"))
+          )
+        ]
+        [
+          ( "group"
+          , GroupModification
+              Nothing
+              (Just (GroupTypeModification Or))
+          )
+        ]

@@ -590,10 +590,138 @@ Since we have a flat structure, deriving or integrating modifications on a featu
 
 The flexible flat structure allows for temporarily damaging the tree-structure, which allows for applying modifications in an arbitrary order. We recall some of the issues related to the list-based operations in Section~\ref{sec:issues_with_using_a_list_based_approach}, where some dependent operations had to be applied in a specific order, i.e. adding the parent feature before adding the child group. Since the tree-structure of our \texttt{FlatUserEvolutionPlan} is implicit through the node-id references, we could simply add the child feature first, with a reference to the parent id, then directly after add the parent id. We just have to ensure that all the operations we apply will result in a sound feature model.
 
-\subsection{Evolution Plan Definition - Modification Level Representation}%
-\label{sub:evolution_plan_definition_modification_level_representation}
+\subsection{Evolution Plan Definition - Modification Level, Flat Representation}%
+\label{sub:evolution_plan_definition_modification_level_flat_representation}
 
-% As discussed in Section~\ref{sec:issues_with_using_a_list_based_approach}, the list-based operation approach is problematic in order to achieve a desired merge result.
+As discussed in Section~\ref{sec:issues_with_using_a_list_based_approach}, the list-based operation approach is problematic in order to achieve a desired merge result. What the user perceived as equal plans had several representations. In order to combat this we created a normal form for evolution plans, \texttt{TreeUserEvolutionPlan}, more aligned with the users perspective of evolution plans. Since tree-based structure of its feature models had some disadvantages in terms of detecting and applying modifications, we created a new representation for feature models, which we used in our intermediate representation for evolution plans, \texttt{FlatUserEvolutionPlan}.
+
+However, the user level evolution plan representation with the list of feature models for each time point didn't model the replanning aspect of evolution plans as we wanted. When users have to go back to intermediate time points in the evolution plan and make changes, the changes will appear in the subsequent time points as well. This requires modeling the evolution plan similar to the list-based operation approach discussed previously, while still avoiding the issues regarding operation ordering, operation shadowing, etc.
+
+We present the final evolution plan representation, \texttt{FlatModificationEvolutionPlan}, modeling the evolution plan as an initial model along with an ordered list of time points associated with \textit{modifications}. The modifications model the changes necessary to go from the previous feature model to the one in the specified time point. The modifications consists of two mappings, one for features and one for groups. Each mappings map ids to a \textit{modification}. A modification can be one of three things, an addition, deletion or a change to one or more fields.
+
+The Haskell representation of our \texttt{FlatModificationEvolutionPlan} can be seen below.
+
+\begin{minted}{haskell}
+data TransformationEvolutionPlan transformation featureModel = 
+  TransformationEvolutionPlan
+    { initialTime :: Time
+    , initialFM :: featureModel
+    , plans :: [Plan transformation]
+    }
+
+data Plan transformation = Plan
+  { timePoint :: Time
+  , transformation :: transformation
+  }
+
+type ModificationEvolutionPlan featureModel = 
+  TransformationEvolutionPlan Modifications featureModel
+
+type FlatModificationEvolutionPlan = 
+  ModificationEvolutionPlan FlatFeatureModel
+\end{minted}
+
+Notice that the actual types are generalized in two ways. As with our user level representation, we have made the evolution plan polymorphic over the feature model. In addition, we have generalized the actual transformation type necessary to go from one feature model to the next. This is useful for the actual merge algorithm, which will reuse the evolution plan with another transformation type. With the evolution plan structure in place and our newly defined \texttt{ModificationEvolutionPlan}, we can define \texttt{Modifications} in the following way:
+
+\begin{minted}{haskell}
+data Modifications = Modifications
+  { features :: M.Map FeatureId FeatureModification
+  , groups :: M.Map GroupId GroupModification
+  }
+
+data FeatureModification
+  = FeatureAdd GroupId FeatureType String
+  | FeatureRemove
+  | FeatureModification
+      (Maybe FeatureParentModification)
+      (Maybe FeatureTypeModification)
+      (Maybe FeatureNameModification)
+
+data FeatureParentModification
+  = FeatureParentModification GroupId
+
+data FeatureNameModification
+  = FeatureNameModification String
+
+data FeatureTypeModification
+  = FeatureTypeModification FeatureType
+
+data GroupModification
+  = GroupAdd FeatureId GroupType
+  | GroupRemove
+  | GroupModification
+      (Maybe GroupParentModification)
+      (Maybe GroupTypeModification)
+
+data GroupParentModification
+  = GroupParentModification FeatureId
+
+data GroupTypeModification
+  = GroupTypeModification GroupType
+\end{minted}
+
+\subsubsection*{Example representation}%
+\label{ssub:example_representation}
+
+With our final, merge ready representation of evolution plans, we can encode the simple example in the defined data types. A visual representation of the example can be seen in Figure~\ref{fig:simpleep_flatmod}
+
+\begin{minted}{haskell}
+
+simpleExampleMod :: FlatModificationEvolutionPlan
+simpleExampleMod =
+  TransformationEvolutionPlan
+    0
+    initial
+    [Plan 1 modifications1, Plan 2 modifications2]
+  where
+    initial =
+      FlatFeatureModel
+        "rootFeature"
+        [
+          ( "rootFeature"
+          , FlatFeature Nothing Mandatory "Feature 1"
+          )
+        ]
+        []
+    modifications1 =
+      Modifications
+        [
+          ( "feature2"
+          , FeatureAdd "group" Optional "Feature 2"
+          )
+        ,
+          ( "feature3"
+          , FeatureAdd "group" Mandatory "Feature 3"
+          )
+        ]
+        [("group", GroupAdd "rootFeature" And)]
+    modifications2 =
+      Modifications
+        [ ("feature3", FeatureRemove)
+        ,
+          ( "rootFeature"
+          , FeatureModification
+              Nothing
+              Nothing
+              (Just (FeatureNameModification "Root Feature"))
+          )
+        ]
+        [
+          ( "group"
+          , GroupModification
+              Nothing
+              (Just (GroupTypeModification Or))
+          )
+        ]
+\end{minted}
+
+\begin{figure}[htpb]
+  \centering
+  % \includegraphics[]{simpleep_flatmod.pdf}
+  \todo{create graphic}
+  \caption{A Simple Evolution Plan Example}%
+  \label{fig:simpleep_flatmod}
+\end{figure}
 
 % An important part in merging the efforts of two collaborators is figuring out exactly what changes each collaborators did to the common base evolution plan. With our current representation of evolution plans, \texttt{TreeUserEvolutionPlan}, detecting changes in the tree can be quite difficult.
 
