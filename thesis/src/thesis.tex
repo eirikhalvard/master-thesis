@@ -380,8 +380,8 @@ type GroupId = String
 
 There is a few important things to note in this representation. Each feature and groups id is unique across the entire feature model, which we will leverage when merging. Each feature and group can have an arbitrary number of children. The children is organized in a \texttt{Set}, not a \texttt{List}, noting that the ordering is irrelevant. In order for the feature model to be sound, some combination of parent group type and child feature types are prohibited. If a group is of type \texttt{Alternative} or \texttt{Or}, every child feature has to be of type \texttt{Optional}.
 
-\subsection{Evolution Plan Definition - User Level Representation}%
-\label{sub:evolution_plan_definition_user_level_representation}
+\subsection{Evolution Plan Definition - User Level, Tree Representation}%
+\label{sub:evolution_plan_definition_user_level_tree_representation}
 
 \subsubsection*{Polymorphic User Level Evolution Plan}%
 \label{ssub:polymorphic_user_level_evolution_plan}
@@ -403,8 +403,6 @@ data TimePoint featureModel = TimePoint
 
 \subsubsection*{Instantiated User Level Evolution Plan (Tree Feature Model)}%
 \label{ssub:instantiated_user_level_evolution_plan_tree_feature_model_}
-
-
 
 Now that a generalized representation for evolution plans are defined, using a representation with a list of feature models, we can instantiate the polymorphic evolution plan to create our normal form, \texttt{TreeUserEvolutionPlan}. This is relatively straight forward, the only thing we have to do is replace the \texttt{featureModel} argument with our concrete feature model, namely \texttt{TreeFeatureModel}.
 
@@ -432,7 +430,7 @@ simpleExample =
             "rootFeature"
             Mandatory
             "Feature 1"
-            Set.empty
+            []
         )
     fm1 =
       TreeFeatureModel
@@ -440,25 +438,21 @@ simpleExample =
             "rootFeature"
             Mandatory
             "Feature 1"
-            ( Set.fromList
-                [ TreeGroup
-                    "group"
-                    And
-                    ( Set.fromList
-                        [ TreeFeature
-                            "feature2"
-                            Optional
-                            "Feature 2"
-                            Set.empty
-                        , TreeFeature
-                            "feature3"
-                            Mandatory
-                            "Feature 3"
-                            Set.empty
-                        ]
-                    )
+            [ TreeGroup
+                "group"
+                And
+                [ TreeFeature
+                    "feature2"
+                    Optional
+                    "Feature 2"
+                    []
+                , TreeFeature
+                    "feature3"
+                    Mandatory
+                    "Feature 3"
+                    []
                 ]
-            )
+            ]
         )
     fm2 =
       TreeFeatureModel
@@ -466,22 +460,20 @@ simpleExample =
             "rootFeature"
             Mandatory
             "Root Feature"
-            ( Set.fromList
-                [ TreeGroup
-                    "group"
-                    Or
-                    ( Set.fromList
-                        [ TreeFeature
-                            "feature2"
-                            Optional
-                            "Feature 2"
-                            Set.empty
-                        ]
-                    )
+            [ TreeGroup
+                "group"
+                Or
+                [ TreeFeature
+                    "feature2"
+                    Optional
+                    "Feature 2"
+                    []
                 ]
-            )
+            ]
         )
 \end{minted}
+
+Note that each feature and groups \texttt{Set} of children are constructed using list syntax. This is to make it a bit easier to read, not having too much visual clutter. This is possible using the language extension \texttt{OverloadedLists} \footnote{https://ghc.gitlab.haskell.org/ghc/doc/users\_guide/exts/overloaded\_lists.html}, where we allow Haskell's type system to figure out that the list is actually a \texttt{Set} based on the context.
 
 \begin{figure}[htpb]
   \centering
@@ -523,11 +515,80 @@ data FlatGroup = FlatGroup
   }
 \end{minted}
 
-The definition of \texttt{FeatureType}, \texttt{FeatureId}, \texttt{GroupType} and \texttt{GroupId} is still the same as defined in Section~\vref{sub:feature_model_definition_tree_representation}.
+The definitions of \texttt{FeatureType}, \texttt{FeatureId}, \texttt{GroupType} and \texttt{GroupId} is still the same as defined in Section~\vref{sub:feature_model_definition_tree_representation}.
 
-\todo{The new definition of feature models also has advantages we will exploit when defining a new.......... something about temporarily damaging..}
+\subsection{Evolution Plan Definition - User Level, Flat Representation}%
+\label{sub:evolution_plan_definition_user_level_flat_representation}
 
-\todo{something about it allowing for modifications that temporarily  damage the structure. one could add a child before adding the parent, if you know for certain that the resulting plan is correct}
+With our new, flat representation for feature models, we can use this to create a new user level representation, with our flat structure instead of the tree-based. Since we created a generalized data type, \texttt{UserEvolutionPlan}, we can instantiate it in the following way.
+
+\begin{minted}{haskell}
+type FlatUserEvolutionPlan = UserEvolutionPlan FlatFeatureModel
+\end{minted}
+
+With this new representation for evolution plans, the example from Figure~\vref{fig:simpleep_treeuser} can be encoded in the following way:
+
+\begin{minted}{haskell}
+simpleExampleFlat :: FlatUserEvolutionPlan
+simpleExampleFlat =
+  UserEvolutionPlan
+    [ TimePoint 0 fm0
+    , TimePoint 1 fm1
+    , TimePoint 2 fm2
+    ]
+  where
+    fm0 =
+      FlatFeatureModel
+        "rootFeature"
+        [
+          ( "rootFeature"
+          , FlatFeature Nothing Mandatory "Feature 1"
+          )
+        ]
+        []
+
+    fm1 =
+      FlatFeatureModel
+        "rootFeature"
+        [
+          ( "feature2"
+          , FlatFeature (Just "group") Optional "Feature 2"
+          )
+        ,
+          ( "feature3"
+          , FlatFeature (Just "group") Mandatory "Feature 3"
+          )
+        ,
+          ( "rootFeature"
+          , FlatFeature Nothing Mandatory "Feature 1"
+          )
+        ]
+        [("group", FlatGroup "rootFeature" And)]
+    fm2 =
+      FlatFeatureModel
+        "rootFeature"
+        [
+          ( "feature2"
+          , FlatFeature (Just "group") Optional "Feature 2"
+          )
+        ,
+          ( "rootFeature"
+          , FlatFeature Nothing Mandatory "Root Feature"
+          )
+        ]
+        [("group", FlatGroup "rootFeature" Or)]
+\end{minted}
+
+Each feature model in the evolution plan consists of a reference to the root feature id, as well as two \texttt{Map}s. Using the \texttt{OverloadedLists} extension, each Map is noted by a list of tuples, where the first part of the tuple is the id of the feature or group, and the second part is the fields of the feature or group.
+
+\subsubsection*{Advantages over the tree structured evolution plan}%
+\label{ssub:advantages_over_the_tree_structured_evolution_plan}
+
+The new definition of feature models has advantages we will make deriving and integrating modifications between two subsequent feature models easier. 
+
+Since we have a flat structure, deriving or integrating modifications on a feature or group saves us from traversing the tree structure. The flat structure leverages the unique ids in order to allow lookup based on id. Changing a feature or group requires a lookup based on the id, then changing the fields of the mapping entry. Removing or adding a node is similarly simple, requiring only adding or removing an entry in the mapping. Since the edges in the tree are modeled as references to the parent id, we don't need to modify the parent node when removing a node.
+
+The flexible flat structure allows for temporarily damaging the tree-structure, which allows for applying modifications in an arbitrary order. We recall some of the issues related to the list-based operations in Section~\ref{sec:issues_with_using_a_list_based_approach}, where some dependent operations had to be applied in a specific order, i.e. adding the parent feature before adding the child group. Since the tree-structure of our \texttt{FlatUserEvolutionPlan} is implicit through the node-id references, we could simply add the child feature first, with a reference to the parent id, then directly after add the parent id. We just have to ensure that all the operations we apply will result in a sound feature model.
 
 \subsection{Evolution Plan Definition - Modification Level Representation}%
 \label{sub:evolution_plan_definition_modification_level_representation}
