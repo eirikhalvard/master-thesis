@@ -55,77 +55,81 @@ timePointsToPlan (TimePoint _ prevFM) (TimePoint currTime currFM) =
 diffFeatureModels :: FlatFeatureModel -> FlatFeatureModel -> Modifications
 diffFeatureModels prevFM currFM =
   Modifications
-    featureModifications
-    groupModifications
-  where
-    featureModifications =
-      Merge.merge
-        (Merge.mapMissing (\_ _ -> FeatureRemove))
-        ( Merge.mapMissing
-            ( \_ (FlatFeature mParent featureType name) ->
-                case mParent of
-                  Nothing ->
-                    error $
-                      "ERROR: When diffing two feature models, "
-                        ++ "the root feature is assumed to be the same in both version. "
-                        ++ "Since the root feature cannot be removed, there should never "
-                        ++ "be the case that the root feature was added"
-                  Just parent -> FeatureAdd parent featureType name
-            )
-        )
-        ( Merge.zipWithMaybeMatched
-            ( \_
-               prev@(FlatFeature prevParent prevFeatureType prevName)
-               new@(FlatFeature newParent newFeatureType newName) ->
-                  if prev == new
-                    then Nothing
-                    else
-                      Just $
-                        FeatureModification
-                          ( case (prevParent, newParent) of
-                              (Just prev, Just new) | prev /= new -> Just (FeatureParentModification new)
-                              -- NOTE: since the root is assumed to never change,
-                              -- we only record changes of non-root features
-                              _ -> Nothing
-                          )
-                          ( if prevFeatureType == newFeatureType
-                              then Nothing
-                              else Just (FeatureTypeModification newFeatureType)
-                          )
-                          ( if prevName == newName
-                              then Nothing
-                              else Just (FeatureNameModification newName)
-                          )
-            )
-        )
+    ( calculateFeatureModifications
         (prevFM ^. L.features)
         (currFM ^. L.features)
-    groupModifications =
-      Merge.merge
-        (Merge.mapMissing (\_ _ -> GroupRemove))
-        ( Merge.mapMissing
-            ( \_ (FlatGroup parent groupType) ->
-                GroupAdd parent groupType
-            )
-        )
-        ( Merge.zipWithMaybeMatched
-            ( \_
-               prev@(FlatGroup prevParent prevGroupType)
-               new@(FlatGroup newParent newGroupType) ->
-                  if prev == new
-                    then Nothing
-                    else
-                      Just $
-                        GroupModification
-                          ( if prevParent == newParent
-                              then Nothing
-                              else Just (GroupParentModification newParent)
-                          )
-                          ( if prevGroupType == newGroupType
-                              then Nothing
-                              else Just (GroupTypeModification newGroupType)
-                          )
-            )
-        )
+    )
+    ( calculateGroupModifications
         (prevFM ^. L.groups)
         (currFM ^. L.groups)
+    )
+
+calculateFeatureModifications ::
+  M.Map FeatureId FlatFeature ->
+  M.Map FeatureId FlatFeature ->
+  M.Map FeatureId FeatureModification
+calculateFeatureModifications =
+  Merge.merge
+    (Merge.mapMissing (const inPrevMissingNew))
+    (Merge.mapMissing (const missingPrevInNew))
+    (Merge.zipWithMaybeMatched (const inPrevInNew))
+  where
+    inPrevMissingNew _ = FeatureRemove
+    missingPrevInNew (FlatFeature mParent featureType name) =
+      case mParent of
+        Nothing -> error "cannot add a new root"
+        Just parent -> FeatureAdd parent featureType name
+    inPrevInNew prev new =
+      let FlatFeature prevParent prevFeatureType prevName = prev
+          FlatFeature newParent newFeatureType newName = new
+       in if prev == new
+            then Nothing
+            else
+              Just $
+                FeatureModification
+                  ( case (prevParent, newParent) of
+                      (Just prev, Just new)
+                        | prev /= new ->
+                          Just (FeatureParentModification new)
+                      -- NOTE: since the root is assumed to never change,
+                      -- we only record changes of non-root features
+                      _ -> Nothing
+                  )
+                  ( if prevFeatureType == newFeatureType
+                      then Nothing
+                      else Just (FeatureTypeModification newFeatureType)
+                  )
+                  ( if prevName == newName
+                      then Nothing
+                      else Just (FeatureNameModification newName)
+                  )
+
+calculateGroupModifications ::
+  M.Map GroupId FlatGroup ->
+  M.Map GroupId FlatGroup ->
+  M.Map GroupId GroupModification
+calculateGroupModifications =
+  Merge.merge
+    (Merge.mapMissing (const inPrevMissingNew))
+    (Merge.mapMissing (const missingPrevInNew))
+    (Merge.zipWithMaybeMatched (const inPrevInNew))
+  where
+    inPrevMissingNew _ = GroupRemove
+    missingPrevInNew (FlatGroup parent groupType) =
+      GroupAdd parent groupType
+    inPrevInNew prev new =
+      let FlatGroup prevParent prevGroupType = prev
+          FlatGroup newParent newGroupType = new
+       in if prev == new
+            then Nothing
+            else
+              Just $
+                GroupModification
+                  ( if prevParent == newParent
+                      then Nothing
+                      else Just (GroupParentModification newParent)
+                  )
+                  ( if prevGroupType == newGroupType
+                      then Nothing
+                      else Just (GroupTypeModification newGroupType)
+                  )
