@@ -55,9 +55,9 @@ violatingFeatureWellFormed :: MergeInputData FlatModificationEvolutionPlan
 violatingFeatureWellFormed =
   MergeInputData
     "Conflict, Global - Well-formedness violation"
-    baseConstructedEvolutionPlan
-    v1ConstructedEvolutionPlan
-    ( v2ConstructedEvolutionPlan
+    (annaUpdate baseConstructedEvolutionPlan)
+    (annaUpdate v1ConstructedEvolutionPlan)
+    ( annaUpdate v2ConstructedEvolutionPlan
         & L.plans
           . traversed
           . filtered (has $ L.timePoint . only 3)
@@ -84,6 +84,24 @@ violatingFeatureWellFormed =
                 ]
             )
     )
+  where
+    annaUpdate :: FlatModificationEvolutionPlan -> FlatModificationEvolutionPlan
+    annaUpdate ep =
+      ep
+        & L.plans
+          . traversed
+          . filtered (has $ L.timePoint . only 1)
+          . L.transformation
+          . L.features
+          . at "feature:tea"
+        .~ Nothing
+        & L.plans
+          . traversed
+          . filtered (has $ L.timePoint . only 1)
+          . L.transformation
+          . L.features
+          . at "feature:anna-finstad-glitter"
+        ?~ FeatureAdd "group:beverages-group" Optional "Tea"
 
 -- Adding a group to a non-existing feature
 -- v1 is removing a feature in tp 1

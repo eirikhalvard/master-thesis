@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3554cef10d319f904fc251cab75498215a8807d6d05b1a41e793fc6ea71df8b7
+-- hash: 6afca7baaeaff45ecb18f01c69e40681568862660f5439dd81b8a326b1b77215
 
 name:           evolution-plan-merger
 version:        0.1.0.0
@@ -34,6 +34,7 @@ library
       Examples.GlobalConflictExample
       Examples.LocalConflictExample
       Examples.MergeConflictExample
+      Examples.SimpleExample
       Examples.SoundExample
       Lenses
       Merge.ChangeDetection
