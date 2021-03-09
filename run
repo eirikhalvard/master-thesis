@@ -6,5 +6,5 @@ stack build
 stack exec epmerge -- --generateAll --generateElm --print
 cd ../frontend
 echo "STARTING ELM SERVER"
-elm-live src/Main.elm  --open -- --debug
+elm-live src/Main.elm  --open
 

@@ -1,10 +1,8 @@
 {-# LANGUAGE OverloadedLists #-}
 
-module Examples.SoundExample where
+module Examples.SimpleExample where
 
 import Types
-
-import qualified Data.Set as Set
 
 ------------------------------------------------------------------------
 --                     Tree Based Evolution Plan                      --
