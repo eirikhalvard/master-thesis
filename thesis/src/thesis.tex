@@ -881,8 +881,6 @@ In order to calculate the differences between two \texttt{Map}s, we rely on the 
   \item \textbf{The id exists in both the previous and next feature models}: If the two features are equal, no modification should be generated. However, if any of the fields has changed, a \texttt{FeatureModification} would be generated. The modification will include all the fields that were changed, and skip the ones that remained unchanged.
 \end{itemize}
 
-\todo{diagram from merging}
-
 \begin{minted}[breaklines]{haskell}
 calculateFeatureModifications ::
   M.Map FeatureId FlatFeature ->
@@ -890,16 +888,16 @@ calculateFeatureModifications ::
   M.Map FeatureId FeatureModification
 calculateFeatureModifications =
   Merge.merge
-    (Merge.mapMissing (const inPrevMissingNew))
-    (Merge.mapMissing (const missingPrevInNew))
-    (Merge.zipWithMaybeMatched (const inPrevInNew))
+    (Merge.mapMissing (const inPrev))
+    (Merge.mapMissing (const inNew))
+    (Merge.zipWithMaybeMatched (const inBoth))
   where
-    inPrevMissingNew _ = FeatureRemove
-    missingPrevInNew (FlatFeature mParent featureType name) =
+    inPrev _ = FeatureRemove
+    inNew (FlatFeature mParent featureType name) =
       case mParent of
         Nothing -> error "cannot add a new root"
         Just parent -> FeatureAdd parent featureType name
-    inPrevInNew prev new =
+    inBoth prev new =
       let FlatFeature prevParent prevType prevName = prev
           FlatFeature newParent newType newName = new
        in if prev == new
@@ -932,14 +930,14 @@ calculateGroupModifications ::
   M.Map GroupId GroupModification
 calculateGroupModifications =
   Merge.merge
-    (Merge.mapMissing (const inPrevMissingNew))
-    (Merge.mapMissing (const missingPrevInNew))
-    (Merge.zipWithMaybeMatched (const inPrevInNew))
+    (Merge.mapMissing (const inPrev))
+    (Merge.mapMissing (const inNew))
+    (Merge.zipWithMaybeMatched (const inBoth))
   where
-    inPrevMissingNew _ = GroupRemove
-    missingPrevInNew (FlatGroup parent groupType) =
+    inPrev _ = GroupRemove
+    inNew (FlatGroup parent groupType) =
       GroupAdd parent groupType
-    inPrevInNew prev new =
+    inBoth prev new =
       let FlatGroup prevParent prevType = prev
           FlatGroup newParent newType = new
        in if prev == new
@@ -956,8 +954,71 @@ calculateGroupModifications =
                 )
 \end{minted}
 
+To visualize how this process is handled, we will look at two simple feature models. The two feature models will be passed to the \texttt{diffFeatureModels} function, which will derive the modifications. As described in the code above, the function will compare the features and groups in both feature models, in order to derive the modifications representing the changes between the two. A visualization of the input and output of the algorithm can be seen in Figure~\ref{fig:diff_feature_models_visualized}.
+
+\begin{figure}[htpb]
+  \centering
+  \includegraphics[]{feature_model_diff_visualized.pdf}
+  \caption{A visualization of the result of running \texttt{diffFeatureModels} on two feature models}%
+  \label{fig:diff_feature_models_visualized}
+\end{figure}
+
+In this example, we can see that the feature with id \texttt{f1} was unchanged, \texttt{f2} got removed and \texttt{f3} was added. As for our only group, \texttt{g1}, the type field of the group changed from \texttt{And} to \texttt{Or}. Although a bit simplified, the \texttt{merge} function will combine the features, \texttt{prev} and \texttt{curr} in the following way:
+
+\begin{minted}[breaklines]{haskell}
+prev   = [("f1", prevF1), ("f2", prevF2)]
+curr   = [("f1", currF1),                 ("f3", currF3)]
+result = [ ("f1", inBoth prevF1 currF1)
+         , ("f2", inPrev prevF2)
+         , ("f3", inNew currF3)
+         ]
+\end{minted}
+
+Since both \texttt{prevF1} and \texttt{currF1} are equal, \texttt{inBoth} will return \texttt{Nothing}, representing that we don't need a modification. As for f2 and f3, \texttt{inPrev} and \texttt{inNew} will return \texttt{FeatureRemove} and \texttt{FeatureAdd} respectively.
+
+\begin{minted}[breaklines]{haskell}
+result = [ ("f1", Nothing)
+         , ("f2", FeatureRemove)
+         , ("f3", FeatureAdd ...)
+         ]
+\end{minted}
+
+In the case of feature F1, since the feature appeared in both feature models, we are using the merge tactic \texttt{zipWithMaybeMatched}, which allows us to filter out results we do not want in the final mapping. Since we are not concerned about equal features, returning \texttt{Nothing} will tell the function to filter out the result.
+
+The final result for our feature modification are the following:
+
+\begin{minted}[breaklines]{haskell}
+result = [("f2", FeatureRemove), ("f3", FeatureAdd ...)]
+\end{minted}
+
+As for our groups, we only have one, namely \texttt{g1}. Aligning and comparing our group results in the following:
+
+\begin{minted}[breaklines]{haskell}
+prev   = [("g1", prevGroup)]
+curr   = [("g1", currGroup)]
+result = [("g1", inBoth prevGroup currGroup)]
+\end{minted}
+
+Since the two groups are unequal, the result would be a \texttt{GroupModification} on the type field. By wrapping the modification in a \texttt{Just}, we are telling the merge tactic to include this result in the final mapping.
+
+\begin{minted}[breaklines]{haskell}
+result = [("g1", Just $ GroupModification Nothing 
+                   (GroupTypeModification Or))]
+\end{minted}
+
+After applying the merge tactic \texttt{zipWithMaybeMatched}, we achieve our final result for the group modifications:
+
+\begin{minted}[breaklines]{haskell}
+result = [("g1", GroupModification Nothing 
+                   (GroupTypeModification Or))]
+\end{minted}
+
 \section{Detecting the Changes Between Versions}%
 \label{sec:detecting_the_changes_between_versions}
+
+Up until this point, we have only considered transformations on single evolution plans. We have created a method of transforming a evolution plan into a merge-ready evolution plan using our two functions \texttt{flattenEvolutionPlan} and \texttt{deriveModifications}. However, since we want to merge two evolution plans into a single evolution plan, we have to figure out an approach to detecting, comparing and merging the changes into a single unified evolution plan.
+
+The process of merging two different versions of an evolution plan involves figuring out what changes each version has made. In order to do so, we will utilize the common evolution plan both version were derived from, in order to confidently tell what changes has been made to each plan. As seen in our outline for the three-way merge algorithm in Figure~\vref{fig:merge_outline}, we will transform all three evolution plans into the \texttt{FlatModificationEvolutionPlan} representation, then attempt to merge version 1 and 2 with respect to the base evolution plan.
 
 \section{Merging Intended Changes}%
 \label{sec:merging_intended_changes}
