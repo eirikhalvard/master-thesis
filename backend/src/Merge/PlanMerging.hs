@@ -18,7 +18,11 @@ createMergePlan ::
   MergeEvolutionPlan FlatFeatureModel
 createMergePlan base v1 v2 =
   base & L.plans
-    %~ \basePlans -> mergePlans basePlans (v1 ^. L.plans) (v2 ^. L.plans)
+    %~ \basePlans ->
+      mergePlans
+        basePlans
+        (v1 ^. L.plans)
+        (v2 ^. L.plans)
 
 mergePlans ::
   [Plan Modifications] ->

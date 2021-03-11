@@ -1020,6 +1020,39 @@ Up until this point, we have only considered transformations on single evolution
 
 The process of merging two different versions of an evolution plan involves figuring out what changes each version has made. In order to do so, we will utilize the common evolution plan both version were derived from, in order to confidently tell what changes has been made to each plan. As seen in our outline for the three-way merge algorithm in Figure~\vref{fig:merge_outline}, we will transform all three evolution plans into the \texttt{FlatModificationEvolutionPlan} representation, then attempt to merge version 1 and 2 with respect to the base evolution plan.
 
+\subsection{A Simple Three-Way Merge Example}%
+\label{sub:a_simple_three_way_merge_example}
+
+Before we attempt to explain how the changes between the versions are detected and represented, we present a simple example consisting of three evolution plans. To create this merge example, we will revisit our simple evolution plan example visualized in Figure~\ref{fig:simpleep_treeuser}. The simple evolution plan presented will act as our base evolution plan. Using the base evolution plan, we will create two evolution plans, version 1 and version 2, which is derived from the common evolution plan. The changes to the derived evolution plans include the following:
+
+\begin{itemize}
+  \item \textbf{Version 1}: Includes two changes to the base evolution plan: (1) Adding a feature \texttt{F4} to the and-group at time point 1. (2) At time point 2, there was originally scheduled a group type modification from \texttt{And} to \texttt{Or}, but this version changed the modification to create a \texttt{Alternative} group instead.
+  \item \textbf{Version 2}: Includes only one change to the base evolution plan. At time point 2, there was originally scheduled a renaming of the root feature. However, in this version, the scheduled renaming was removed.
+\end{itemize}
+
+The three evolution plans is visualized in Figure~\ref{fig:simple_three_way_example}. 
+
+\begin{figure}[htpb]
+  \centering
+  \includegraphics[\linewidth]{simple_three_way_example.pdf}
+  \caption{A simple example of three evolution plans ready for merging}%
+  \label{fig:simple_three_way_example}
+\end{figure}
+
+\subsection{Representing Changes Between Versions}%
+\label{sub:representing_changes_between_versions}
+
+Before attempting to merge the different versions, we want to detect what \textit{changes} has been made in both versions. 
+
+\subsubsection{Interleaving Time Points}%
+\label{ssub:interleaving_time_points}
+
+bla bla bla, a version creating a new time point, union of all timePoints somehow
+
+
+
+
+
 \section{Merging Intended Changes}%
 \label{sec:merging_intended_changes}
 
