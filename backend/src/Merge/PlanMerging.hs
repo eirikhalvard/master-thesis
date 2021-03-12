@@ -44,18 +44,31 @@ mergePlansWithTimes ::
   [Plan DiffResult]
 mergePlansWithTimes [] _ _ _ = []
 mergePlansWithTimes (time : times) basePlans v1Plans v2Plans =
-  Plan time (diffModifications baseModifications v1Modifications v2Modifications) :
+  Plan
+    time
+    ( diffModifications
+        baseModifications
+        v1Modifications
+        v2Modifications
+    ) :
   mergePlansWithTimes
     times
     nextBasePlans
     nextV1Plans
     nextV2Plans
   where
-    (baseModifications, nextBasePlans) = getModificationForTime basePlans time
-    (v1Modifications, nextV1Plans) = getModificationForTime v1Plans time
-    (v2Modifications, nextV2Plans) = getModificationForTime v2Plans time
+    (baseModifications, nextBasePlans) =
+      getModificationForTime basePlans time
+    (v1Modifications, nextV1Plans) =
+      getModificationForTime v1Plans time
+    (v2Modifications, nextV2Plans) =
+      getModificationForTime v2Plans time
 
-collectAllTimePoints :: [Plan a] -> [Plan a] -> [Plan a] -> [Time]
+collectAllTimePoints ::
+  [Plan a] ->
+  [Plan a] ->
+  [Plan a] ->
+  [Time]
 collectAllTimePoints basePlans v1Plans v2Plans =
   merge (merge baseTimes v1Times) v2Times
   where
@@ -68,12 +81,16 @@ collectAllTimePoints basePlans v1Plans v2Plans =
       | otherwise = y : merge (x : xs) ys
     merge xs ys = xs ++ ys
 
-getModificationForTime :: [Plan Modifications] -> Time -> (Modifications, [Plan Modifications])
+getModificationForTime ::
+  [Plan Modifications] ->
+  Time ->
+  (Modifications, [Plan Modifications])
 getModificationForTime [] _ = (emptyModifications, [])
-getModificationForTime plans@(Plan planTime modification : rest) time =
-  if time == planTime
-    then (modification, rest)
-    else (emptyModifications, plans)
+getModificationForTime plans time =
+  let Plan planTime modification : rest = plans
+   in if time == planTime
+        then (modification, rest)
+        else (emptyModifications, plans)
 
 emptyModifications :: Modifications
 emptyModifications = Modifications M.empty M.empty
@@ -82,11 +99,23 @@ emptyModifications = Modifications M.empty M.empty
 -- modifications from each derived version. The comparison will produce
 -- a DiffResult that represents how every feature- and group modification was
 -- changed between the base and derived versions
-diffModifications :: Modifications -> Modifications -> Modifications -> DiffResult
+diffModifications ::
+  Modifications ->
+  Modifications ->
+  Modifications ->
+  DiffResult
 diffModifications base v1 v2 =
   DiffResult
-    (mergeMaps (base ^. L.features) (v1 ^. L.features) (v2 ^. L.features))
-    (mergeMaps (base ^. L.groups) (v1 ^. L.groups) (v2 ^. L.groups))
+    ( mergeMaps
+        (base ^. L.features)
+        (v1 ^. L.features)
+        (v2 ^. L.features)
+    )
+    ( mergeMaps
+        (base ^. L.groups)
+        (v1 ^. L.groups)
+        (v2 ^. L.groups)
+    )
   where
     mergeMaps baseMap v1Map v2Map =
       mergeBaseAndDerived
@@ -100,35 +129,31 @@ mergeBaseAndDerived ::
   M.Map a (SingleDiffResult modification)
 mergeBaseAndDerived =
   Merge.merge
-    ( Merge.mapMissing
-        (\_ baseMod -> withBase baseMod Nothing Nothing)
-    )
-    ( Merge.mapMissing
-        ( \_ derivedResult -> case derivedResult of
-            OneVersion version mod ->
-              ChangedInOne
-                version
-                (OneChangeWithoutBase (AddedModification mod))
-            BothVersions v1Mod v2Mod ->
-              ChangedInBoth
-                ( BothChangeWithoutBase
-                    (AddedModification v1Mod)
-                    (AddedModification v2Mod)
-                )
-        )
-    )
-    ( Merge.zipWithMatched
-        ( \_ baseMod derivedResult ->
-            case derivedResult of
-              OneVersion V1 mod ->
-                withBase baseMod (Just mod) Nothing
-              OneVersion V2 mod ->
-                withBase baseMod Nothing (Just mod)
-              BothVersions v1Mod v2Mod ->
-                withBase baseMod (Just v1Mod) (Just v2Mod)
-        )
-    )
+    (Merge.mapMissing (const inBase))
+    (Merge.mapMissing (const inDerived))
+    (Merge.zipWithMatched (const inBoth))
   where
+    inBase baseMod = withBase baseMod Nothing Nothing
+    inDerived derivedResult =
+      case derivedResult of
+        OneVersion version mod ->
+          ChangedInOne
+            version
+            (OneChangeWithoutBase (AddedModification mod))
+        BothVersions v1Mod v2Mod ->
+          ChangedInBoth
+            ( BothChangeWithoutBase
+                (AddedModification v1Mod)
+                (AddedModification v2Mod)
+            )
+    inBoth baseMod derivedResult =
+      case derivedResult of
+        OneVersion V1 mod ->
+          withBase baseMod (Just mod) Nothing
+        OneVersion V2 mod ->
+          withBase baseMod Nothing (Just mod)
+        BothVersions v1Mod v2Mod ->
+          withBase baseMod (Just v1Mod) (Just v2Mod)
     withBase baseMod mV1Mod mV2Mod =
       case (Just baseMod /= mV1Mod, Just baseMod /= mV2Mod) of
         (True, True) ->
