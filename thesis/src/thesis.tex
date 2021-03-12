@@ -1169,6 +1169,8 @@ Since most of the modification remained unchanged, they are represented on the f
 \subsection{Calculating the Changes}%
 \label{sub:calculating_the_changes}
 
+In order to merge the three three evolution plans into a evolution plan representing all the changes from the different versions, we define a function \texttt{createMergePlan}. Creating this representation requires unifying every time point in all three evolution plans. For each time point, the different modifications are combined into our new representation \texttt{DiffResult}. 
+
 \begin{minted}[breaklines]{haskell}
 createMergePlan ::
   FlatModificationEvolutionPlan ->
@@ -1222,7 +1224,11 @@ mergePlansWithTimes (time : times) basePlans v1Plans v2Plans =
       getModificationForTime v1Plans time
     (v2Modifications, nextV2Plans) =
       getModificationForTime v2Plans time
+\end{minted}
 
+In some cases, one of the versions might introduce new time points. The new time points might be added at the end of the base evolution plan, and some times added somewhere in the middle of the existing plan. To handle this we define a function, \texttt{collectAllTimePoints}, for combining and collecting the time points for all the plans. We create \texttt{getModificationForTime}, which returns the modifications for a given time. Since the different plans doesn't necessarily include all the same time points, the function will create an empty list of modifications when a time point isn't present in the given evolution plan.
+
+\begin{minted}[breaklines]{haskell}
 collectAllTimePoints ::
   [Plan a] ->
   [Plan a] ->
@@ -1253,11 +1259,13 @@ getModificationForTime plans time =
 
 emptyModifications :: Modifications
 emptyModifications = Modifications M.empty M.empty
+\end{minted}
 
--- diffModifications will compare the modifcations from base with the
--- modifications from each derived version. The comparison will produce
--- a DiffResult that represents how every feature- and group modification was
--- changed between the base and derived versions
+The \texttt{diffModifications} function defined below will handle the transformation combining modifications into the \texttt{DiffResult} type. Combining the modifications of groups follow the same general process as with feature modifications. 
+
+Combining the different \texttt{Map}s follow a similar approach as we did deriving the modifications between feature models (See Section~\vref{sub:the_final_merge_ready_representation}), using the \texttt{merge} function from \texttt{Data.Map.Merge}\footnote{https://hackage.haskell.org/package/containers-0.6.2.1/docs/Data-Map-Merge-Strict.html}. Since we are merging three maps instead of two, we combine the three maps in two steps; (1) We combine the two derived modifications into a intermediate result using the function \texttt{mergeDerived}, and (2), we combine the base modifications with the combined derived result using \texttt{mergeBaseAndDerived}.
+
+\begin{minted}[breaklines]{haskell}
 diffModifications ::
   Modifications ->
   Modifications ->
@@ -1355,11 +1363,6 @@ mergeDerived =
     (Merge.mapMissing (const (OneVersion V2)))
     (Merge.zipWithMatched (const BothVersions))
 \end{minted}
-
-\subsubsection{Interleaving Time Points}%
-\label{ssub:interleaving_time_points}
-
-bla bla bla, a version creating a new time point, union of all timePoints somehow
 
 \section{Merging Intended Changes}%
 \label{sec:merging_intended_changes}
