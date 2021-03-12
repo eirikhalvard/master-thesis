@@ -1114,10 +1114,247 @@ data Version
   | V2
 \end{minted}
 
+\subsubsection{Representing the changes from the example}%
+\label{ssub:representing_the_changes_from_the_example}
+
+Revisiting our example from Figure~\ref{fig:simple_three_way_example}, we can now represent the changes with our newly defined data types. Our merged version of the evolution plan is as follows:
+
+\begin{minted}[breaklines]{haskell}
+simpleExampleMergedPlan :: MergeEvolutionPlan FlatFeatureModel
+simpleExampleMergedPlan =
+  TransformationEvolutionPlan
+    0
+    initial
+    [Plan 1 diffResult1, Plan 2 diffResult2]
+  where
+    initial =
+      FlatFeatureModel
+        "rootFeature"
+        [
+          ( "rootFeature"
+          , FlatFeature Nothing Mandatory "Feature 1"
+          )
+        ]
+        []
+    diffResult1 =
+      DiffResult
+        [ ("feature2", NoChange 
+            (FeatureAdd "group" Optional "Feature 2"))
+        , ("feature3", NoChange
+            (FeatureAdd "group" Mandatory "Feature 3"))
+        , ("feature4", ChangedInOne V1 (OneChangeWithoutBase 
+            (AddedModification 
+              (FeatureAdd "group" Optional "Feature 4"))))
+        ]
+        [("group", NoChange 
+           (GroupAdd "rootFeature" And))]
+    diffResult2 =
+      DiffResult
+        [ ("feature3", NoChange FeatureRemove)
+        , ("rootFeature", ChangedInOne V2 (OneChangeWithBase 
+            (FeatureModification Nothing Nothing 
+              (Just (FeatureNameModification "Root Feature"))) 
+            RemovedModification))
+        ]
+        [ ("group", ChangedInOne V1 (OneChangeWithBase 
+            (GroupModification Nothing 
+              (Just (GroupTypeModification Or))) 
+            (ChangedModification (GroupModification Nothing 
+              (Just (GroupTypeModification Alternative))))))
+        ]
+\end{minted}
+
+Since most of the modification remained unchanged, they are represented on the form \texttt{("id", NoChange modification)}. However, for our two changes in version 1, and one change in version 2, the changes are represented as \texttt{("id", ChangedInOne version change)}. Since we have no overlapping changes in the derived versions, we have no \texttt{ChangedInBoth} changes.
+
 \subsection{Calculating the Changes}%
 \label{sub:calculating_the_changes}
 
-blabla
+\begin{minted}[breaklines]{haskell}
+createMergePlan ::
+  FlatModificationEvolutionPlan ->
+  FlatModificationEvolutionPlan ->
+  FlatModificationEvolutionPlan ->
+  MergeEvolutionPlan FlatFeatureModel
+createMergePlan base v1 v2 =
+  base & L.plans
+    %~ \basePlans ->
+      mergePlans
+        basePlans
+        (v1 ^. L.plans)
+        (v2 ^. L.plans)
+
+mergePlans ::
+  [Plan Modifications] ->
+  [Plan Modifications] ->
+  [Plan Modifications] ->
+  [Plan DiffResult]
+mergePlans basePlans v1Plans v2Plans =
+  mergePlansWithTimes
+    (collectAllTimePoints basePlans v1Plans v2Plans)
+    basePlans
+    v1Plans
+    v2Plans
+
+mergePlansWithTimes ::
+  [Time] ->
+  [Plan Modifications] ->
+  [Plan Modifications] ->
+  [Plan Modifications] ->
+  [Plan DiffResult]
+mergePlansWithTimes [] _ _ _ = []
+mergePlansWithTimes (time : times) basePlans v1Plans v2Plans =
+  Plan
+    time
+    ( diffModifications
+        baseModifications
+        v1Modifications
+        v2Modifications
+    ) :
+  mergePlansWithTimes
+    times
+    nextBasePlans
+    nextV1Plans
+    nextV2Plans
+  where
+    (baseModifications, nextBasePlans) =
+      getModificationForTime basePlans time
+    (v1Modifications, nextV1Plans) =
+      getModificationForTime v1Plans time
+    (v2Modifications, nextV2Plans) =
+      getModificationForTime v2Plans time
+
+collectAllTimePoints ::
+  [Plan a] ->
+  [Plan a] ->
+  [Plan a] ->
+  [Time]
+collectAllTimePoints basePlans v1Plans v2Plans =
+  merge (merge baseTimes v1Times) v2Times
+  where
+    baseTimes = basePlans ^.. traversed . L.timePoint
+    v1Times = v1Plans ^.. traversed . L.timePoint
+    v2Times = v2Plans ^.. traversed . L.timePoint
+    merge (x : xs) (y : ys)
+      | x == y = x : merge xs ys
+      | x < y = x : merge xs (y : ys)
+      | otherwise = y : merge (x : xs) ys
+    merge xs ys = xs ++ ys
+
+getModificationForTime ::
+  [Plan Modifications] ->
+  Time ->
+  (Modifications, [Plan Modifications])
+getModificationForTime [] _ = (emptyModifications, [])
+getModificationForTime plans time =
+  let Plan planTime modification : rest = plans
+   in if time == planTime
+        then (modification, rest)
+        else (emptyModifications, plans)
+
+emptyModifications :: Modifications
+emptyModifications = Modifications M.empty M.empty
+
+-- diffModifications will compare the modifcations from base with the
+-- modifications from each derived version. The comparison will produce
+-- a DiffResult that represents how every feature- and group modification was
+-- changed between the base and derived versions
+diffModifications ::
+  Modifications ->
+  Modifications ->
+  Modifications ->
+  DiffResult
+diffModifications base v1 v2 =
+  DiffResult
+    ( mergeMaps
+        (base ^. L.features)
+        (v1 ^. L.features)
+        (v2 ^. L.features)
+    )
+    ( mergeMaps
+        (base ^. L.groups)
+        (v1 ^. L.groups)
+        (v2 ^. L.groups)
+    )
+  where
+    mergeMaps baseMap v1Map v2Map =
+      mergeBaseAndDerived
+        baseMap
+        $ mergeDerived v1Map v2Map
+
+mergeBaseAndDerived ::
+  (Ord a, Eq modification) =>
+  M.Map a modification ->
+  M.Map a (DerivedComparisionResult modification) ->
+  M.Map a (SingleDiffResult modification)
+mergeBaseAndDerived =
+  Merge.merge
+    (Merge.mapMissing (const inBase))
+    (Merge.mapMissing (const inDerived))
+    (Merge.zipWithMatched (const inBoth))
+  where
+    inBase baseMod = withBase baseMod Nothing Nothing
+    inDerived derivedResult =
+      case derivedResult of
+        OneVersion version mod ->
+          ChangedInOne
+            version
+            (OneChangeWithoutBase (AddedModification mod))
+        BothVersions v1Mod v2Mod ->
+          ChangedInBoth
+            ( BothChangeWithoutBase
+                (AddedModification v1Mod)
+                (AddedModification v2Mod)
+            )
+    inBoth baseMod derivedResult =
+      case derivedResult of
+        OneVersion V1 mod ->
+          withBase baseMod (Just mod) Nothing
+        OneVersion V2 mod ->
+          withBase baseMod Nothing (Just mod)
+        BothVersions v1Mod v2Mod ->
+          withBase baseMod (Just v1Mod) (Just v2Mod)
+    withBase baseMod mV1Mod mV2Mod =
+      case (Just baseMod /= mV1Mod, Just baseMod /= mV2Mod) of
+        (True, True) ->
+          ChangedInBoth
+            ( BothChangeWithBase
+                baseMod
+                (removeOrChanged mV1Mod)
+                (removeOrChanged mV2Mod)
+            )
+        (True, False) ->
+          ChangedInOne
+            V1
+            ( OneChangeWithBase
+                baseMod
+                (removeOrChanged mV1Mod)
+            )
+        (False, True) ->
+          ChangedInOne
+            V2
+            ( OneChangeWithBase
+                baseMod
+                (removeOrChanged mV2Mod)
+            )
+        (False, False) -> NoChange baseMod
+    removeOrChanged Nothing = RemovedModification
+    removeOrChanged (Just mod) = ChangedModification mod
+
+data DerivedComparisionResult modification
+  = OneVersion Version modification
+  | BothVersions modification modification
+
+mergeDerived ::
+  Ord a =>
+  M.Map a modification ->
+  M.Map a modification ->
+  M.Map a (DerivedComparisionResult modification)
+mergeDerived =
+  Merge.merge
+    (Merge.mapMissing (const (OneVersion V1)))
+    (Merge.mapMissing (const (OneVersion V2)))
+    (Merge.zipWithMatched (const BothVersions))
+\end{minted}
 
 \subsubsection{Interleaving Time Points}%
 \label{ssub:interleaving_time_points}
@@ -1133,7 +1370,7 @@ bla bla bla, a version creating a new time point, union of all timePoints someho
 \chapter{Example Merge – Vending Machine}%
 \label{cha:example_merge_vending_machine}
 
-write about the vending machine example. Write about how the entire example is done. from cli parsing, converting to right representation, merging, checking, converting back, writing to file. Then how the frontend visualization tool parses the result and displays the tree as an interactive  thing.
+write about the vending machine example. Write about how the entire example is done. from cli parsing, converting to right representation, merging, checking, converting back, writing to file. Then how the frontend visualization tool parses the result and displays the tree as an interactive thing.
 
 sound vs unsound examples
 
