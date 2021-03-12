@@ -625,8 +625,8 @@ Notice that the actual types are generalized in two ways. As with our user level
 
 \begin{minted}{haskell}
 data Modifications = Modifications
-  { features :: M.Map FeatureId FeatureModification
-  , groups :: M.Map GroupId GroupModification
+  { features :: Map FeatureId FeatureModification
+  , groups :: Map GroupId GroupModification
   }
 
 data FeatureModification
@@ -883,9 +883,9 @@ In order to calculate the differences between two \texttt{Map}s, we rely on the 
 
 \begin{minted}[breaklines]{haskell}
 calculateFeatureModifications ::
-  M.Map FeatureId FlatFeature ->
-  M.Map FeatureId FlatFeature ->
-  M.Map FeatureId FeatureModification
+  Map FeatureId FlatFeature ->
+  Map FeatureId FlatFeature ->
+  Map FeatureId FeatureModification
 calculateFeatureModifications =
   Merge.merge
     (Merge.mapMissing (const inPrev))
@@ -925,9 +925,9 @@ The calculations for groups follow a very similar approach:
 
 \begin{minted}[breaklines]{haskell}
 calculateGroupModifications ::
-  M.Map GroupId FlatGroup ->
-  M.Map GroupId FlatGroup ->
-  M.Map GroupId GroupModification
+  Map GroupId FlatGroup ->
+  Map GroupId FlatGroup ->
+  Map GroupId GroupModification
 calculateGroupModifications =
   Merge.merge
     (Merge.mapMissing (const inPrev))
@@ -1034,24 +1034,95 @@ The three evolution plans is visualized in Figure~\ref{fig:simple_three_way_exam
 
 \begin{figure}[htpb]
   \centering
-  \includegraphics[\linewidth]{simple_three_way_example.pdf}
-  \caption{A simple example of three evolution plans ready for merging}%
+  \includegraphics[width=\linewidth]{simple_three_way_example.pdf}
+  \caption{A simple example of three evolution plans, as input of the three-way merge algorithm}%
   \label{fig:simple_three_way_example}
 \end{figure}
 
 \subsection{Representing Changes Between Versions}%
 \label{sub:representing_changes_between_versions}
 
-Before attempting to merge the different versions, we want to detect what \textit{changes} has been made in both versions. 
+Before attempting to merge the different versions, we want to detect what \textit{changes} has been made in both derived versions. We present data types for representing such changes.
+
+An important aspect to notice is the difference between \textit{modifications} and \textit{changes}. With modifications, we are talking about the changes between two feature models. The modifications are a part of the evolution plan, and has nothing to do with detecting changes between different versions. However, changes represent the actual changes that has been done to the base evolution plan in one of the derived versions.
+
+With our changes, we are not adding, removing or changing features and groups, but rather adding, removing or changing the modifications themselves. The changes are working on a meta-level, allowing us to represent changes to the modifications. This distinction is a subtle, yet important factor. If one of the derived versions are removing a feature in a time point, this is actually represented as an addition. This is because the feature removal is represented as a new modification in the evolution plan, and we represent this by saying we "add" a new modification, which is the feature removal.
+
+We present an evolution plan representing the merging of all three evolution plans. This representation follow a similar structure to our \texttt{FlatModificationEvolutionPlan}, which is why we reuse the data type \texttt{TransformationEvolutionPlan} defined in Section~\vref{sub:evolution_plan_definition_modification_level_flat_representation}.
+
+\begin{minted}[breaklines]{haskell}
+type MergeEvolutionPlan featureModel = 
+  TransformationEvolutionPlan DiffResult featureModel
+\end{minted}
+
+The transformations between each time points are no longer represented as \texttt{Modifications}, but rather \texttt{DiffResult}. This data type represents the union of all the modifications from all three versions, sorted and organized to our needs. Each single feature and group modification are merged based on their id. The result of merging the three different modifications for a single feature or group is represented in \texttt{SingleDiffResult}, which can have three different outcomes:
+
+\begin{itemize}
+  \item \textbf{NoChange}: A modification existed in the base version, and was not changed or removed in either version.
+  \item \textbf{ChangedInOne}: A modification \textit{changed} in one of the derived versions. This includes three scenarios; (1) a modification did not exist in the base, and were added in the derived version, (2) a modification existed in the base, but were removed in the derived version, and (3) a modification from the base were changed to another modification in the derived.
+  \item \textbf{ChangedInBoth}: A modification changed in both versions. Similar to \texttt{ChangedInOne}, this includes changes where a modification existed in base and modifications where it did not exist.
+\end{itemize}
+
+The data types related to \texttt{DiffResult} are as follows:
+
+\begin{minted}[breaklines]{haskell}
+data DiffResult = DiffResult
+  { features :: Map FeatureId FeatureDiffResult
+  , groups :: Map GroupId GroupDiffResult
+  }
+
+type FeatureDiffResult =
+  SingleDiffResult FeatureModification
+
+type GroupDiffResult =
+  SingleDiffResult GroupModification
+
+-- Every possible combination that a feature
+-- or group change could be modified
+data SingleDiffResult modificationType
+  = NoChange modificationType
+  | ChangedInOne Version (OneChange modificationType)
+  | ChangedInBoth (BothChange modificationType)
+
+data OneChange modificationType
+  = OneChangeWithBase
+      modificationType -- Base
+      (RemovedOrChangedModification modificationType)
+        -- ^ Derived (V1 or V2)
+  | OneChangeWithoutBase
+      (AddedModification modificationType) 
+        -- ^ Derived (V1 or V2)
+
+data BothChange modificationType
+  = BothChangeWithBase
+      modificationType -- Base
+      (RemovedOrChangedModification modificationType) -- V1
+      (RemovedOrChangedModification modificationType) -- V2
+  | BothChangeWithoutBase
+      (AddedModification modificationType) -- V1
+      (AddedModification modificationType) -- V2
+
+data RemovedOrChangedModification modificationType
+  = RemovedModification
+  | ChangedModification modificationType
+
+data AddedModification modificationType
+  = AddedModification modificationType
+
+data Version
+  = V1
+  | V2
+\end{minted}
+
+\subsection{Calculating the Changes}%
+\label{sub:calculating_the_changes}
+
+blabla
 
 \subsubsection{Interleaving Time Points}%
 \label{ssub:interleaving_time_points}
 
 bla bla bla, a version creating a new time point, union of all timePoints somehow
-
-
-
-
 
 \section{Merging Intended Changes}%
 \label{sec:merging_intended_changes}
