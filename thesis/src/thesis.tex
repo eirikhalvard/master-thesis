@@ -1489,8 +1489,72 @@ checkOverlappingChanges overlappingToMergeConflict timePoint id bothChange =
         else conflict
 \end{minted}
 
+\subsection{Example}%
+\label{sub:example_unified_merge}
+
+Looking at our running example, visualized in Figure~\vref{fig:simple_three_way_example}, the result of merging the three plans is successful. Since none of the changes from each version overlap, no merge conflict was produced either. Each change in both versions was included, and the result was the following:
+
+\begin{minted}[breaklines]{haskell}
+simpleExampleUnifiedPlan 
+  :: Either Conflict FlatModificationEvolutionPlan
+simpleExampleUnifiedPlan =
+  Right $
+    TransformationEvolutionPlan
+      0
+      initial
+      [ Plan 1 modifications1
+      , Plan 2 modifications2
+      ]
+  where
+    initial =
+      FlatFeatureModel
+        "rootFeature"
+        [
+          ( "rootFeature"
+          , FlatFeature Nothing Mandatory "Feature 1"
+          )
+        ]
+        []
+    modifications1 =
+      Modifications
+        [
+          ( "feature2"
+          , FeatureAdd "group" Optional "Feature 2"
+          )
+        ,
+          ( "feature3"
+          , FeatureAdd "group" Mandatory "Feature 3"
+          )
+        ,
+          ( "feature4"
+          , FeatureAdd "group" Optional "Feature 4"
+          )
+        ]
+        [("group", GroupAdd "rootFeature" And)]
+    modifications2 =
+      Modifications
+        [("feature3", FeatureRemove)]
+        [
+          ( "group"
+          , GroupModification
+              Nothing
+              (Just (GroupTypeModification Alternative))
+          )
+        ]
+\end{minted}
+
+The result of the \texttt{unifyMergePlan} function returned what we wanted. From both derived versions, there was a total of three changes. A new feature was added at time 1, the name change in time 2 was removed and the group type modification in time 2 was changed to transform to a \texttt{Alternative} group instead of \texttt{Or} group.
+
 \section{Ensuring structural and semantic soundness of the merge result}%
 \label{sec:ensuring_structural_and_semantic_soundness_of_merge_result}
+
+Now that we have defined a method of detecting and merging changes to evolution plans, we would have to check that the resulting evolution plan results in a valid and sound evolution plan, keeping both the structure and semantics in tact.
+
+\todo{skriv om dette}
+
+\todo{two steps. for each fm and plan, we merge all changes at once. may be local conflict. each modification might also result in global conflict, additional cross-tree reqs. requires checking after all changes are implemented. we genereate dependencies. later go through dependencies and our merged plan, and check that the potential faults are not present.}
+
+\todo{example, local, global, code, dependencies, etc}
 
 \chapter{Example Merge – Vending Machine}%
 \label{cha:example_merge_vending_machine}

@@ -13,13 +13,17 @@ import qualified Data.Set as S
 --                    Integrate All Modifications                     --
 ------------------------------------------------------------------------
 
-integrateAndCheckModifications :: FlatModificationEvolutionPlan -> Either Conflict FlatUserEvolutionPlan
+integrateAndCheckModifications ::
+  FlatModificationEvolutionPlan ->
+  Either Conflict FlatUserEvolutionPlan
 integrateAndCheckModifications evolutionPlan = case evolutionPlan of
   TransformationEvolutionPlan initialTime initialFM plans ->
     UserEvolutionPlan <$> scanEvolutionPlan plans (TimePoint initialTime initialFM)
 
 scanEvolutionPlan ::
-  [Plan Modifications] -> TimePoint FlatFeatureModel -> Either Conflict [TimePoint FlatFeatureModel]
+  [Plan Modifications] ->
+  TimePoint FlatFeatureModel ->
+  Either Conflict [TimePoint FlatFeatureModel]
 scanEvolutionPlan [] timePoint =
   return [timePoint]
 scanEvolutionPlan (plan : plans) currentTimePoint = do
@@ -299,7 +303,7 @@ unflattenFeature featureModel featureId =
 
 unflattenGroup :: FlatFeatureModel -> GroupId -> TreeGroup
 unflattenGroup featureModel groupId =
-  TreeGroup groupId groupType $ childFeatures
+  TreeGroup groupId groupType childFeatures
   where
     childFeatureIds = featureModel ^.. L.ichildFeaturesOfGroup groupId . asIndex
     childFeatures = S.fromList $ fmap (unflattenFeature featureModel) childFeatureIds
