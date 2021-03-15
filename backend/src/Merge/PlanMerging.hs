@@ -221,7 +221,8 @@ unifyModificationsMap ::
   M.Map modificationIdType (SingleDiffResult modificationType) ->
   Either Conflict (M.Map modificationIdType modificationType)
 unifyModificationsMap checkBothOverlapping timePoint =
-  M.traverseMaybeWithKey (unifySingleDiffResult checkBothOverlapping timePoint)
+  M.traverseMaybeWithKey
+    (unifySingleDiffResult checkBothOverlapping timePoint)
 
 unifySingleDiffResult ::
   Eq modificationType =>
@@ -241,7 +242,11 @@ unifySingleDiffResult overlappingToMergeConflict timePoint id singleDiffResult =
     ChangedInOne version (OneChangeWithoutBase (AddedModification derivedModification)) ->
       Right (Just derivedModification)
     ChangedInBoth bothChange ->
-      checkOverlappingChanges overlappingToMergeConflict timePoint id bothChange
+      checkOverlappingChanges
+        overlappingToMergeConflict
+        timePoint
+        id
+        bothChange
 
 checkOverlappingChanges ::
   Eq modificationType =>

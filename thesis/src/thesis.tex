@@ -1367,6 +1367,128 @@ mergeDerived =
 \section{Merging Intended Changes}%
 \label{sec:merging_intended_changes}
 
+Now that we have a representation for the unification off all three evolution plans, we can begin the process of creating a single merged evolution plan. We created the type \texttt{MergeEvolutionPlan} for having a representation for all three evolution plans, and our \texttt{createMergePlan} for transforming our \texttt{FlatModificationEvolutionPlan} to this representation. We will now present the next step of our algorithm, \texttt{unifyMergePlan}, which performs this transformation.
+
+We can notice from the three-way merge outline from Figure~\vref{fig:merge_outline} that the \texttt{mergePlan} was split into two parts, \texttt{createMergePlan} and \texttt{unifyMergePlan}. This had several benefits. Both functions had clearly defined purposes. The only purpose of \texttt{createMergePlan} was to create a better representation for all the modifications, making it easier to see what changes each version made to the base. Having an intermediate representation like \texttt{MergeEvolutionPlan} also serves as documentation, letting the reader see more clearly what cases has to be considered. This benefit is also present in our \texttt{unifyMergePlan} algorithm defined below, since we now can see what modification the algorithm chooses, which it discards, and which combinations result in errors.
+
+\subsection{Merge Errors}%
+\label{sub:merge_errors}
+
+In our three-way merge algorithm, unifying the merge plan is our first point of potential failure. As mentioned in the section discussing conflicts (Section~\vref{sub:conflicts}), merging the efforts into a single evolution plan might result in \textit{merge} conflicts. A merge conflict could arise due to diverging changes for a single feature or group. This can only happen when a change is present in both derived versions. Modeling our potential conflicts are done in the following way:
+
+\begin{minted}[breaklines]{haskell}
+data Conflict
+  = Merge Time MergeConflict
+  | Local Time LocalConflict
+  | Global Time GlobalConflict
+\end{minted}
+
+All of our different conflict types store the time in which the error occured, as well as information specific to the given conflict. Since merging the plan could only raise a merge conflict, we will get in to the detail of local and global conflicts later. We define \texttt{MergeConflict} as follows:
+
+\begin{minted}[breaklines]{haskell}
+data MergeConflict
+  = FeatureConflict FeatureId (BothChange FeatureModification)
+  | GroupConflict GroupId (BothChange GroupModification)
+\end{minted}
+
+Notice that we reuse the \texttt{BothChange} from our definition of \texttt{MergeEvolutionPlan}. This contains all information about what modification was originally in the base evolution plan, as well as what change were made in both versions.
+
+\subsubsection{Propagating the errors}%
+\label{ssub:propagating_the_errors}
+
+As we will see in the definitions below, the \texttt{unifyMergePlan} algorithm takes our \texttt{MergeEvolutionPlan} as an argument, and returns an \texttt{Either Conflict FlatModificationEvolutionPlan}. Returning an \texttt{Either} means that the algorithm will either succeed, which will yield a \texttt{Right flatModEP}, or it will fail, yielding a \texttt{Left conflict}. The function will attempt to unify every time point, every change and modification into our \texttt{FlatModificationEvolutionPlan}, and if it somewhere produces a merge conflict, the conflict would automatically be propagated upwards until the entire merge algorithm results in a conflict.
+
+To achieve this without to much bloat, we will leverage Haskell's powerful type system and syntactic abstractions. Using functions such as \texttt{\%\%\~} and \texttt{M.traverseMaybeWithKey}, as well as syntactic abstractions like \texttt{do}-notation, we can let the conflicts and errors automatically propagate once they occur. We will not go into great detail about how this works, but it is beneficial to know that once a conflict occurs, the conflict is propagated to the top level.
+
+\subsection{Specifying the Unification of the Merge Plan}%
+\label{sub:specifying_the_unification_of_the_merge_plan}
+
+The first three functions will handle traversing each time point, and each feature and groups diff result. Each diff result is then transformed to a single modification
+
+The first three functions will look at the plans for each time point. Each time point consist of the single diff result for each feature and group. These diff results are traversed and transformed to a single modification.
+
+\begin{minted}[breaklines]{haskell}
+unifyMergePlan ::
+  MergeEvolutionPlan FlatFeatureModel ->
+  Either Conflict FlatModificationEvolutionPlan
+unifyMergePlan =
+  L.plans . traversed %%~ unifyTimePointResult
+
+unifyTimePointResult ::
+  Plan DiffResult ->
+  Either Conflict (Plan Modifications)
+unifyTimePointResult (Plan timePoint (DiffResult features groups)) = do
+  features' <- unifyModificationsMap FeatureConflict timePoint features
+  groups' <- unifyModificationsMap GroupConflict timePoint groups
+  return $ Plan timePoint (Modifications features' groups')
+
+unifyModificationsMap ::
+  Eq modificationType =>
+  (modificationIdType -> BothChange modificationType -> MergeConflict) ->
+  Time ->
+  M.Map modificationIdType (SingleDiffResult modificationType) ->
+  Either Conflict (M.Map modificationIdType modificationType)
+unifyModificationsMap checkBothOverlapping timePoint =
+  M.traverseMaybeWithKey
+    (unifySingleDiffResult checkBothOverlapping timePoint)
+\end{minted}
+
+The main work is done converting a \texttt{SingleDiffResult} to a \texttt{modificationType}. This function is general and works for both features and groups. This function will fail with a conflict if two changes from the derived versions cannot be unified. If it succeeds, the function can either return \texttt{Nothing}, indicating that an modification were removed and should not occur in the merged evolution plan, or we return \texttt{Just modification} if a modification should occur in the merged plan.
+
+\begin{minted}[breaklines]{haskell}
+unifySingleDiffResult ::
+  Eq modificationType =>
+  (modificationIdType -> BothChange modificationType -> MergeConflict) ->
+  Time ->
+  modificationIdType ->
+  SingleDiffResult modificationType ->
+  Either Conflict (Maybe modificationType)
+unifySingleDiffResult overlappingToMergeConflict timePoint id singleDiffResult =
+  case singleDiffResult of
+    NoChange baseModification ->
+      Right (Just baseModification)
+    ChangedInOne version (OneChangeWithBase baseModification RemovedModification) ->
+      Right Nothing
+    ChangedInOne version (OneChangeWithBase baseModification (ChangedModification derivedModification)) ->
+      Right (Just derivedModification)
+    ChangedInOne version (OneChangeWithoutBase (AddedModification derivedModification)) ->
+      Right (Just derivedModification)
+    ChangedInBoth bothChange ->
+      checkOverlappingChanges
+        overlappingToMergeConflict
+        timePoint
+        id
+        bothChange
+\end{minted}
+
+In case both versions changed a feature or group modification, we only want to raise an error if the changes were different.
+
+\begin{minted}[breaklines]{haskell}
+checkOverlappingChanges ::
+  Eq modificationType =>
+  (modificationIdType -> BothChange modificationType -> MergeConflict) ->
+  Time ->
+  modificationIdType ->
+  BothChange modificationType ->
+  Either Conflict (Maybe modificationType)
+checkOverlappingChanges overlappingToMergeConflict timePoint id bothChange =
+  case bothChange of
+    BothChangeWithoutBase (AddedModification v1) (AddedModification v2) ->
+      ensureNotConflicting v1 v2
+    BothChangeWithBase base RemovedModification RemovedModification ->
+      Right Nothing
+    BothChangeWithBase base (ChangedModification v1) (ChangedModification v2) ->
+      ensureNotConflicting v1 v2
+    BothChangeWithBase{} ->
+      conflict
+  where
+    conflict = Left (Merge timePoint (overlappingToMergeConflict id bothChange))
+    ensureNotConflicting v1Modification v2Modification =
+      if v1Modification == v2Modification
+        then Right (Just v1Modification)
+        else conflict
+\end{minted}
+
 \section{Ensuring structural and semantic soundness of the merge result}%
 \label{sec:ensuring_structural_and_semantic_soundness_of_merge_result}
 
