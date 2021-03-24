@@ -41,13 +41,29 @@ scanEvolutionPlan (plan : plans) currentTimePoint = do
 integrateSinglePlan ::
   Plan Modifications ->
   TimePoint FlatFeatureModel ->
-  WriterT [Dependency] (Either Conflict) (TimePoint FlatFeatureModel)
-integrateSinglePlan (Plan nextTime modifications) (TimePoint prevTime featureModel) =
-  TimePoint nextTime <$> newFeatureModel
-  where
-    newFeatureModel = integrateFeatures featureModel >>= integrateGroups
-    integrateFeatures fm = ifoldlMOf (L.features . itraversed) (integrateFeature nextTime) fm modifications
-    integrateGroups fm = ifoldlMOf (L.groups . itraversed) (integrateGroup nextTime) fm modifications
+  WriterT
+    [Dependency]
+    (Either Conflict)
+    (TimePoint FlatFeatureModel)
+integrateSinglePlan
+  (Plan nextTime modifications)
+  (TimePoint _ featureModel) =
+    TimePoint nextTime <$> newFeatureModel
+    where
+      newFeatureModel =
+        integrateFeatures featureModel >>= integrateGroups
+      integrateFeatures fm =
+        ifoldlMOf
+          (L.features . itraversed)
+          (integrateFeature nextTime)
+          fm
+          modifications
+      integrateGroups fm =
+        ifoldlMOf
+          (L.groups . itraversed)
+          (integrateGroup nextTime)
+          fm
+          modifications
 
 integrateFeature ::
   Time ->
@@ -55,25 +71,39 @@ integrateFeature ::
   FlatFeatureModel ->
   FeatureModification ->
   WriterT [Dependency] (Either Conflict) FlatFeatureModel
-integrateFeature time featureId fm featureModification =
-  case featureModification of
+integrateFeature time featureId fm featureMod =
+  case featureMod of
     FeatureAdd parentGroupId featureType name ->
       case M.lookup featureId (fm ^. L.features) of
         Nothing -> do
-          tell . fmap (FeatureDependency featureModification) $
-            [ ParentGroupExists parentGroupId
-            , UniqueName name
-            , FeatureIsWellFormed featureId
-            ]
-          return $ fm & L.features . at featureId ?~ FlatFeature (Just parentGroupId) featureType name
+          tell
+            . fmap (FeatureDependency featureMod)
+            $ [ ParentGroupExists parentGroupId
+              , UniqueName name
+              , FeatureIsWellFormed featureId
+              ]
+          return $
+            fm
+              & L.features
+                . at featureId
+                ?~ FlatFeature
+                  (Just parentGroupId)
+                  featureType
+                  name
         Just oldFeature ->
-          throwError $ Local time (FeatureAlreadyExists featureModification featureId)
+          throwError $
+            Local
+              time
+              (FeatureAlreadyExists featureMod featureId)
     FeatureRemove ->
       case M.lookup featureId (fm ^. L.features) of
         Nothing ->
-          throwError $ Local time (FeatureNotExists featureModification featureId)
+          throwError $
+            Local
+              time
+              (FeatureNotExists featureMod featureId)
         Just oldFeature -> do
-          tell . fmap (FeatureDependency featureModification) $
+          tell . fmap (FeatureDependency featureMod) $
             [NoChildGroups featureId]
           return $ fm & L.features . at featureId .~ Nothing
     FeatureModification parentGroupIdMod featureTypeMod nameMod ->
@@ -85,37 +115,61 @@ integrateFeature time featureId fm featureModification =
             >>= integrateNameMod
         else
           throwError $
-            Local time (FeatureNotExists featureModification featureId)
+            Local time (FeatureNotExists featureMod featureId)
       where
-        integrateParentMod :: FlatFeatureModel -> WriterT [Dependency] (Either Conflict) FlatFeatureModel
+        integrateParentMod ::
+          FlatFeatureModel ->
+          WriterT [Dependency] (Either Conflict) FlatFeatureModel
         integrateParentMod fm =
           case parentGroupIdMod of
             Nothing -> return fm
             Just (FeatureParentModification newValue) -> do
-              tell . fmap (FeatureDependency featureModification) $
+              tell . fmap (FeatureDependency featureMod) $
                 [ ParentGroupExists newValue
                 , NoCycleFromFeature featureId
                 , FeatureIsWellFormed featureId
                 ]
-              return $ fm & L.features . ix featureId . L.parentGroupId .~ Just newValue
+              return $
+                fm
+                  & L.features
+                    . ix featureId
+                    . L.parentGroupId
+                    ?~ newValue
 
-        integrateTypeMod :: FlatFeatureModel -> WriterT [Dependency] (Either Conflict) FlatFeatureModel
+        integrateTypeMod ::
+          FlatFeatureModel ->
+          WriterT [Dependency] (Either Conflict) FlatFeatureModel
         integrateTypeMod fm =
           case featureTypeMod of
             Nothing -> return fm
             Just (FeatureTypeModification newValue) -> do
-              tell . fmap (FeatureDependency featureModification) $
+              tell . fmap (FeatureDependency featureMod) $
                 [FeatureIsWellFormed featureId]
-              return $ fm & L.features . ix featureId . L.featureType .~ newValue
+              return $
+                fm
+                  & L.features
+                    . ix featureId
+                    . L.featureType
+                  .~ newValue
 
-        integrateNameMod :: FlatFeatureModel -> WriterT [Dependency] (Either Conflict) FlatFeatureModel
+        integrateNameMod ::
+          FlatFeatureModel ->
+          WriterT
+            [Dependency]
+            (Either Conflict)
+            FlatFeatureModel
         integrateNameMod fm =
           case nameMod of
             Nothing -> return fm
             Just (FeatureNameModification newValue) -> do
-              tell . fmap (FeatureDependency featureModification) $
+              tell . fmap (FeatureDependency featureMod) $
                 [UniqueName newValue]
-              return $ fm & L.features . ix featureId . L.name .~ newValue
+              return $
+                fm
+                  & L.features
+                    . ix featureId
+                    . L.name
+                  .~ newValue
 
 integrateGroup ::
   Time ->
@@ -123,23 +177,33 @@ integrateGroup ::
   FlatFeatureModel ->
   GroupModification ->
   WriterT [Dependency] (Either Conflict) FlatFeatureModel
-integrateGroup time groupId fm groupModification =
-  case groupModification of
+integrateGroup time groupId fm groupMod =
+  case groupMod of
     GroupAdd parentFeatureId groupType ->
       case M.lookup groupId (fm ^. L.groups) of
         Nothing -> do
-          tell . fmap (GroupDependency groupModification) $
+          tell . fmap (GroupDependency groupMod) $
             [ ParentFeatureExists parentFeatureId
             ]
-          return $ fm & L.groups . at groupId ?~ FlatGroup parentFeatureId groupType
+          return $
+            fm
+              & L.groups
+                . at groupId
+                ?~ FlatGroup parentFeatureId groupType
         Just oldGroup ->
-          throwError $ Local time (GroupAlreadyExists groupModification groupId)
+          throwError $
+            Local
+              time
+              (GroupAlreadyExists groupMod groupId)
     GroupRemove ->
       case M.lookup groupId (fm ^. L.groups) of
         Nothing ->
-          throwError $ Local time (GroupNotExists groupModification groupId)
+          throwError $
+            Local
+              time
+              (GroupNotExists groupMod groupId)
         Just oldGroup -> do
-          tell . fmap (GroupDependency groupModification) $
+          tell . fmap (GroupDependency groupMod) $
             [NoChildFeatures groupId]
           return $ fm & L.groups . at groupId .~ Nothing
     GroupModification parentFeatureIdMod groupTypeMod ->
@@ -150,41 +214,56 @@ integrateGroup time groupId fm groupModification =
             >>= integrateTypeMod
         else
           throwError $
-            Local time (GroupNotExists groupModification groupId)
+            Local time (GroupNotExists groupMod groupId)
       where
-        integrateParentMod :: FlatFeatureModel -> WriterT [Dependency] (Either Conflict) FlatFeatureModel
+        integrateParentMod ::
+          FlatFeatureModel ->
+          WriterT [Dependency] (Either Conflict) FlatFeatureModel
         integrateParentMod fm =
           case parentFeatureIdMod of
             Nothing -> return fm
             Just (GroupParentModification newValue) -> do
-              tell . fmap (GroupDependency groupModification) $
+              tell . fmap (GroupDependency groupMod) $
                 [ ParentFeatureExists newValue
                 , NoCycleFromGroup groupId
                 ]
-              return $ fm & L.groups . ix groupId . L.parentFeatureId .~ newValue
+              return $
+                fm
+                  & L.groups
+                    . ix groupId
+                    . L.parentFeatureId
+                  .~ newValue
 
-        integrateTypeMod :: FlatFeatureModel -> WriterT [Dependency] (Either Conflict) FlatFeatureModel
+        integrateTypeMod ::
+          FlatFeatureModel ->
+          WriterT [Dependency] (Either Conflict) FlatFeatureModel
         integrateTypeMod fm =
           case groupTypeMod of
             Nothing -> return fm
             Just (GroupTypeModification newValue) -> do
-              tell . fmap (GroupDependency groupModification) $
+              tell . fmap (GroupDependency groupMod) $
                 [GroupIsWellFormed groupId]
-              return $ fm & L.groups . ix groupId . L.groupType .~ newValue
+              return $
+                fm
+                  & L.groups
+                    . ix groupId
+                    . L.groupType
+                  .~ newValue
 
 checkGlobalConflict ::
   [Dependency] ->
   TimePoint FlatFeatureModel ->
   Either Conflict (TimePoint FlatFeatureModel)
-checkGlobalConflict dependencies tp@(TimePoint time featureModel) =
-  errorIfFailed . filter (not . checkDependency) $ dependencies
+checkGlobalConflict dependencies tp =
+  errorIfFailed (filter (not . checkDependency) dependencies)
   where
+    TimePoint time featureModel = tp
     errorIfFailed failedDeps =
       case failedDeps of
         [] -> Right tp
         _ -> Left $ Global time (FailedDependencies failedDeps)
-    checkDependency (FeatureDependency featureMod dependencyType) =
-      case dependencyType of
+    checkDependency (FeatureDependency featureMod dType) =
+      case dType of
         NoChildGroups featureId ->
           hasn't
             ( L.groups
@@ -200,7 +279,7 @@ checkGlobalConflict dependencies tp@(TimePoint time featureModel) =
         NoCycleFromFeature featureId ->
           not $ featureInCycle S.empty featureId featureModel
         FeatureIsWellFormed featureId ->
-          -- If feature is mandatory, parent has to be AND group
+          -- If mandatory feature, parent has to be AND group
           -- === feature not mandatory or parent is and
           let featureType =
                 featureModel
@@ -211,14 +290,19 @@ checkGlobalConflict dependencies tp@(TimePoint time featureModel) =
                 featureModel
                   ^?! L.parentGroupOfFeature featureId
                     . L.groupType
-           in featureType /= Mandatory || parentGroupType == And
+           in featureType /= Mandatory
+                || parentGroupType == And
         UniqueName name ->
           lengthOf
-            (L.features . traversed . L.name . filtered (== name))
+            ( L.features
+                . traversed
+                . L.name
+                . filtered (== name)
+            )
             featureModel
             <= 1
-    checkDependency (GroupDependency groupMod dependencyType) =
-      case dependencyType of
+    checkDependency (GroupDependency groupMod dType) =
+      case dType of
         NoChildFeatures groupId ->
           hasn't
             ( L.features
@@ -234,13 +318,19 @@ checkGlobalConflict dependencies tp@(TimePoint time featureModel) =
         NoCycleFromGroup groupId ->
           not $ groupInCycle S.empty groupId featureModel
         GroupIsWellFormed groupId ->
-          -- Either the group is a AND group, or all child features are optional
-          let groupType = featureModel ^?! L.groups . ix groupId . L.groupType
+          -- Either the group is a AND group
+          -- or all child features are optional
+          let groupType =
+                featureModel
+                  ^?! L.groups
+                    . ix groupId
+                    . L.groupType
               childFeatureTypes =
                 featureModel
                   ^.. L.childFeaturesOfGroup groupId
                     . L.featureType
-           in groupType == And || all (== Optional) childFeatureTypes
+           in groupType == And
+                || all (== Optional) childFeatureTypes
 
 featureInCycle ::
   S.Set (Either FeatureId GroupId) ->
@@ -255,7 +345,7 @@ featureInCycle visited featureId featureModel
         . ix featureId
         . L.parentGroupId
         . _Just of
-      Nothing -> False -- no parent group OR non existing feature
+      Nothing -> False -- no parent group/non existing feature
       Just parentGroupId ->
         groupInCycle
           (S.insert (Left featureId) visited)
@@ -293,24 +383,43 @@ unflattenSoundEvolutionPlan =
     . traversed
     %~ unflattenTimePoint
 
-unflattenTimePoint :: TimePoint FlatFeatureModel -> TimePoint TreeFeatureModel
+unflattenTimePoint ::
+  TimePoint FlatFeatureModel ->
+  TimePoint TreeFeatureModel
 unflattenTimePoint (TimePoint time featureModel) =
   TimePoint time $
     TreeFeatureModel $
       unflattenFeature featureModel (featureModel ^. L.rootId)
 
-unflattenFeature :: FlatFeatureModel -> FeatureId -> TreeFeature
+unflattenFeature ::
+  FlatFeatureModel ->
+  FeatureId ->
+  TreeFeature
 unflattenFeature featureModel featureId =
   TreeFeature featureId featureType name childGroups
   where
-    childGroupIds = featureModel ^.. L.ichildGroupsOfFeature featureId . asIndex
-    childGroups = S.fromList $ fmap (unflattenGroup featureModel) childGroupIds
-    (FlatFeature _ featureType name) = featureModel ^?! L.features . ix featureId
+    childGroupIds =
+      featureModel
+        ^.. L.ichildGroupsOfFeature featureId . asIndex
+    childGroups =
+      S.fromList $
+        fmap (unflattenGroup featureModel) childGroupIds
+    (FlatFeature _ featureType name) =
+      featureModel ^?! L.features . ix featureId
 
-unflattenGroup :: FlatFeatureModel -> GroupId -> TreeGroup
+unflattenGroup ::
+  FlatFeatureModel ->
+  GroupId ->
+  TreeGroup
 unflattenGroup featureModel groupId =
   TreeGroup groupId groupType childFeatures
   where
-    childFeatureIds = featureModel ^.. L.ichildFeaturesOfGroup groupId . asIndex
-    childFeatures = S.fromList $ fmap (unflattenFeature featureModel) childFeatureIds
-    (FlatGroup _ groupType) = featureModel ^?! L.groups . ix groupId
+    childFeatureIds =
+      featureModel
+        ^.. L.ichildFeaturesOfGroup groupId
+          . asIndex
+    childFeatures =
+      S.fromList $
+        fmap (unflattenFeature featureModel) childFeatureIds
+    (FlatGroup _ groupType) =
+      featureModel ^?! L.groups . ix groupId
