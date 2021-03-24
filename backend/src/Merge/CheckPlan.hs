@@ -16,20 +16,26 @@ import qualified Data.Set as S
 integrateAndCheckModifications ::
   FlatModificationEvolutionPlan ->
   Either Conflict FlatUserEvolutionPlan
-integrateAndCheckModifications evolutionPlan = case evolutionPlan of
-  TransformationEvolutionPlan initialTime initialFM plans ->
-    UserEvolutionPlan <$> scanEvolutionPlan plans (TimePoint initialTime initialFM)
+integrateAndCheckModifications evolutionPlan =
+  case evolutionPlan of
+    TransformationEvolutionPlan initialTime initialFM plans ->
+      UserEvolutionPlan
+        <$> scanEvolutionPlan
+          plans
+          (TimePoint initialTime initialFM)
 
 scanEvolutionPlan ::
   [Plan Modifications] ->
   TimePoint FlatFeatureModel ->
   Either Conflict [TimePoint FlatFeatureModel]
-scanEvolutionPlan [] timePoint =
-  return [timePoint]
+scanEvolutionPlan [] timePoint = return [timePoint]
 scanEvolutionPlan (plan : plans) currentTimePoint = do
-  (nextTimePointUnchecked, dependencies) <- runWriterT $ integrateSinglePlan plan currentTimePoint
-  nextTimePoint <- checkGlobalConflict dependencies nextTimePointUnchecked
-  convertedEvolutionPlan <- scanEvolutionPlan plans nextTimePoint
+  (nextTimePointUnchecked, dependencies) <-
+    runWriterT $ integrateSinglePlan plan currentTimePoint
+  nextTimePoint <-
+    checkGlobalConflict dependencies nextTimePointUnchecked
+  convertedEvolutionPlan <-
+    scanEvolutionPlan plans nextTimePoint
   return $ currentTimePoint : convertedEvolutionPlan
 
 integrateSinglePlan ::

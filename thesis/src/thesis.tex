@@ -1443,14 +1443,14 @@ unifySingleDiffResult ::
   Either Conflict (Maybe modType)
 unifySingleDiffResult conflictHandler time id diffResult =
   case diffResult of
-    NoChange baseModification ->
-      Right (Just baseModification)
-    ChangedInOne version (OneChangeWithBase baseModification RemovedModification) ->
+    NoChange baseMod ->
+      Right (Just baseMod)
+    ChangedInOne version (OneChangeWithBase baseMod RemovedModification) ->
       Right Nothing
-    ChangedInOne version (OneChangeWithBase baseModification (ChangedModification derivedModification)) ->
-      Right (Just derivedModification)
-    ChangedInOne version (OneChangeWithoutBase (AddedModification derivedModification)) ->
-      Right (Just derivedModification)
+    ChangedInOne version (OneChangeWithBase baseMod (ChangedModification derivedMod)) ->
+      Right (Just derivedMod)
+    ChangedInOne version (OneChangeWithoutBase (AddedModification derivedMod)) ->
+      Right (Just derivedMod)
     ChangedInBoth bothChange ->
       checkOverlappingChanges
         conflictHandler
@@ -1543,17 +1543,86 @@ simpleExampleUnifiedPlan =
 
 The result of the \texttt{unifyMergePlan} function returned what we wanted. From both derived versions, there was a total of three changes. A new feature was added at time 1, the name change in time 2 was removed and the group type modification in time 2 was changed to transform to a \texttt{Alternative} group instead of \texttt{Or} group.
 
-\section{Ensuring structural and semantic soundness of the merge result}%
+\section{Ensuring structural and semantic soundness}%
 \label{sec:ensuring_structural_and_semantic_soundness_of_merge_result}
 
 Now that we have defined a method of detecting and merging changes to evolution plans, we would have to check that the resulting evolution plan results in a valid and sound evolution plan, keeping both the structure and semantics in tact.
 
-\todo{skriv om dette}
+To ensure soundness, we will design an algorithm that makes sures that each modification is valid. In order to do so, we will convert our \texttt{FlatModificationEvolutionPlan} representation back to our normal form for evolution plans, namely \texttt{TreeUserEvolutionPlan}. Doing so will let us see the effects of applying each modification, and ensuring the resulting feature models and evolution plan is correct.
+
+Looking back at the algorithm outline in Figure~\vref{fig:merge_outline}, we can see that there are three remaining steps in the algorithm; \texttt{integrateModifications}, \texttt{checkModifications} and \texttt{unflattenEvolutionPlan}. First, we will take the unchecked evolution plan and integrate every modification for each time point. Next, we will check that the resulting feature models are following the structural and semantic constraints of evolution plans. Lastly, we will convert the sound evolution plan back to our tree-based normal form for evolution plans. Each of these steps are discussed in more detail in Section~\ref{sub:applying_modifications}, Section~\ref{sub:checking_dependencies_and_ensuring_soundness} and Section~\ref{sub:converting_back_to_normal_form}. 
+
+\paragraph{Integrating and Checking Modifications}%
+\label{par:integrating_and_checking_modifications}
+
+In reality, the two steps \texttt{integrateModifications} and \texttt{checkModifications} are more tightly integrated than visualized in the outline. Instead, we have a single algorithm for doing both things, \texttt{integrateAndCheckModifications}. By starting with the initial feature model and the first time point, the function will first apply every modification to the feature model, then check that the result is sound. With the resulting feature model, we will take the next time point and do the process all over again. This will continue until we have a list of feature models that are checked for soundness.
+
+For a single time point, we need to apply all the modifications before checking for soundness. This is due to us having no specific ordering of operations, and the feature model might be temporarily invalid while applying modifications. For this reason, we will not check constrains immediately after applying a modification. Instead, we will note the potential points where our result might be invalid, and check those after every modification has been integrated at a certain time.
+
+When applying modifications, we generate a list of \textit{dependencies} that we will later pass onto \texttt{checkModifications}. What dependencies arise will depend on the modification at hand, but typically these dependencies include things like checking for cycles, non-existing parent relations or well-formedness constraints. These dependencies along with the current feature model are then passed onto \texttt{checkModifications}, which will check every dependency and either accept or reject the feature model.
+
+Below, we will define the code necessary to intertwine both the integration and soundness checking of modifications. Since integrating and checking modifications both can lead to conflicts, the functions will return \texttt{Either Conflict value} instead of just \texttt{value}. Using do-notation, the monadic structure will make sure the error is propagated immediately if a conflict occurs.
+
+\begin{minted}[breaklines]{haskell}
+integrateAndCheckModifications ::
+  FlatModificationEvolutionPlan ->
+  Either Conflict FlatUserEvolutionPlan
+integrateAndCheckModifications evolutionPlan =
+  case evolutionPlan of
+    TransformationEvolutionPlan initialTime initialFM plans ->
+      UserEvolutionPlan
+        <$> scanEvolutionPlan
+          plans
+          (TimePoint initialTime initialFM)
+
+scanEvolutionPlan ::
+  [Plan Modifications] ->
+  TimePoint FlatFeatureModel ->
+  Either Conflict [TimePoint FlatFeatureModel]
+scanEvolutionPlan [] timePoint = return [timePoint]
+scanEvolutionPlan (plan : plans) currentTimePoint = do
+  (nextTimePointUnchecked, dependencies) <-
+    runWriterT $ integrateSinglePlan plan currentTimePoint
+  nextTimePoint <-
+    checkGlobalConflict dependencies nextTimePointUnchecked
+  convertedEvolutionPlan <-
+    scanEvolutionPlan plans nextTimePoint
+  return $ currentTimePoint : convertedEvolutionPlan
+\end{minted}
+
+As discussed, the first part is integrating the modifications. Most of the work is here done by \texttt{integrateSinglePlan}, which returns a \texttt{WriterT [Dependency] (Either Conflict) (TimePoint FlatFeatureModel)}. Using the \texttt{Writer} and \texttt{Either} monad, we can write a function that handles conflicts, writing dependencies and returning the merged time point without to much boilerplate. This is made possible by the \texttt{WriterT} monad transformer, which allows us to compose monads. In this case, we have our \texttt{Either Conflict} monad, which lets us propagate errors. As we integrate modifications one by one, we also generate a list of dependencies, which the \texttt{Writer} monad lets us do without much boilerplate. These two monads are then combined, allowing us to use the \texttt{runWriterT} functions which returns both the next time point as well as the dependencies that needs to be checked in an \texttt{Either} environment that propagates errors when they occur.
+
+The generated dependencies and the next time point are then passed to \texttt{checkGlobalConflict}, which either succeeds or raise a conflict. Upon failure, the do-notation and monadic structure will propagate the error. However, if it succeeds, the rest of the time points are recursively called.
 
 \todo{two steps. for each fm and plan, we merge all changes at once. may be local conflict. each modification might also result in global conflict, additional cross-tree reqs. requires checking after all changes are implemented. we genereate dependencies. later go through dependencies and our merged plan, and check that the potential faults are not present.}
 unify merge plan example
 
 \todo{example, local, global, code, dependencies, etc}
+
+\subsection{Applying modifications}%
+\label{sub:applying_modifications}
+
+\subsection{Local Conflicts}%
+\label{sub:local_conflicts}
+
+
+\subsection{Dependencies}%
+\label{sub:dependencies}
+
+
+
+\subsection{Checking dependencies and ensuring soundness}%
+\label{sub:checking_dependencies_and_ensuring_soundness}
+
+\subsection{Global Conflicts}%
+\label{sub:global_conflicts}
+
+\subsection{Example}%
+\label{sub:example}
+
+
+\subsection{Converting Back to Normal Form}%
+\label{sub:converting_back_to_normal_form}
 
 \chapter{Example Merge – Vending Machine}%
 \label{cha:example_merge_vending_machine}
