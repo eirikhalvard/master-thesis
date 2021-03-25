@@ -1886,6 +1886,8 @@ data GlobalConflict
 \subsection{Checking dependencies and ensuring soundness}%
 \label{sub:checking_dependencies_and_ensuring_soundness}
 
+After applying every modification for a certain time point, the generated dependencies and resulting feature model are passed to the \texttt{checkGlobalConflict}. The function will either succeed with the correct feature model, or fail with a list of dependencies that did not pass.
+
 \begin{minted}[breaklines]{haskell}
 checkGlobalConflict ::
   [Dependency] ->
