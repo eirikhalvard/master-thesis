@@ -1847,13 +1847,41 @@ data LocalConflict
   | GroupNotExists GroupModification GroupId
 \end{minted}
 
-\subsection{Global Conflicts and Dependencies}%
+\subsection{Dependencies}%
 \label{sub:dependencies}
 
-With local conflicts the conflicts were local to the single feature or group at hand. The conflicts could be raised without knowing what the rest of the modifications were. However, some of the modifications relied on other features or groups. Some modifications, i.e. adding a feature, relied on parent nodes to exist. However, to know if the parent existed or not, we would have to apply the rest of the modifications in case the parent also was removed or added.
+With local conflicts, the conflicts were local to the single feature or group at hand. These conflicts could be raised without knowing what the rest of the modifications were. However, some of the modifications relied on knowing the state of other features or groups, which prevents us from reporting these conflicts immediately. Some modifications, i.e. adding a feature, relied on parent nodes to exist. However, to know if the parent existed or not, we would have to apply the rest of the modifications in case the parent also was removed or added. For this reason, we postpone the checking until after every modification has been included, generating dependencies which marks what we need to check. The different dependencies are defined below.
 
-To combat these issues, we generated dependencies which would be checked after all modifications were incorporated.
+\begin{minted}[breaklines]{haskell}
+data Dependency
+  = FeatureDependency FeatureModification FeatureDependencyType
+  | GroupDependency GroupModification GroupDependencyType
 
+data FeatureDependencyType
+  = NoChildGroups FeatureId
+  | ParentGroupExists GroupId
+  | NoCycleFromFeature FeatureId
+  | FeatureIsWellFormed FeatureId
+  | UniqueName String
+
+data GroupDependencyType
+  = NoChildFeatures GroupId
+  | ParentFeatureExists FeatureId
+  | NoCycleFromGroup GroupId
+  | GroupIsWellFormed GroupId
+\end{minted}
+
+\todo{maybe a table matching modifications to dependencies?}
+
+\subsection{Global Conflicts}%
+\label{sub:global_conflicts}
+
+The last kind of conflicts we could encounter is the \textit{global} conflict. For a given time point, we generated a list of dependencies we needed to check. If one or more dependencies are not met, we raise a global conflict. This is done by collecting the failed dependencies and returning them as a list.
+
+\begin{minted}[breaklines]{haskell}
+data GlobalConflict
+  = FailedDependencies [Dependency]
+\end{minted}
 
 \subsection{Checking dependencies and ensuring soundness}%
 \label{sub:checking_dependencies_and_ensuring_soundness}
@@ -1981,13 +2009,6 @@ groupInCycle visited groupId featureModel
           featureModel
 \end{minted}
 
-\subsection{Global Conflicts}%
-\label{sub:global_conflicts}
-
-\subsection{Example}%
-\label{sub:example}
-
-
 \subsection{Converting Back to Normal Form}%
 \label{sub:converting_back_to_normal_form}
 
@@ -2041,6 +2062,11 @@ unflattenGroup featureModel groupId =
     (FlatGroup _ groupType) =
       featureModel ^?! L.groups . ix groupId
 \end{minted}
+
+\subsection{Example}%
+\label{sub:example}
+
+\todo{sound example from before, maybe show the generated dependencies needed to be checked? show the resulting FlatUserEvolutionPlan as well as the TreeUserEvolutionPlan}
 
 \chapter{Example Merge – Vending Machine}%
 \label{cha:example_merge_vending_machine}
