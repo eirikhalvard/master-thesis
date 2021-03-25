@@ -469,3 +469,68 @@ generatedDependencies =
       ]
     )
   ]
+
+simpleExampleFinalResult ::
+  Either Conflict TreeUserEvolutionPlan
+simpleExampleFinalResult =
+  Right $
+    UserEvolutionPlan
+      [ TimePoint 0 fm0
+      , TimePoint 1 fm1
+      , TimePoint 2 fm2
+      ]
+  where
+    fm0 =
+      TreeFeatureModel $
+        TreeFeature
+          "rootFeature"
+          Mandatory
+          "Feature 1"
+          []
+    fm1 =
+      TreeFeatureModel $
+        TreeFeature
+          "rootFeature"
+          Mandatory
+          "Feature 1"
+          [ TreeGroup
+              "group"
+              And
+              [ TreeFeature
+                  "feature2"
+                  Optional
+                  "Feature 2"
+                  []
+              , TreeFeature
+                  "feature3"
+                  Mandatory
+                  "Feature 3"
+                  []
+              , TreeFeature
+                  "feature4"
+                  Optional
+                  "Feature 4"
+                  []
+              ]
+          ]
+    fm2 =
+      TreeFeatureModel $
+        TreeFeature
+          "rootFeature"
+          Mandatory
+          "Feature 1"
+          [ TreeGroup
+              "group"
+              Alternative
+              [ TreeFeature
+                  "feature2"
+                  Optional
+                  "Feature 2"
+                  []
+              , TreeFeature
+                  "feature4"
+                  Optional
+                  "Feature 4"
+                  []
+              ]
+          ]

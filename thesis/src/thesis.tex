@@ -133,7 +133,7 @@ To summarize, the contributions include:
 
 \textbf{Chapter~\ref{cha:background}} something about background
 
-\textbf{Chapter~\ref{cha:three_way_merge_algorithm}} something about the bigboy algo
+\textbf{Chapter~\ref{cha:three_way_merge_algorithm}} something about something
 
 \todo{WRITE}
 
@@ -873,7 +873,6 @@ diffFeatureModels prevFM currFM =
     )
 \end{minted}
 
-\todo{maybe not just features, but groups as well}
 In order to calculate the differences between two \texttt{Map}s, we rely on the Haskell module \texttt{Data.Map.Merge} from the containers module\footnote{https://hackage.haskell.org/package/containers-0.6.2.1}. This module provides ways of merging maps with keys of the same type. In our case, we have two mappings from \texttt{FeatureId} to \texttt{FlatFeature}, which we will attempt to merge into a mapping from \texttt{FeatureId} to \texttt{FeatureModification}. The merging will be done using the \texttt{merge} function from \texttt{Data.Map.Merge}, which will compare the keys, the feature ids, in both maps. Based on the result of the comparison, one of three different merge tactics will be used to produce the desired result. The merge tactics will rely on the three functions that we pass to the \texttt{merge} function. Given a feature id, the following three cases describes can appear:
 
 \begin{itemize}
@@ -2078,8 +2077,8 @@ unflattenGroup featureModel groupId =
 Revisiting our simple example from Figure~\vref{fig:simple_three_way_example}, we pick up the example from where we left off. With the \texttt{FlatModificationEvolutionPlan} representation of the merged plan, we use \texttt{integrateAndCheckModifications} to apply the modifications and check the result for soundness. This results in a list of feature models, in our \texttt{FlatUserEvolutionPlan} representation. The result can be seen below.
 
 \begin{minted}[breaklines]{haskell}
-simpleExampleCheckedPlan 
-  :: Either Conflict FlatUserEvolutionPlan
+simpleExampleCheckedPlan :: 
+  Either Conflict FlatUserEvolutionPlan
 simpleExampleCheckedPlan =
   Right $
     UserEvolutionPlan
@@ -2233,24 +2232,86 @@ generatedDependencies =
 \subsubsection{Converting To The Normal Form}%
 \label{ssub:converting_to_the_normal_form}
 
+As our example is passed through the final step, converting it back to the original representation, we get the following result.
 
-\todo{sound example from before, maybe show the generated dependencies needed to be checked? show the resulting FlatUserEvolutionPlan as well as the TreeUserEvolutionPlan}
+\begin{minted}[breaklines]{haskell}
+simpleExampleFinalResult ::
+  Either Conflict TreeUserEvolutionPlan
+simpleExampleFinalResult =
+  Right $
+    UserEvolutionPlan
+      [ TimePoint 0 fm0
+      , TimePoint 1 fm1
+      , TimePoint 2 fm2
+      ]
+  where
+    fm0 =
+      TreeFeatureModel $
+        TreeFeature
+          "rootFeature"
+          Mandatory
+          "Feature 1"
+          []
+    fm1 =
+      TreeFeatureModel $
+        TreeFeature
+          "rootFeature"
+          Mandatory
+          "Feature 1"
+          [ TreeGroup
+              "group"
+              And
+              [ TreeFeature
+                  "feature2"
+                  Optional
+                  "Feature 2"
+                  []
+              , TreeFeature
+                  "feature3"
+                  Mandatory
+                  "Feature 3"
+                  []
+              , TreeFeature
+                  "feature4"
+                  Optional
+                  "Feature 4"
+                  []
+              ]
+          ]
+    fm2 =
+      TreeFeatureModel $
+        TreeFeature
+          "rootFeature"
+          Mandatory
+          "Feature 1"
+          [ TreeGroup
+              "group"
+              Alternative
+              [ TreeFeature
+                  "feature2"
+                  Optional
+                  "Feature 2"
+                  []
+              , TreeFeature
+                  "feature4"
+                  Optional
+                  "Feature 4"
+                  []
+              ]
+          ]
+\end{minted}
+
+\todo{visualization of the result.}
 
 \chapter{Example Merge – Vending Machine}%
 \label{cha:example_merge_vending_machine}
 
-write about the vending machine example. Write about how the entire example is done. from cli parsing, converting to right representation, merging, checking, converting back, writing to file. Then how the frontend visualization tool parses the result and displays the tree as an interactive thing.
-
-sound vs unsound examples
+\todo{write about the vending machine example. Write about how the entire example is done. from cli parsing, converting to right representation, merging, checking, converting back, writing to file. Then how the frontend visualization tool parses the result and displays the tree as an interactive thing. sound vs unsound examples}
 
 \chapter{Conclusion and Future Work}%
 \label{cha:conclusion_and_future_work}
 
-konklusjon bør si hvordan det jeg har gjort addresserer forskningsspørsmålene
-forskningsspørsmålene kan være større en bidraget
-how to ensure sound plan and merge of sound plans
-
-future work kan være flere ting å se på for å belyse forskningsspm
+\todo{konklusjon bør si hvordan det jeg har gjort addresserer forskningsspørsmålene forskningsspørsmålene kan være større en bidraget how to ensure sound plan and merge of sound plans future work kan være flere ting å se på for å belyse forskningsspm}
 
 \backmatter{}
 
