@@ -32,15 +32,16 @@ long]
 
 \chapter*{Acknowledgements}
 
-Thanks to Ida
+\todo{write}
+% Thanks to Ida
 
-Thanks to Ingrid and Crystal
+% Thanks to Ingrid and Crystal
 
-Thanks to Germans, everyone on the LTEP project for input etc.
+% Thanks to Germans, everyone on the LTEP project for input etc.
 
-Thanks to ifi, all the people i have met
+% Thanks to ifi, all the people i have met
 
-Thanks to friends and family
+% Thanks to friends and family
 
 \newpage
 \thispagestyle{empty}
@@ -1371,7 +1372,7 @@ Now that we have a representation for the unification off all three evolution pl
 
 We can notice from the three-way merge algorithm outline from Figure~\vref{fig:merge_outline} that the \texttt{mergePlan} was split into two parts, \texttt{createMergePlan} and \texttt{unifyMergePlan}. This had several benefits. Both functions had clearly defined purposes. The only purpose of \texttt{createMergePlan} was to create a better representation for all the modifications, making it easier to see what changes each version made to the base. Having an intermediate representation like \texttt{MergeEvolutionPlan} also serves as documentation, letting the reader see more clearly what cases has to be considered. This benefit is also present in our \texttt{unifyMergePlan} algorithm defined below, since we now can see what modification the algorithm chooses, which it discards, and which combinations result in errors.
 
-\subsection{Merge Errors}%
+\subsection{Merge Conflicts}%
 \label{sub:merge_errors}
 
 In our three-way merge algorithm, unifying the merge plan is our first point of potential failure. As mentioned in the section discussing conflicts (Section~\vref{sub:conflicts}), merging the efforts into a single evolution plan might result in \textit{merge} conflicts. A merge conflict could arise due to diverging changes for a single feature or group. This can only happen when a change is present in both derived versions. Modeling our potential conflicts are done in the following way:
@@ -1548,7 +1549,7 @@ The result of the \texttt{unifyMergePlan} function returned what we wanted. From
 
 Now that we have defined a method of detecting and merging changes to evolution plans, we would have to check that the resulting evolution plan results in a valid and sound evolution plan, keeping both the structure and semantics in tact.
 
-To ensure soundness, we will design an algorithm that makes sures that each modification is valid. In order to do so, we will convert our \texttt{FlatModificationEvolutionPlan} representation back to our normal form for evolution plans, namely \texttt{TreeUserEvolutionPlan}. Doing so will let us see the effects of applying each modification, and ensuring the resulting feature models and evolution plan is correct.
+To ensure soundness, we will design an algorithm that makes sure that each modification is valid. In order to do so, we will convert our \texttt{FlatModificationEvolutionPlan} representation back to our normal form for evolution plans, namely \texttt{TreeUserEvolutionPlan}. Doing so will let us see the effects of applying each modification, and ensuring the resulting feature models and evolution plan is correct.
 
 Looking back at the algorithm outline in Figure~\vref{fig:merge_outline}, we can see that there are three remaining steps in the algorithm; \texttt{integrateModifications}, \texttt{checkModifications} and \texttt{unflattenEvolutionPlan}. First, we will take the unchecked evolution plan and integrate every modification for each time point. Next, we will check that the resulting feature models are following the structural and semantic constraints of evolution plans. Lastly, we will convert the sound evolution plan back to our tree-based normal form for evolution plans. Each of these steps are discussed in more detail in Section~\ref{sub:applying_modifications}, Section~\ref{sub:checking_dependencies_and_ensuring_soundness} and Section~\ref{sub:converting_back_to_normal_form}. 
 
@@ -1597,6 +1598,10 @@ The generated dependencies and the next time point are then passed to \texttt{ch
 \subsection{Applying modifications}%
 \label{sub:applying_modifications}
 
+In order to integrate every single modifications for a single time point, the \texttt{integrateSinglePlan} function is called. As discussed, the modifications for a single time point has no ordering, so we can arbitrarily choose an application ordering. The modifications are applied by calling either \texttt{integrateFeature} or \texttt{integrateGroup} with the feature model, which will return the feature model with the modification applied. The resulting feature model is then passed to the next modification. The process is continued until all modifications are applied.
+
+The core idea of this is the \texttt{foldl} function, which has the following signature for lists: \texttt{(fm -> mod -> fm) -> fm -> [mod] -> fm}. Using it for our purpose, it will apply the modifications on the feature model as discussed. However, we will use the more complicated variant, \texttt{ifoldlMOf} instead. The main reason is that it allows us to fold in a monadic context. In our instance, our monad is both the \texttt{Writer} and \texttt{Either} monad. This means that if an error occurs somewhere, the computation will stop and the conflict will be returned. The \texttt{Writer} monad lets us append dependencies without actually worrying about passing the list of dependencies as argument and returning it from the functions.
+
 \begin{minted}[breaklines]{haskell}
 integrateSinglePlan ::
   Plan Modifications ->
@@ -1624,7 +1629,11 @@ integrateSinglePlan
           (integrateGroup nextTime)
           fm
           modifications
+\end{minted}
 
+The \texttt{integrateFeature} and \texttt{integrateGroup} functions will be given a modification on a feature or group, as well as the current feature model. Based on the type of modification, the function will write dependencies with the \texttt{tell} function as well as incorporate the modification in the feature model. If a conflict occurs somewhere, the \texttt{throwError} function will be used to short circuit the function and return the conflict to the top level.
+
+\begin{minted}[breaklines]{haskell}
 integrateFeature ::
   Time ->
   FeatureId ->
@@ -1826,10 +1835,24 @@ integrateGroup time groupId fm groupMod =
 \subsection{Local Conflicts}%
 \label{sub:local_conflicts}
 
+As seen in the code above, the integration of modifications to the feature model can potentially lead to \textit{local} conflicts. When we try to integrate the set of modifications at a certain time point, we want to make sure the feature model after applying every modification is sound. This means that we allow for the feature model to be invalid while we are under the process of applying the modifications. However, some changes can be guaranteed to result in an unsound feature model.
 
-\subsection{Dependencies}%
+Local conflicts occur when we try to alter or remove features or groups that don't exist, or when we try to add features that already exist. Since our modifications are modeled as maps with ids as keys, we guarantee that a feature or group only has a single modification. This implies that we can not add then remove a feature in the same time point. The local conflicts can thus be reported immediately without checking the rest of the modifications at the time point.
+
+\begin{minted}[breaklines]{haskell}
+data LocalConflict
+  = FeatureAlreadyExists FeatureModification FeatureId
+  | FeatureNotExists FeatureModification FeatureId
+  | GroupAlreadyExists GroupModification GroupId
+  | GroupNotExists GroupModification GroupId
+\end{minted}
+
+\subsection{Global Conflicts and Dependencies}%
 \label{sub:dependencies}
 
+With local conflicts the conflicts were local to the single feature or group at hand. The conflicts could be raised without knowing what the rest of the modifications were. However, some of the modifications relied on other features or groups. Some modifications, i.e. adding a feature, relied on parent nodes to exist. However, to know if the parent existed or not, we would have to apply the rest of the modifications in case the parent also was removed or added.
+
+To combat these issues, we generated dependencies which would be checked after all modifications were incorporated.
 
 
 \subsection{Checking dependencies and ensuring soundness}%
