@@ -2014,6 +2014,10 @@ groupInCycle visited groupId featureModel
 \subsection{Converting Back to Normal Form}%
 \label{sub:converting_back_to_normal_form}
 
+The last steps of the three-way algorithm transformed the \texttt{FlatModificationEvolutionPlan} back to \texttt{FlatUserEvolutionPlan}, which models the evolution plan as a list of feature models. The final and last step of the algorithm is converting this back to the \texttt{TreeUserEvolutionPlan}, which models each feature model in a recursive tree-structure instead of the flat mapping based way.
+
+This is done by retrieving the root feature and its child groups. The child groups are recursively transformed to our tree representation, and combined with the root feature to create our recursive tree structure.
+
 \begin{minted}[breaklines]{haskell}
 unflattenSoundEvolutionPlan ::
   FlatUserEvolutionPlan ->
