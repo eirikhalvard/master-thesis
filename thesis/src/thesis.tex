@@ -2072,6 +2072,168 @@ unflattenGroup featureModel groupId =
 \subsection{Example}%
 \label{sub:example}
 
+\subsubsection{After Applying and Checking Modifications}%
+\label{ssub:after_applying_and_checking_modifications}
+
+Revisiting our simple example from Figure~\vref{fig:simple_three_way_example}, we pick up the example from where we left off. With the \texttt{FlatModificationEvolutionPlan} representation of the merged plan, we use \texttt{integrateAndCheckModifications} to apply the modifications and check the result for soundness. This results in a list of feature models, in our \texttt{FlatUserEvolutionPlan} representation. The result can be seen below.
+
+\begin{minted}[breaklines]{haskell}
+simpleExampleCheckedPlan 
+  :: Either Conflict FlatUserEvolutionPlan
+simpleExampleCheckedPlan =
+  Right $
+    UserEvolutionPlan
+      [ TimePoint 0 fm0
+      , TimePoint 1 fm1
+      , TimePoint 2 fm2
+      ]
+  where
+    fm0 =
+      FlatFeatureModel
+        "rootFeature"
+        [
+          ( "rootFeature"
+          , FlatFeature
+              Nothing
+              Mandatory
+              "Feature 1"
+          )
+        ]
+        []
+    fm1 =
+      FlatFeatureModel
+        "rootFeature"
+        [
+          ( "feature2"
+          , FlatFeature
+              (Just "group")
+              Optional
+              "Feature 2"
+          )
+        ,
+          ( "feature3"
+          , FlatFeature
+              (Just "group")
+              Mandatory
+              "Feature 3"
+          )
+        ,
+          ( "feature4"
+          , FlatFeature
+              (Just "group")
+              Optional
+              "Feature 4"
+          )
+        ,
+          ( "rootFeature"
+          , FlatFeature
+              Nothing
+              Mandatory
+              "Feature 1"
+          )
+        ]
+        [
+          ( "group"
+          , FlatGroup
+              "rootFeature"
+              And
+          )
+        ]
+    fm2 =
+      FlatFeatureModel
+        "rootFeature"
+        [
+          ( "feature2"
+          , FlatFeature
+              (Just "group")
+              Optional
+              "Feature 2"
+          )
+        ,
+          ( "feature4"
+          , FlatFeature
+              (Just "group")
+              Optional
+              "Feature 4"
+          )
+        ,
+          ( "rootFeature"
+          , FlatFeature
+              Nothing
+              Mandatory
+              "Feature 1"
+          )
+        ]
+        [
+          ( "group"
+          , FlatGroup
+              "rootFeature"
+              Alternative
+          )
+        ]
+\end{minted}
+
+\subsubsection{Dependencies Generated}%
+\label{ssub:dependencies_generated}
+
+As we traverse the time points and apply the modifications to the current feature model, we generate dependencies that are later checked. The dependencies generated at each time point is visualized below.
+
+\begin{minted}[breaklines]{haskell}
+generatedDependencies :: [(Time, [Dependency])]
+generatedDependencies =
+  [
+    ( 0
+    ,
+      [ FeatureDependency
+          (FeatureAdd "group" Optional "Feature 2")
+          (ParentGroupExists "group")
+      , FeatureDependency
+          (FeatureAdd "group" Optional "Feature 2")
+          (UniqueName "Feature 2")
+      , FeatureDependency
+          (FeatureAdd "group" Optional "Feature 2")
+          (FeatureIsWellFormed "feature2")
+      , FeatureDependency
+          (FeatureAdd "group" Mandatory "Feature 3")
+          (ParentGroupExists "group")
+      , FeatureDependency
+          (FeatureAdd "group" Mandatory "Feature 3")
+          (UniqueName "Feature 3")
+      , FeatureDependency
+          (FeatureAdd "group" Mandatory "Feature 3")
+          (FeatureIsWellFormed "feature3")
+      , FeatureDependency
+          (FeatureAdd "group" Optional "Feature 4")
+          (ParentGroupExists "group")
+      , FeatureDependency
+          (FeatureAdd "group" Optional "Feature 4")
+          (UniqueName "Feature 4")
+      , FeatureDependency
+          (FeatureAdd "group" Optional "Feature 4")
+          (FeatureIsWellFormed "feature4")
+      , GroupDependency
+          (GroupAdd "rootFeature" And)
+          (ParentFeatureExists "rootFeature")
+      ]
+    )
+  ,
+    ( 1
+    ,
+      [ FeatureDependency
+          FeatureRemove
+          (NoChildGroups "feature3")
+      , GroupDependency
+          (GroupModification Nothing (Just (GroupTypeModification Alternative)))
+          (GroupIsWellFormed "group")
+      ]
+    )
+  ]
+\end{minted}
+
+\subsubsection{Converting To The Normal Form}%
+\label{ssub:converting_to_the_normal_form}
+
+
 \todo{sound example from before, maybe show the generated dependencies needed to be checked? show the resulting FlatUserEvolutionPlan as well as the TreeUserEvolutionPlan}
 
 \chapter{Example Merge – Vending Machine}%

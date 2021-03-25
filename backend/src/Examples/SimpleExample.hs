@@ -326,3 +326,146 @@ simpleExampleUnifiedPlan =
               (Just (GroupTypeModification Alternative))
           )
         ]
+
+simpleExampleCheckedPlan :: Either Conflict FlatUserEvolutionPlan
+simpleExampleCheckedPlan =
+  Right $
+    UserEvolutionPlan
+      [ TimePoint 0 fm0
+      , TimePoint 1 fm1
+      , TimePoint 2 fm2
+      ]
+  where
+    fm0 =
+      FlatFeatureModel
+        "rootFeature"
+        [
+          ( "rootFeature"
+          , FlatFeature
+              Nothing
+              Mandatory
+              "Feature 1"
+          )
+        ]
+        []
+    fm1 =
+      FlatFeatureModel
+        "rootFeature"
+        [
+          ( "feature2"
+          , FlatFeature
+              (Just "group")
+              Optional
+              "Feature 2"
+          )
+        ,
+          ( "feature3"
+          , FlatFeature
+              (Just "group")
+              Mandatory
+              "Feature 3"
+          )
+        ,
+          ( "feature4"
+          , FlatFeature
+              (Just "group")
+              Optional
+              "Feature 4"
+          )
+        ,
+          ( "rootFeature"
+          , FlatFeature
+              Nothing
+              Mandatory
+              "Feature 1"
+          )
+        ]
+        [
+          ( "group"
+          , FlatGroup
+              "rootFeature"
+              And
+          )
+        ]
+    fm2 =
+      FlatFeatureModel
+        "rootFeature"
+        [
+          ( "feature2"
+          , FlatFeature
+              (Just "group")
+              Optional
+              "Feature 2"
+          )
+        ,
+          ( "feature4"
+          , FlatFeature
+              (Just "group")
+              Optional
+              "Feature 4"
+          )
+        ,
+          ( "rootFeature"
+          , FlatFeature
+              Nothing
+              Mandatory
+              "Feature 1"
+          )
+        ]
+        [
+          ( "group"
+          , FlatGroup
+              "rootFeature"
+              Alternative
+          )
+        ]
+
+generatedDependencies :: [(Time, [Dependency])]
+generatedDependencies =
+  [
+    ( 0
+    ,
+      [ FeatureDependency
+          (FeatureAdd "group" Optional "Feature 2")
+          (ParentGroupExists "group")
+      , FeatureDependency
+          (FeatureAdd "group" Optional "Feature 2")
+          (UniqueName "Feature 2")
+      , FeatureDependency
+          (FeatureAdd "group" Optional "Feature 2")
+          (FeatureIsWellFormed "feature2")
+      , FeatureDependency
+          (FeatureAdd "group" Mandatory "Feature 3")
+          (ParentGroupExists "group")
+      , FeatureDependency
+          (FeatureAdd "group" Mandatory "Feature 3")
+          (UniqueName "Feature 3")
+      , FeatureDependency
+          (FeatureAdd "group" Mandatory "Feature 3")
+          (FeatureIsWellFormed "feature3")
+      , FeatureDependency
+          (FeatureAdd "group" Optional "Feature 4")
+          (ParentGroupExists "group")
+      , FeatureDependency
+          (FeatureAdd "group" Optional "Feature 4")
+          (UniqueName "Feature 4")
+      , FeatureDependency
+          (FeatureAdd "group" Optional "Feature 4")
+          (FeatureIsWellFormed "feature4")
+      , GroupDependency
+          (GroupAdd "rootFeature" And)
+          (ParentFeatureExists "rootFeature")
+      ]
+    )
+  ,
+    ( 1
+    ,
+      [ FeatureDependency
+          FeatureRemove
+          (NoChildGroups "feature3")
+      , GroupDependency
+          (GroupModification Nothing (Just (GroupTypeModification Alternative)))
+          (GroupIsWellFormed "group")
+      ]
+    )
+  ]
