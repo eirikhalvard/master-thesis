@@ -1870,7 +1870,25 @@ data GroupDependencyType
   | GroupIsWellFormed GroupId
 \end{minted}
 
-\todo{maybe a table matching modifications to dependencies?}
+Each modification yields a set of dependencies depending on what conflicts could potentially rise. This is encoded in the \texttt{integrateFeature} and \texttt{integrateGroup} functions, as well as visualized in Table~\vref{tab:generated_dependencies}
+
+\begin{table}[htpb]
+  \centering
+  \label{tab:generated_dependencies}
+  \begin{tabular}{c|c}
+    \textbf{Modification Type} & \textbf{Generated Dependencies} \\ \hline
+    Add Feature & \begin{tabular}[c]{@{}c@{}}ParentGroupExists\\ UniqueName\\ FeatureIsWellFormed\end{tabular} \\ \hline
+    Remove Feature & NoChildGroups \\ \hline
+    Modify Feature Parent & \begin{tabular}[c]{@{}c@{}}ParentGroupExists\\ NoCycleFromFeature\\ FeatureIsWellFormed\end{tabular} \\ \hline
+    Modify Feature Type & FeatureIsWellFormed \\ \hline
+    Modify Feature Name & UniqueName \\ \hline
+    Add Group & ParentFeatureExists \\ \hline
+    Remove Group & NoChildFeatures \\ \hline
+    Modify Group Parent & \begin{tabular}[c]{@{}c@{}}ParentFeatureExists\\ NoCycleFromGroup\end{tabular} \\ \hline
+    Modify Group Type & GroupIsWellFormed
+  \end{tabular}
+  \caption{Generated dependencies}
+\end{table}
 
 \subsection{Global Conflicts}%
 \label{sub:global_conflicts}
