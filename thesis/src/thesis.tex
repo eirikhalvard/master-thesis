@@ -2331,6 +2331,14 @@ The resulting merged evolution plan is also visualized in Figure~\ref{fig:simple
 \chapter{Example Merge – Vending Machine}%
 \label{cha:example_merge_vending_machine}
 
+In this chapter, we will apply the three way merge tool on an example inspired from the real world. The example models the evolution of a vending machine software product line. The evolution plan models the planned changes of common vending machine features like beverages such as tea and coffee, different types of currency, different sizes to the cups, etc.
+
+Since we creating a \textit{three} way merge example, we will input three distinct evolution plans to the algorithm. A base evolution plan, and two derived evolution plan, each with their own changes to the base evolution plan. The changes of both versions are then detected and merged into a final, merged version of the evolution plans.
+
+We will showcase two slightly different examples, an example that results in a sound, well-formed evolution plan, and one that results in a conflict. The input to the merge tool is represented in the common serialization format JSON, which is passed as argument to a command line interface wrapping the three-way merge algorithm. The results from the algorithm is then serialized and written to a file. The command line interface will also generate data which is passed to a frontend visualization tool, which visualizes the input and output of the algorithm.
+
+
+
 \todo{write about the vending machine example. Write about how the entire example is done. from cli parsing, converting to right representation, merging, checking, converting back, writing to file. Then how the frontend visualization tool parses the result and displays the tree as an interactive thing. sound vs unsound examples}
 
 \chapter{Conclusion and Future Work}%
