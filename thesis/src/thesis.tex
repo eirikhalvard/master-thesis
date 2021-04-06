@@ -2337,9 +2337,35 @@ Since we creating a \textit{three} way merge example, we will input three distin
 
 We will showcase two slightly different examples, an example that results in a sound, well-formed evolution plan, and one that results in a conflict. The input to the merge tool is represented in the common serialization format JSON, which is passed as argument to a command line interface wrapping the three-way merge algorithm. The results from the algorithm is then serialized and written to a file. The command line interface will also generate data which is passed to a frontend visualization tool, which visualizes the input and output of the algorithm.
 
+\section{Command Line Interface}%
+\label{sec:command_line_interface}
+
+\todo{input format, json, print, writing to file, etc. generate data to front end. show help screen. can be integrated with other tools easily, which uses other languages or tools etc.}
+
+\section{A Visualization Tool for Evolution Plans}%
+\label{sec:a_visualization_tool_for_evolution_plans}
+
+\todo{elm, files generated from cli. display the eps as a list of trees, with each tree automaticcally drawn using a svg library. designed to help explore the three way merge algorithm, and its inputs and results, svg calculating and drawing each tree to do automatically, showcase a screendump of web page, explaining different elements. used to explore the different examples and edgecases of my tests, note about the visualization tool, how it differs from the paper. mandatory/optional are modeled as colors not dots above the feature. Results are generated and drawn automatically, what we display is simply a screenshot}
+
+\section{A Sound Example}%
+\label{sec:a_sound_example}
+
+\todo{sound example. show the base ep. summarize the changes in v1 and v2. changes can be harmonized, show the result}.
+
+\begin{figure}[htpb]
+  \centering
+  \includegraphics[width=\linewidth]{vending_machine/base_plan.pdf}
+  \caption{Sound Vending Machine Example - Base Evolution Plan}%
+  \label{fig:vending_machine_sound_base_ep}
+\end{figure}
+
+\section{An Unsound Example}%
+\label{sec:an_unsound_example}
+
+\todo{unsound example, note that all input eps are sound, this is an assumption. show base ep if not the same as before!. show the base ep. summarize the changes in v1 and v2. maybe say what is different from our sound example. changes cannot be harmonized, show the result}
 
 
-\todo{write about the vending machine example. Write about how the entire example is done. from cli parsing, converting to right representation, merging, checking, converting back, writing to file. Then how the frontend visualization tool parses the result and displays the tree as an interactive thing. sound vs unsound examples}
+\todo{OlDTODOwrite about the vending machine example. Write about how the entire example is done. from cli parsing, converting to right representation, merging, checking, converting back, writing to file. Then how the frontend visualization tool parses the result and displays the tree as an interactive thing. sound vs unsound examples}
 
 \chapter{Conclusion and Future Work}%
 \label{cha:conclusion_and_future_work}
