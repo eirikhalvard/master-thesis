@@ -2340,7 +2340,11 @@ We will showcase two slightly different examples, an example that results in a s
 \section{Command Line Interface}%
 \label{sec:command_line_interface}
 
-The evolution plan merger defines a command line interface, \texttt{epmerge}, which will do three-way merges on evolution plans. The interface acts as a wrapper around the three-way merge algorithm, handling things like reading and writing to file, logging, converting between representations, etc. We used the excellent Haskell library \textit{optparse-applicative}\footnote{https://github.com/pcapriotti/optparse-applicative} to define the interface, which allowed us to automatically generate a help page. By invoking the command \texttt{epmerge --help}, the following help page will be shown.
+The evolution plan merger defines a command line interface, \texttt{epmerge}, which will do three-way merges on evolution plans. The interface acts as a wrapper around the three-way merge algorithm, handling things like reading and writing to file, logging, converting between representations, etc. 
+
+By designing a command line interface using the common data serialization format json, our application can be easily integrated with other tools. Other tools are often designed and implemented in other technologies and languages, and having a command line interface allows for easier integration of the tools.
+
+We used the Haskell library \textit{optparse-applicative}\footnote{https://github.com/pcapriotti/optparse-applicative} to define the interface, which allowed us to automatically generate a help page. By invoking the command \texttt{epmerge --help}, the following help page will be shown.
 
 \begin{minted}[breaklines]{text}
 A three way merge tool for feature model evolution plans
@@ -2395,21 +2399,19 @@ The command line interface has three basic `Modes`. `GenerateAll`, `GenerateOne`
 
 The interface also defines some optional options that can specify the behaviour of the merge algorithm. The different options will mainly specify the input and output formats, as well as what kind of output will be generated.
 
-When using the \texttt{FromFile} mode, you may specify what evolution plan representation you are using. This can be done with the \texttt{--fromType} flag, which takes either \texttt{TreeUser}, \texttt{FlatUser} or \texttt{FlatModification} as a parameter.
+When using the \texttt{FromFile} mode, you may specify what evolution plan representation you are using. This can be done with the \texttt{--fromType} option, which takes either \texttt{TreeUser}, \texttt{FlatUser} or \texttt{FlatModification} as a parameter.
 
 In able to view the results of the merge, we could do one or more of the following.
 
 \begin{itemize}
-  \item Print the result of the merge using the \texttt{--print} flag
-  \item Write the result to a json file using the \texttt{--toFile FILEPATH} flag.
-  \item Write the example(s) to the Elm frontend using the \texttt{--generateElm} flag. The next time the frontend is loaded, the user can see an actual visual, tree representation of the \textit{base}, \textit{version 1}, \textit{version 2} evolution plans, as well as the expected and actual merge output. The frontend is discussed in more detail in Section~\vref{sec:a_visualization_tool_for_evolution_plans}.
+  \item Print the result of the merge using the \texttt{--print} option
+  \item Write the result to a json file using the \texttt{--toFile FILEPATH} option.
+  \item Write the example(s) to the Elm frontend using the \texttt{--generateElm} option. The next time the frontend is loaded, the user can see an actual visual, tree representation of the \textit{base}, \textit{version 1} and \textit{version 2} evolution plans, as well as the expected and actual merge output. The frontend is discussed in more detail in Section~\vref{sec:a_visualization_tool_for_evolution_plans}.
 \end{itemize}
 
 To specify the output format of the print or the file to write the output, you can use the `--toType`, with either `TreeUser`, `FlatUser` or `FlatModification` as an argument.
 
 As an example, running the following will read a sound example from file\footnote{https://github.com/eirikhalvard/master-thesis/blob/master/backend/data/sound\_flatuser.json}, merge the input, and print the result. \texttt{epmerge --fromFile="./data/sound\_flatuser.json" --fromType=FlatUser --print}
-
-\todo{input format, json, print, writing to file, etc. generate data to front end. show help screen. can be integrated with other tools easily, which uses other languages or tools etc.}
 
 \section{A Visualization Tool for Evolution Plans}%
 \label{sec:a_visualization_tool_for_evolution_plans}
