@@ -2340,6 +2340,75 @@ We will showcase two slightly different examples, an example that results in a s
 \section{Command Line Interface}%
 \label{sec:command_line_interface}
 
+The evolution plan merger defines a command line interface, \texttt{epmerge}, which will do three-way merges on evolution plans. The interface acts as a wrapper around the three-way merge algorithm, handling things like reading and writing to file, logging, converting between representations, etc. We used the excellent Haskell library \textit{optparse-applicative}\footnote{https://github.com/pcapriotti/optparse-applicative} to define the interface, which allowed us to automatically generate a help page. By invoking the command \texttt{epmerge --help}, the following help page will be shown.
+
+\begin{minted}[breaklines]{text}
+A three way merge tool for feature model evolution plans
+
+Usage: epmerge ( --generateOne EXAMPLENAME 
+               | --generateAll 
+               | --fromFile FILENAME
+               )
+               [-F|--fromType FROMTYPE] [-T|--toType TOTYPE] 
+               [-p|--print] [-g|--generateElm] 
+               [-o|--toFile FILEPATH]
+  Merges evolution plans into a single merged plan, which 
+  respects the formal semantics of evolution plans
+
+Available options:
+  --generateOne EXAMPLENAME
+                        Generates one of the examples
+  --generateAll         Generates all examples
+  --fromFile FILENAME   Read a three way merge plan from file
+  -F,--fromType FROMTYPE   
+                        The type to convert from (useful only 
+                        when reading from file) (choices: 
+                        TreeUser | FlatUser | FlatModification) 
+                        (default: TreeUser)
+  -T,--toType TOTYPE    The type to convert to (useful when 
+                        printing and writing to file) (choices: 
+                        TreeUser | FlatUser | FlatModification) 
+                        (default: FlatModification)
+  -p,--print            Whether to print the merge result
+  -g,--generateElm      Whether to pass generated results 
+                        to the elm frontend
+  -o,--toFile FILEPATH  Outputed file to write the 
+                        merge result as JSON
+  -h,--help             Show this help text
+\end{minted}
+
+\paragraph{Modes}%
+\label{par:modes}
+
+The interface has three different \textit{modes}; \texttt{GenerateOne}, \texttt{GenerateAll} and \texttt{FromFile}. The first two will merge either one or all of the predefined test inputs. This includes different variations of the vending machine example we will explore in this chapter. The last, mode \texttt{fromFile}, will read the input from a json encoded file.
+
+The command line interface has three basic `Modes`. `GenerateAll`, `GenerateOne` and `FromFile`.
+
+\begin{itemize}
+\item \texttt{GenerateAll} will simply run all the examples in the code. This includes some sound examples and some erroneous examples. The erroneous examples consists of \texttt{Merge} conflicts, \texttt{Local} conflicts and \texttt{Global} conflicts. This mode can be run using \texttt{epmerge --generateAll}.
+\item \texttt{GenerateOne} takes one argument, \texttt{Example Name}, which is the string associated with one of the examples in the code. The merger will run the merger on the specified example. This mode can be run using \texttt{epmerge --generateOne EXAMPLENAME}. If you provide an \texttt{EXAMPLENAME} that does not exist, the merger will give you all the available example names.
+\item \texttt{FromFile} also takes an argument, \texttt{File Name}, which is the name of json file to read from. The merger will read the file, and run the merger on the input. This mode can be run using \texttt{epmerge --fromFile FILEPATH}.
+\end{itemize}
+
+\paragraph{Options}%
+\label{par:options}
+
+The interface also defines some optional options that can specify the behaviour of the merge algorithm. The different options will mainly specify the input and output formats, as well as what kind of output will be generated.
+
+When using the \texttt{FromFile} mode, you may specify what evolution plan representation you are using. This can be done with the \texttt{--fromType} flag, which takes either \texttt{TreeUser}, \texttt{FlatUser} or \texttt{FlatModification} as a parameter.
+
+In able to view the results of the merge, we could do one or more of the following.
+
+\begin{itemize}
+  \item Print the result of the merge using the \texttt{--print} flag
+  \item Write the result to a json file using the \texttt{--toFile FILEPATH} flag.
+  \item Write the example(s) to the Elm frontend using the \texttt{--generateElm} flag. The next time the frontend is loaded, the user can see an actual visual, tree representation of the \textit{base}, \textit{version 1}, \textit{version 2} evolution plans, as well as the expected and actual merge output. The frontend is discussed in more detail in Section~\vref{sec:a_visualization_tool_for_evolution_plans}.
+\end{itemize}
+
+To specify the output format of the print or the file to write the output, you can use the `--toType`, with either `TreeUser`, `FlatUser` or `FlatModification` as an argument.
+
+As an example, running the following will read a sound example from file\footnote{https://github.com/eirikhalvard/master-thesis/blob/master/backend/data/sound\_flatuser.json}, merge the input, and print the result. \texttt{epmerge --fromFile="./data/sound\_flatuser.json" --fromType=FlatUser --print}
+
 \todo{input format, json, print, writing to file, etc. generate data to front end. show help screen. can be integrated with other tools easily, which uses other languages or tools etc.}
 
 \section{A Visualization Tool for Evolution Plans}%
