@@ -69,6 +69,9 @@ something about summer project?
 
 \mainmatter{}
 
+\part{Introduction and Background}%
+\label{prt:introduction_and_background}
+
 \chapter{Introduction}%
 \label{cha:introduction}
 
@@ -168,8 +171,8 @@ A software product line (SPL) is a family of closely related software systems. T
 
 Software product line engineering is a discipline for efficiently developing such families of software systems. Instead of maintaining potentially hundreds of different software artifacts, these engineering methods have ways of capitalizing on the similarities and differences between each variant. The number of variants are subject to combinatorial explosion, with additions of new features may double the amount of variants. Developing software product lines can be very time efficient, because you can maintain one code base, instead of one code base per variant. This simplifies additions of features or bug fixes greatly.
 
-\section{Feature Models}%
-\label{sec:feature_models}
+\subsection{Feature Models}%
+\label{sub:feature_models}
 
 All possible variants of a software product line can be defined in terms of a \textit{feature model}. A feature model is a tree structure of features and groups. Features can be mandatory or optional, and will contain zero or more groups. Each group has a set of features. A group (of features) can have different types. For example, in an \texttt{AND} group, all the features has to be chosen.
 
@@ -183,8 +186,8 @@ All possible variants of a software product line can be defined in terms of a \t
 
 A visual representation of a feature model can be seen in Figure~\vref{fig:example1}. The small dot above \texttt{Infotainment System} indicates that the feature is mandatory, where as the white dot above \texttt{Comfort Systems} represents an optional feature. Each feature (except the root) is in a group. The \texttt{Infotainment System} feature is in a singleton group below \texttt{Car}. The features \texttt{Android Auto} and \texttt{Apple Car Play} are in a \texttt{XOR} group, indicated by the arch between the features. This represents that each valid variant has to choose between one of the two (but not both).
 
-\section{Evolution planning}%
-\label{sec:evolution_planning}
+\subsection{Evolution planning}%
+\label{sub:evolution_planning}
 
 Feature models let engineers capture all variants of the current software product line, but sometimes it can be beneficial to model future or past versions as well. Planning for the long term evolution of the product line can be important in managing the complexity that comes with large software systems. Developing these kinds of systems typically involves many engineers, managers or other stakeholders, and managing when certain changes, additions or deprecations are implemented can be complex and confusing without suitable tools. Changing the SPL potentially influences many configurations, which might conflict with the stakeholders requirements.
 
@@ -301,25 +304,36 @@ Semantic mergers takes these kinds of conflicts into consideration while merging
 
 \todo{write about type synonyms, data types including records and sum types. show polymorphic data types. maybe something about deriving, maybe lens generation? etc. something about maybe? expressive and strict type system}
 
-\section{Problem Definition}%
-\label{sec:problem_definition}
+\part{A Sound, Semantic Merger for Evolution Plans}%
+\label{prt:a_sound_semantic_merger_for_evolution_plans}
+
+
+\todo{problem definition. write about this somehow?}
+% \section{Problem Definition}%
+% \label{sec:problem_definition}
+
+\todo{section somewhere: about the darwin spl tool. screenshot. about the merge tool working as a backend for this tool, potentially being tied in. user should maybe not interact directly with this tool. etc}
 
 \chapter{Formal Semantics of Feature Model Evolution Plans}%
 \label{cha:formal_semantics_of_feature_model_evolution_plans}
 
-As stated in \textbf{RQ2} in section~\vref{sec:research_questions}, we want design the merger in a way that guarantees a sound merge result. In order to do so, we need to have a clear, formal definition of the software artifact at hand, namely feature model evolution plans.
+As stated in \textbf{RQ1} in section~\vref{sec:research_questions}, we want design the merger in a way that guarantees a sound merge result. In order to do so, we need to have a clear, formal definition of the software artifact at hand, namely feature model evolution plans.
 
-The formal structure and semantics of evolution plans are defined in a paper published in the Software Product Line Conference (SPLC)\footnote{https://splc.net/}, which I was fortunate enough to contribute to \cite{cite:consistency_preserving_evolution_planning}. The paper defines the evolution plan as an initial feature model, together with an ordered list of planning sections containing all edit operations that are scheduled for the same time point. The edit operations include addition and deletion of features and groups, as well as modifications to their fields, such as names or types. For every operation, we defined what makes an operation valid or invalid according to the formal definitions of feature models. 
+We have defined the formal structure and semantics of evolution plans in a paper published in the Software Product Line Conference (SPLC) \cite{cite:consistency_preserving_evolution_planning}. In the paper we defined the evolution plan as an initial feature model, together with an user defined list of planning sections. Each planning section contains all operations that are scheduled for the same time point. The operations include addition and deletion of features and groups, as well as modifications to their fields, such as names or types. For every operation, we defined what makes an operation valid or invalid according to the formal definitions of feature models. 
 
-In the work in this thesis, I will build upon, alter and extend the definitions and semantics of evolution plans defined in the other work I have contributed to. The semantics of editing operations were defined to create a soundness checker for evolution plans, which is used as a tool aiding replanning of evolution plans. However, since the focus of this thesis is to harmonize different alterations to evolution plan, we will need to adapt the evolution plan representation to fit this task.
+In the work in this thesis, I will build upon the definitions and semantics of evolution plans defined in \cite{cite:consistency_preserving_evolution_planning}. The work we did defined the theoretical foundation of a sound, well-formed evolution plan, which we used to create a framework for ensuring soundness. In our merge tool, we are merging evolution plans which are assumed to be \textit{sound}. This means we can leverage the properties of sound evolution plans defined in the paper. Since we also want to create a sound evolution plan, we will create the tool in such a way that soundness is ensured.
+
+% The semantics of editing operations were defined to create a soundness checker for evolution plans, which is used as a tool aiding replanning of evolution plans. However, since the focus of this thesis is to harmonize different alterations to evolution plan, we will need to adapt the evolution plan representation to fit this task.
 
 \section{Issues with using a list-based approach}%
 \label{sec:issues_with_using_a_list_based_approach}
+\todo{create better title. maybe rewrite to be more about general issues we need to look out for. not just about the solution we have.}
 
 In our work on creating a soundness checker for evolution plans, we used a representation where the ordering of the operations for a single point in time mattered. This list-based approach of grouping operations had several advantages regarding the formal definition of sound evolution plans as well as implementation-specific concerns. In defining what was considered a well-defined operation, we considered only the current feature model and the operation at hand. What order the user applied the operations did not really matter, as long as applying each operation resulted in a sound evolution plan.
 
-However, when we design an approach to merging two evolution plans, the exact way each feature model in the evolution plan was derived is besides the point. The only thing the user sees are a list of feature models associated with time points. Exactly how the evolution plan was manipulated, and in what order each editing operation took place is not relevant for the user, so it should also not be relevant for the merge algorithm. As described in \textbf{RQ3} in section~\ref{sec:research_questions}, we want to produce merge results that are predictable and transparent. Having a list-based approach might make it hard to differentiate equal plans. Since there often is more than one way of going from one feature model to another, seemingly equal evolution plans might be represented differently.
+However, when we design an approach to merging two evolution plans, the exact way each feature model in the evolution plan was derived is besides the point. The only thing the user sees are a list of feature models associated with time points. Exactly how the evolution plan was manipulated, and in what order each editing operation took place is not relevant for the user, so it should also not be relevant for the merge algorithm. As described in \textbf{RQ3} in section~\ref{sec:research_questions}, we want to produce merge results that are predictable and transparent. Having a list-based approach might make it hard to differentiate equal plans. \todo{have a small example here} Since there often is more than one way of going from one feature model to another, seemingly equal evolution plans might be represented differently.
 
+\todo{rearrange out of place. maybe rewrite this whole thing. do something about it}
 Since part of the goal is to produce a sound result, we cannot simply rearrange the ordering of operations without complications. Some operations might be dependent on other operations, and rearranging the operations might result in an unsound plan. 
 
 To counter these issues, one might naïvely find an standardized ordering of operations so one could sort the operations, or simply just store them as a set of operations instead of a list. However, as we will see, the order of the operations still matter, and changing the ordering can have varying effects. We observe three different ordering related scenarios for operations; non-dependent operations, dependent operations, and shadowed operations. By swapping the operations in a plan, you might achieve one of these scenarios. In the following sections, We investigate the scenarios in the following sections, which is also illustrated in Figure~\ref{fig:operation_swap_effect}.
@@ -327,8 +341,9 @@ To counter these issues, one might naïvely find an standardized ordering of ope
 \subsection*{Non-dependent Operations}%
 \label{sub:non_dependent_operations}
 
-In some cases, swapping the order of the operations in a time point has no effect on the resulting feature model. To exemplify this, take a simple feature model with two features and a group, organized in the following way: $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{F1}$. In the following time point, there is scheduled a removal of feature \texttt{F1} as well as a name change for the root feature \texttt{Root} to \texttt{F0}. Applying both operations should yield the following feature model: $\texttt{F0} \rightarrow \texttt{G1}$. Since there is no structural or semantic relation between the operations, the order of when they are applied makes no difference. With the current list-based representation of a plan for a single time point, there are two ways of representing the changes. You could either schedule the removal of the \texttt{F1} feature first, or the name change of the root feature first. 
+In some cases, swapping the order of the operations in a time point has no effect on the resulting feature model. To exemplify this, take a simple feature model with two features and a group, organized in the following way: $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{F1}$. In the following time point, there is scheduled a removal of feature \texttt{F1} as well as a name change for the root feature \texttt{Root} to \texttt{F0}. Applying both operations should yield the following feature model: $\texttt{F0} \rightarrow \texttt{G1}$. Since there is no structural or semantic relation between the operations \todo{what does this mean? structural or semantic?}, the order of when they are applied makes no difference. With the current list-based representation of a plan for a single time point, there are two ways of representing the changes. You could either schedule the removal of the \texttt{F1} feature first, or the name change of the root feature first. 
 
+\todo{split the figures under each part}
 \begin{figure}[htpb]
   \centering
   \includegraphics[width=0.8\linewidth]{operation_swap_effect.pdf}
@@ -351,9 +366,9 @@ We exemplify operation shadowing, we consider the same initial feature model as 
 \section{Constructing a Normal Form for Evolution Plans}%
 \label{sec:constructing_a_normal_form_for_evolution_plans}
 
-In order to avoid the problems stated above, we construct a new representation for evolution plans. This representation is more aligned with what the user interacts with, so equal plans are also represented equally. In this representation, called \texttt{TreeUserEvolutionPlan}, the evolution plan is represented as a list of feature models together with a time point. Instead of storing the operations necessary to go from the previous time point to the next, each feature model is explicitly encoded. Each feature model is represented as a mutually recursive tree structure of features and groups. This representation is the normal form of evolution plans, and the closest representation to what the user actually interacts with.
+In order to avoid the problems stated in section \vref{sec:issues_with_using_a_list_based_approach}, we construct a new representation for evolution plans. This representation is more aligned with what the user interacts \todo{what the user interacts with. litt rart. har ikke snakket om user} with, so equal plans \todo{equal plans? hva er dette? har ikke snakket om} are also represented equally. In this representation, called \texttt{TreeUserEvolutionPlan}, the evolution plan is represented as a list of feature models together with a time point. Instead of storing the operations necessary to go from the previous time point to the next, each feature model is explicitly encoded. Each feature model is represented as a mutually recursive tree structure of features and groups. This representation is the normal form of evolution plans, and the closest representation to what the user actually interacts with.
 
-The exact representation of \texttt{TreeUserEvolutionPlan} are defined formally in the Haskell code. Haskell's powerful type system with records and algebraic data types allows for a pretty precise formalization. When presented here in the thesis, the types are somewhat simplified, leaving out unnecessary noise, such as automatically derived instances for JSON serialization, equality checking, etc.
+The exact representation of \texttt{TreeUserEvolutionPlan} are defined formally in the Haskell code. Haskell's powerful type system with records and algebraic data types allows for a precise formalization. When presented here in the thesis, the types are somewhat simplified, leaving out unnecessary noise, such as automatically derived instances for JSON serialization, equality checking, etc.
 
 \subsection{Feature Model Definition - Tree Representation}%
 \label{sub:feature_model_definition_tree_representation}
@@ -396,6 +411,10 @@ There is a few important things to note in this representation. Each feature and
 
 \subsection{Evolution Plan Definition - User Level, Tree Representation}%
 \label{sub:evolution_plan_definition_user_level_tree_representation}
+
+\todo{text before this point. what are we jumping into?}
+\todo{better naming schemes. too techniqal}
+\todo{better naming for user. not really about user. meeen vi får se.}
 
 \subsubsection*{Polymorphic User Level Evolution Plan}%
 \label{ssub:polymorphic_user_level_evolution_plan}
@@ -501,6 +520,7 @@ Note that each feature and groups \texttt{Set} of children are constructed using
 
 The evolution plan formalization defined above, \texttt{TreeUserEvolutionPlan}, works well for capturing the essence of evolution plans. It represents evolution plans in terms of what the user actually deals with. However, in order to do an effective merge of two evolution plans, we need to represent the evolution plan a bit differently.
 
+\todo{refactoring? har ikke snakket om dette.}
 Refactoring the evolution plan doesn't just involve modifying the last time point, but replanning the other time points earlier in the plan. When users are replanning such time points, the additions, deletions and modifications has an effect not just on the time point at hand, but all subsequent time points. When a user adds a new feature in the middle of the plan, the feature would appear on the specified time points as well as all the time points beyond. When calculating the changes made, we don't want to look at this like a feature was added in all the time points, but rather just the specified time. In order to capture the essence of the changes made to each evolution plan, we would need to find a representation capturing the actual changes more explicitly.
 
 In order to to capture the explicit modifications between each time point in the evolution plan, we would need to figure out an approach to calculating the difference between two subsequent feature models. However, with our current tree-based feature model, \texttt{TreeFeatureModel}, this can be a bit cumbersome, requiring us to traverse the two trees simultaneously. In some cases this is not very straight forward, i.e. handling \texttt{Move}-operations that relocates entire subtrees.
@@ -602,12 +622,14 @@ The new definition of feature models has advantages we will make deriving and in
 
 Since we have a flat structure, deriving or integrating modifications on a feature or group saves us from traversing the tree structure. The flat structure leverages the unique ids in order to allow lookup based on id. Changing a feature or group requires a lookup based on the id, then changing the fields of the mapping entry. Removing or adding a node is similarly simple, requiring only adding or removing an entry in the mapping. Since the edges in the tree are modeled as references to the parent id, we don't need to modify the parent node when removing a node.
 
-The flexible flat structure allows for temporarily damaging the tree-structure, which allows for applying modifications in an arbitrary order. We recall some of the issues related to the list-based operations in Section~\ref{sec:issues_with_using_a_list_based_approach}, where some dependent operations had to be applied in a specific order, i.e. adding the parent feature before adding the child group. Since the tree-structure of our \texttt{FlatUserEvolutionPlan} is implicit through the node-id references, we could simply add the child feature first, with a reference to the parent id, then directly after add the parent id. We just have to ensure that all the operations we apply will result in a sound feature model.
+The flat structure is more flexible and less strict than the tree-structure. This allows for temporarily violating the soundness of the feature model, which lets us apply modifications to the tree in an arbitrary order.
+
+We recall some of the issues related to the list-based operations in Section~\ref{sec:issues_with_using_a_list_based_approach} \todo{fix ref}, where some dependent operations had to be applied in a specific order, i.e. adding the parent feature before adding the child group. Since the tree-structure of our \texttt{FlatUserEvolutionPlan} is implicit through the node-id references, we could simply add the child feature first, with a reference to the parent id, then directly after add the parent id. We just have to ensure that all the operations we apply will result in a sound feature model. This was simply not possible with the \texttt{TreeUserEvolutionPlan}, where a parent had to be added before its child, simply because the child is encoded inside the parent node, and not linked through a reference.
 
 \subsection{Evolution Plan Definition - Modification Level, Flat Representation}%
 \label{sub:evolution_plan_definition_modification_level_flat_representation}
 
-As discussed in Section~\ref{sec:issues_with_using_a_list_based_approach}, the list-based operation approach is problematic in order to achieve a desired merge result. What the user perceived as equal plans had several representations. In order to combat this we created a normal form for evolution plans, \texttt{TreeUserEvolutionPlan}, more aligned with the users perspective of evolution plans. Since tree-based structure of its feature models had some disadvantages in terms of detecting and applying modifications, we created a new representation for feature models, which we used in our intermediate representation for evolution plans, \texttt{FlatUserEvolutionPlan}.
+As discussed in Section~\ref{sec:issues_with_using_a_list_based_approach} \todo{fix ref}, the list-based operation approach is problematic in order to achieve a desired merge result. What the user perceived as equal plans had several representations. In order to combat this we created a normal form for evolution plans, \texttt{TreeUserEvolutionPlan}, more aligned with the users perspective of evolution plans. Since tree-based structure of its feature models had some disadvantages in terms of detecting and applying modifications, we created a new representation for feature models, which we used in our intermediate representation for evolution plans, \texttt{FlatUserEvolutionPlan}.
 
 However, the user level evolution plan representation with the list of feature models for each time point didn't model the replanning aspect of evolution plans as we wanted. When users have to go back to intermediate time points in the evolution plan and make changes, the changes will appear in the subsequent time points as well. This requires modeling the evolution plan similar to the list-based operation approach discussed previously, while still avoiding the issues regarding operation ordering, operation shadowing, etc.
 
