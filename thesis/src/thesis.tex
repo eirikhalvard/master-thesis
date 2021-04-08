@@ -105,11 +105,24 @@ ltep stuff blabla
 
 As the goal of the thesis is to provide tools aiding developers and engineers cooperate in planning the evolution of a software product line, we propose some research questions (RQ). The research questions are concrete questions that we want to answer as a result of this thesis:
 
-\begin{itemize}
-  \item \textbf{RQ1}: In what way should we represent an evolution plan in order to do an effective merge?
-  \item \textbf{RQ2}: How should we design the three-way merge algorithm in order to produce a sound evolution plan?
-  \item \textbf{RQ3}: How do we create a merge tool that produces predictable, transparent results?
-\end{itemize}
+\paragraph{RQ1}
+
+\textit{Is it feasable to create a merge tool for evolution plans that respect soundness?} When developing a merge tool, we optimally want to ensure that the structure and semantics of evolution plans are met. Can the tool ensure this?
+
+\paragraph{RQ2}
+
+\textit{Are the results of the merge tool predictable and interpretable?} As we want the merge tool to be used by humans, the output of the tool needs to be possible to understand.
+
+\paragraph{RQ3}
+
+\textit{What are the drawbacks and short comings of the merge tool?} The method of merging may have several implications for the result of the merge. We want to investigate if there are any issues as a result.
+
+% OLD>>>
+% \begin{itemize}
+%   \item \textbf{RQ1}: In what way should we represent an evolution plan in order to do an effective merge?
+%   \item \textbf{RQ2}: How should we design the three-way merge algorithm in order to produce a sound evolution plan?
+%   \item \textbf{RQ3}: How do we create a merge tool that produces predictable, interpretable results which allows resolution?
+% \end{itemize}
 
 \section{Contributions}%
 \label{sec:contributions}
