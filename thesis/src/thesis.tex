@@ -312,39 +312,87 @@ Semantic mergers takes these kinds of conflicts into consideration while merging
 \chapter{Developing a Sound Three-Way Merge of Evolution Plans}%
 \label{cha:developing_a_sound_three_way_merge_of_evolution_plans}
 
-dra leser tilbake inn fra background. contributors are replanning evolution plans. these changes use existing tools to ensure soundness. Even though they are sound individually, the merging of the changes may result in something that is not. 
+\todo{dra leser tilbake inn fra background. contributors are replanning evolution plans. these changes use existing tools to ensure soundness. Even though they are sound individually, the merging of the changes may result in something that is not.} 
 
-the context. we will say darwin spl. we will show screenshot. tool used in the backend.
+\section{Problem Defintion}%
+\label{sec:problem_defintion}
 
-problem definition. hva er det vi prøver å gjøre. blabla three-way fordi det er bedre. vi vil bevare structure og semantics.
+\todo{problem definition. hva er det vi prøver å gjøre. blabla three-way fordi det er bedre. vi vil bevare structure og semantics.}
 
-the algorithm. how it works. outline. the different parts. the types of conflicts. bla bla
+\section{Context of The Merger}%
+\label{sec:context_of_the_merger}
 
-formelle definisjoner av evolution plans. snakke om well formedness. important prerequisite to know the formal semantics in order to do an effective merge.
+\todo{the context. we will say darwin spl. we will show screenshot. tool used in the backend. section somewhere: about the darwin spl tool. screenshot. about the merge tool working as a backend for this tool, potentially being tied in. user should maybe not interact directly with this tool. etc}
 
-visualization deviates from common stuff. highlight that groups are nodes very similarly to features. This is not important for a user, but an important aspect of the logical framework. snakke om hvordan det er visualisert. grupper er mer tydelig enkodet. osv
+\section{The Three-Way Merge Algorithm}%
+\label{sec:the_three_way_merge_algorithm}
 
-\todo{høynivå opplegg. outline opp hit. }
+\todo{the algorithm. how it works. outline. the different parts. the types of conflicts. bla bla}
 
-\todo{problem definition. write about this somehow?}
-% \section{Problem Definition}%
-% \label{sec:problem_definition}
+\todo{fix headings and stuff!}
+\section{Algorithm Overview}%
+\label{sec:algorithm_overview}
 
-\todo{section somewhere: about the darwin spl tool. screenshot. about the merge tool working as a backend for this tool, potentially being tied in. user should maybe not interact directly with this tool. etc}
+\subsection{Three-Way Merging of Evolution Plans}%
+\label{sub:three_way_merging_of_evolution_plans}
 
-\chapter{Implementation of the Merger in Haskell}%
+The three-way merge algorithm for feature model evolution plans will take two different versions of an evolution plan, \textit{version 1} and \textit{version 2}, and attempt to merge the evolution plans into a single plan. In order to do so, a third evolution plan has to be provided, which is the common evolution plan they were derived from. The common evolution plan, called \textit{base}, will implicitly provide information about what things were added, removed and changed in each of the derived evolution plans.
+
+\subsection{Soundness Assumption}%
+\label{sub:soundness_assumption}
+
+The three-way merge algorithm will assume that the three evolution plans provided are sound. By assuming the soundness of the plans, the algorithm can leverage this to create a better merge result. But more importantly, the assumption is based around the fact that there is no point in merging an evolution plan you know violates soundness in some way.
+
+\subsection{Algorithm Phases}%
+\label{sub:algorithm_phases}
+
+In order to merge the different versions of the evolution plan, the algorithm is separated into several distinct phases. The different steps and phases of the algorithm can be seen in Figure~\ref{fig:merge_outline}.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\linewidth]{merge_outline}
+  \caption{Outline of the three-way merge algorithm}%
+  \label{fig:merge_outline}
+\end{figure}
+
+The first phase is transforming the three different evolution plans into representations that is more suitable for merging. This includes converting both the way feature models are represented as well as the way the entire evolution plan is represented. This phase includes the \texttt{flattenEvolutionPlan} and \texttt{deriveModifications}, which is described in further detail in \vref{sec:converting_to_a_suitable_representation}
+
+After changing the way evolution plans are represented, the second phase of the algorithm will calculate the differences between the \textit{base} evolution plan and both derived evolution plans, \textit{version 1}, and \textit{version 2}. This will let us know what were added, changed and removed in each of the derived evolution plans. This phase is part of the \texttt{mergePlan} function, which is described in further detail in \vref{sec:detecting_the_changes_between_versions}
+
+The information from the previous phase will be used to create a single merged evolution plan. This evolution plan is simply just the \textit{base} evolution plan integrated with all the changes from \textit{version 1} and \textit{version 2}. This phase is part of the \texttt{mergePlan} function, which is described in further detail in \vref{sec:merging_intended_changes}
+
+Now that a single merged evolution plan is provided, the last step is to ensure that the plan is following the structural and semantic requirements of an evolution plan. Merging all changes from both versions might yield various inconsistencies. This includes structural conflicts such as orphan features, entire subtrees forming cycles, removing non-empty features, etc. The last phase includes converting back to the original representation, as well as ensuring soundness while doing so. This phase is part of the \texttt{integrateModifications}, \texttt{checkModifications} and \texttt{unflattenEvolutionPlan} functions, which is explained further in \vref{sec:ensuring_structural_and_semantic_soundness_of_merge_result}
+
+\subsection{Conflicts}%
+\label{sub:conflicts}
+
+During the different phases of the merge algorithm, different kind of conflicts or errors could occur. Depending on what part of the algorithm a conflict occurred, the conflicts might be either a \textit{merge}, \textit{local} or \textit{global} conflict. At what phase each conflict could occur can also be seen in Figure~\vref{fig:merge_outline}, but a short description of the different conflicts are described below. 
+
+\textit{Merge Conflicts} occur because of conflicting operations on a single feature or group. This could happen if one version tries to remove a feature, while the other tries to change the type of a feature. This could also happen if there originally existed a modification in the \textit{base} version, and one of the derived versions try to change the modification, while the other tries to remove the modification.
+
+\textit{Local Conflicts} occur when a modification is not possible to be applied because of the existence or non-existence of a feature or group. For example, if we try to add a feature with an id that already exist, or try to change the type of a group that does not exist.
+
+\textit{Global Conflicts} is the last kind of error that could occur. When all the modifications has been integrated into the evolution plan, each feature model is checked for certain structural or semantical errors. At this point, each change \textit{local} to a feature or group is valid, so we check for potential errors that occur because of dependencies between the features and groups, \textit{global} to the entire feature model. The structural errors is typically modifications that lead to anomalies in the tree structure. These violations of the structure could happen if you add features to parents that don't exist, remove groups that has children, or move features in such a way that cycles are formed. Other violations to the semantics are also checked. This could for example be violations of well-formedness, that could happen if we change the type of a feature to something incompatible with its group.
+
+\section{Formal Definition of Evolution Plans}%
+\label{sec:formal_definition_of_evolution_plans}
+
+\todo{formelle definisjoner av evolution plans. snakke om well formedness. important prerequisite to know the formal semantics in order to do an effective merge.}
+
+\todo{kan snakke om operasjonene, hva de betyr på høynivå. referere til artikkel for detaljer.}
+\todo{arbeid er basert på sunn plan.}
+
+\todo{visualization deviates from common stuff. highlight that groups are nodes very similarly to features. This is not important for a user, but an important aspect of the logical framework. snakke om hvordan det er visualisert. grupper er mer tydelig enkodet. osv}
+
+\chapter{Implementing the Merger in Haskell}%
 \label{cha:implementation_of_the_merger_in_haskell}
 
 \section{TING FRA KAP 3}%
 \label{sec:ting_fra_kap_3}
 
-\section{TING FRA RESTEN}%
-\label{sec:ting_fra_resten}
-
-
-
-\chapter{Formal Semantics of Feature Model Evolution Plans}%
+\section{Formal Semantics of Feature Model Evolution Plans}%
 \label{cha:formal_semantics_of_feature_model_evolution_plans}
+\todo{chapter written to a section. do something meaningful}
 
 As stated in \textbf{RQ1} in section~\vref{sec:research_questions}, we want design the merger in a way that guarantees a sound merge result. In order to do so, we need to have a clear, formal definition of the software artifact at hand, namely feature model evolution plans.
 
@@ -790,62 +838,14 @@ simpleExampleMod =
 % An important part in merging the efforts of two collaborators is figuring out exactly what changes each collaborators did to the common base evolution plan. With our current representation of evolution plans, \texttt{TreeUserEvolutionPlan}, detecting changes in the tree can be quite difficult.
 
 
+\section{TING FRA RESTEN}%
+\label{sec:ting_fra_resten}
 
-
-\todo{kan snakke om operasjonene, hva de betyr på høynivå. referere til artikkel for detaljer.}
-\todo{arbeid er basert på sunn plan.}
-
-\chapter{Three-Way Merge Algorithm}%
-\label{cha:three_way_merge_algorithm}
-
-\section{Algorithm Overview}%
-\label{sec:algorithm_overview}
-
-\subsection{Three-Way Merging of Evolution Plans}%
-\label{sub:three_way_merging_of_evolution_plans}
-
-The three-way merge algorithm for feature model evolution plans will take two different versions of an evolution plan, \textit{version 1} and \textit{version 2}, and attempt to merge the evolution plans into a single plan. In order to do so, a third evolution plan has to be provided, which is the common evolution plan they were derived from. The common evolution plan, called \textit{base}, will implicitly provide information about what things were added, removed and changed in each of the derived evolution plans.
-
-\subsection{Soundness Assumption}%
-\label{sub:soundness_assumption}
-
-The three-way merge algorithm will assume that the three evolution plans provided are sound. By assuming the soundness of the plans, the algorithm can leverage this to create a better merge result. But more importantly, the assumption is based around the fact that there is no point in merging an evolution plan you know violates soundness in some way.
-
-\subsection{Algorithm Phases}%
-\label{sub:algorithm_phases}
-
-In order to merge the different versions of the evolution plan, the algorithm is separated into several distinct phases. The different steps and phases of the algorithm can be seen in Figure~\ref{fig:merge_outline}.
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.8\linewidth]{merge_outline}
-  \caption{Outline of the three-way merge algorithm}%
-  \label{fig:merge_outline}
-\end{figure}
-
-The first phase is transforming the three different evolution plans into representations that is more suitable for merging. This includes converting both the way feature models are represented as well as the way the entire evolution plan is represented. This phase includes the \texttt{flattenEvolutionPlan} and \texttt{deriveModifications}, which is described in further detail in \vref{sec:converting_to_a_suitable_representation}
-
-After changing the way evolution plans are represented, the second phase of the algorithm will calculate the differences between the \textit{base} evolution plan and both derived evolution plans, \textit{version 1}, and \textit{version 2}. This will let us know what were added, changed and removed in each of the derived evolution plans. This phase is part of the \texttt{mergePlan} function, which is described in further detail in \vref{sec:detecting_the_changes_between_versions}
-
-The information from the previous phase will be used to create a single merged evolution plan. This evolution plan is simply just the \textit{base} evolution plan integrated with all the changes from \textit{version 1} and \textit{version 2}. This phase is part of the \texttt{mergePlan} function, which is described in further detail in \vref{sec:merging_intended_changes}
-
-Now that a single merged evolution plan is provided, the last step is to ensure that the plan is following the structural and semantic requirements of an evolution plan. Merging all changes from both versions might yield various inconsistencies. This includes structural conflicts such as orphan features, entire subtrees forming cycles, removing non-empty features, etc. The last phase includes converting back to the original representation, as well as ensuring soundness while doing so. This phase is part of the \texttt{integrateModifications}, \texttt{checkModifications} and \texttt{unflattenEvolutionPlan} functions, which is explained further in \vref{sec:ensuring_structural_and_semantic_soundness_of_merge_result}
-
-\subsection{Conflicts}%
-\label{sub:conflicts}
-
-During the different phases of the merge algorithm, different kind of conflicts or errors could occur. Depending on what part of the algorithm a conflict occurred, the conflicts might be either a \textit{merge}, \textit{local} or \textit{global} conflict. At what phase each conflict could occur can also be seen in Figure~\vref{fig:merge_outline}, but a short description of the different conflicts are described below. 
-
-\textit{Merge Conflicts} occur because of conflicting operations on a single feature or group. This could happen if one version tries to remove a feature, while the other tries to change the type of a feature. This could also happen if there originally existed a modification in the \textit{base} version, and one of the derived versions try to change the modification, while the other tries to remove the modification.
-
-\textit{Local Conflicts} occur when a modification is not possible to be applied because of the existence or non-existence of a feature or group. For example, if we try to add a feature with an id that already exist, or try to change the type of a group that does not exist.
-
-\textit{Global Conflicts} is the last kind of error that could occur. When all the modifications has been integrated into the evolution plan, each feature model is checked for certain structural or semantical errors. At this point, each change \textit{local} to a feature or group is valid, so we check for potential errors that occur because of dependencies between the features and groups, \textit{global} to the entire feature model. The structural errors is typically modifications that lead to anomalies in the tree structure. These violations of the structure could happen if you add features to parents that don't exist, remove groups that has children, or move features in such a way that cycles are formed. Other violations to the semantics are also checked. This could for example be violations of well-formedness, that could happen if we change the type of a feature to something incompatible with its group.
-
+\todo{fikse heading problemer. prefikse alt med sub eller no. her må man finne ut hva greia blir}
 \section{Converting To a Suitable Representation}%
 \label{sec:converting_to_a_suitable_representation}
 
-As discussed in Chapter~\ref{cha:formal_semantics_of_feature_model_evolution_plans}, we needed to create a suitable representation for evolution plans before attempting to merge the different versions.
+As discussed in Chapter~\ref{cha:formal_semantics_of_feature_model_evolution_plans} \todo{fix ref}, we needed to create a suitable representation for evolution plans before attempting to merge the different versions.
 
 The input of the three-way merge algorithm is three evolution plans in our evolution plan normal form, \texttt{TreeUserEvolutionPlan}. Each of the three evolution plans will be transformed into our merge-ready representation of evolution plan in two steps. First we will use \texttt{flattenEvolutionPlan} in order to flatten the evolution plan and represent it as our intermediate representation \texttt{FlatUserEvolutionPlan}. After this transformation, the evolution plans will be transformed into the merge-ready representation, \texttt{FlatModificationEvolutionPlan}.
 
@@ -2392,19 +2392,10 @@ The resulting merged evolution plan is also visualized in Figure~\ref{fig:simple
   \label{fig:simple_three_way_merged_result}
 \end{figure}
 
-\part{Case Study and Conclusion}%
-\label{prt:case_study_and_conclusion}
+\chapter{Command Line Interface and Visualization Tools}%
+\label{cha:command_line_interface_and_visualization_tools}
 
-
-
-\chapter{Case Study – Vending Machine}%
-\label{cha:case_study_vending_machine}
-
-In this chapter, we will apply the three-way merge tool on an example inspired from the real world. The example models the evolution of a vending machine software product line. The evolution plan models the planned changes of common vending machine features like beverages such as tea and coffee, different types of currency, different sizes to the cups, etc.
-
-Since we creating a \textit{three} way merge example, we will input three distinct evolution plans to the algorithm. A base evolution plan, and two derived evolution plan, each with their own changes to the base evolution plan. The changes of both versions are then detected and merged into a final, merged version of the evolution plans.
-
-We will showcase two slightly different examples, an example that results in a sound, well-formed evolution plan, and one that results in a conflict. The input to the merge tool is represented in the common serialization format JSON, which is passed as argument to a command line interface wrapping the three-way merge algorithm. The results from the algorithm is then serialized and written to a file. The command line interface will also generate data which is passed to a frontend visualization tool, which visualizes the input and output of the algorithm.
+\todo{bla bla about tools. cli and visualization tool.}
 
 \section{Command Line Interface}%
 \label{sec:command_line_interface}
@@ -2486,6 +2477,18 @@ As an example, running the following will read a sound example from file\footnot
 \label{sec:a_visualization_tool_for_evolution_plans}
 
 \todo{elm, files generated from cli. display the eps as a list of trees, with each tree automaticcally drawn using a svg library. designed to help explore the three-way merge algorithm, and its inputs and results, svg calculating and drawing each tree to do automatically, showcase a screendump of web page, explaining different elements. used to explore the different examples and edgecases of my tests, note about the visualization tool, how it differs from the paper. mandatory/optional are modeled as colors not dots above the feature. Results are generated and drawn automatically, what we display is simply a screenshot}
+
+\part{Case Study and Conclusion}%
+\label{prt:case_study_and_conclusion}
+
+\chapter{Case Study – Vending Machine}%
+\label{cha:case_study_vending_machine}
+
+In this chapter, we will apply the three-way merge tool on an example inspired from the real world. The example models the evolution of a vending machine software product line. The evolution plan models the planned changes of common vending machine features like beverages such as tea and coffee, different types of currency, different sizes to the cups, etc.
+
+Since we are creating a \textit{three}-way merge example, we will input three distinct evolution plans to the algorithm. A base evolution plan, and two derived evolution plan, each with their own changes to the base evolution plan. The changes of both versions are then detected and merged into a final, merged version of the evolution plans.
+
+We will showcase two slightly different examples, an example that results in a sound, well-formed evolution plan, and one that results in a conflict. The input to the merge tool is encoded in the common serialization format JSON, which is passed as argument to the command line interface wrapping the three-way merge algorithm. The results from the algorithm is then serialized and written to a file. The command line interface will also generate data which is passed to the visualization tool, which visualizes the input and output of the algorithm.
 
 \section{A Sound Example}%
 \label{sec:a_sound_example}
