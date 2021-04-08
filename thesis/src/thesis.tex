@@ -18,7 +18,7 @@
 
 \newcommand{\todo}[1]{\textcolor{red}{[[TODO: #1]]}\PackageWarning{TODO:}{#1!}}
 
-\title{Three Way Merge for Feature Model Evolution Planning}
+\title{Three-Way Merge for Feature Model Evolution Planning}
 \date{May 2021}
 \author{Eirik Halvard Sæther}
 \synctex=1
@@ -164,6 +164,8 @@ All the source code from the master thesis can be found on Github\footnote{https
 bakgrunn er ting vi vet i dag om spl. ikke blande inn min contribution i bakgrunn. tydelig skille.
 i bakgrunnseksjon: diskutere litt hvordan forskjellige merge teknikker har fordeler/ulemper.
 
+begynne med å introdusere background. fortelle hva vi skal gå gjennom. fortelle om spl. div merge teknikker. haskell formalisering. etc
+
 \section{Software product lines}%
 \label{sec:software_product_lines}
 
@@ -304,15 +306,42 @@ Semantic mergers takes these kinds of conflicts into consideration while merging
 
 \todo{write about type synonyms, data types including records and sum types. show polymorphic data types. maybe something about deriving, maybe lens generation? etc. something about maybe? expressive and strict type system}
 
-\part{A Sound, Semantic Merger for Evolution Plans}%
+\part{A Soundness Preserving Merger for Evolution Plans}%
 \label{prt:a_sound_semantic_merger_for_evolution_plans}
 
+\chapter{Developing a Sound Three-Way Merge of Evolution Plans}%
+\label{cha:developing_a_sound_three_way_merge_of_evolution_plans}
+
+dra leser tilbake inn fra background. contributors are replanning evolution plans. these changes use existing tools to ensure soundness. Even though they are sound individually, the merging of the changes may result in something that is not. 
+
+the context. we will say darwin spl. we will show screenshot. tool used in the backend.
+
+problem definition. hva er det vi prøver å gjøre. blabla three-way fordi det er bedre. vi vil bevare structure og semantics.
+
+the algorithm. how it works. outline. the different parts. the types of conflicts. bla bla
+
+formelle definisjoner av evolution plans. snakke om well formedness. important prerequisite to know the formal semantics in order to do an effective merge.
+
+visualization deviates from common stuff. highlight that groups are nodes very similarly to features. This is not important for a user, but an important aspect of the logical framework. snakke om hvordan det er visualisert. grupper er mer tydelig enkodet. osv
+
+\todo{høynivå opplegg. outline opp hit. }
 
 \todo{problem definition. write about this somehow?}
 % \section{Problem Definition}%
 % \label{sec:problem_definition}
 
 \todo{section somewhere: about the darwin spl tool. screenshot. about the merge tool working as a backend for this tool, potentially being tied in. user should maybe not interact directly with this tool. etc}
+
+\chapter{Implementation of the Merger in Haskell}%
+\label{cha:implementation_of_the_merger_in_haskell}
+
+\section{TING FRA KAP 3}%
+\label{sec:ting_fra_kap_3}
+
+\section{TING FRA RESTEN}%
+\label{sec:ting_fra_resten}
+
+
 
 \chapter{Formal Semantics of Feature Model Evolution Plans}%
 \label{cha:formal_semantics_of_feature_model_evolution_plans}
@@ -766,7 +795,7 @@ simpleExampleMod =
 \todo{kan snakke om operasjonene, hva de betyr på høynivå. referere til artikkel for detaljer.}
 \todo{arbeid er basert på sunn plan.}
 
-\chapter{Three Way Merge Algorithm}%
+\chapter{Three-Way Merge Algorithm}%
 \label{cha:three_way_merge_algorithm}
 
 \section{Algorithm Overview}%
@@ -2363,10 +2392,15 @@ The resulting merged evolution plan is also visualized in Figure~\ref{fig:simple
   \label{fig:simple_three_way_merged_result}
 \end{figure}
 
-\chapter{Example Merge – Vending Machine}%
-\label{cha:example_merge_vending_machine}
+\part{Case Study and Conclusion}%
+\label{prt:case_study_and_conclusion}
 
-In this chapter, we will apply the three way merge tool on an example inspired from the real world. The example models the evolution of a vending machine software product line. The evolution plan models the planned changes of common vending machine features like beverages such as tea and coffee, different types of currency, different sizes to the cups, etc.
+
+
+\chapter{Case Study – Vending Machine}%
+\label{cha:case_study_vending_machine}
+
+In this chapter, we will apply the three-way merge tool on an example inspired from the real world. The example models the evolution of a vending machine software product line. The evolution plan models the planned changes of common vending machine features like beverages such as tea and coffee, different types of currency, different sizes to the cups, etc.
 
 Since we creating a \textit{three} way merge example, we will input three distinct evolution plans to the algorithm. A base evolution plan, and two derived evolution plan, each with their own changes to the base evolution plan. The changes of both versions are then detected and merged into a final, merged version of the evolution plans.
 
@@ -2451,7 +2485,7 @@ As an example, running the following will read a sound example from file\footnot
 \section{A Visualization Tool for Evolution Plans}%
 \label{sec:a_visualization_tool_for_evolution_plans}
 
-\todo{elm, files generated from cli. display the eps as a list of trees, with each tree automaticcally drawn using a svg library. designed to help explore the three way merge algorithm, and its inputs and results, svg calculating and drawing each tree to do automatically, showcase a screendump of web page, explaining different elements. used to explore the different examples and edgecases of my tests, note about the visualization tool, how it differs from the paper. mandatory/optional are modeled as colors not dots above the feature. Results are generated and drawn automatically, what we display is simply a screenshot}
+\todo{elm, files generated from cli. display the eps as a list of trees, with each tree automaticcally drawn using a svg library. designed to help explore the three-way merge algorithm, and its inputs and results, svg calculating and drawing each tree to do automatically, showcase a screendump of web page, explaining different elements. used to explore the different examples and edgecases of my tests, note about the visualization tool, how it differs from the paper. mandatory/optional are modeled as colors not dots above the feature. Results are generated and drawn automatically, what we display is simply a screenshot}
 
 \section{A Sound Example}%
 \label{sec:a_sound_example}
