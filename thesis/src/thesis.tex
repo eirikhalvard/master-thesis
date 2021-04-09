@@ -132,14 +132,14 @@ As the goal of the thesis is to provide tools aiding developers and engineers co
 
 The main contribution of this thesis is a three-way merge algorithm for feature model evolution plans that ensures a well-formed, sound plan upon a successful merge. In order to achieve this, we have created a new representation of evolution plans more suitable for merging. With such a representation of evolution plans, the algorithm will include alterations from both derived versions, combining them into a single evolution plan, which are then checked to ensure a sound, well-formed evolution plan.
 
-The three-way merge algorithm is implemented in the strongly-typed, functional programming language Haskell. The Haskell program is created as an \textit{command line interface (CLI)}, to handle reading and writing from file, logging the output of the algorithm, checking for correct behaviour, etc. The CLI allows a variety of different input formats for the evolution plans, as well as the option for generating some predefined examples, both sound and unsound. Since feature models and evolution plans often are very hard to read in textual format, a frontend visualization tool has also been created using a language similar to Haskell, namely Elm. The Elm application is a web application that can display the evolution plans as visual tree structures, and lets users explore what the merge algorithm produces. Several examples and test cases have also been implemented, checking that the expected behaviour of the program matches the actual output.
+The three-way merge algorithm is implemented in the strongly-typed, functional programming language Haskell. The Haskell program is created as an \textit{command-line interface (CLI)}, to handle reading and writing from file, logging the output of the algorithm, checking for correct behaviour, etc. The CLI allows a variety of different input formats for the evolution plans, as well as the option for generating some predefined examples, both sound and unsound. Since feature models and evolution plans often are very hard to read in textual format, a frontend visualization tool has also been created using a language similar to Haskell, namely Elm. The Elm application is a web application that can display the evolution plans as visual tree structures, and lets users explore what the merge algorithm produces. Several examples and test cases have also been implemented, checking that the expected behaviour of the program matches the actual output.
 
 To summarize, the contributions include:
 
 \begin{itemize}
   \item Created a formal definition of evolution plans suitable for merging
   \item Constructed a three-way merge algorithm producing sound, well-formed evolution plans
-  \item Implemented the algorithm as part of a command line interface in Haskell
+  \item Implemented the algorithm as part of a command-line interface in Haskell
   \item Created a visualization tools for exploring the results of the merge in Elm
   \item Provided test cases and examples that results in both sound evolution plans and merge conflicts
 \end{itemize}
@@ -345,7 +345,22 @@ The inputs of the algorithm, the three evolution plans, are assumed to be sound.
 \section{Context of The Merger}%
 \label{sec:context_of_the_merger}
 
-\todo{the context. we will say darwin spl. we will show screenshot. tool used in the backend. section somewhere: about the darwin spl tool. screenshot. about the merge tool working as a backend for this tool, potentially being tied in. user should maybe not interact directly with this tool. etc}
+In this section we will explain how the three-way merger will fit into the general work flow of engineers actually working on the evolution plans.
+
+The core platform engineers using evolution plans will deal with, is the eclipse application DarwinSPL\footnote{https://gitlab.com/DarwinSPL/DarwinSPL}. In this application, users are presented with a graphical interface for creating and modifying evolution plans. A screenshot of the application in use can be seen in Figure~\ref{fig:darwin_spl_screenshot}. 
+
+\begin{figure}[htpb]
+  \centering
+  \includegraphics[width=\linewidth]{darwin_spl_screenshot.png}
+  \caption{DarwinSPL Screenshot}%
+  \label{fig:darwin_spl_screenshot}
+\end{figure}
+
+As the merger is designed with the DarwinSPL application in mind, the merge tool is not intended to be interacted with directly. The tool I have created can act as backend for DarwinSPL, where the merger will have to be integrated as part of a bigger version control system inside the application.
+
+A potential version control system can be tightly integrated with the editor as a wrapper layer between the editor and the three-way merge backend. Creating such a system can let users commit and push changes of the evolution plan. When multiple contributors are to harmonize their diverging versions, the diverging versions as well as the base plan they were derived from could be retrieved from the version control system and fed to the three-way merger.
+
+Our three-way merge backend is implemented in Haskell, which is different from the DarwinSPL tool which is implemented in the Java language. For this reason, one could not simply plug the pure three-way merge algorithm directly. To tackle this problem, we have defined a command-line interface facilitating the integration of the tools. The command-line interface includes serialization and deserialization of the input and output data structures, as well as several options and modes to control the way the merger behaves. This command-line interface is defined and discussed in more detail in Section~\vref{sec:command_line_interface}
 
 \section{Algorithm Overview}%
 \label{sec:algorithm_overview}
@@ -2422,17 +2437,17 @@ The resulting merged evolution plan is also visualized in Figure~\ref{fig:simple
   \label{fig:simple_three_way_merged_result}
 \end{figure}
 
-\chapter{Command Line Interface and Visualization Tools}%
+\chapter{Command-Line Interface and Visualization Tools}%
 \label{cha:command_line_interface_and_visualization_tools}
 
 \todo{bla bla about tools. cli and visualization tool.}
 
-\section{Command Line Interface}%
+\section{Command-Line Interface}%
 \label{sec:command_line_interface}
 
-The evolution plan merger defines a command line interface, \texttt{epmerge}, which will do three-way merges on evolution plans. The interface acts as a wrapper around the three-way merge algorithm, handling things like reading and writing to file, logging, converting between representations, etc. 
+The evolution plan merger defines a command-line interface, \texttt{epmerge}, which will do three-way merges on evolution plans. The interface acts as a wrapper around the three-way merge algorithm, handling things like reading and writing to file, logging, converting between representations, etc. 
 
-By designing a command line interface using the common data serialization format json, our application can be easily integrated with other tools. Other tools are often designed and implemented in other technologies and languages, and having a command line interface allows for easier integration of the tools.
+By designing a command-line interface using the common data serialization format json, our application can be easily integrated with other tools. Other tools are often designed and implemented in other technologies and languages, and having a command-line interface allows for easier integration of the tools.
 
 We used the Haskell library \textit{optparse-applicative}\footnote{https://github.com/pcapriotti/optparse-applicative} to define the interface, which allowed us to automatically generate a help page. By invoking the command \texttt{epmerge --help}, the following help page will be shown.
 
@@ -2476,7 +2491,7 @@ Available options:
 
 The interface has three different \textit{modes}; \texttt{GenerateOne}, \texttt{GenerateAll} and \texttt{FromFile}. The first two will merge either one or all of the predefined test inputs. This includes different variations of the vending machine example we will explore in this chapter. The last, mode \texttt{fromFile}, will read the input from a json encoded file.
 
-The command line interface has three basic `Modes`. `GenerateAll`, `GenerateOne` and `FromFile`.
+The command-line interface has three basic `Modes`. `GenerateAll`, `GenerateOne` and `FromFile`.
 
 \begin{itemize}
 \item \texttt{GenerateAll} will simply run all the examples in the code. This includes some sound examples and some erroneous examples. The erroneous examples consists of \texttt{Merge} conflicts, \texttt{Local} conflicts and \texttt{Global} conflicts. This mode can be run using \texttt{epmerge --generateAll}.
@@ -2518,7 +2533,7 @@ In this chapter, we will apply the three-way merge tool on an example inspired f
 
 Since we are creating a \textit{three}-way merge example, we will input three distinct evolution plans to the algorithm. A base evolution plan, and two derived evolution plan, each with their own changes to the base evolution plan. The changes of both versions are then detected and merged into a final, merged version of the evolution plans.
 
-We will showcase two slightly different examples, an example that results in a sound, well-formed evolution plan, and one that results in a conflict. The input to the merge tool is encoded in the common serialization format JSON, which is passed as argument to the command line interface wrapping the three-way merge algorithm. The results from the algorithm is then serialized and written to a file. The command line interface will also generate data which is passed to the visualization tool, which visualizes the input and output of the algorithm.
+We will showcase two slightly different examples, an example that results in a sound, well-formed evolution plan, and one that results in a conflict. The input to the merge tool is encoded in the common serialization format JSON, which is passed as argument to the command-line interface wrapping the three-way merge algorithm. The results from the algorithm is then serialized and written to a file. The command-line interface will also generate data which is passed to the visualization tool, which visualizes the input and output of the algorithm.
 
 \section{A Sound Example}%
 \label{sec:a_sound_example}
