@@ -479,9 +479,18 @@ In the work in this thesis, I will build upon the semantics of the operations de
 \subsection{Visual Representation}%
 \label{sub:visual_representation}
 
-\todo{some examples. høynivå}
+As we want to visualize examples of feature models and evolution plans, we make \textit{feature model diagrams} to achieve this. The visualization captures the most important aspects of a feature model in a visual tree structure.
 
-\todo{visualization deviates from common stuff. highlight that groups are nodes very similarly to features. This is not important for a user, but an important aspect of the logical framework. snakke om hvordan det er visualisert. grupper er mer tydelig enkodet. osv}
+In the diagram, each feature is a node of rectangular shape with the name of the feature in the center of the node. Features has either a black or white circle above it, indicating whether the feature is mandatory or optional. This is true for every feature but one, the root feature, since the root is always mandatory. Groups are modeled as a circle with a symbol inside. The symbol inside represents the type of the group, where \textit{and} groups are using the $\land$ symbol, \textit{or} groups use $\lor$, and \textit{alternative} groups use the $\oplus$ symbol.
+
+\begin{figure}[htpb]
+  \centering
+  \includegraphics[width=0.4\linewidth]{visual_example.pdf}
+  \caption{Visual representation of an example feature model}%
+  \label{fig:visual_example}
+\end{figure}
+
+We present an example, seen in Figure~\ref{fig:visual_example}, to demonstrate this. In this example, we have three features and one group. The three features is named \textit{Feature 1}, \textit{Feature 2} and \textit{Feature 3}. Every feature is mandatory, except feature 2, which is optional. Since the group has the $\land$ symbol, it is an \textit{and} group.
 
 \chapter{Implementing the Merger in Haskell}%
 \label{cha:implementation_of_the_merger_in_haskell}
