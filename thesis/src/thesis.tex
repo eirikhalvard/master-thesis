@@ -439,9 +439,9 @@ This is the final, merge-ready representation for evolution plans. In this repre
 \section{Formal Definition of Evolution Plans}%
 \label{sec:formal_definition_of_evolution_plans}
 
-Part of our goal is to merge sound evolution plans and produce an evolution plan that is sound. An important prerequisite in order to achieve this, is to formally define evolution plans.
+As stated in \textbf{RQ1} in Section~\vref{sec:research_questions}, we want design the merger in a way that guarantees a sound merge result. In order to do so, we need to have a clear, formal definition of the software artifact at hand, namely evolution plans.
 
-Part of our work on this project was defining the formal semantics of feature models and evolution plans. The development of the formal semantics can be read in greater detail in our paper \cite{cite:consistency_preserving_evolution_planning}. However, we present the details necessary in order to understand the formal semantics of evolution plans.
+The work we did in \cite{cite:consistency_preserving_evolution_planning} defined the theoretical foundation of a sound, well-formed evolution plan, which we used to create a framework for ensuring soundness. In our merge tool, we are merging evolution plans which are assumed to be \textit{sound}. This means we can leverage the properties of sound evolution plans defined in the paper. Since we also want to create a sound evolution plan, we will present the details necessary in order to understand the formal semantics of evolution plans.
 
 \subsection{Feature Models}%
 \label{sub:feature_models}
@@ -468,9 +468,18 @@ Note that in the paper \cite{cite:consistency_preserving_evolution_planning}, th
 \subsection{Evolution Plans}%
 \label{sub:evolution_plans}
 
-\todo{in the most basic form, eps are a feature models coupled with time points ordered in a list. Not many additional restraints in addition to the feature model definition.} 
+In its most basic form, evolution plans are simply just a list of feature models, where each feature model is associated with a time point. This representation does not require any additional restraints other than the fact that the time points will have to be ordered.
 
-\todo{kan snakke om operasjonene, hva de betyr på høynivå. referere til artikkel for detaljer.}
+Evolution planning often requires revisiting intermediate feature models, not just adding new feature models at the end of the evolution plan. By \textit{replanning} the evolution plan and changing these intermediate feature models, the changes will be propagated in subsequent time points (i.e. adding a feature at a time point will result in the feature existing in subsequent time points).
+
+In order to facilitate for replanning, we defined the semantics for what is considered a valid change on a feature model. A change was captured formally as an \textit{operation}, which described how the feature model would be changed, and under what conditions. The operations include addition and deletion of features and groups, as well as modifications to their fields, such as names or types.
+
+In the work in this thesis, I will build upon the semantics of the operations defined in \cite{cite:consistency_preserving_evolution_planning}. However, we cannot use the operations directly, since due to several issues we will detail in Section~\vref{sec:issues_with_using_a_list_based_approach}. Instead, we develop new representations which is better suited for merging evolution plans.
+
+\subsection{Visual Representation}%
+\label{sub:visual_representation}
+
+\todo{some examples. høynivå}
 
 \todo{visualization deviates from common stuff. highlight that groups are nodes very similarly to features. This is not important for a user, but an important aspect of the logical framework. snakke om hvordan det er visualisert. grupper er mer tydelig enkodet. osv}
 
@@ -483,13 +492,6 @@ Note that in the paper \cite{cite:consistency_preserving_evolution_planning}, th
 \section{Formal Semantics of Feature Model Evolution Plans}%
 \label{cha:formal_semantics_of_feature_model_evolution_plans}
 \todo{chapter written to a section. do something meaningful}
-
-As stated in \textbf{RQ1} in section~\vref{sec:research_questions}, we want design the merger in a way that guarantees a sound merge result. In order to do so, we need to have a clear, formal definition of the software artifact at hand, namely feature model evolution plans.
-
-We have defined the formal structure and semantics of evolution plans in a paper published in the Software Product Line Conference (SPLC) \cite{cite:consistency_preserving_evolution_planning}. In the paper we defined the evolution plan as an initial feature model, together with an user defined list of planning sections. Each planning section contains all operations that are scheduled for the same time point. The operations include addition and deletion of features and groups, as well as modifications to their fields, such as names or types. For every operation, we defined what makes an operation valid or invalid according to the formal definitions of feature models. 
-
-In the work in this thesis, I will build upon the definitions and semantics of evolution plans defined in \cite{cite:consistency_preserving_evolution_planning}. The work we did defined the theoretical foundation of a sound, well-formed evolution plan, which we used to create a framework for ensuring soundness. In our merge tool, we are merging evolution plans which are assumed to be \textit{sound}. This means we can leverage the properties of sound evolution plans defined in the paper. Since we also want to create a sound evolution plan, we will create the tool in such a way that soundness is ensured.
-
 % The semantics of editing operations were defined to create a soundness checker for evolution plans, which is used as a tool aiding replanning of evolution plans. However, since the focus of this thesis is to harmonize different alterations to evolution plan, we will need to adapt the evolution plan representation to fit this task.
 
 \section{Issues with using a list-based approach}%
