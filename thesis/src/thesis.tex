@@ -10,6 +10,7 @@
 \usepackage{minted}
 \usepackage{varioref}
 \usepackage{parskip}
+\usepackage[shortlabels]{enumitem}
 \usepackage[backend=biber]{biblatex}
 \usepackage[toc,page]{appendix}
 
@@ -438,10 +439,38 @@ This is the final, merge-ready representation for evolution plans. In this repre
 \section{Formal Definition of Evolution Plans}%
 \label{sec:formal_definition_of_evolution_plans}
 
-\todo{formelle definisjoner av evolution plans. snakke om well formedness. important prerequisite to know the formal semantics in order to do an effective merge.}
+Part of our goal is to merge sound evolution plans and produce an evolution plan that is sound. An important prerequisite in order to achieve this, is to formally define evolution plans.
+
+Part of our work on this project was defining the formal semantics of feature models and evolution plans. The development of the formal semantics can be read in greater detail in our paper \cite{cite:consistency_preserving_evolution_planning}. However, we present the details necessary in order to understand the formal semantics of evolution plans.
+
+\subsection{Feature Models}%
+\label{sub:feature_models}
+
+Since evolution plans consist of feature models, we start by defining feature models formally. \textit{Feature models} are a recursive tree-structure of \textit{features} and \textit{groups}. Each feature model begins with a \textit{root feature}, which has an arbitrary number of child groups. Each group has in turn an arbitrary number of features, etc. Each feature and group has also an unique id. Each feature consists of an id, name and a type. Each features type can either be \textit{mandatory} or \textit{optional}. Each group has an id and a type, where the type of a group can either be \textit{and}, \textit{or} or \textit{xor/alternative}.
+
+\paragraph{Well-Formedness Requirements}%
+\label{par:well_formedness_requirements}
+
+In addition to the structure of a feature model, we also have a list of additional constraints restricting what is considered to be a sound feature model. These semantic rules are modeled as well-formedness requirements, and are listed below.
+
+\begin{enumerate}[\textit{\textbf{WF\arabic*}}, itemsep=0mm]
+  \item A feature model has exactly one root feature.
+  \item The root feature must be mandatory.
+  \item Each feature has exactly one unique name, variation type and (potentially empty) collection of subgroups.
+  \item Features are organized in groups that have exactly one variation type.
+  \item Each feature, except for the root feature, must be part of exactly one group.
+  \item Each group must have exactly one parent feature.
+  \item Groups with types alternative or or must not contain mandatory features.
+\end{enumerate}
+
+Note that in the paper \cite{cite:consistency_preserving_evolution_planning}, there was an additonal well-formedness requirement stating that groups of type alternative or or must contain at least two child features. However, this requirement is not considered in this thesis.
+
+\subsection{Evolution Plans}%
+\label{sub:evolution_plans}
+
+\todo{in the most basic form, eps are a feature models coupled with time points ordered in a list. Not many additional restraints in addition to the feature model definition.} 
 
 \todo{kan snakke om operasjonene, hva de betyr på høynivå. referere til artikkel for detaljer.}
-\todo{arbeid er basert på sunn plan.}
 
 \todo{visualization deviates from common stuff. highlight that groups are nodes very similarly to features. This is not important for a user, but an important aspect of the logical framework. snakke om hvordan det er visualisert. grupper er mer tydelig enkodet. osv}
 
