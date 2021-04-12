@@ -314,14 +314,10 @@ Semantic mergers takes these kinds of conflicts into consideration while merging
 
 In this chapter, we want to define the general characteristics of our tool for merging evolution plans. We will define precisely what we are trying to merge, and how we are planning to do it. We will discuss the context of the tool, as well as how it could be integrated with other tooling. We will also define the outline of the merge algorithm at a high level, defining all the different steps involved in the algorithm. Precise formal semantics of evolution plans will also be presented, due to its importance in creating a merger producing sound plans.
 
-\todo{dra leser tilbake inn fra background. contributors are replanning evolution plans. these changes use existing tools to ensure soundness. Even though they are sound individually, the merging of the changes may result in something that is not.} 
-
 \section{Problem Definition}%
 \label{sec:problem_defintion}
 
 Evolution planning is a long term endeavour, often requiring planning years a head when dealing with large scale SPLs. Software product lines are subject to frequent changes, which requires replanning the evolution plan. An evolution plan consists of several feature models coupled with a time point, and making changes to intermediate feature models will affect the subsequent feature models. This is prone to errors, which yields the need for tools for ensuring that a plan is correct after applying changes to an evolution plan.
-
-% The common evolution plan, called \textit{base}, will implicitly provide information about what things were added, removed and changed in each of the derived evolution plans.
 
 Evolution planning are a created to aid the development of long term software product lines. Development of these evolution plans often requires multiple engineers, often working in multiple teams. For this reason, we develop tools specifically for synchronizing the replanning efforts of multiple engineers. However, even though the individual evolution plans are conforming to the formal semantics of evolution plans, harmonizing their contributions might yield results that are not sound. These issues might simply be diverging changes to the same thing, or more complicated violations of the semantics.
 
@@ -335,7 +331,7 @@ Even though we are just trying to synchronize the efforts of two collaborators a
 \paragraph{Syntactic, Semantic Merger}%
 \label{par:semantic_merger}
 
-In contrast to the most common merging techniques, we will not opt for a textual merging technique. These techniques are often very general, and does not consider the merge artifact at hand. Since we know the structure and semantics of the merge artifact, we will design the merge algorithm as a \textit{syntactic}, \textit{semantic} merger. This simply means that the merger will take the structure and semantics of evolution plans into account when merging.
+In contrast to the most common merging techniques, we will not opt for a textual merging technique. These techniques are often very general, and does not consider the merge artifact at hand. Since we know the structure and semantics of the merge artifact, we will design the merge algorithm as a \textit{syntactic}, \textit{semantic} merger. This simply means that the merger will take the structure and semantics of evolution plans into account when merging. The benefits of this approach is discussed in greater detail in Section~\vref{sub:syntactic_merging} and \vref{sub:semantic_merging}
 
 \paragraph{Soundness Assumption}%
 \label{par:soundness_assumption}
@@ -347,7 +343,7 @@ The inputs of the algorithm, the three evolution plans, are assumed to be sound.
 
 In this section we will explain how the three-way merger will fit into the general work flow of engineers actually working on the evolution plans.
 
-The core platform engineers using evolution plans will deal with, is the eclipse application DarwinSPL\footnote{https://gitlab.com/DarwinSPL/DarwinSPL}. In this application, users are presented with a graphical interface for creating and modifying evolution plans. A screenshot of the application in use can be seen in Figure~\ref{fig:darwin_spl_screenshot}. 
+The core platform engineers will use, is the Eclipse application DarwinSPL\footnote{https://gitlab.com/DarwinSPL/DarwinSPL}. In this application, users are presented with a graphical interface for creating and modifying evolution plans. A screenshot of the application in use can be seen in Figure~\ref{fig:darwin_spl_screenshot}. 
 
 \begin{figure}[htpb]
   \centering
@@ -358,14 +354,14 @@ The core platform engineers using evolution plans will deal with, is the eclipse
 
 As the merger is designed with the DarwinSPL application in mind, the merge tool is not intended to be interacted with directly. The tool I have created can act as backend for DarwinSPL, where the merger will have to be integrated as part of a bigger version control system inside the application.
 
-A potential version control system can be tightly integrated with the editor as a wrapper layer between the editor and the three-way merge backend. Creating such a system can let users commit and push changes of the evolution plan. When multiple contributors are to harmonize their diverging versions, the diverging versions as well as the base plan they were derived from could be retrieved from the version control system and fed to the three-way merger.
+A potential version control system can be tightly integrated with the editor as a wrapper layer between the editor and the three-way merge backend. Creating such a system can let users commit and push changes of the evolution plan. When multiple contributors are to harmonize their diverging versions, the diverging versions as well as the base plan they were derived from could be retrieved from the version control system and fed to the three-way merger. If the merge were successful, the engineer could check the output, and make small changes if necessary. If the merge resulted in a conflict, the conflict would be reported to the user, so that changes could be made in order to achieve a sound result.
 
 Our three-way merge backend is implemented in Haskell, which is different from the DarwinSPL tool which is implemented in the Java language. For this reason, one could not simply plug the pure three-way merge algorithm directly. To tackle this problem, we have defined a command-line interface facilitating the integration of the tools. The command-line interface includes serialization and deserialization of the input and output data structures, as well as several options and modes to control the way the merger behaves. This command-line interface is defined and discussed in more detail in Section~\vref{sec:command_line_interface}
 
 \section{Algorithm Overview}%
 \label{sec:algorithm_overview}
 
-In this section we will describe the general outline of the merge algorithm. This includes the different phases involved, as well as the potential conflicts that could occur.
+In this section we will describe the general outline of the merge algorithm. This includes the different phases involved, the potential conflicts that could occur as well as the different evolution plan representations we will encounter in the algorithm. Exactly how all the different parts interact with each other can be seen in an outline of the algorithm in Figure~\vref{fig:merge_outline}.
 
 \subsection{Algorithm Phases}%
 \label{sub:algorithm_phases}
@@ -418,6 +414,26 @@ Occurs when a modification is not possible to apply because of the existence or 
 \label{par:global_conflicts}
 
 This is the last kind of error that could occur. When all the modifications has been integrated into the evolution plan, each feature model is checked for certain structural or semantical errors. At this point, each change \textit{local} to a feature or group is valid, so we check for potential errors that occur because of dependencies between the features and groups, \textit{global} to the entire feature model. The structural errors is typically modifications that lead to anomalies in the tree structure. These violations of the structure could happen if you add features to parents that don't exist, remove groups that has children, or move features in such a way that cycles are formed. Other violations to the semantics are also checked. This could for example be violations of well-formedness, that could happen if we change the type of a feature to something incompatible with its group.
+
+\subsection{Evolution Plan Representations}%
+\label{sub:evolution_plan_representations}
+
+As seen in the merge algorihm outline in Figure~\ref{fig:merge_outline}, each step of the algorithm produces a certain representation for the evolution plans. This can be seen with the blue boxes between the phases, were we have the three representations \texttt{TreeUserEvolutionPlan}, \texttt{FlatUserEvolutionPlan} and \texttt{FlatModificationEvolutionPlan}. We will go into further detail about the different representations and their purpose later, but we give a small overview below.
+
+\paragraph{TreeUserEvolutionPlan}%
+\label{par:treeuserevolutionplan}
+
+This is the representation that is closest to what the actual user would see and interact with. For this reason, we will use this as the main input type of the algorithm. In this representation, the evolution plan is modeled as an ordered list of feature models, where each feature model is modeled as a recursive tree+structure. However, this representation of evolution plans are not well suited for detecting changes between versions as well as merging and unifying several plans.
+
+\paragraph{FlatUserEvolutionPlan}%
+\label{par:flatuserevolutionplan}
+
+In order to transform the input representation to a better suited representation for merging, we split the process up in two phases as described in Section~\vref{sub:algorithm_phases}. This representation will be the intermediate representation in this process. The representation is similar to the \texttt{TreeUserEvolutionPlan} modeling the evolution plan as a list of feature models. The difference lies in the representation for feature models. Instead of a tree-structure, we will model the feature model as a map of features and a map of groups indexed by their ids.
+
+\paragraph{FlatModificationEvolutionPlan}%
+\label{par:flatmodificationevolutionplan}
+
+This is the final, merge-ready representation for evolution plans. In this representation, we keep the flat structure of feature models from \texttt{FlatUserEvolutionPlan}. However, instead of having a list of feature models, we only have the first, initial feature model. Each subsequent time point will instead have a set of modifications necessary to transform the previous feature model into the next. Using this structure will make the process of the three-way merge significantly easier.
 
 \section{Formal Definition of Evolution Plans}%
 \label{sec:formal_definition_of_evolution_plans}
