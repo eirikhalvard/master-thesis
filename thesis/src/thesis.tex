@@ -498,12 +498,71 @@ In this chapter, we will present the three-way merge algorithm. The algorithm ar
 \section{A Normal Form for Evolution Plans}%
 \label{sec:defining_a_normal_form_for_evolution_plans}
 
-\todo{Before attempting to define the inner workings of the three-way merge algorithm, we will define the input of the algorithm.}
+Before diving into the inner workings of the three-way merge algorithm, we will define the input of the algorithm. Since the input of the algorithm is three evolution plans, we need to formalize evolution plans in Haskell's type system. When choosing a representation for the input, we will model it in a way that is well aligned to the visual representation the users are presented with in the evolution plan editor. We call this representation the \textit{normal form} of evolution plans, since it is closest representation to what the user is presented with.
+
+In this representation, \texttt{TreeUserEvolutionPlan}, the evolution plan is represented as a list of feature models together with a time point. Each feature model is represented as a mutually recursive tree structure of features and groups. 
+
+The exact representation of \texttt{TreeUserEvolutionPlan} are defined formally in the Haskell code. Haskell's powerful type system with records and algebraic data types allows for a precise formalization. When presented here in the thesis, the types are somewhat simplified, leaving out unnecessary noise, such as automatically derived instances for JSON serialization, equality checking, etc.
 
 \subsection{Formalization of the Evolution Plan Normal Form}%
 \label{sub:formalization_of_the_evolution_plan_normal_form}
 
-\todo{bla bla sånn er det implementert.}
+First, we will look at the tree representation for feature models, formalized as \texttt{TreeFeatureModel}.
+
+\begin{minted}{haskell}
+data TreeFeatureModel = TreeFeatureModel
+  { rootFeature :: TreeFeature
+  }
+
+data TreeFeature = TreeFeature
+  { id :: FeatureId
+  , featureType :: FeatureType
+  , name :: String
+  , groups :: Set TreeGroup
+  }
+
+data TreeGroup = TreeGroup
+  { id :: GroupId
+  , groupType :: GroupType
+  , features :: Set TreeFeature
+  }
+
+data FeatureType
+  = Optional
+  | Mandatory
+
+data GroupType
+  = And
+  | Or
+  | Alternative
+
+type FeatureId = String
+
+type GroupId = String
+\end{minted}
+
+There is a few important things to note in this representation. Each feature and groups id is unique across the entire feature model, which we will leverage when merging. Each feature and group can have an arbitrary number of children. The children is organized in a \texttt{Set}, not a \texttt{List}, noting that the ordering is irrelevant. In order for the feature model to be sound, some combination of parent group type and child feature types are prohibited. If a group is of type \texttt{Alternative} or \texttt{Or}, every child feature has to be of type \texttt{Optional}.
+
+Now that we have a suitable definition feature models, we define evolution plans. In this representation, we want the evolution plans to mirror what the user is presented with, so we define the evolution plan as a list of feature models. In later stages of the merge algorithm, we will reuse the polymorphic \texttt{UserEvolutionPlan} definition of evolution plans, only with a different definition of feature models. This allows us to leverage Haskell's polymorphic type system, which spares us from defining it twice.
+
+\begin{minted}{haskell}
+data UserEvolutionPlan featureModel = UserEvolutionPlan
+  { timePoints :: [TimePoint featureModel]
+  }
+
+type Time = Int
+
+data TimePoint featureModel = TimePoint
+  { time :: Time
+  , featureModel :: featureModel
+  }
+\end{minted}
+
+Now that a generalized representation for evolution plans are defined, using a representation with a list of feature models, we can instantiate the polymorphic evolution plan to create our normal form, \texttt{TreeUserEvolutionPlan}. This is relatively straight forward, the only thing we have to do is replace the \texttt{featureModel} argument with our concrete feature model, namely \texttt{TreeFeatureModel}.
+
+\begin{minted}{haskell}
+type TreeUserEvolutionPlan = UserEvolutionPlan TreeFeatureModel
+\end{minted}
 
 \subsection{Constructing a Simple Evolution Plan Example}%
 \label{sub:constructing_a_simple_evolution_plan_example}
@@ -631,82 +690,6 @@ We exemplify operation shadowing, we consider the same initial feature model as 
 \section{Constructing a Normal Form for Evolution Plans}%
 \label{sec:constructing_a_normal_form_for_evolution_plans}
 
-This representation is more aligned with what the user interacts \todo{what the user interacts with. litt rart. har ikke snakket om user} with, so equal plans \todo{equal plans? hva er dette? har ikke snakket om} are also represented equally. In this representation, called \texttt{TreeUserEvolutionPlan}, the evolution plan is represented as a list of feature models together with a time point. Instead of storing the operations necessary to go from the previous time point to the next, each feature model is explicitly encoded. Each feature model is represented as a mutually recursive tree structure of features and groups. This representation is the normal form of evolution plans, and the closest representation to what the user actually interacts with.
-
-The exact representation of \texttt{TreeUserEvolutionPlan} are defined formally in the Haskell code. Haskell's powerful type system with records and algebraic data types allows for a precise formalization. When presented here in the thesis, the types are somewhat simplified, leaving out unnecessary noise, such as automatically derived instances for JSON serialization, equality checking, etc.
-
-\subsection{Feature Model Definition - Tree Representation}%
-\label{sub:feature_model_definition_tree_representation}
-
-First, we will look at the tree representation for feature models, formalized as \texttt{TreeFeatureModel}.
-
-\begin{minted}{haskell}
-data TreeFeatureModel = TreeFeatureModel
-  { rootFeature :: TreeFeature
-  }
-
-data TreeFeature = TreeFeature
-  { id :: FeatureId
-  , featureType :: FeatureType
-  , name :: String
-  , groups :: Set TreeGroup
-  }
-
-data TreeGroup = TreeGroup
-  { id :: GroupId
-  , groupType :: GroupType
-  , features :: Set TreeFeature
-  }
-
-data FeatureType
-  = Optional
-  | Mandatory
-
-data GroupType
-  = And
-  | Or
-  | Alternative
-
-type FeatureId = String
-
-type GroupId = String
-\end{minted}
-
-There is a few important things to note in this representation. Each feature and groups id is unique across the entire feature model, which we will leverage when merging. Each feature and group can have an arbitrary number of children. The children is organized in a \texttt{Set}, not a \texttt{List}, noting that the ordering is irrelevant. In order for the feature model to be sound, some combination of parent group type and child feature types are prohibited. If a group is of type \texttt{Alternative} or \texttt{Or}, every child feature has to be of type \texttt{Optional}.
-
-\subsection{Evolution Plan Definition - User Level, Tree Representation}%
-\label{sub:evolution_plan_definition_user_level_tree_representation}
-
-\todo{text before this point. what are we jumping into?}
-\todo{better naming schemes. too techniqal}
-\todo{better naming for user. not really about user. meeen vi får se.}
-
-\subsubsection*{Polymorphic User Level Evolution Plan}%
-\label{ssub:polymorphic_user_level_evolution_plan}
-
-Now that we have a suitable definition feature models, we define evolution plans. In this representation, we want the evolution plans to mirror what the user interacts with, so we define the evolution plan as a list of feature models. In later stages of the merge algorithm, we will reuse this \textit{user level} definition of evolution plans, only with a different definition of feature models. This allows us to leverage Haskell's polymorphic type system, which spares us from defining it twice.
-
-\begin{minted}{haskell}
-data UserEvolutionPlan featureModel = UserEvolutionPlan
-  { timePoints :: [TimePoint featureModel]
-  }
-
-type Time = Int
-
-data TimePoint featureModel = TimePoint
-  { time :: Time
-  , featureModel :: featureModel
-  }
-\end{minted}
-
-\subsubsection*{Instantiated User Level Evolution Plan (Tree Feature Model)}%
-\label{ssub:instantiated_user_level_evolution_plan_tree_feature_model_}
-
-Now that a generalized representation for evolution plans are defined, using a representation with a list of feature models, we can instantiate the polymorphic evolution plan to create our normal form, \texttt{TreeUserEvolutionPlan}. This is relatively straight forward, the only thing we have to do is replace the \texttt{featureModel} argument with our concrete feature model, namely \texttt{TreeFeatureModel}.
-
-\begin{minted}{haskell}
-type TreeUserEvolutionPlan = UserEvolutionPlan TreeFeatureModel
-\end{minted}
 
 \subsection{Example Representation}%
 \label{sub:example_representation}
@@ -814,7 +797,7 @@ data FlatGroup = FlatGroup
   }
 \end{minted}
 
-The definitions of \texttt{FeatureType}, \texttt{FeatureId}, \texttt{GroupType} and \texttt{GroupId} is still the same as defined in Section~\vref{sub:feature_model_definition_tree_representation}.
+The definitions of \texttt{FeatureType}, \texttt{FeatureId}, \texttt{GroupType} and \texttt{GroupId} is still the same as defined in Section~\vref{sub:formalization_of_the_evolution_plan_normal_form}.
 
 \subsection{Evolution Plan Definition - User Level, Flat Representation}%
 \label{sub:evolution_plan_definition_user_level_flat_representation}
