@@ -19,7 +19,7 @@
 
 \newcommand{\todo}[1]{\textcolor{red}{[[TODO: #1]]}\PackageWarning{TODO:}{#1!}}
 
-\title{Three-Way Merge for Feature Model Evolution Planning}
+\title{Three-Way Semantic Merge for Feature Model Evolution Plans}
 \date{May 2021}
 \author{Eirik Halvard Sæther}
 \synctex=1
@@ -49,11 +49,11 @@ long]
 \mbox{}
 \chapter*{Abstract}
 
-Software product lines (SPLs) model related closely related software systems by capitalizing on their similarities and differences. Software engineers explicitly encode the similarities and differences of an SPL by defining it in terms of a feature model. However, in order to ensure the long-term development, it is beneficial to not just capture the current software product line, but the planned evolution of the SPL as well.
+A software product line (SPL) models closely related software systems by capitalizing on their similarities and differences. Software engineers explicitly encode similarities and differences of an SPL by defining it in terms of a feature model. However, in order to ensure long-term development, it is beneficial to not just capture the current software product line, but the planned evolution of the SPL as well.
 
-Evolution planning of an SPL is often a dynamic, changing process, due to changing demands of the focus of development. In addition, the planning is typically not just done by a single engineer, but multiple engineers, often working separately and independent of each other. Due to these factors, the need to unify and synchronize the changes the evolution plan emerges.
+Evolution planning of an SPL is often a dynamic, changing process, due to changes in product requirements. In addition, planning is typically not done by a single engineer, but multiple engineers, often working separately and independently of each other. Due to these factors, a need to unify and synchronize the changes the evolution plan emerges.
 
-In this thesis, we develop a merge tool for evolution plans. The core of the tool is a three-way merge algorithm. Given two different versions of an evolution plan, together with the common evolution plan they were derived from, the merge algorithm will attempt to merge all the different changes from both versions. If the merges are unifiable, the algorithm will succeed and yield the merged result containing the changes from both versions. However, if the changes are conflicting in any way, breaking the structure or semantics of evolution plans, the algorithm will stop, telling the user the reason of failure.
+In this thesis, we develop a merge tool for evolution plans. The essence of the tool is a three-way merge algorithm. Given two different versions of an evolution plan, together with the common evolution plan they are derived from, the merge algorithm attempts to merge all the different changes from both versions. If the evolution plans are unifiable, the algorithm succeeds and yields the merged result containing the changes from both versions. However, if the changes are conflicting by breaking the structure or semantics of evolution plans, the algorithm terminates and reports the reason for failure. The three-way merge algorithm will act as an essential component in a version control system, allowing several contributors to synchronize their individual versions into a unified evolution plan.
 
 \tableofcontents{}
 \listoffigures{}
@@ -160,10 +160,10 @@ All the source code from the master thesis can be found on Github\footnote{https
 \chapter{Background}%
 \label{cha:background}
 
-bakgrunn er ting vi vet i dag om spl. ikke blande inn min contribution i bakgrunn. tydelig skille.
+\todo{bakgrunn er ting vi vet i dag om spl. ikke blande inn min contribution i bakgrunn. tydelig skille.}
 i bakgrunnseksjon: diskutere litt hvordan forskjellige merge teknikker har fordeler/ulemper.
 
-begynne med å introdusere background. fortelle hva vi skal gå gjennom. fortelle om spl. div merge teknikker. haskell formalisering. etc
+\todo{begynne med å introdusere background. fortelle hva vi skal gå gjennom. fortelle om spl. div merge teknikker. haskell formalisering. etc}
 
 \section{Software product lines}%
 \label{sec:software_product_lines}
@@ -305,7 +305,7 @@ Semantic mergers takes these kinds of conflicts into consideration while merging
 
 \todo{write about type synonyms, data types including records and sum types. show polymorphic data types. maybe something about deriving, maybe lens generation? etc. something about maybe? expressive and strict type system}
 
-\part{A Soundness Preserving Merger for Evolution Plans}%
+\part{A Soundness-Preserving Merger for Evolution Plans}%
 \label{prt:a_sound_semantic_merger_for_evolution_plans}
 
 \chapter{Developing a Sound Three-Way Merge of Evolution Plans}%
@@ -444,7 +444,7 @@ The work we did in \cite{cite:consistency_preserving_evolution_planning} defined
 \subsection{Feature Models}%
 \label{sub:feature_models}
 
-Since evolution plans consist of feature models, we start by defining feature models formally. \textit{Feature models} are a recursive tree-structure of \textit{features} and \textit{groups}. Each feature model begins with a \textit{root feature}, which has an arbitrary number of child groups. Each group has in turn an arbitrary number of features, etc. Each feature and group has also an unique id. Each feature consists of an id, name and a type. Each features type can either be \textit{mandatory} or \textit{optional}. Each group has an id and a type, where the type of a group can either be \textit{and}, \textit{or} or \textit{xor/alternative}.
+Since evolution plans consist of feature models, we start by defining feature models formally. \textit{Feature models} are a recursive tree-structure of \textit{features} and \textit{groups}. Each feature model begins with a \textit{root feature}, which has an arbitrary number of child groups. Each group has in turn an arbitrary number of features, etc. Each feature and group has also a unique id. Each feature consists of an id, name and a type. Each features type can either be \textit{mandatory} or \textit{optional}. Each group has an id and a type, where the type of a group can either be \textit{and}, \textit{or} or \textit{xor/alternative}.
 
 \paragraph{Well-Formedness Requirements}%
 \label{par:well_formedness_requirements}
