@@ -49,13 +49,11 @@ long]
 \mbox{}
 \chapter*{Abstract}
 
-\todo{write abstract}
+Software product lines (SPLs) model related closely related software systems by capitalizing on their similarities and differences. Software engineers explicitly encode the similarities and differences of an SPL by defining it in terms of a feature model. However, in order to ensure the long-term development, it is beneficial to not just capture the current software product line, but the planned evolution of the SPL as well.
 
-Feature Model Evolution Plans is intended to help ease the development of software product lines (SPLs). Feature Models allow software engineers to explicitly encode the similarities and differences of an SPL. However, due to the changing nature of an SPL, Evolution Plans allows for representing the \textit{evolution} of a feature model, not just the feature model as a single point in time.
+Evolution planning of an SPL is often a dynamic, changing process, due to changing demands of the focus of development. In addition, the planning is typically not just done by a single engineer, but multiple engineers, often working separately and independent of each other. Due to these factors, the need to unify and synchronize the changes the evolution plan emerges.
 
-Evolution planning of an SPL is often a dynamic, changing process, due to changing demands of the focus of development. The evolution planning is often not just done by a single engineer, but multiple engineers, working separately and independent of each other. Due to these factors, the need to unify and synchronize the changes the evolution plan emerges.
-
-In this thesis, we develop a merge tool for Feature Model Evolution Plans. The core of the tool is a three-way merge algorithm. Given two different versions of an evolution plan, together with the common evolution plan they were derived from, the merge algorithm will attempt to merge all the different changes from both versions. If the merges are unifiable, the algorithm will succeed and yield the merged result containing the changes from both versions. However, if the changes are conflicting in any way, breaking the structure or semantics of evolution plans, the algorithm will stop, telling the user the reason of failure.
+In this thesis, we develop a merge tool for evolution plans. The core of the tool is a three-way merge algorithm. Given two different versions of an evolution plan, together with the common evolution plan they were derived from, the merge algorithm will attempt to merge all the different changes from both versions. If the merges are unifiable, the algorithm will succeed and yield the merged result containing the changes from both versions. However, if the changes are conflicting in any way, breaking the structure or semantics of evolution plans, the algorithm will stop, telling the user the reason of failure.
 
 \tableofcontents{}
 \listoffigures{}
