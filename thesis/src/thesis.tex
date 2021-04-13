@@ -525,25 +525,68 @@ We present an example, seen in Figure~\ref{fig:visual_example}, to demonstrate t
 
 \todo{write about having a flatter structure. }
 
+Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod
+tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At
+vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren,
+no sea takimata sanctus est Lorem ipsum dolor sit amet.
+
+\subsubsection{Formalizing the Flat Structure}%
+\label{ssub:formalizing_the_flat_structure}
+
+\todo{write}
+
+\subsubsection{Transformation from the Normal Form}%
+\label{ssub:transformation_from_the_normal_form}
+
+\todo{write}
+
+\subsubsection{Continuing the Simple Example}%
+\label{ssub:continuing_the_simple_example}
+
+\todo{write}
+
 \subsection{Avoiding the Pitfalls of an Operation-based Representation}%
 \label{sub:avoiding_the_pitfalls_of_an_operation_based_representation}
 
 \todo{we construct new rep. similar to the one we did previously. however, we want to avoid some things about this rep. bla bla div greier om nondep op, shadowed greier.}
 
+\subsubsection{Non-dependent Operations}%
+\label{ssub:non_dependent_operations}
+
+\todo{write}
+
+\subsubsection{Dependent Operations}%
+\label{ssub:dependent_operations}
+
+\todo{write}
+
+\subsubsection{Operations Shadowing}%
+\label{ssub:operations_shadowing}
+
+\todo{write}
+
 \subsection{A Merge-Ready Evolution Plan Representation}%
 \label{sub:a_merge_ready_evolution_plan_representation}
 
-\todo{a merge ready evo rep. write}
+\todo{write}
+
+\subsubsection{Formalizing Modification-Based Evolution Plans}%
+\label{ssub:formalizing_modification_based_evolution_plans}
+
+\todo{write}
+
+\subsubsection{Specifying the Final Representation Transformation}%
+\label{ssub:specifying_the_final_representation_transformation}
+
+\todo{write}
+
+\subsubsection{Merge-Ready Representation of the Simple Example}%
+\label{ssub:merge_ready_representation_of_the_simple_example}
+
+\todo{write}
 
 \chapter{UNORDERED CONTENT}%
 \label{cha:unordered_content}
-
-
-
-\section{Formal Semantics of Feature Model Evolution Plans}%
-\label{cha:formal_semantics_of_feature_model_evolution_plans}
-
-\todo{chapter written to a section. do something meaningful}
 
 % The semantics of editing operations were defined to create a soundness checker for evolution plans, which is used as a tool aiding replanning of evolution plans. However, since the focus of this thesis is to harmonize different alterations to evolution plan, we will need to adapt the evolution plan representation to fit this task.
 
@@ -588,7 +631,7 @@ We exemplify operation shadowing, we consider the same initial feature model as 
 \section{Constructing a Normal Form for Evolution Plans}%
 \label{sec:constructing_a_normal_form_for_evolution_plans}
 
-In order to avoid the problems stated in section \vref{sec:issues_with_using_a_list_based_approach}, we construct a new representation for evolution plans. This representation is more aligned with what the user interacts \todo{what the user interacts with. litt rart. har ikke snakket om user} with, so equal plans \todo{equal plans? hva er dette? har ikke snakket om} are also represented equally. In this representation, called \texttt{TreeUserEvolutionPlan}, the evolution plan is represented as a list of feature models together with a time point. Instead of storing the operations necessary to go from the previous time point to the next, each feature model is explicitly encoded. Each feature model is represented as a mutually recursive tree structure of features and groups. This representation is the normal form of evolution plans, and the closest representation to what the user actually interacts with.
+This representation is more aligned with what the user interacts \todo{what the user interacts with. litt rart. har ikke snakket om user} with, so equal plans \todo{equal plans? hva er dette? har ikke snakket om} are also represented equally. In this representation, called \texttt{TreeUserEvolutionPlan}, the evolution plan is represented as a list of feature models together with a time point. Instead of storing the operations necessary to go from the previous time point to the next, each feature model is explicitly encoded. Each feature model is represented as a mutually recursive tree structure of features and groups. This representation is the normal form of evolution plans, and the closest representation to what the user actually interacts with.
 
 The exact representation of \texttt{TreeUserEvolutionPlan} are defined formally in the Haskell code. Haskell's powerful type system with records and algebraic data types allows for a precise formalization. When presented here in the thesis, the types are somewhat simplified, leaving out unnecessary noise, such as automatically derived instances for JSON serialization, equality checking, etc.
 
