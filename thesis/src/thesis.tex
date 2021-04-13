@@ -493,12 +493,58 @@ We present an example, seen in Figure~\ref{fig:visual_example}, to demonstrate t
 \chapter{Implementing the Merger in Haskell}%
 \label{cha:implementation_of_the_merger_in_haskell}
 
-\section{TING FRA KAP 3}%
-\label{sec:ting_fra_kap_3}
+\todo{In this chapter, we present the ditten and datten. formalize the algorithm and implement in haskell.}
+
+\section{A Normal Form for Evolution Plans}%
+\label{sec:defining_a_normal_form_for_evolution_plans}
+
+\todo{Before attempting to define the inner workings of the three-way merge algorithm, we will define the input of the algorithm.}
+
+\subsection{Formalization of the Evolution Plan Normal Form}%
+\label{sub:formalization_of_the_evolution_plan_normal_form}
+
+\todo{bla bla sånn er det implementert.}
+
+\subsection{Constructing a Simple Evolution Plan Example}%
+\label{sub:constructing_a_simple_evolution_plan_example}
+
+\todo{show example. this will act as a demonstration of a simple evolution plan, and how it will be encoded in haskell. We will use this example further. ref neste sec. Her vil vi vise hvordan eksempelet blir transformert i de ulike repsene. videre vil vi utvide eksempelet til ikke bare en ep, men tre, som input på algo.}
+
+\section{Converting To a Suitable Representation}%
+\label{sec:converting_to_a_suitable_representation}
+
+\todo{we have a normal form. however, not suitable for merging since ditten and datten. a change is propagated, representation not really capturing the changes.
+} 
+
+\todo{explain the section. We will construct new. This will be done by doing two things. creating a new representation for the feature models. creating a better representation for evolution plans.}
+
+\todo{maybe two paragraphs: A flatter structure for feature models. explicitly encoding change in evolution plans/Explicitly modeling modifications in the evolution plans.... referere til subsections. referere til outline.} 
+
+\subsection{A Flatter Feature Model Structure}%
+\label{sub:a_flatter_feature_model_structure}
+
+\todo{write about having a flatter structure. }
+
+\subsection{Avoiding the Pitfalls of an Operation-based Representation}%
+\label{sub:avoiding_the_pitfalls_of_an_operation_based_representation}
+
+\todo{we construct new rep. similar to the one we did previously. however, we want to avoid some things about this rep. bla bla div greier om nondep op, shadowed greier.}
+
+\subsection{A Merge-Ready Evolution Plan Representation}%
+\label{sub:a_merge_ready_evolution_plan_representation}
+
+\todo{a merge ready evo rep. write}
+
+\chapter{UNORDERED CONTENT}%
+\label{cha:unordered_content}
+
+
 
 \section{Formal Semantics of Feature Model Evolution Plans}%
 \label{cha:formal_semantics_of_feature_model_evolution_plans}
+
 \todo{chapter written to a section. do something meaningful}
+
 % The semantics of editing operations were defined to create a soundness checker for evolution plans, which is used as a tool aiding replanning of evolution plans. However, since the focus of this thesis is to harmonize different alterations to evolution plan, we will need to adapt the evolution plan representation to fit this task.
 
 \section{Issues with using a list-based approach}%
