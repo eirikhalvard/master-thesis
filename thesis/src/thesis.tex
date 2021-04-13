@@ -567,7 +567,76 @@ type TreeUserEvolutionPlan = UserEvolutionPlan TreeFeatureModel
 \subsection{Constructing a Simple Evolution Plan Example}%
 \label{sub:constructing_a_simple_evolution_plan_example}
 
-\todo{show example. this will act as a demonstration of a simple evolution plan, and how it will be encoded in haskell. We will use this example further. ref neste sec. Her vil vi vise hvordan eksempelet blir transformert i de ulike repsene. videre vil vi utvide eksempelet til ikke bare en ep, men tre, som input på algo.}
+Now that we have defined the normal form for evolution plans formally, we will give a concrete example and how it is represented in this formalization. This example will act as a running example through the rest of the chapter. In Section~\vref{sec:converting_to_a_suitable_representation}, we will show how this example are transformed in the various evolution plan representations. In Section~\vref{sec:detecting_the_changes_between_versions}, we extend this example to not just involve a single evolution plan, but three evolution plans. The example presented here will then act as the base evolution plan, while we construct two derived versions to showcase the merge process. The expanded example will continue through the rest of the sections in this chapter.
+
+The simple example we will showcase is a small example containing three time points. The initial feature model at time 0 is simply just the root feature. The next time point at time 1 adds a new group and two features belonging to this group. The last time point removes one of the features and alters the name of the root and type of the group. A visualization of this simple evolution plan can be seen in Figure~\vref{fig:simpleep_treeuser}. Below is the Haskell code necessary for encoding this example.
+
+\begin{figure}[htpb]
+  \centering
+  \includegraphics[width=\linewidth]{simpleep_treeuser.pdf}
+  \caption{A Simple Evolution Plan Example}%
+  \label{fig:simpleep_treeuser}
+\end{figure}
+
+\begin{minted}{haskell}
+simpleExample :: TreeUserEvolutionPlan
+simpleExample =
+  UserEvolutionPlan
+    [ TimePoint 0 fm0
+    , TimePoint 1 fm1
+    , TimePoint 2 fm2
+    ]
+  where
+    fm0 =
+      TreeFeatureModel
+        ( TreeFeature
+            "rootFeature"
+            Mandatory
+            "Feature 1"
+            []
+        )
+    fm1 =
+      TreeFeatureModel
+        ( TreeFeature
+            "rootFeature"
+            Mandatory
+            "Feature 1"
+            [ TreeGroup
+                "group"
+                And
+                [ TreeFeature
+                    "feature2"
+                    Optional
+                    "Feature 2"
+                    []
+                , TreeFeature
+                    "feature3"
+                    Mandatory
+                    "Feature 3"
+                    []
+                ]
+            ]
+        )
+    fm2 =
+      TreeFeatureModel
+        ( TreeFeature
+            "rootFeature"
+            Mandatory
+            "Root Feature"
+            [ TreeGroup
+                "group"
+                Or
+                [ TreeFeature
+                    "feature2"
+                    Optional
+                    "Feature 2"
+                    []
+                ]
+            ]
+        )
+\end{minted}
+
+Note that each feature and groups \texttt{Set} of children are constructed using list syntax. This is to make it a bit easier to read, not having too much visual clutter. This is possible using the language extension \texttt{OverloadedLists} \footnote{https://ghc.gitlab.haskell.org/ghc/doc/users\_guide/exts/overloaded\_lists.html}, where we allow Haskell's type system to figure out that the list is actually a \texttt{Set} based on the context.
 
 \section{Converting To a Suitable Representation}%
 \label{sec:converting_to_a_suitable_representation}
@@ -693,75 +762,6 @@ We exemplify operation shadowing, we consider the same initial feature model as 
 
 \subsection{Example Representation}%
 \label{sub:example_representation}
-
-Now that we have defined the normal form for evolution plans formally, we will give a concrete example and how it is represented in this formalization. The example we will showcase is a small example containing three time points. The initial feature model at time 0 is simply just the root feature. The next time point at time 1 adds a new group and two features belonging to this group. The last time point removes one of the features and alters the name of the root and type of the group. A visualization of this simple evolution plan can be seen in Figure~\vref{fig:simpleep_treeuser}. Below is the Haskell code necessary for encoding this example.
-
-\begin{minted}{haskell}
-simpleExample :: TreeUserEvolutionPlan
-simpleExample =
-  UserEvolutionPlan
-    [ TimePoint 0 fm0
-    , TimePoint 1 fm1
-    , TimePoint 2 fm2
-    ]
-  where
-    fm0 =
-      TreeFeatureModel
-        ( TreeFeature
-            "rootFeature"
-            Mandatory
-            "Feature 1"
-            []
-        )
-    fm1 =
-      TreeFeatureModel
-        ( TreeFeature
-            "rootFeature"
-            Mandatory
-            "Feature 1"
-            [ TreeGroup
-                "group"
-                And
-                [ TreeFeature
-                    "feature2"
-                    Optional
-                    "Feature 2"
-                    []
-                , TreeFeature
-                    "feature3"
-                    Mandatory
-                    "Feature 3"
-                    []
-                ]
-            ]
-        )
-    fm2 =
-      TreeFeatureModel
-        ( TreeFeature
-            "rootFeature"
-            Mandatory
-            "Root Feature"
-            [ TreeGroup
-                "group"
-                Or
-                [ TreeFeature
-                    "feature2"
-                    Optional
-                    "Feature 2"
-                    []
-                ]
-            ]
-        )
-\end{minted}
-
-Note that each feature and groups \texttt{Set} of children are constructed using list syntax. This is to make it a bit easier to read, not having too much visual clutter. This is possible using the language extension \texttt{OverloadedLists} \footnote{https://ghc.gitlab.haskell.org/ghc/doc/users\_guide/exts/overloaded\_lists.html}, where we allow Haskell's type system to figure out that the list is actually a \texttt{Set} based on the context.
-
-\begin{figure}[htpb]
-  \centering
-  \includegraphics[]{simpleep_treeuser.pdf}
-  \caption{A Simple Evolution Plan Example}%
-  \label{fig:simpleep_treeuser}
-\end{figure}
 
 \section{A Suitable Representation of Evolution}%
 \label{sec:a_suitable_representation_of_evolution}
@@ -1013,8 +1013,8 @@ simpleExampleMod =
 \label{sec:ting_fra_resten}
 
 \todo{fikse heading problemer. prefikse alt med sub eller no. her må man finne ut hva greia blir}
-\section{Converting To a Suitable Representation}%
-\label{sec:converting_to_a_suitable_representation}
+\section{Converting To a Suitable Representation Old}%
+\label{sec:converting_to_a_suitable_representation_old}
 
 As discussed in Chapter~\ref{cha:formal_semantics_of_feature_model_evolution_plans} \todo{fix ref}, we needed to create a suitable representation for evolution plans before attempting to merge the different versions.
 
