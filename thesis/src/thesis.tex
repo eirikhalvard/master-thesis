@@ -799,20 +799,89 @@ flattenSoundFeatureModel fm =
 
 \todo{we construct new rep. similar to the one we did previously. however, we want to avoid some things about this rep. bla bla div greier om nondep op, shadowed greier.}
 
+\todo{Next step is finding a way of representing changes between two feature models to explicitly model the changes.}
+
+\todo{what we did in the paper was very similar. However, even though such a semantic might work, the representation has several issues we will shed some light on and discuss. In creating a better representation, it is beneficial to know some pitfalls we want to avoid.}
+
+\todo{what we did previously. defined operations like addFeature, moveGroup and changeName.} 
+
+\todo{want to avoid several ways of representing the same type of change. if two vers ns have identical changes, we dont care how those changes can be done. doing one thing first then another. example.}
+
+In our work on creating a soundness checker for evolution plans, we used a representation where the ordering of the operations for a single point in time mattered. This list-based approach of grouping operations had several advantages regarding the formal definition of sound evolution plans as well as implementation-specific concerns. In defining what was considered a well-defined operation, we considered only the current feature model and the operation at hand. What order the user applied the operations did not really matter, as long as applying each operation resulted in a sound evolution plan.
+
+However, when we design an approach to merging two evolution plans, the exact way each feature model in the evolution plan was derived is besides the point. The only thing the user sees are a list of feature models associated with time points. Exactly how the evolution plan was manipulated, and in what order each editing operation took place is not relevant for the user, so it should also not be relevant for the merge algorithm. As described in \textbf{RQ3} in section~\ref{sec:research_questions}, we want to produce merge results that are predictable and transparent. Having a list-based approach might make it hard to differentiate equal plans. \todo{have a small example here} Since there often is more than one way of going from one feature model to another, seemingly equal evolution plans might be represented differently.
+
+\todo{rearrange out of place. maybe rewrite this whole thing. do something about it}
+Since part of the goal is to produce a sound result, we cannot simply rearrange the ordering of operations without complications. Some operations might be dependent on other operations, and rearranging the operations might result in an unsound plan. 
+
+To counter these issues, one might naïvely find an standardized ordering of operations so one could sort the operations, or simply just store them as a set of operations instead of a list. However, as we will see, the order of the operations still matter, and changing the ordering can have varying effects. We observe three different ordering related scenarios for operations; non-dependent operations, dependent operations, and shadowed operations. By swapping the operations in a plan, you might achieve one of these scenarios. In the following sections, We investigate the scenarios in the following sections, which is also illustrated in Figure~\ref{fig:operation_swap_effect}.
+
 \subsubsection{Non-dependent Operations}%
 \label{ssub:non_dependent_operations}
 
-\todo{write}
+In some cases, swapping the order of the operations in a time point has no effect on the resulting feature model. To exemplify this, take a simple feature model with two features and a group, organized in the following way: $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{F1}$. In the following time point, there is scheduled a removal of feature \texttt{F1} as well as a name change for the root feature \texttt{Root} to \texttt{F0}. Applying both operations should yield the following feature model: $\texttt{F0} \rightarrow \texttt{G1}$. Since there is no structural or semantic relation between the operations \todo{what does this mean? structural or semantic?}, the order of when they are applied makes no difference. With the current list-based representation of a plan for a single time point, there are two ways of representing the changes. You could either schedule the removal of the \texttt{F1} feature first, or the name change of the root feature first. 
+
+% \todo{split the figures under each part}
+% \begin{figure}[htpb]
+%   \centering
+%   \includegraphics[width=0.8\linewidth]{operation_swap_effect.pdf}
+%   \caption{The various effects of swapping the ordering of operations}%
+%   \label{fig:operation_swap_effect}
+% \end{figure}
+
+\begin{table}[htpb]
+  \centering
+  \label{tab:non_dependent}
+  \begin{tabular}{llll} 
+    \hline Initial Model & Operations & Original Order & Swapped Order \\
+    \hline \parbox[c]{1em}{\includegraphics[width=1.5cm]{operations_pitfalls/initial.pdf}}
+         & \begin{tabular}{@{}l@{}}Rename(Root, F0) \\ Remove(F1)\end{tabular}
+         & \parbox[c]{1em}{\includegraphics[width=1.1cm]{operations_pitfalls/nondep_original.pdf}}
+         & \parbox[c]{1em}{\includegraphics[width=1.1cm]{operations_pitfalls/nondep_swapped.pdf}} \\
+    \hline
+  \end{tabular}
+  \caption{Non-Dependent Operations Example} 
+\end{table}
 
 \subsubsection{Dependent Operations}%
 \label{ssub:dependent_operations}
 
-\todo{write}
+To showcase the problem, we start with the same feature model used previously, with two features and a group: $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{F1}$. In the next planned time point, the changes to the feature model include the removal of both group \texttt{G1} and feature \texttt{F1}. However, there is only one legal ordering, namely removing the feature first, then removing the group. Applying the operation in this order yields a sound feature model; $\texttt{Root}$. Trying to remove the group first will as we defined sound evolution plans yield an inconsistency, because we are trying to remove a non-empty group. 
+
+\begin{table}[htpb]
+  \centering
+  \label{tab:dependent}
+  \begin{tabular}{llll} 
+    \hline Initial Model & Operations & Original Order & Swapped Order \\
+    \hline \parbox[c]{1em}{\includegraphics[width=1.5cm]{operations_pitfalls/initial.pdf}}
+                         & \begin{tabular}{@{}l@{}}Remove(F1) \\ Remove(G1)\end{tabular}
+         & \parbox[c]{1em}{\includegraphics[width=1.5cm]{operations_pitfalls/dep_original.pdf}}
+         & \begin{tabular}{@{}l@{}}Conflict: Removal \\ of non-empty group\end{tabular} \\
+    \hline
+  \end{tabular}
+  \caption{Dependent Operations Example} 
+\end{table}
 
 \subsubsection{Operations Shadowing}%
 \label{ssub:operations_shadowing}
 
-\todo{write}
+Another issue with the list-based approach is \textit{operation shadowing}, which is the phenomenon where an operation is rendered useless because of another operation later in the list. This issue would also have to be considered, because rearranging the operation could lead to unwanted results. In addition to rearrangement resulting in unsound plans, moving a shadowed operation might result in a different, yet sound evolution plan.
+
+We exemplify operation shadowing, we consider the same initial feature model as before: $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{F1}$. The list of operations for the next point in time include first changing the name of \texttt{F1} to \texttt{Feat 1}, then later to \texttt{Feature 1}. The operation shadowing occurs because of the second renaming makes the first renaming completely useless. The resulting feature model, $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{Feature 1}$, are identical to the one we would have if we excluded the shadowed operation. However, if we were to swap the ordering of the rename operations, the resulting feature model would still be sound, but differ from the original ordering: $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{Feat 1}$.
+
+\begin{table}[htpb]
+  \centering
+  \label{tab:shadowed}
+  \begin{tabular}{llll} 
+    \hline Initial Model & Operations & Original Order & Swapped Order \\
+    \hline \parbox[c]{1em}{\includegraphics[width=1.5cm]{operations_pitfalls/initial.pdf}}
+         & \begin{tabular}{@{}l@{}}Rename(F1, Feat 1) \\ Rename(F1, Feature 1)\end{tabular}
+         & \parbox[c]{1em}{\includegraphics[width=2.3cm]{operations_pitfalls/shadow_original.pdf}}
+         & \parbox[c]{1em}{\includegraphics[width=2.3cm]{operations_pitfalls/shadow_swapped.pdf}} \\
+    \hline
+  \end{tabular}
+  \caption{Shadowed Operations Example} 
+\end{table}
 
 \subsection{A Merge-Ready Evolution Plan Representation}%
 \label{sub:a_merge_ready_evolution_plan_representation}
@@ -841,41 +910,7 @@ flattenSoundFeatureModel fm =
 
 \section{Issues with using a list-based approach}%
 \label{sec:issues_with_using_a_list_based_approach}
-\todo{create better title. maybe rewrite to be more about general issues we need to look out for. not just about the solution we have.}
-
-In our work on creating a soundness checker for evolution plans, we used a representation where the ordering of the operations for a single point in time mattered. This list-based approach of grouping operations had several advantages regarding the formal definition of sound evolution plans as well as implementation-specific concerns. In defining what was considered a well-defined operation, we considered only the current feature model and the operation at hand. What order the user applied the operations did not really matter, as long as applying each operation resulted in a sound evolution plan.
-
-However, when we design an approach to merging two evolution plans, the exact way each feature model in the evolution plan was derived is besides the point. The only thing the user sees are a list of feature models associated with time points. Exactly how the evolution plan was manipulated, and in what order each editing operation took place is not relevant for the user, so it should also not be relevant for the merge algorithm. As described in \textbf{RQ3} in section~\ref{sec:research_questions}, we want to produce merge results that are predictable and transparent. Having a list-based approach might make it hard to differentiate equal plans. \todo{have a small example here} Since there often is more than one way of going from one feature model to another, seemingly equal evolution plans might be represented differently.
-
-\todo{rearrange out of place. maybe rewrite this whole thing. do something about it}
-Since part of the goal is to produce a sound result, we cannot simply rearrange the ordering of operations without complications. Some operations might be dependent on other operations, and rearranging the operations might result in an unsound plan. 
-
-To counter these issues, one might naïvely find an standardized ordering of operations so one could sort the operations, or simply just store them as a set of operations instead of a list. However, as we will see, the order of the operations still matter, and changing the ordering can have varying effects. We observe three different ordering related scenarios for operations; non-dependent operations, dependent operations, and shadowed operations. By swapping the operations in a plan, you might achieve one of these scenarios. In the following sections, We investigate the scenarios in the following sections, which is also illustrated in Figure~\ref{fig:operation_swap_effect}.
-
-\subsection*{Non-dependent Operations}%
-\label{sub:non_dependent_operations}
-
-In some cases, swapping the order of the operations in a time point has no effect on the resulting feature model. To exemplify this, take a simple feature model with two features and a group, organized in the following way: $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{F1}$. In the following time point, there is scheduled a removal of feature \texttt{F1} as well as a name change for the root feature \texttt{Root} to \texttt{F0}. Applying both operations should yield the following feature model: $\texttt{F0} \rightarrow \texttt{G1}$. Since there is no structural or semantic relation between the operations \todo{what does this mean? structural or semantic?}, the order of when they are applied makes no difference. With the current list-based representation of a plan for a single time point, there are two ways of representing the changes. You could either schedule the removal of the \texttt{F1} feature first, or the name change of the root feature first. 
-
-\todo{split the figures under each part}
-\begin{figure}[htpb]
-  \centering
-  \includegraphics[width=0.8\linewidth]{operation_swap_effect.pdf}
-  \caption{The various effects of swapping the ordering of operations}%
-  \label{fig:operation_swap_effect}
-\end{figure}
-
-\subsection*{Dependent Operations}%
-\label{sub:dependent_operations}
-
-To showcase the problem, we start with the same feature model used previously, with two features and a group: $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{F1}$. In the next planned time point, the changes to the feature model include the removal of both group \texttt{G1} and feature \texttt{F1}. However, there is only one legal ordering, namely removing the feature first, then removing the group. Applying the operation in this order yields a sound feature model; $\texttt{Root}$. Trying to remove the group first will as we defined sound evolution plans yield an inconsistency, because we are trying to remove a non-empty group. 
-
-\subsection*{Operation Shadowing}%
-\label{sub:operation_shadowing}
-
-Another issue with the list-based approach is \textit{operation shadowing}, which is the phenomenon where an operation is rendered useless because of another operation later in the list. This issue would also have to be considered, because rearranging the operation could lead to unwanted results. In addition to rearrangement resulting in unsound plans, moving a shadowed operation might result in a different, yet sound evolution plan.
-
-We exemplify operation shadowing, we consider the same initial feature model as before: $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{F1}$. The list of operations for the next point in time include first changing the name of \texttt{F1} to \texttt{Feat 1}, then later to \texttt{Feature 1}. The operation shadowing occurs because of the second renaming makes the first renaming completely useless. The resulting feature model, $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{Feature 1}$, are identical to the one we would have if we excluded the shadowed operation. However, if we were to swap the ordering of the rename operations, the resulting feature model would still be sound, but differ from the original ordering: $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{Feat 1}$.
+\todo{fix references to this}
 
 \section{A Suitable Representation of Evolution}%
 \label{sec:a_suitable_representation_of_evolution}
