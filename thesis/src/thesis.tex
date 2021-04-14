@@ -641,12 +641,25 @@ Note that each feature and groups \texttt{Set} of children are constructed using
 \section{Converting To a Suitable Representation}%
 \label{sec:converting_to_a_suitable_representation}
 
-\todo{we have a normal form. however, not suitable for merging since ditten and datten. a change is propagated, representation not really capturing the changes.
-} 
+The evolution plan defined in Section~\vref{sub:formalization_of_the_evolution_plan_normal_form}, \texttt{TreeUserEvolutionPlan}, works well for capturing the essence of evolution plans. It represents evolution plans in terms of what the user sees and interacts with. However, in order to do an effective merge of evolution plans, we need to represent them a bit differently.
 
-\todo{explain the section. We will construct new. This will be done by doing two things. creating a new representation for the feature models. creating a better representation for evolution plans.}
+Evolution planning is not just done one time, but a continuous process that requires changes according to new business requirements. This often requires changing intermediate time points in the evolution plan, not just the last. In such events, the additions, deletions and modifications to features and groups has an effect not just on the time point at hand, but all subsequent time points in the evolution plan. When a user adds a new feature in the middle of the plan, the feature would appear on the specified time points as well as all the time points beyond. When calculating the changes made, we don't want to look at this like a feature was added in all the time points, but rather just the specified time. In order to capture the essence of the changes made to each evolution plan, we would need to find a representation capturing the actual changes between time points explicitly.
 
-\todo{maybe two paragraphs: A flatter structure for feature models. explicitly encoding change in evolution plans/Explicitly modeling modifications in the evolution plans.... referere til subsections. referere til outline.} 
+We will transform the evolution plan to the merge-ready representation, \texttt{FlatModificationEvolutionPlan}, in two steps. We will begin by briefly explaining the two steps in the paragraphs below, then in Section~\vref{sub:a_flatter_feature_model_structure} and Section~\vref{sub:a_merge_ready_evolution_plan_representation} go into more detail on formal definitions, algorithms and examples.
+
+\paragraph{A Flatter Structure For Feature Models}%
+\label{par:a_flatter_structure_for_feature_models}
+
+To capture the explicit modifications between each time point in the evolution plan, we would need to figure out an approach to calculating the difference between two subsequent feature models. However, with our current tree-based feature model, \texttt{TreeFeatureModel}, this can be a bit cumbersome, requiring us to traverse the two trees simultaneously. In some cases this is not very straight forward, i.e. handling \texttt{Move}-operations that relocates entire subtrees. We will combat this by using a flat mapping structure for feature models, relying on node ids for indexing. With this structure, calculating the differences between feature models becomes significantly easier. 
+
+\paragraph{Explicit Changes Between Subsequent Feature Models}%
+\label{par:explicit_changes_between_subsequent_feature_models}
+
+With a representation more suitable for calculating differences between feature models, we can transform the list of feature models to a merge-ready representation. This representation is modeled with an initial feature model and a list of time points coupled with \textit{modifications}. The modifications specify the exact changes between the previous feature model and the next. With this representation, knowing what changes each derived evolution plan versions has made is more explicit, allowing a more straight forward merge.
+
+% To aid this process, we will first construct a different representation for the feature models. By not relying on an actual tree-structure, but rather a flat structure, calculating the differences between feature models becomes significantly easier.
+
+% The input of the three-way merge algorithm is three evolution plans in our evolution plan normal form, \texttt{TreeUserEvolutionPlan}. Each of the three evolution plans will be transformed into our merge-ready representation of evolution plan in two steps. First we will use \texttt{flattenEvolutionPlan} in order to flatten the evolution plan and represent it as our intermediate representation \texttt{FlatUserEvolutionPlan}. After this transformation, the evolution plans will be transformed into the merge-ready representation, \texttt{FlatModificationEvolutionPlan}.
 
 \subsection{A Flatter Feature Model Structure}%
 \label{sub:a_flatter_feature_model_structure}
@@ -756,22 +769,8 @@ Another issue with the list-based approach is \textit{operation shadowing}, whic
 
 We exemplify operation shadowing, we consider the same initial feature model as before: $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{F1}$. The list of operations for the next point in time include first changing the name of \texttt{F1} to \texttt{Feat 1}, then later to \texttt{Feature 1}. The operation shadowing occurs because of the second renaming makes the first renaming completely useless. The resulting feature model, $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{Feature 1}$, are identical to the one we would have if we excluded the shadowed operation. However, if we were to swap the ordering of the rename operations, the resulting feature model would still be sound, but differ from the original ordering: $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{Feat 1}$.
 
-\section{Constructing a Normal Form for Evolution Plans}%
-\label{sec:constructing_a_normal_form_for_evolution_plans}
-
-
-\subsection{Example Representation}%
-\label{sub:example_representation}
-
 \section{A Suitable Representation of Evolution}%
 \label{sec:a_suitable_representation_of_evolution}
-
-The evolution plan formalization defined above, \texttt{TreeUserEvolutionPlan}, works well for capturing the essence of evolution plans. It represents evolution plans in terms of what the user actually deals with. However, in order to do an effective merge of two evolution plans, we need to represent the evolution plan a bit differently.
-
-\todo{refactoring? har ikke snakket om dette.}
-Refactoring the evolution plan doesn't just involve modifying the last time point, but replanning the other time points earlier in the plan. When users are replanning such time points, the additions, deletions and modifications has an effect not just on the time point at hand, but all subsequent time points. When a user adds a new feature in the middle of the plan, the feature would appear on the specified time points as well as all the time points beyond. When calculating the changes made, we don't want to look at this like a feature was added in all the time points, but rather just the specified time. In order to capture the essence of the changes made to each evolution plan, we would need to find a representation capturing the actual changes more explicitly.
-
-In order to to capture the explicit modifications between each time point in the evolution plan, we would need to figure out an approach to calculating the difference between two subsequent feature models. However, with our current tree-based feature model, \texttt{TreeFeatureModel}, this can be a bit cumbersome, requiring us to traverse the two trees simultaneously. In some cases this is not very straight forward, i.e. handling \texttt{Move}-operations that relocates entire subtrees.
 
 \subsection{Feature Model Definition - Flat Representation}%
 \label{sub:feature_model_definition_flat_representation}
@@ -1017,8 +1016,6 @@ simpleExampleMod =
 \label{sec:converting_to_a_suitable_representation_old}
 
 As discussed in Chapter~\ref{cha:formal_semantics_of_feature_model_evolution_plans} \todo{fix ref}, we needed to create a suitable representation for evolution plans before attempting to merge the different versions.
-
-The input of the three-way merge algorithm is three evolution plans in our evolution plan normal form, \texttt{TreeUserEvolutionPlan}. Each of the three evolution plans will be transformed into our merge-ready representation of evolution plan in two steps. First we will use \texttt{flattenEvolutionPlan} in order to flatten the evolution plan and represent it as our intermediate representation \texttt{FlatUserEvolutionPlan}. After this transformation, the evolution plans will be transformed into the merge-ready representation, \texttt{FlatModificationEvolutionPlan}.
 
 \subsection{Transformation to the Intermediate Representation}%
 \label{sub:transformation_to_the_intermediate_representation}
