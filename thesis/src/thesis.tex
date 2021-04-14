@@ -1008,52 +1008,11 @@ simpleExampleMod =
 \subsubsection{Specifying the Final Representation Transformation}%
 \label{ssub:specifying_the_final_representation_transformation}
 
-\todo{write}
-
-\chapter{UNORDERED CONTENT}%
-\label{cha:unordered_content}
-
-% The semantics of editing operations were defined to create a soundness checker for evolution plans, which is used as a tool aiding replanning of evolution plans. However, since the focus of this thesis is to harmonize different alterations to evolution plan, we will need to adapt the evolution plan representation to fit this task.
-
-\section{Issues with using a list-based approach}%
-\label{sec:issues_with_using_a_list_based_approach}
-\todo{fix references to this}
-
-\section{A Suitable Representation of Evolution}%
-\label{sec:a_suitable_representation_of_evolution}
-
-\subsubsection*{Advantages over the tree structured evolution plan}%
-\label{ssub:advantages_over_the_tree_structured_evolution_plan}
-
-The new definition of feature models has advantages we will make deriving and integrating modifications between two subsequent feature models easier. 
-
-Since we have a flat structure, deriving or integrating modifications on a feature or group saves us from traversing the tree structure. The flat structure leverages the unique ids in order to allow lookup based on id. Changing a feature or group requires a lookup based on the id, then changing the fields of the mapping entry. Removing or adding a node is similarly simple, requiring only adding or removing an entry in the mapping. Since the edges in the tree are modeled as references to the parent id, we don't need to modify the parent node when removing a node.
-
-The flat structure is more flexible and less strict than the tree-structure. This allows for temporarily violating the soundness of the feature model, which lets us apply modifications to the tree in an arbitrary order.
-
-We recall some of the issues related to the list-based operations in Section~\ref{sec:issues_with_using_a_list_based_approach} \todo{fix ref}, where some dependent operations had to be applied in a specific order, i.e. adding the parent feature before adding the child group. Since the tree-structure of our \texttt{FlatUserEvolutionPlan} is implicit through the node-id references, we could simply add the child feature first, with a reference to the parent id, then directly after add the parent id. We just have to ensure that all the operations we apply will result in a sound feature model. This was simply not possible with the \texttt{TreeUserEvolutionPlan}, where a parent had to be added before its child, simply because the child is encoded inside the parent node, and not linked through a reference.
-
-\subsection{Evolution Plan Definition - Modification Level, Flat Representation}%
-\label{sub:evolution_plan_definition_modification_level_flat_representation}
-
-\section{TING FRA RESTEN}%
-\label{sec:ting_fra_resten}
-
-\todo{fikse heading problemer. prefikse alt med sub eller no. her må man finne ut hva greia blir}
-\section{Converting To a Suitable Representation Old}%
-\label{sec:converting_to_a_suitable_representation_old}
-
-As discussed in Chapter~\ref{cha:formal_semantics_of_feature_model_evolution_plans} \todo{fix ref}, we needed to create a suitable representation for evolution plans before attempting to merge the different versions.
-
-\subsection{Transformation to the Intermediate Representation}%
-\label{sub:transformation_to_the_intermediate_representation}
-
-\subsection{The Final, Merge Ready Representation}%
-\label{sub:the_final_merge_ready_representation}
-
-After transforming to our intermediate representation, we begin the process of deriving the modifications between each pair of subsequent feature models. As before, we have assumed soundness for our plans, which is why the actual function in the code is called \texttt{deriveSoundModifications} and not \texttt{deriveModifications} as in Figure~\ref{fig:merge_outline}.
+Up until this point, we have defined the data types involved and represented the simple example in the newly defined types, for the modification-based evolution plan. We will now begin the process of specifying the algorithm performing this transformation. 
 
 The function will use the first time point in the evolution plan as the initial time point, and create a list of subsequent feature model pairs which is then passed to the \texttt{timePointsToPlan} function. The function will use the two subsequent feature models, previous and current, to calculate the differences between them.
+
+As before, we have assumed soundness for our plans, which is why the actual function in the code is called \texttt{deriveSoundModifications} and not \texttt{deriveModifications} as in Figure~\ref{fig:merge_outline}.
 
 \begin{minted}[breaklines]{haskell}
 deriveSoundModifications :: 
@@ -1146,7 +1105,7 @@ calculateFeatureModifications =
                 )
 \end{minted}
 
-The calculations for groups follow a very similar approach:
+The calculations for groups follow a very similar approach.
 
 \begin{minted}[breaklines]{haskell}
 calculateGroupModifications ::
@@ -1179,12 +1138,12 @@ calculateGroupModifications =
                 )
 \end{minted}
 
-To visualize how this process is handled, we will look at two simple feature models. The two feature models will be passed to the \texttt{diffFeatureModels} function, which will derive the modifications. As described in the code above, the function will compare the features and groups in both feature models, in order to derive the modifications representing the changes between the two. A visualization of the input and output of the algorithm can be seen in Figure~\ref{fig:diff_feature_models_visualized}.
+To visualize how this process is handled, we will look at two feature models. The two feature models will be passed to the \texttt{diffFeatureModels} function, which will derive the modifications. As described in the code above, the function will compare the features and groups in both feature models, in order to derive the modifications representing the changes between the two. A visualization of the input and output of the algorithm can be seen in Figure~\ref{fig:diff_feature_models_visualized}.
 
 \begin{figure}[htpb]
   \centering
   \includegraphics[]{feature_model_diff_visualized.pdf}
-  \caption{A visualization of the result of running \texttt{diffFeatureModels} on two feature models}%
+  \caption{Result of executing \texttt{diffFeatureModels} on two feature models}%
   \label{fig:diff_feature_models_visualized}
 \end{figure}
 
@@ -1238,6 +1197,47 @@ result = [("g1", GroupModification Nothing
                    (GroupTypeModification Or))]
 \end{minted}
 
+\chapter{UNORDERED CONTENT}%
+\label{cha:unordered_content}
+
+% The semantics of editing operations were defined to create a soundness checker for evolution plans, which is used as a tool aiding replanning of evolution plans. However, since the focus of this thesis is to harmonize different alterations to evolution plan, we will need to adapt the evolution plan representation to fit this task.
+
+\section{Issues with using a list-based approach}%
+\label{sec:issues_with_using_a_list_based_approach}
+\todo{fix references to this}
+
+\section{A Suitable Representation of Evolution}%
+\label{sec:a_suitable_representation_of_evolution}
+
+\subsubsection*{Advantages over the tree structured evolution plan}%
+\label{ssub:advantages_over_the_tree_structured_evolution_plan}
+
+The new definition of feature models has advantages we will make deriving and integrating modifications between two subsequent feature models easier. 
+
+Since we have a flat structure, deriving or integrating modifications on a feature or group saves us from traversing the tree structure. The flat structure leverages the unique ids in order to allow lookup based on id. Changing a feature or group requires a lookup based on the id, then changing the fields of the mapping entry. Removing or adding a node is similarly simple, requiring only adding or removing an entry in the mapping. Since the edges in the tree are modeled as references to the parent id, we don't need to modify the parent node when removing a node.
+
+The flat structure is more flexible and less strict than the tree-structure. This allows for temporarily violating the soundness of the feature model, which lets us apply modifications to the tree in an arbitrary order.
+
+We recall some of the issues related to the list-based operations in Section~\ref{sec:issues_with_using_a_list_based_approach} \todo{fix ref}, where some dependent operations had to be applied in a specific order, i.e. adding the parent feature before adding the child group. Since the tree-structure of our \texttt{FlatUserEvolutionPlan} is implicit through the node-id references, we could simply add the child feature first, with a reference to the parent id, then directly after add the parent id. We just have to ensure that all the operations we apply will result in a sound feature model. This was simply not possible with the \texttt{TreeUserEvolutionPlan}, where a parent had to be added before its child, simply because the child is encoded inside the parent node, and not linked through a reference.
+
+\subsection{Evolution Plan Definition - Modification Level, Flat Representation}%
+\label{sub:evolution_plan_definition_modification_level_flat_representation}
+
+\section{TING FRA RESTEN}%
+\label{sec:ting_fra_resten}
+
+\todo{fikse heading problemer. prefikse alt med sub eller no. her må man finne ut hva greia blir}
+\section{Converting To a Suitable Representation Old}%
+\label{sec:converting_to_a_suitable_representation_old}
+
+As discussed in Chapter~\ref{cha:formal_semantics_of_feature_model_evolution_plans} \todo{fix ref}, we needed to create a suitable representation for evolution plans before attempting to merge the different versions.
+
+\subsection{Transformation to the Intermediate Representation}%
+\label{sub:transformation_to_the_intermediate_representation}
+
+\subsection{The Final, Merge Ready Representation}%
+\label{sub:the_final_merge_ready_representation}
+
 \section{Detecting the Changes Between Versions}%
 \label{sec:detecting_the_changes_between_versions}
 
@@ -1273,7 +1273,7 @@ An important aspect to notice is the difference between \textit{modifications} a
 
 With our changes, we are not adding, removing or changing features and groups, but rather adding, removing or changing the modifications themselves. The changes are working on a meta-level, allowing us to represent changes to the modifications. This distinction is a subtle, yet important factor. If one of the derived versions are removing a feature in a time point, this is actually represented as an addition. This is because the feature removal is represented as a new modification in the evolution plan, and we represent this by saying we "add" a new modification, which is the feature removal.
 
-We present an evolution plan representing the merging of all three evolution plans. This representation follow a similar structure to our \texttt{FlatModificationEvolutionPlan}, which is why we reuse the data type \texttt{TransformationEvolutionPlan} defined in Section~\vref{sub:evolution_plan_definition_modification_level_flat_representation} \todo{fix ref}.
+We present an evolution plan representing the merging of all three evolution plans. This representation follow a similar structure to our \texttt{FlatModificationEvolutionPlan}, which is why we reuse the data type \texttt{TransformationEvolutionPlan} defined in Section~\vref{ssub:formalizing_modification_based_evolution_plans}
 
 \begin{minted}[breaklines]{haskell}
 type MergeEvolutionPlan featureModel = 
@@ -1488,7 +1488,7 @@ emptyModifications = Modifications M.empty M.empty
 
 The \texttt{diffModifications} function defined below will handle the transformation combining modifications into the \texttt{DiffResult} type. Combining the modifications of groups follow the same general process as with feature modifications. 
 
-Combining the different \texttt{Map}s follow a similar approach as we did deriving the modifications between feature models (See Section~\vref{sub:the_final_merge_ready_representation}), using the \texttt{merge} function from \texttt{Data.Map.Merge}\footnote{https://hackage.haskell.org/package/containers-0.6.2.1/docs/Data-Map-Merge-Strict.html}. Since we are merging three maps instead of two, we combine the three maps in two steps; (1) We combine the two derived modifications into a intermediate result using the function \texttt{mergeDerived}, and (2), we combine the base modifications with the combined derived result using \texttt{mergeBaseAndDerived}.
+Combining the different \texttt{Map}s follow a similar approach as we did deriving the modifications between feature models (See Section~\vref{ssub:specifying_the_final_representation_transformation}), using the \texttt{merge} function from \texttt{Data.Map.Merge}\footnote{https://hackage.haskell.org/package/containers-0.6.2.1/docs/Data-Map-Merge-Strict.html}. Since we are merging three maps instead of two, we combine the three maps in two steps; (1) We combine the two derived modifications into a intermediate result using the function \texttt{mergeDerived}, and (2), we combine the base modifications with the combined derived result using \texttt{mergeBaseAndDerived}.
 
 \begin{minted}[breaklines]{haskell}
 diffModifications ::
