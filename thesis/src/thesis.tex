@@ -797,10 +797,6 @@ flattenSoundFeatureModel fm =
 \subsection{Avoiding the Pitfalls of an Operation-based Representation}%
 \label{sub:avoiding_the_pitfalls_of_an_operation_based_representation}
 
-\todo{we construct new rep. similar to the one we did previously. however, we want to avoid some things about this rep. bla bla div greier om nondep op, shadowed greier.}
-
-\todo{Next step is finding a way of representing changes between two feature models to explicitly model the changes.}
-
 The next step in the merge algorithm is finding a representation for evolution plans where changes between time points are explicitly modeled. In doing so, we revisit the representation we created in the paper \cite{cite:consistency_preserving_evolution_planning}, as it is very similar to what we want to achieve. This operation-based representation expressed changes between feature models as a list of operations. However, this representation proposes a number of challenges, which we will discuss. In the light of these issues, we will in Section~\vref{sub:a_merge_ready_evolution_plan_representation} detail a more suitable solution for merging that tackles these issues.
 
 In the operation-based semantic, we expressed changes between feature models as a list of operations. The operations covered the basic types of editing we could perform on features and groups, like \texttt{addFeature}, \texttt{removeGroup}, \texttt{moveFeature} and \texttt{renameFeature}. The effects and conditions of the operations were also formally defined in the paper. These operations were organized in a list, implying that the ordering are important. By applying the operations one by one on the current feature model, we would achieve the next feature model.
@@ -808,8 +804,6 @@ In the operation-based semantic, we expressed changes between feature models as 
 The list of operations also reflected the way the user preformed the replanning, where the changes made had a specific ordering. However, when we design an approach to merging two evolution plans, the exact way each feature model in the evolution plan was derived is besides the point. The only thing the user sees are a list of feature models associated with time points. Exactly how the evolution plan was manipulated, and in what order each operation took place is not relevant for the user, so it should also not be relevant for the merge algorithm.
 
 We will detail some properties caused by the list-based operation semantic, and how they might be problematic for our purpose. The properties we will investigate are \textit{non-dependent operations}, \textit{dependent operations} and \textit{operation shadowing}, which is discussed in the sections below.
-
-% In our work on creating a soundness checker for evolution plans, we used a representation where the ordering of the operations for a single point in time mattered. This list-based approach of grouping operations had several advantages regarding the formal definition of sound evolution plans as well as implementation-specific concerns. In defining what was considered a well-defined operation, we considered only the current feature model and the operation at hand. What order the user applied the operations did not really matter, as long as applying each operation resulted in a sound evolution plan.
 
 \subsubsection{Non-dependent Operations}%
 \label{ssub:non_dependent_operations}
@@ -829,8 +823,6 @@ In some cases, swapping the order of the operations in a time point has no effec
   \end{tabular}
   \caption{Non-Dependent Operations Example} 
 \end{table}
-
-% This list-based approach of grouping operations had several advantages regarding the formal definition of sound evolution plans as well as implementation-specific concerns. In defining what was considered a well-defined operation, we considered only the current feature model and the operation at hand. This only required validating that the application of the operation resulted in a sound plan. What order the operations were applied in did not really matter, as long as applying each operation resulted in a sound evolution plan. 
 
 This meant that there are several ways to achieve the same evolution plan, which is a problem for our purpose. When users are merging what they perceive as the same evolution plan, we don't want to raise a conflict due to differences in the internal representation of evolution plans.
 
@@ -879,7 +871,13 @@ We exemplify operation shadowing by considering the same initial feature model a
 \subsection{A Merge-Ready Evolution Plan Representation}%
 \label{sub:a_merge_ready_evolution_plan_representation}
 
-\todo{write}
+As discussed in Section~\ref{sub:avoiding_the_pitfalls_of_an_operation_based_representation}, the list-based operation approach is problematic in order to achieve a desired merge result. We present the merge-ready representation for evolution plans. Similar to the operation-based representation, it will define a data type for deriving the next feature model from the previous. However, it will avoid the issues caused by an ordered list of operations.
+
+We present the merge-ready evolution plan representation, \texttt{FlatModificationEvolutionPlan}, modeling the evolution plan as an initial model along with an ordered list of time points associated with \textit{modifications}. The modifications model the changes necessary to go from the previous feature model to the one in the specified time point. The modifications consists of two mappings, one for features and one for groups. Each mappings map ids to a \textit{modification}. By creating a indexed mapping structure, we limit a feature or group to have maximum one modification at a time point. This could be either an addition, removal or a change to one or more fields. 
+
+The mapping structure also implies that there are no ordering to the feature and group modifications. Having no specific ordering to the modifications were challenging with the tree-structured feature models. However, all these issues dissolved when we converted to the flat feature model structure, \texttt{FlatUserEvolutionPlan}. If we were to add a child before its parent, the tree-structure made this impossible. This, however, was made possible with the flexible flat structured feature models.
+
+The new semantic for detecting changes between feature models has an important implication. The operation-based semantic allowed verifying soundness after every operation application. However, since the mapping-based structure has no specific order of application, the verification would have to be postponed until every modification for a time point has been included. This is not relevant for now, but will be in further stages of the algorithm.
 
 \subsubsection{Formalizing Modification-Based Evolution Plans}%
 \label{ssub:formalizing_modification_based_evolution_plans}
@@ -921,12 +919,6 @@ We recall some of the issues related to the list-based operations in Section~\re
 
 \subsection{Evolution Plan Definition - Modification Level, Flat Representation}%
 \label{sub:evolution_plan_definition_modification_level_flat_representation}
-
-As discussed in Section~\ref{sec:issues_with_using_a_list_based_approach} \todo{fix ref}, the list-based operation approach is problematic in order to achieve a desired merge result. What the user perceived as equal plans had several representations. In order to combat this we created a normal form for evolution plans, \texttt{TreeUserEvolutionPlan}, more aligned with the users perspective of evolution plans. Since tree-based structure of its feature models had some disadvantages in terms of detecting and applying modifications, we created a new representation for feature models, which we used in our intermediate representation for evolution plans, \texttt{FlatUserEvolutionPlan}.
-
-However, the user level evolution plan representation with the list of feature models for each time point didn't model the replanning aspect of evolution plans as we wanted. When users have to go back to intermediate time points in the evolution plan and make changes, the changes will appear in the subsequent time points as well. This requires modeling the evolution plan similar to the list-based operation approach discussed previously, while still avoiding the issues regarding operation ordering, operation shadowing, etc.
-
-We present the final evolution plan representation, \texttt{FlatModificationEvolutionPlan}, modeling the evolution plan as an initial model along with an ordered list of time points associated with \textit{modifications}. The modifications model the changes necessary to go from the previous feature model to the one in the specified time point. The modifications consists of two mappings, one for features and one for groups. Each mappings map ids to a \textit{modification}. A modification can be one of three things, an addition, deletion or a change to one or more fields.
 
 The Haskell representation of our \texttt{FlatModificationEvolutionPlan} can be seen below.
 
