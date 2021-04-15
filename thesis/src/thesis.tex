@@ -472,7 +472,7 @@ Evolution planning often requires revisiting intermediate feature models, not ju
 
 In order to facilitate for replanning, we defined the semantics for what is considered a valid change on a feature model. A change was captured formally as an \textit{operation}, which described how the feature model would be changed, and under what conditions. The operations include addition and deletion of features and groups, as well as modifications to their fields, such as names or types.
 
-In the work in this thesis, I will build upon the semantics of the operations defined in \cite{cite:consistency_preserving_evolution_planning}. However, we cannot use the operations directly, since due to several issues we will detail in Section~\vref{sec:issues_with_using_a_list_based_approach}. Instead, we develop new representations which is better suited for merging evolution plans.
+In the work in this thesis, I will build upon the semantics of the operations defined in \cite{cite:consistency_preserving_evolution_planning}. However, we cannot use the operations directly, since due to several issues we will detail in Section~\vref{sub:avoiding_the_pitfalls_of_an_operation_based_representation}. Instead, we develop new representations which is better suited for merging evolution plans.
 
 \subsection{Visual Representation}%
 \label{sub:visual_representation}
@@ -664,7 +664,9 @@ With a representation more suitable for calculating differences between feature 
 \subsection{A Flatter Feature Model Structure}%
 \label{sub:a_flatter_feature_model_structure}
 
-We define a new representation for feature models, \texttt{FlatFeatureModel}, in order to have a structure better suited for detecting and applying changes to the tree-structure. This is achievable due to our features and groups having unique ids. This allows for a simple mapping-structure, where we each feature and group can be looked up by its id. The edges and relations in the tree are modeled as node-id references instead of a recursive structure. Every node only stores its parent relation, not its child relations as well. This makes moving entire subtrees straight forward, requiring changing only the parent-field of the node to move.
+We define a new representation for feature models, \texttt{FlatFeatureModel}, in order to have a structure better suited for detecting and applying changes to the tree-structure. This is achievable due to our features and groups having unique ids. This allows for a simple mapping-structure, where we each feature and group can be looked up by its id. The edges and relations in the tree are modeled as node-id references instead of a recursive structure.
+
+The new definition of feature models has advantages will make deriving and integrating modifications between two subsequent feature models easier. Since we have a flat structure, deriving or integrating modifications on a feature or group saves us from traversing the tree structure. The flat structure leverages the unique ids in order to allow lookup based on id. Changing a feature or group requires a lookup based on the id, then changing the fields of the mapping entry. Removing or adding a node is similarly simple, requiring only adding or removing an entry in the mapping. Since the edges in the tree are modeled as references to the parent id, we don't need to modify the parent node when removing a node. This makes moving entire subtrees straight forward, requiring changing only the parent-field of the node to move.
 
 \subsubsection{Formalizing the Flat Structure}%
 \label{ssub:formalizing_the_flat_structure}
@@ -1199,44 +1201,6 @@ result = [("g1", GroupModification Nothing
 
 \chapter{UNORDERED CONTENT}%
 \label{cha:unordered_content}
-
-% The semantics of editing operations were defined to create a soundness checker for evolution plans, which is used as a tool aiding replanning of evolution plans. However, since the focus of this thesis is to harmonize different alterations to evolution plan, we will need to adapt the evolution plan representation to fit this task.
-
-\section{Issues with using a list-based approach}%
-\label{sec:issues_with_using_a_list_based_approach}
-\todo{fix references to this}
-
-\section{A Suitable Representation of Evolution}%
-\label{sec:a_suitable_representation_of_evolution}
-
-\subsubsection*{Advantages over the tree structured evolution plan}%
-\label{ssub:advantages_over_the_tree_structured_evolution_plan}
-
-The new definition of feature models has advantages we will make deriving and integrating modifications between two subsequent feature models easier. 
-
-Since we have a flat structure, deriving or integrating modifications on a feature or group saves us from traversing the tree structure. The flat structure leverages the unique ids in order to allow lookup based on id. Changing a feature or group requires a lookup based on the id, then changing the fields of the mapping entry. Removing or adding a node is similarly simple, requiring only adding or removing an entry in the mapping. Since the edges in the tree are modeled as references to the parent id, we don't need to modify the parent node when removing a node.
-
-The flat structure is more flexible and less strict than the tree-structure. This allows for temporarily violating the soundness of the feature model, which lets us apply modifications to the tree in an arbitrary order.
-
-We recall some of the issues related to the list-based operations in Section~\ref{sec:issues_with_using_a_list_based_approach} \todo{fix ref}, where some dependent operations had to be applied in a specific order, i.e. adding the parent feature before adding the child group. Since the tree-structure of our \texttt{FlatUserEvolutionPlan} is implicit through the node-id references, we could simply add the child feature first, with a reference to the parent id, then directly after add the parent id. We just have to ensure that all the operations we apply will result in a sound feature model. This was simply not possible with the \texttt{TreeUserEvolutionPlan}, where a parent had to be added before its child, simply because the child is encoded inside the parent node, and not linked through a reference.
-
-\subsection{Evolution Plan Definition - Modification Level, Flat Representation}%
-\label{sub:evolution_plan_definition_modification_level_flat_representation}
-
-\section{TING FRA RESTEN}%
-\label{sec:ting_fra_resten}
-
-\todo{fikse heading problemer. prefikse alt med sub eller no. her må man finne ut hva greia blir}
-\section{Converting To a Suitable Representation Old}%
-\label{sec:converting_to_a_suitable_representation_old}
-
-As discussed in Chapter~\ref{cha:formal_semantics_of_feature_model_evolution_plans} \todo{fix ref}, we needed to create a suitable representation for evolution plans before attempting to merge the different versions.
-
-\subsection{Transformation to the Intermediate Representation}%
-\label{sub:transformation_to_the_intermediate_representation}
-
-\subsection{The Final, Merge Ready Representation}%
-\label{sub:the_final_merge_ready_representation}
 
 \section{Detecting the Changes Between Versions}%
 \label{sec:detecting_the_changes_between_versions}
