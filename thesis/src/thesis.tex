@@ -490,8 +490,8 @@ In the diagram, each feature is a node of rectangular shape with the name of the
 
 We present an example, seen in Figure~\ref{fig:visual_example}, to demonstrate this. In this example, we have three features and one group. The three features is named \textit{Feature 1}, \textit{Feature 2} and \textit{Feature 3}. Every feature is mandatory, except feature 2, which is optional. Since the group has the $\land$ symbol, it is an \textit{and} group.
 
-\chapter{Implementing the Merger in Haskell}%
-\label{cha:implementation_of_the_merger_in_haskell}
+\chapter{Specification and Implementation of the Three-Way Merge}%
+\label{cha:specification_and_implementation_of_the_three_way_merge_algorithm}
 
 In this chapter, we will present the three-way merge algorithm. The algorithm are formalized in the functional language Haskell. By leveraging Haskell's type system, we will model different evolution plan representations, types of conflict and other intermediate representations essential for the algorithm. In addition to defining the types, we define the different parts and phases of the algorithm in terms of Haskell functions. We will also demonstrate the transformations by constructing a simple example that we will use in the entire chapter.
 
@@ -1199,9 +1199,6 @@ result = [("g1", GroupModification Nothing
                    (GroupTypeModification Or))]
 \end{minted}
 
-\chapter{UNORDERED CONTENT}%
-\label{cha:unordered_content}
-
 \section{Detecting the Changes Between Versions}%
 \label{sec:detecting_the_changes_between_versions}
 
@@ -1209,10 +1206,10 @@ Up until this point, we have only considered transformations on single evolution
 
 The process of merging two different versions of an evolution plan involves figuring out what changes each version has made. In order to do so, we will utilize the common evolution plan both version were derived from, in order to confidently tell what changes has been made to each plan. As seen in our outline for the three-way merge algorithm in Figure~\vref{fig:merge_outline}, we will transform all three evolution plans into the \texttt{FlatModificationEvolutionPlan} representation, then attempt to merge version 1 and 2 with respect to the base evolution plan.
 
-\subsection{A Simple Three-Way Merge Example}%
-\label{sub:a_simple_three_way_merge_example}
+\subsection{Extending the Simple Three-Way Merge Example}%
+\label{sub:extending_the_simple_three_way_merge_example}
 
-Before we attempt to explain how the changes between the versions are detected and represented, we present a simple example consisting of three evolution plans. To create this merge example, we will revisit our simple evolution plan example visualized in Figure~\ref{fig:simpleep_treeuser}. The simple evolution plan presented will act as our base evolution plan. Using the base evolution plan, we will create two evolution plans, version 1 and version 2, which is derived from the common evolution plan. The changes to the derived evolution plans include the following:
+Before we attempt to explain how the changes between the versions are detected and represented, we present an example consisting of three evolution plans. To create this three-way merge example, we will revisit our simple evolution plan example from in Section~\vref{sub:constructing_a_simple_evolution_plan_example}. The simple evolution plan presented will act as our base evolution plan. Using the base evolution plan, we will create two evolution plans, version 1 and version 2, which is derived from the common evolution plan. The changes to the derived evolution plans include the following:
 
 \begin{itemize}
   \item \textbf{Version 1}: Includes two changes to the base evolution plan: (1) Adding a feature \texttt{F4} to the and-group at time point 1. (2) At time point 2, there was originally scheduled a group type modification from \texttt{And} to \texttt{Or}, but this version changed the modification to create a \texttt{Alternative} group instead.
@@ -1303,8 +1300,8 @@ data Version
   | V2
 \end{minted}
 
-\subsubsection{Representing the changes from the example}%
-\label{ssub:representing_the_changes_from_the_example}
+\subsection{Representing the extended example}%
+\label{sub:representing_the_extended_example}
 
 Revisiting our example from Figure~\ref{fig:simple_three_way_example}, we can now represent the changes with our newly defined data types. Our merged version of the evolution plan is as follows:
 
@@ -1676,8 +1673,8 @@ checkOverlappingChanges conflictHandler time id bothChange =
         else conflict
 \end{minted}
 
-\subsection{Example}%
-\label{sub:example_unified_merge}
+\subsection{Resulting Evolution Plan After Merging the Example}%
+\label{sub:resulting_evolution_plan_after_merging_the_example}
 
 Looking at our running example, visualized in Figure~\vref{fig:simple_three_way_example}, the result of merging the three plans is successful. Since none of the changes from each version overlap, no merge conflict was produced either. Each change in both versions was included, and the result was the following:
 
@@ -1732,7 +1729,7 @@ simpleExampleUnifiedPlan =
 
 The result of the \texttt{unifyMergePlan} function returned what we wanted. From both derived versions, there was a total of three changes. A new feature was added at time 1, the name change in time 2 was removed and the group type modification in time 2 was changed to transform to a \texttt{Alternative} group instead of \texttt{Or} group.
 
-\section{Ensuring structural and semantic soundness}%
+\section{Ensuring Structural and Semantic Soundness}%
 \label{sec:ensuring_structural_and_semantic_soundness_of_merge_result}
 
 Now that we have defined a method of detecting and merging changes to evolution plans, we would have to check that the resulting evolution plan results in a valid and sound evolution plan, keeping both the structure and semantics in tact.
@@ -1783,7 +1780,7 @@ As discussed, the first part is integrating the modifications. Most of the work 
 
 The generated dependencies and the next time point are then passed to \texttt{checkGlobalConflict}, which either succeeds or raise a conflict. Upon failure, the do-notation and monadic structure will propagate the error. However, if it succeeds, the rest of the time points are recursively called.
 
-\subsection{Applying modifications}%
+\subsection{Applying Every Modification in the Evolution Plan}%
 \label{sub:applying_modifications}
 
 In order to integrate every single modifications for a single time point, the \texttt{integrateSinglePlan} function is called. As discussed, the modifications for a single time point has no ordering, so we can arbitrarily choose an application ordering. The modifications are applied by calling either \texttt{integrateFeature} or \texttt{integrateGroup} with the feature model, which will return the feature model with the modification applied. The resulting feature model is then passed to the next modification. The process is continued until all modifications are applied.
@@ -2089,7 +2086,7 @@ data GlobalConflict
   = FailedDependencies [Dependency]
 \end{minted}
 
-\subsection{Checking dependencies and ensuring soundness}%
+\subsection{Checking Dependencies and Ensuring Soundness}%
 \label{sub:checking_dependencies_and_ensuring_soundness}
 
 After applying every modification for a certain time point, the generated dependencies and resulting feature model are passed to the \texttt{checkGlobalConflict}. The function will either succeed with the correct feature model, or fail with a list of dependencies that did not pass.
@@ -2275,11 +2272,8 @@ unflattenGroup featureModel groupId =
       featureModel ^?! L.groups . ix groupId
 \end{minted}
 
-\subsection{Example}%
-\label{sub:example}
-
-\subsubsection{After Applying and Checking Modifications}%
-\label{ssub:after_applying_and_checking_modifications}
+\subsection{The Simple Example After Applying and Checking Modifications}%
+\label{sub:the_simple_example_after_applying_and_checking_modifications}
 
 Revisiting our simple example from Figure~\vref{fig:simple_three_way_example}, we pick up the example from where we left off. With the \texttt{FlatModificationEvolutionPlan} representation of the merged plan, we use \texttt{integrateAndCheckModifications} to apply the modifications and check the result for soundness. This results in a list of feature models, in our \texttt{FlatUserEvolutionPlan} representation. The result can be seen below.
 
@@ -2379,8 +2373,8 @@ simpleExampleCheckedPlan =
         ]
 \end{minted}
 
-\subsubsection{Dependencies Generated}%
-\label{ssub:dependencies_generated}
+\subsection{Dependencies Generated by the Example}%
+\label{sub:dependencies_generated_by_the_example}
 
 As we traverse the time points and apply the modifications to the current feature model, we generate dependencies that are later checked. The dependencies generated at each time point is visualized below.
 
@@ -2436,8 +2430,8 @@ generatedDependencies =
   ]
 \end{minted}
 
-\subsubsection{Converting To The Normal Form}%
-\label{ssub:converting_to_the_normal_form}
+\subsection{Final Output of the Simple Three-Way Example}%
+\label{sub:final_output_of_the_simple_three_way_example}
 
 As our example is passed through the final step, converting it back to the original representation, we get the following result.
 
