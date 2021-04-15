@@ -472,7 +472,7 @@ Evolution planning often requires revisiting intermediate feature models, not ju
 
 In order to facilitate for replanning, we defined the semantics for what is considered a valid change on a feature model. A change was captured formally as an \textit{operation}, which described how the feature model would be changed, and under what conditions. The operations include addition and deletion of features and groups, as well as modifications to their fields, such as names or types.
 
-In the work in this thesis, I will build upon the semantics of the operations defined in \cite{cite:consistency_preserving_evolution_planning}. However, we cannot use the operations directly, since due to several issues we will detail in Section~\vref{sec:issues_with_using_a_list_based_approach}. Instead, we develop new representations which is better suited for merging evolution plans.
+In the work in this thesis, I will build upon the semantics of the operations defined in \cite{cite:consistency_preserving_evolution_planning}. However, we cannot use the operations directly, since due to several issues we will detail in Section~\vref{sub:avoiding_the_pitfalls_of_an_operation_based_representation}. Instead, we develop new representations which is better suited for merging evolution plans.
 
 \subsection{Visual Representation}%
 \label{sub:visual_representation}
@@ -490,64 +490,22 @@ In the diagram, each feature is a node of rectangular shape with the name of the
 
 We present an example, seen in Figure~\ref{fig:visual_example}, to demonstrate this. In this example, we have three features and one group. The three features is named \textit{Feature 1}, \textit{Feature 2} and \textit{Feature 3}. Every feature is mandatory, except feature 2, which is optional. Since the group has the $\land$ symbol, it is an \textit{and} group.
 
-\chapter{Implementing the Merger in Haskell}%
-\label{cha:implementation_of_the_merger_in_haskell}
+\chapter{Specification and Implementation of the Three-Way Merge}%
+\label{cha:specification_and_implementation_of_the_three_way_merge_algorithm}
 
-\section{TING FRA KAP 3}%
-\label{sec:ting_fra_kap_3}
+In this chapter, we will present the three-way merge algorithm. The algorithm are formalized in the functional language Haskell. By leveraging Haskell's type system, we will model different evolution plan representations, types of conflict and other intermediate representations essential for the algorithm. In addition to defining the types, we define the different parts and phases of the algorithm in terms of Haskell functions. We will also demonstrate the transformations by constructing a simple example that we will use in the entire chapter.
 
-\section{Formal Semantics of Feature Model Evolution Plans}%
-\label{cha:formal_semantics_of_feature_model_evolution_plans}
-\todo{chapter written to a section. do something meaningful}
-% The semantics of editing operations were defined to create a soundness checker for evolution plans, which is used as a tool aiding replanning of evolution plans. However, since the focus of this thesis is to harmonize different alterations to evolution plan, we will need to adapt the evolution plan representation to fit this task.
+\section{A Normal Form for Evolution Plans}%
+\label{sec:defining_a_normal_form_for_evolution_plans}
 
-\section{Issues with using a list-based approach}%
-\label{sec:issues_with_using_a_list_based_approach}
-\todo{create better title. maybe rewrite to be more about general issues we need to look out for. not just about the solution we have.}
+Before diving into the inner workings of the three-way merge algorithm, we will define the input of the algorithm. Since the input of the algorithm is three evolution plans, we need to formalize evolution plans in Haskell's type system. When choosing a representation for the input, we will model it in a way that is well aligned to the visual representation the users are presented with in the evolution plan editor. We call this representation the \textit{normal form} of evolution plans, since it is closest representation to what the user is presented with.
 
-In our work on creating a soundness checker for evolution plans, we used a representation where the ordering of the operations for a single point in time mattered. This list-based approach of grouping operations had several advantages regarding the formal definition of sound evolution plans as well as implementation-specific concerns. In defining what was considered a well-defined operation, we considered only the current feature model and the operation at hand. What order the user applied the operations did not really matter, as long as applying each operation resulted in a sound evolution plan.
-
-However, when we design an approach to merging two evolution plans, the exact way each feature model in the evolution plan was derived is besides the point. The only thing the user sees are a list of feature models associated with time points. Exactly how the evolution plan was manipulated, and in what order each editing operation took place is not relevant for the user, so it should also not be relevant for the merge algorithm. As described in \textbf{RQ3} in section~\ref{sec:research_questions}, we want to produce merge results that are predictable and transparent. Having a list-based approach might make it hard to differentiate equal plans. \todo{have a small example here} Since there often is more than one way of going from one feature model to another, seemingly equal evolution plans might be represented differently.
-
-\todo{rearrange out of place. maybe rewrite this whole thing. do something about it}
-Since part of the goal is to produce a sound result, we cannot simply rearrange the ordering of operations without complications. Some operations might be dependent on other operations, and rearranging the operations might result in an unsound plan. 
-
-To counter these issues, one might naïvely find an standardized ordering of operations so one could sort the operations, or simply just store them as a set of operations instead of a list. However, as we will see, the order of the operations still matter, and changing the ordering can have varying effects. We observe three different ordering related scenarios for operations; non-dependent operations, dependent operations, and shadowed operations. By swapping the operations in a plan, you might achieve one of these scenarios. In the following sections, We investigate the scenarios in the following sections, which is also illustrated in Figure~\ref{fig:operation_swap_effect}.
-
-\subsection*{Non-dependent Operations}%
-\label{sub:non_dependent_operations}
-
-In some cases, swapping the order of the operations in a time point has no effect on the resulting feature model. To exemplify this, take a simple feature model with two features and a group, organized in the following way: $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{F1}$. In the following time point, there is scheduled a removal of feature \texttt{F1} as well as a name change for the root feature \texttt{Root} to \texttt{F0}. Applying both operations should yield the following feature model: $\texttt{F0} \rightarrow \texttt{G1}$. Since there is no structural or semantic relation between the operations \todo{what does this mean? structural or semantic?}, the order of when they are applied makes no difference. With the current list-based representation of a plan for a single time point, there are two ways of representing the changes. You could either schedule the removal of the \texttt{F1} feature first, or the name change of the root feature first. 
-
-\todo{split the figures under each part}
-\begin{figure}[htpb]
-  \centering
-  \includegraphics[width=0.8\linewidth]{operation_swap_effect.pdf}
-  \caption{The various effects of swapping the ordering of operations}%
-  \label{fig:operation_swap_effect}
-\end{figure}
-
-\subsection*{Dependent Operations}%
-\label{sub:dependent_operations}
-
-To showcase the problem, we start with the same feature model used previously, with two features and a group: $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{F1}$. In the next planned time point, the changes to the feature model include the removal of both group \texttt{G1} and feature \texttt{F1}. However, there is only one legal ordering, namely removing the feature first, then removing the group. Applying the operation in this order yields a sound feature model; $\texttt{Root}$. Trying to remove the group first will as we defined sound evolution plans yield an inconsistency, because we are trying to remove a non-empty group. 
-
-\subsection*{Operation Shadowing}%
-\label{sub:operation_shadowing}
-
-Another issue with the list-based approach is \textit{operation shadowing}, which is the phenomenon where an operation is rendered useless because of another operation later in the list. This issue would also have to be considered, because rearranging the operation could lead to unwanted results. In addition to rearrangement resulting in unsound plans, moving a shadowed operation might result in a different, yet sound evolution plan.
-
-We exemplify operation shadowing, we consider the same initial feature model as before: $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{F1}$. The list of operations for the next point in time include first changing the name of \texttt{F1} to \texttt{Feat 1}, then later to \texttt{Feature 1}. The operation shadowing occurs because of the second renaming makes the first renaming completely useless. The resulting feature model, $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{Feature 1}$, are identical to the one we would have if we excluded the shadowed operation. However, if we were to swap the ordering of the rename operations, the resulting feature model would still be sound, but differ from the original ordering: $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{Feat 1}$.
-
-\section{Constructing a Normal Form for Evolution Plans}%
-\label{sec:constructing_a_normal_form_for_evolution_plans}
-
-In order to avoid the problems stated in section \vref{sec:issues_with_using_a_list_based_approach}, we construct a new representation for evolution plans. This representation is more aligned with what the user interacts \todo{what the user interacts with. litt rart. har ikke snakket om user} with, so equal plans \todo{equal plans? hva er dette? har ikke snakket om} are also represented equally. In this representation, called \texttt{TreeUserEvolutionPlan}, the evolution plan is represented as a list of feature models together with a time point. Instead of storing the operations necessary to go from the previous time point to the next, each feature model is explicitly encoded. Each feature model is represented as a mutually recursive tree structure of features and groups. This representation is the normal form of evolution plans, and the closest representation to what the user actually interacts with.
+In this representation, \texttt{TreeUserEvolutionPlan}, the evolution plan is represented as a list of feature models together with a time point. Each feature model is represented as a mutually recursive tree structure of features and groups. 
 
 The exact representation of \texttt{TreeUserEvolutionPlan} are defined formally in the Haskell code. Haskell's powerful type system with records and algebraic data types allows for a precise formalization. When presented here in the thesis, the types are somewhat simplified, leaving out unnecessary noise, such as automatically derived instances for JSON serialization, equality checking, etc.
 
-\subsection{Feature Model Definition - Tree Representation}%
-\label{sub:feature_model_definition_tree_representation}
+\subsection{Formalization of the Evolution Plan Normal Form}%
+\label{sub:formalization_of_the_evolution_plan_normal_form}
 
 First, we will look at the tree representation for feature models, formalized as \texttt{TreeFeatureModel}.
 
@@ -585,17 +543,7 @@ type GroupId = String
 
 There is a few important things to note in this representation. Each feature and groups id is unique across the entire feature model, which we will leverage when merging. Each feature and group can have an arbitrary number of children. The children is organized in a \texttt{Set}, not a \texttt{List}, noting that the ordering is irrelevant. In order for the feature model to be sound, some combination of parent group type and child feature types are prohibited. If a group is of type \texttt{Alternative} or \texttt{Or}, every child feature has to be of type \texttt{Optional}.
 
-\subsection{Evolution Plan Definition - User Level, Tree Representation}%
-\label{sub:evolution_plan_definition_user_level_tree_representation}
-
-\todo{text before this point. what are we jumping into?}
-\todo{better naming schemes. too techniqal}
-\todo{better naming for user. not really about user. meeen vi får se.}
-
-\subsubsection*{Polymorphic User Level Evolution Plan}%
-\label{ssub:polymorphic_user_level_evolution_plan}
-
-Now that we have a suitable definition feature models, we define evolution plans. In this representation, we want the evolution plans to mirror what the user interacts with, so we define the evolution plan as a list of feature models. In later stages of the merge algorithm, we will reuse this \textit{user level} definition of evolution plans, only with a different definition of feature models. This allows us to leverage Haskell's polymorphic type system, which spares us from defining it twice.
+Now that we have a suitable definition feature models, we define evolution plans. In this representation, we want the evolution plans to mirror what the user is presented with, so we define the evolution plan as a list of feature models. In later stages of the merge algorithm, we will reuse the polymorphic \texttt{UserEvolutionPlan} definition of evolution plans, only with a different definition of feature models. This allows us to leverage Haskell's polymorphic type system, which spares us from defining it twice.
 
 \begin{minted}{haskell}
 data UserEvolutionPlan featureModel = UserEvolutionPlan
@@ -610,19 +558,25 @@ data TimePoint featureModel = TimePoint
   }
 \end{minted}
 
-\subsubsection*{Instantiated User Level Evolution Plan (Tree Feature Model)}%
-\label{ssub:instantiated_user_level_evolution_plan_tree_feature_model_}
-
 Now that a generalized representation for evolution plans are defined, using a representation with a list of feature models, we can instantiate the polymorphic evolution plan to create our normal form, \texttt{TreeUserEvolutionPlan}. This is relatively straight forward, the only thing we have to do is replace the \texttt{featureModel} argument with our concrete feature model, namely \texttt{TreeFeatureModel}.
 
 \begin{minted}{haskell}
 type TreeUserEvolutionPlan = UserEvolutionPlan TreeFeatureModel
 \end{minted}
 
-\subsection{Example Representation}%
-\label{sub:example_representation}
+\subsection{Constructing a Simple Evolution Plan Example}%
+\label{sub:constructing_a_simple_evolution_plan_example}
 
-Now that we have defined the normal form for evolution plans formally, we will give a concrete example and how it is represented in this formalization. The example we will showcase is a small example containing three time points. The initial feature model at time 0 is simply just the root feature. The next time point at time 1 adds a new group and two features belonging to this group. The last time point removes one of the features and alters the name of the root and type of the group. A visualization of this simple evolution plan can be seen in Figure~\vref{fig:simpleep_treeuser}. Below is the Haskell code necessary for encoding this example.
+Now that we have defined the normal form for evolution plans formally, we will give a concrete example and how it is represented in this formalization. This example will act as a running example through the rest of the chapter. In Section~\vref{sec:converting_to_a_suitable_representation}, we will show how this example are transformed in the various evolution plan representations. In Section~\vref{sec:detecting_the_changes_between_versions}, we extend this example to not just involve a single evolution plan, but three evolution plans. The example presented here will then act as the base evolution plan, while we construct two derived versions to showcase the merge process. The expanded example will continue through the rest of the sections in this chapter.
+
+The simple example we will showcase is a small example containing three time points. The initial feature model at time 0 is simply just the root feature. The next time point at time 1 adds a new group and two features belonging to this group. The last time point removes one of the features and alters the name of the root and type of the group. A visualization of this simple evolution plan can be seen in Figure~\vref{fig:simpleep_treeuser}. Below is the Haskell code necessary for encoding this example.
+
+\begin{figure}[htpb]
+  \centering
+  \includegraphics[width=\linewidth]{simpleep_treeuser.pdf}
+  \caption{A Simple Evolution Plan Example}%
+  \label{fig:simpleep_treeuser}
+\end{figure}
 
 \begin{minted}{haskell}
 simpleExample :: TreeUserEvolutionPlan
@@ -684,27 +638,40 @@ simpleExample =
 
 Note that each feature and groups \texttt{Set} of children are constructed using list syntax. This is to make it a bit easier to read, not having too much visual clutter. This is possible using the language extension \texttt{OverloadedLists} \footnote{https://ghc.gitlab.haskell.org/ghc/doc/users\_guide/exts/overloaded\_lists.html}, where we allow Haskell's type system to figure out that the list is actually a \texttt{Set} based on the context.
 
-\begin{figure}[htpb]
-  \centering
-  \includegraphics[]{simpleep_treeuser.pdf}
-  \caption{A Simple Evolution Plan Example}%
-  \label{fig:simpleep_treeuser}
-\end{figure}
+\section{Converting To a Suitable Representation}%
+\label{sec:converting_to_a_suitable_representation}
 
-\section{A Suitable Representation of Evolution}%
-\label{sec:a_suitable_representation_of_evolution}
+The evolution plan defined in Section~\vref{sub:formalization_of_the_evolution_plan_normal_form}, \texttt{TreeUserEvolutionPlan}, works well for capturing the essence of evolution plans. It represents evolution plans in terms of what the user sees and interacts with. However, in order to do an effective merge of evolution plans, we need to represent them a bit differently.
 
-The evolution plan formalization defined above, \texttt{TreeUserEvolutionPlan}, works well for capturing the essence of evolution plans. It represents evolution plans in terms of what the user actually deals with. However, in order to do an effective merge of two evolution plans, we need to represent the evolution plan a bit differently.
+Evolution planning is not just done one time, but a continuous process that requires changes according to new business requirements. This often requires changing intermediate time points in the evolution plan, not just the last. In such events, the additions, deletions and modifications to features and groups has an effect not just on the time point at hand, but all subsequent time points in the evolution plan. When a user adds a new feature in the middle of the plan, the feature would appear on the specified time points as well as all the time points beyond. When calculating the changes made, we don't want to look at this like a feature was added in all the time points, but rather just the specified time. In order to capture the essence of the changes made to each evolution plan, we would need to find a representation capturing the actual changes between time points explicitly.
 
-\todo{refactoring? har ikke snakket om dette.}
-Refactoring the evolution plan doesn't just involve modifying the last time point, but replanning the other time points earlier in the plan. When users are replanning such time points, the additions, deletions and modifications has an effect not just on the time point at hand, but all subsequent time points. When a user adds a new feature in the middle of the plan, the feature would appear on the specified time points as well as all the time points beyond. When calculating the changes made, we don't want to look at this like a feature was added in all the time points, but rather just the specified time. In order to capture the essence of the changes made to each evolution plan, we would need to find a representation capturing the actual changes more explicitly.
+We will transform the evolution plan to the merge-ready representation, \texttt{FlatModificationEvolutionPlan}, in two steps. We will begin by briefly explaining the two steps in the paragraphs below, then in Section~\vref{sub:a_flatter_feature_model_structure} and Section~\vref{sub:a_merge_ready_evolution_plan_representation} go into more detail on formal definitions, algorithms and examples.
 
-In order to to capture the explicit modifications between each time point in the evolution plan, we would need to figure out an approach to calculating the difference between two subsequent feature models. However, with our current tree-based feature model, \texttt{TreeFeatureModel}, this can be a bit cumbersome, requiring us to traverse the two trees simultaneously. In some cases this is not very straight forward, i.e. handling \texttt{Move}-operations that relocates entire subtrees.
+\paragraph{A Flatter Structure For Feature Models}%
+\label{par:a_flatter_structure_for_feature_models}
 
-\subsection{Feature Model Definition - Flat Representation}%
-\label{sub:feature_model_definition_flat_representation}
+To capture the explicit modifications between each time point in the evolution plan, we would need to figure out an approach to calculating the difference between two subsequent feature models. However, with our current tree-based feature model, \texttt{TreeFeatureModel}, this can be a bit cumbersome, requiring us to traverse the two trees simultaneously. In some cases this is not very straight forward, i.e. handling \texttt{Move}-operations that relocates entire subtrees. We will combat this by using a flat mapping structure for feature models, relying on node ids for indexing. With this structure, calculating the differences between feature models becomes significantly easier. 
 
-We define a new representation for feature models, \texttt{FlatFeatureModel}, in order to have a structure better suited for detecting and applying changes to the tree-structure. This is achievable due to our features and groups having unique ids. This allows for a simple mapping-structure, where we each feature and group can be looked up by its id. The edges and relations in the tree are modeled as node-id references instead of a recursive structure. Every node only stores its parent relation, not its child relations as well. This makes moving entire subtrees straight forward, requiring changing only the parent-field of the node to move.
+\paragraph{Explicit Changes Between Subsequent Feature Models}%
+\label{par:explicit_changes_between_subsequent_feature_models}
+
+With a representation more suitable for calculating differences between feature models, we can transform the list of feature models to a merge-ready representation. This representation is modeled with an initial feature model and a list of time points coupled with \textit{modifications}. The modifications specify the exact changes between the previous feature model and the next. With this representation, knowing what changes each derived evolution plan versions has made is more explicit, allowing a more straight forward merge.
+
+% To aid this process, we will first construct a different representation for the feature models. By not relying on an actual tree-structure, but rather a flat structure, calculating the differences between feature models becomes significantly easier.
+
+% The input of the three-way merge algorithm is three evolution plans in our evolution plan normal form, \texttt{TreeUserEvolutionPlan}. Each of the three evolution plans will be transformed into our merge-ready representation of evolution plan in two steps. First we will use \texttt{flattenEvolutionPlan} in order to flatten the evolution plan and represent it as our intermediate representation \texttt{FlatUserEvolutionPlan}. After this transformation, the evolution plans will be transformed into the merge-ready representation, \texttt{FlatModificationEvolutionPlan}.
+
+\subsection{A Flatter Feature Model Structure}%
+\label{sub:a_flatter_feature_model_structure}
+
+We define a new representation for feature models, \texttt{FlatFeatureModel}, in order to have a structure better suited for detecting and applying changes to the tree-structure. This is achievable due to our features and groups having unique ids. This allows for a simple mapping-structure, where we each feature and group can be looked up by its id. The edges and relations in the tree are modeled as node-id references instead of a recursive structure.
+
+The new definition of feature models has advantages will make deriving and integrating modifications between two subsequent feature models easier. Since we have a flat structure, deriving or integrating modifications on a feature or group saves us from traversing the tree structure. The flat structure leverages the unique ids in order to allow lookup based on id. Changing a feature or group requires a lookup based on the id, then changing the fields of the mapping entry. Removing or adding a node is similarly simple, requiring only adding or removing an entry in the mapping. Since the edges in the tree are modeled as references to the parent id, we don't need to modify the parent node when removing a node. This makes moving entire subtrees straight forward, requiring changing only the parent-field of the node to move.
+
+\subsubsection{Formalizing the Flat Structure}%
+\label{ssub:formalizing_the_flat_structure}
+
+We start by defining the new representation for feature models.
 
 \begin{minted}{haskell}
 data FlatFeatureModel = FlatFeatureModel
@@ -725,16 +692,16 @@ data FlatGroup = FlatGroup
   }
 \end{minted}
 
-The definitions of \texttt{FeatureType}, \texttt{FeatureId}, \texttt{GroupType} and \texttt{GroupId} is still the same as defined in Section~\vref{sub:feature_model_definition_tree_representation}.
-
-\subsection{Evolution Plan Definition - User Level, Flat Representation}%
-\label{sub:evolution_plan_definition_user_level_flat_representation}
+The definitions of \texttt{FeatureType}, \texttt{FeatureId}, \texttt{GroupType} and \texttt{GroupId} is still the same as defined in Section~\vref{sub:formalization_of_the_evolution_plan_normal_form}.
 
 With our new, flat representation for feature models, we can use this to create a new user level representation, with our flat structure instead of the tree-based. Since we created a generalized data type, \texttt{UserEvolutionPlan}, we can instantiate it in the following way.
 
 \begin{minted}{haskell}
 type FlatUserEvolutionPlan = UserEvolutionPlan FlatFeatureModel
 \end{minted}
+
+\subsubsection{Continuing the Simple Example}%
+\label{ssub:continuing_the_simple_example}
 
 With this new representation for evolution plans, the example from Figure~\vref{fig:simpleep_treeuser} can be encoded in the following way:
 
@@ -791,27 +758,133 @@ simpleExampleFlat =
 
 Each feature model in the evolution plan consists of a reference to the root feature id, as well as two \texttt{Map}s. Using the \texttt{OverloadedLists} extension, each Map is noted by a list of tuples, where the first part of the tuple is the id of the feature or group, and the second part is the fields of the feature or group.
 
-\subsubsection*{Advantages over the tree structured evolution plan}%
-\label{ssub:advantages_over_the_tree_structured_evolution_plan}
+\subsubsection{Transformation from the Normal Form}%
+\label{ssub:transformation_from_the_normal_form}
 
-The new definition of feature models has advantages we will make deriving and integrating modifications between two subsequent feature models easier. 
+The first step in the merge algorithm is using \texttt{flattenEvolutionPlan} to transform the tree-based evolution plan into the flattened structure. Note that in the code we call this \texttt{flattenSoundEvolutionPlan}, since we assume that the three plans in the algorithm is sound. In order to do this transformation, we would need to go through every feature model in the plan and transform it using \texttt{flattenSoundFeatureModel}
 
-Since we have a flat structure, deriving or integrating modifications on a feature or group saves us from traversing the tree structure. The flat structure leverages the unique ids in order to allow lookup based on id. Changing a feature or group requires a lookup based on the id, then changing the fields of the mapping entry. Removing or adding a node is similarly simple, requiring only adding or removing an entry in the mapping. Since the edges in the tree are modeled as references to the parent id, we don't need to modify the parent node when removing a node.
+\begin{minted}[breaklines]{haskell}
+flattenSoundEvolutionPlan :: 
+  TreeUserEvolutionPlan -> 
+  FlatUserEvolutionPlan
+flattenSoundEvolutionPlan =
+  L.timePoints
+    . traversed
+    . L.featureModel
+    %~ flattenSoundFeatureModel
+\end{minted}
 
-The flat structure is more flexible and less strict than the tree-structure. This allows for temporarily violating the soundness of the feature model, which lets us apply modifications to the tree in an arbitrary order.
+Flattening a feature model is relatively straight forward, requiring traversing the tree structure, and creating a list of features and a list of groups as we traverse. In order to do so, we create a tuple of lists, where the left side contains a list of flat features and the right side a list of flat groups. When traversing the tree, we create a new flat feature or group, and concatinate it with the result from the recursive call with \texttt{<>} and \texttt{foldMap}.
 
-We recall some of the issues related to the list-based operations in Section~\ref{sec:issues_with_using_a_list_based_approach} \todo{fix ref}, where some dependent operations had to be applied in a specific order, i.e. adding the parent feature before adding the child group. Since the tree-structure of our \texttt{FlatUserEvolutionPlan} is implicit through the node-id references, we could simply add the child feature first, with a reference to the parent id, then directly after add the parent id. We just have to ensure that all the operations we apply will result in a sound feature model. This was simply not possible with the \texttt{TreeUserEvolutionPlan}, where a parent had to be added before its child, simply because the child is encoded inside the parent node, and not linked through a reference.
+\begin{minted}[breaklines]{haskell}
+flattenSoundFeatureModel :: 
+  TreeFeatureModel -> 
+  FlatFeatureModel
+flattenSoundFeatureModel fm =
+  FlatFeatureModel
+    (fm ^. L.rootFeature . L.id)
+    (M.fromList features)
+    (M.fromList groups)
+  where
+    (features, groups) = 
+      flattenFeature Nothing (fm ^. L.rootFeature)
+    flattenFeature parent (TreeFeature id fType name gs) =
+      ([(id, FlatFeature parent fType name)], [])
+        <> foldMap (flattenGroup id) gs
+    flattenGroup parent (TreeGroup id gType fs) =
+      ([], [(id, FlatGroup parent gType)])
+        <> foldMap (flattenFeature (Just id)) fs
+\end{minted}
 
-\subsection{Evolution Plan Definition - Modification Level, Flat Representation}%
-\label{sub:evolution_plan_definition_modification_level_flat_representation}
+\subsection{Avoiding the Pitfalls of an Operation-based Representation}%
+\label{sub:avoiding_the_pitfalls_of_an_operation_based_representation}
 
-As discussed in Section~\ref{sec:issues_with_using_a_list_based_approach} \todo{fix ref}, the list-based operation approach is problematic in order to achieve a desired merge result. What the user perceived as equal plans had several representations. In order to combat this we created a normal form for evolution plans, \texttt{TreeUserEvolutionPlan}, more aligned with the users perspective of evolution plans. Since tree-based structure of its feature models had some disadvantages in terms of detecting and applying modifications, we created a new representation for feature models, which we used in our intermediate representation for evolution plans, \texttt{FlatUserEvolutionPlan}.
+The next step in the merge algorithm is finding a representation for evolution plans where changes between time points are explicitly modeled. In doing so, we revisit the representation we created in the paper \cite{cite:consistency_preserving_evolution_planning}, as it is very similar to what we want to achieve. This operation-based representation expressed changes between feature models as a list of operations. However, this representation proposes a number of challenges, which we will discuss. In the light of these issues, we will in Section~\vref{sub:a_merge_ready_evolution_plan_representation} detail a more suitable solution for merging that tackles these issues.
 
-However, the user level evolution plan representation with the list of feature models for each time point didn't model the replanning aspect of evolution plans as we wanted. When users have to go back to intermediate time points in the evolution plan and make changes, the changes will appear in the subsequent time points as well. This requires modeling the evolution plan similar to the list-based operation approach discussed previously, while still avoiding the issues regarding operation ordering, operation shadowing, etc.
+In the operation-based semantic, we expressed changes between feature models as a list of operations. The operations covered the basic types of editing we could perform on features and groups, like \texttt{addFeature}, \texttt{removeGroup}, \texttt{moveFeature} and \texttt{renameFeature}. The effects and conditions of the operations were also formally defined in the paper. These operations were organized in a list, implying that the ordering are important. By applying the operations one by one on the current feature model, we would achieve the next feature model.
 
-We present the final evolution plan representation, \texttt{FlatModificationEvolutionPlan}, modeling the evolution plan as an initial model along with an ordered list of time points associated with \textit{modifications}. The modifications model the changes necessary to go from the previous feature model to the one in the specified time point. The modifications consists of two mappings, one for features and one for groups. Each mappings map ids to a \textit{modification}. A modification can be one of three things, an addition, deletion or a change to one or more fields.
+The list of operations also reflected the way the user preformed the replanning, where the changes made had a specific ordering. However, when we design an approach to merging two evolution plans, the exact way each feature model in the evolution plan was derived is besides the point. The only thing the user sees are a list of feature models associated with time points. Exactly how the evolution plan was manipulated, and in what order each operation took place is not relevant for the user, so it should also not be relevant for the merge algorithm.
 
-The Haskell representation of our \texttt{FlatModificationEvolutionPlan} can be seen below.
+We will detail some properties caused by the list-based operation semantic, and how they might be problematic for our purpose. The properties we will investigate are \textit{non-dependent operations}, \textit{dependent operations} and \textit{operation shadowing}, which is discussed in the sections below.
+
+\subsubsection{Non-dependent Operations}%
+\label{ssub:non_dependent_operations}
+
+In some cases, swapping the order of the operations in a time point has no effect on the resulting feature model. To exemplify this, take a simple feature model with two features and a group, organized in the following way: $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{F1}$. In the following time point, there is scheduled a removal of feature \texttt{F1} as well as a name change for the root feature \texttt{Root} to \texttt{F0}. Applying both operations should yield the following feature model: $\texttt{F0} \rightarrow \texttt{G1}$. As we can see, the order of when the operations are applied makes no difference. With the current list-based representation of a plan for a single time point, there are two ways of representing the changes. You could either schedule the removal of the \texttt{F1} feature first, or the name change of the root feature first. This example is visualized in Table~\ref{tab:non_dependent}.
+
+\begin{table}[htpb]
+  \centering
+  \label{tab:non_dependent}
+  \begin{tabular}{llll} 
+    \hline Initial Model & Operations & Original Order & Swapped Order \\
+    \hline \parbox[c]{1em}{\includegraphics[width=1.5cm]{operations_pitfalls/initial.pdf}}
+         & \begin{tabular}{@{}l@{}}Rename(Root, F0) \\ Remove(F1)\end{tabular}
+         & \parbox[c]{1em}{\includegraphics[width=1.1cm]{operations_pitfalls/nondep_original.pdf}}
+         & \parbox[c]{1em}{\includegraphics[width=1.1cm]{operations_pitfalls/nondep_swapped.pdf}} \\
+    \hline
+  \end{tabular}
+  \caption{Non-Dependent Operations Example} 
+\end{table}
+
+This meant that there are several ways to achieve the same evolution plan, which is a problem for our purpose. When users are merging what they perceive as the same evolution plan, we don't want to raise a conflict due to differences in the internal representation of evolution plans.
+
+To counter these issues, one might naïvely find an standardized ordering of operations so one could sort the operations, or simply just store them as a set of operations instead of a list. However, as we will see, the order of the operations still matter, and changing the ordering can have varying effects, including both dependent and shadowed operations, which we will discuss further below.
+
+\subsubsection{Dependent Operations}%
+\label{ssub:dependent_operations}
+
+In the previous example, switching the ordering of operations had no effect. In this example, we will demonstrate an example were swapping the order has an effect. To showcase the problem, we start with the same feature model used previously, with two features and a group: $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{F1}$. In the next planned time point, the changes to the feature model include the removal of both group \texttt{G1} and feature \texttt{F1}. However, there is only one legal ordering, namely removing the feature first, then removing the group. Applying the operation in this order yields a sound feature model; $\texttt{Root}$. Trying to remove the group first will as we defined sound evolution plans yield an inconsistency, because we are trying to remove a non-empty group. This example is also visualized in Table~\ref{tab:dependent}.
+
+\begin{table}[htpb]
+  \centering
+  \label{tab:dependent}
+  \begin{tabular}{llll} 
+    \hline Initial Model & Operations & Original Order & Swapped Order \\
+    \hline \parbox[c]{1em}{\includegraphics[width=1.5cm]{operations_pitfalls/initial.pdf}}
+                         & \begin{tabular}{@{}l@{}}Remove(F1) \\ Remove(G1)\end{tabular}
+         & \parbox[c]{1em}{\includegraphics[width=1.5cm]{operations_pitfalls/dep_original.pdf}}
+         & \begin{tabular}{@{}l@{}}Conflict: Removal \\ of non-empty group\end{tabular} \\
+    \hline
+  \end{tabular}
+  \caption{Dependent Operations Example} 
+\end{table}
+
+\subsubsection{Operations Shadowing}%
+\label{ssub:operations_shadowing}
+
+Another issue with the list-based approach is \textit{operation shadowing}, which is the phenomenon where an operation is rendered useless because of another operation later in the list. This issue would also have to be considered, because rearranging the operation could lead to unwanted results. In addition to rearrangement resulting in unsound plans, moving a shadowed operation might result in a different, yet sound evolution plan.
+
+We exemplify operation shadowing by considering the same initial feature model as before: $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{F1}$. The list of operations for the next point in time include first changing the name of \texttt{F1} to \texttt{Feat 1}, then later to \texttt{Feature 1}. The operation shadowing occurs because of the second renaming makes the first renaming completely useless. The resulting feature model, $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{Feature 1}$, are identical to the one we would have if we excluded the shadowed operation. However, if we were to swap the ordering of the rename operations, the resulting feature model would still be sound, but differ from the original ordering: $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{Feat 1}$.
+
+\begin{table}[htpb]
+  \centering
+  \label{tab:shadowed}
+  \begin{tabular}{llll} 
+    \hline Initial Model & Operations & Original Order & Swapped Order \\
+    \hline \parbox[c]{1em}{\includegraphics[width=1.5cm]{operations_pitfalls/initial.pdf}}
+         & \begin{tabular}{@{}l@{}}Rename(F1, Feat 1) \\ Rename(F1, Feature 1)\end{tabular}
+         & \parbox[c]{1em}{\includegraphics[width=2.3cm]{operations_pitfalls/shadow_original.pdf}}
+         & \parbox[c]{1em}{\includegraphics[width=2.3cm]{operations_pitfalls/shadow_swapped.pdf}} \\
+    \hline
+  \end{tabular}
+  \caption{Shadowed Operations Example} 
+\end{table}
+
+\subsection{A Merge-Ready Evolution Plan Representation}%
+\label{sub:a_merge_ready_evolution_plan_representation}
+
+As discussed in Section~\ref{sub:avoiding_the_pitfalls_of_an_operation_based_representation}, the list-based operation approach is problematic in order to achieve a desired merge result. We present the merge-ready representation for evolution plans. Similar to the operation-based representation, it will define a data type for deriving the next feature model from the previous. However, it will avoid the issues caused by an ordered list of operations.
+
+We present the merge-ready evolution plan representation, \texttt{FlatModificationEvolutionPlan}, modeling the evolution plan as an initial model along with an ordered list of time points associated with \textit{modifications}. The modifications model the changes necessary to go from the previous feature model to the one in the specified time point. The modifications consists of two mappings, one for features and one for groups. Each mappings map ids to a \textit{modification}. By creating a indexed mapping structure, we limit a feature or group to have maximum one modification at a time point. This could be either an addition, removal or a change to one or more fields. 
+
+The mapping structure also implies that there are no ordering to the feature and group modifications. Having no specific ordering to the modifications were challenging with the tree-structured feature models. However, all these issues dissolved when we converted to the flat feature model structure, \texttt{FlatUserEvolutionPlan}. If we were to add a child before its parent, the tree-structure made this impossible. This, however, was made possible with the flexible flat structured feature models.
+
+The new semantic for detecting changes between feature models has an important implication. The operation-based semantic allowed verifying soundness after every operation application. However, since the mapping-based structure has no specific order of application, the verification would have to be postponed until every modification for a time point has been included. This is not relevant for now, but will be in further stages of the algorithm.
+
+\subsubsection{Formalizing Modification-Based Evolution Plans}%
+\label{ssub:formalizing_modification_based_evolution_plans}
+
+We define the modification-based representation of evolution plans in this section. The Haskell representation of our \texttt{FlatModificationEvolutionPlan} can be seen below.
 
 \begin{minted}{haskell}
 data TransformationEvolutionPlan transformation featureModel = 
@@ -872,10 +945,10 @@ data GroupTypeModification
   = GroupTypeModification GroupType
 \end{minted}
 
-\subsubsection*{Example representation}%
-\label{ssub:example_representation}
+\subsubsection{Merge-Ready Representation of the Simple Example}%
+\label{ssub:merge_ready_representation_of_the_simple_example}
 
-With our final, merge ready representation of evolution plans, we can encode the simple example in the defined data types. A visual representation of the example can be seen in Figure~\ref{fig:simpleep_flatmod}
+We revisit the simple example introduced in Section~\vref{sub:constructing_a_simple_evolution_plan_example}. With our final, merge ready representation of evolution plans, we can encode the simple example in the defined data types. A visual representation of this encoding can also be seen in Figure~\vref{fig:simpleep_flatmod}.
 
 \begin{minted}{haskell}
 
@@ -934,64 +1007,14 @@ simpleExampleMod =
   \label{fig:simpleep_flatmod}
 \end{figure}
 
-% An important part in merging the efforts of two collaborators is figuring out exactly what changes each collaborators did to the common base evolution plan. With our current representation of evolution plans, \texttt{TreeUserEvolutionPlan}, detecting changes in the tree can be quite difficult.
+\subsubsection{Specifying the Final Representation Transformation}%
+\label{ssub:specifying_the_final_representation_transformation}
 
-
-\section{TING FRA RESTEN}%
-\label{sec:ting_fra_resten}
-
-\todo{fikse heading problemer. prefikse alt med sub eller no. her må man finne ut hva greia blir}
-\section{Converting To a Suitable Representation}%
-\label{sec:converting_to_a_suitable_representation}
-
-As discussed in Chapter~\ref{cha:formal_semantics_of_feature_model_evolution_plans} \todo{fix ref}, we needed to create a suitable representation for evolution plans before attempting to merge the different versions.
-
-The input of the three-way merge algorithm is three evolution plans in our evolution plan normal form, \texttt{TreeUserEvolutionPlan}. Each of the three evolution plans will be transformed into our merge-ready representation of evolution plan in two steps. First we will use \texttt{flattenEvolutionPlan} in order to flatten the evolution plan and represent it as our intermediate representation \texttt{FlatUserEvolutionPlan}. After this transformation, the evolution plans will be transformed into the merge-ready representation, \texttt{FlatModificationEvolutionPlan}.
-
-\subsection{Transformation to the Intermediate Representation}%
-\label{sub:transformation_to_the_intermediate_representation}
-
-The first step in the merge algorithm is using \texttt{flattenEvolutionPlan} to transform the tree-based evolution plan into the flattened structure. Note that in the code we call this \texttt{flattenSoundEvolutionPlan}, since we assume that the three plans in the algorithm is sound. In order to do this transformation, we would need to go through every feature model in the plan and transform it using \texttt{flattenSoundFeatureModel}
-
-\begin{minted}[breaklines]{haskell}
-flattenSoundEvolutionPlan :: 
-  TreeUserEvolutionPlan -> 
-  FlatUserEvolutionPlan
-flattenSoundEvolutionPlan =
-  L.timePoints
-    . traversed
-    . L.featureModel
-    %~ flattenSoundFeatureModel
-\end{minted}
-
-Flattening a feature model is relatively straight forward, requiring traversing the tree structure, and creating a list of features and a list of groups as we traverse. In order to do so, we create a tuple of lists, where the left side contains a list of flat features and the right side a list of flat groups. When traversing the tree, we create a new flat feature or group, and concatinate it with the result from the recursive call with \texttt{<>} and \texttt{foldMap}.
-
-\begin{minted}[breaklines]{haskell}
-flattenSoundFeatureModel :: 
-  TreeFeatureModel -> 
-  FlatFeatureModel
-flattenSoundFeatureModel fm =
-  FlatFeatureModel
-    (fm ^. L.rootFeature . L.id)
-    (M.fromList features)
-    (M.fromList groups)
-  where
-    (features, groups) = 
-      flattenFeature Nothing (fm ^. L.rootFeature)
-    flattenFeature parent (TreeFeature id fType name gs) =
-      ([(id, FlatFeature parent fType name)], [])
-        <> foldMap (flattenGroup id) gs
-    flattenGroup parent (TreeGroup id gType fs) =
-      ([], [(id, FlatGroup parent gType)])
-        <> foldMap (flattenFeature (Just id)) fs
-\end{minted}
-
-\subsection{The Final, Merge Ready Representation}%
-\label{sub:the_final_merge_ready_representation}
-
-After transforming to our intermediate representation, we begin the process of deriving the modifications between each pair of subsequent feature models. As before, we have assumed soundness for our plans, which is why the actual function in the code is called \texttt{deriveSoundModifications} and not \texttt{deriveModifications} as in Figure~\ref{fig:merge_outline}.
+Up until this point, we have defined the data types involved and represented the simple example in the newly defined types, for the modification-based evolution plan. We will now begin the process of specifying the algorithm performing this transformation. 
 
 The function will use the first time point in the evolution plan as the initial time point, and create a list of subsequent feature model pairs which is then passed to the \texttt{timePointsToPlan} function. The function will use the two subsequent feature models, previous and current, to calculate the differences between them.
+
+As before, we have assumed soundness for our plans, which is why the actual function in the code is called \texttt{deriveSoundModifications} and not \texttt{deriveModifications} as in Figure~\ref{fig:merge_outline}.
 
 \begin{minted}[breaklines]{haskell}
 deriveSoundModifications :: 
@@ -1084,7 +1107,7 @@ calculateFeatureModifications =
                 )
 \end{minted}
 
-The calculations for groups follow a very similar approach:
+The calculations for groups follow a very similar approach.
 
 \begin{minted}[breaklines]{haskell}
 calculateGroupModifications ::
@@ -1117,12 +1140,12 @@ calculateGroupModifications =
                 )
 \end{minted}
 
-To visualize how this process is handled, we will look at two simple feature models. The two feature models will be passed to the \texttt{diffFeatureModels} function, which will derive the modifications. As described in the code above, the function will compare the features and groups in both feature models, in order to derive the modifications representing the changes between the two. A visualization of the input and output of the algorithm can be seen in Figure~\ref{fig:diff_feature_models_visualized}.
+To visualize how this process is handled, we will look at two feature models. The two feature models will be passed to the \texttt{diffFeatureModels} function, which will derive the modifications. As described in the code above, the function will compare the features and groups in both feature models, in order to derive the modifications representing the changes between the two. A visualization of the input and output of the algorithm can be seen in Figure~\ref{fig:diff_feature_models_visualized}.
 
 \begin{figure}[htpb]
   \centering
   \includegraphics[]{feature_model_diff_visualized.pdf}
-  \caption{A visualization of the result of running \texttt{diffFeatureModels} on two feature models}%
+  \caption{Result of executing \texttt{diffFeatureModels} on two feature models}%
   \label{fig:diff_feature_models_visualized}
 \end{figure}
 
@@ -1183,10 +1206,10 @@ Up until this point, we have only considered transformations on single evolution
 
 The process of merging two different versions of an evolution plan involves figuring out what changes each version has made. In order to do so, we will utilize the common evolution plan both version were derived from, in order to confidently tell what changes has been made to each plan. As seen in our outline for the three-way merge algorithm in Figure~\vref{fig:merge_outline}, we will transform all three evolution plans into the \texttt{FlatModificationEvolutionPlan} representation, then attempt to merge version 1 and 2 with respect to the base evolution plan.
 
-\subsection{A Simple Three-Way Merge Example}%
-\label{sub:a_simple_three_way_merge_example}
+\subsection{Extending the Simple Three-Way Merge Example}%
+\label{sub:extending_the_simple_three_way_merge_example}
 
-Before we attempt to explain how the changes between the versions are detected and represented, we present a simple example consisting of three evolution plans. To create this merge example, we will revisit our simple evolution plan example visualized in Figure~\ref{fig:simpleep_treeuser}. The simple evolution plan presented will act as our base evolution plan. Using the base evolution plan, we will create two evolution plans, version 1 and version 2, which is derived from the common evolution plan. The changes to the derived evolution plans include the following:
+Before we attempt to explain how the changes between the versions are detected and represented, we present an example consisting of three evolution plans. To create this three-way merge example, we will revisit our simple evolution plan example from in Section~\vref{sub:constructing_a_simple_evolution_plan_example}. The simple evolution plan presented will act as our base evolution plan. Using the base evolution plan, we will create two evolution plans, version 1 and version 2, which is derived from the common evolution plan. The changes to the derived evolution plans include the following:
 
 \begin{itemize}
   \item \textbf{Version 1}: Includes two changes to the base evolution plan: (1) Adding a feature \texttt{F4} to the and-group at time point 1. (2) At time point 2, there was originally scheduled a group type modification from \texttt{And} to \texttt{Or}, but this version changed the modification to create a \texttt{Alternative} group instead.
@@ -1211,7 +1234,7 @@ An important aspect to notice is the difference between \textit{modifications} a
 
 With our changes, we are not adding, removing or changing features and groups, but rather adding, removing or changing the modifications themselves. The changes are working on a meta-level, allowing us to represent changes to the modifications. This distinction is a subtle, yet important factor. If one of the derived versions are removing a feature in a time point, this is actually represented as an addition. This is because the feature removal is represented as a new modification in the evolution plan, and we represent this by saying we "add" a new modification, which is the feature removal.
 
-We present an evolution plan representing the merging of all three evolution plans. This representation follow a similar structure to our \texttt{FlatModificationEvolutionPlan}, which is why we reuse the data type \texttt{TransformationEvolutionPlan} defined in Section~\vref{sub:evolution_plan_definition_modification_level_flat_representation}.
+We present an evolution plan representing the merging of all three evolution plans. This representation follow a similar structure to our \texttt{FlatModificationEvolutionPlan}, which is why we reuse the data type \texttt{TransformationEvolutionPlan} defined in Section~\vref{ssub:formalizing_modification_based_evolution_plans}
 
 \begin{minted}[breaklines]{haskell}
 type MergeEvolutionPlan featureModel = 
@@ -1277,8 +1300,8 @@ data Version
   | V2
 \end{minted}
 
-\subsubsection{Representing the changes from the example}%
-\label{ssub:representing_the_changes_from_the_example}
+\subsection{Representing the extended example}%
+\label{sub:representing_the_extended_example}
 
 Revisiting our example from Figure~\ref{fig:simple_three_way_example}, we can now represent the changes with our newly defined data types. Our merged version of the evolution plan is as follows:
 
@@ -1426,7 +1449,7 @@ emptyModifications = Modifications M.empty M.empty
 
 The \texttt{diffModifications} function defined below will handle the transformation combining modifications into the \texttt{DiffResult} type. Combining the modifications of groups follow the same general process as with feature modifications. 
 
-Combining the different \texttt{Map}s follow a similar approach as we did deriving the modifications between feature models (See Section~\vref{sub:the_final_merge_ready_representation}), using the \texttt{merge} function from \texttt{Data.Map.Merge}\footnote{https://hackage.haskell.org/package/containers-0.6.2.1/docs/Data-Map-Merge-Strict.html}. Since we are merging three maps instead of two, we combine the three maps in two steps; (1) We combine the two derived modifications into a intermediate result using the function \texttt{mergeDerived}, and (2), we combine the base modifications with the combined derived result using \texttt{mergeBaseAndDerived}.
+Combining the different \texttt{Map}s follow a similar approach as we did deriving the modifications between feature models (See Section~\vref{ssub:specifying_the_final_representation_transformation}), using the \texttt{merge} function from \texttt{Data.Map.Merge}\footnote{https://hackage.haskell.org/package/containers-0.6.2.1/docs/Data-Map-Merge-Strict.html}. Since we are merging three maps instead of two, we combine the three maps in two steps; (1) We combine the two derived modifications into a intermediate result using the function \texttt{mergeDerived}, and (2), we combine the base modifications with the combined derived result using \texttt{mergeBaseAndDerived}.
 
 \begin{minted}[breaklines]{haskell}
 diffModifications ::
@@ -1650,8 +1673,8 @@ checkOverlappingChanges conflictHandler time id bothChange =
         else conflict
 \end{minted}
 
-\subsection{Example}%
-\label{sub:example_unified_merge}
+\subsection{Resulting Evolution Plan After Merging the Example}%
+\label{sub:resulting_evolution_plan_after_merging_the_example}
 
 Looking at our running example, visualized in Figure~\vref{fig:simple_three_way_example}, the result of merging the three plans is successful. Since none of the changes from each version overlap, no merge conflict was produced either. Each change in both versions was included, and the result was the following:
 
@@ -1706,7 +1729,7 @@ simpleExampleUnifiedPlan =
 
 The result of the \texttt{unifyMergePlan} function returned what we wanted. From both derived versions, there was a total of three changes. A new feature was added at time 1, the name change in time 2 was removed and the group type modification in time 2 was changed to transform to a \texttt{Alternative} group instead of \texttt{Or} group.
 
-\section{Ensuring structural and semantic soundness}%
+\section{Ensuring Structural and Semantic Soundness}%
 \label{sec:ensuring_structural_and_semantic_soundness_of_merge_result}
 
 Now that we have defined a method of detecting and merging changes to evolution plans, we would have to check that the resulting evolution plan results in a valid and sound evolution plan, keeping both the structure and semantics in tact.
@@ -1757,7 +1780,7 @@ As discussed, the first part is integrating the modifications. Most of the work 
 
 The generated dependencies and the next time point are then passed to \texttt{checkGlobalConflict}, which either succeeds or raise a conflict. Upon failure, the do-notation and monadic structure will propagate the error. However, if it succeeds, the rest of the time points are recursively called.
 
-\subsection{Applying modifications}%
+\subsection{Applying Every Modification in the Evolution Plan}%
 \label{sub:applying_modifications}
 
 In order to integrate every single modifications for a single time point, the \texttt{integrateSinglePlan} function is called. As discussed, the modifications for a single time point has no ordering, so we can arbitrarily choose an application ordering. The modifications are applied by calling either \texttt{integrateFeature} or \texttt{integrateGroup} with the feature model, which will return the feature model with the modification applied. The resulting feature model is then passed to the next modification. The process is continued until all modifications are applied.
@@ -2063,7 +2086,7 @@ data GlobalConflict
   = FailedDependencies [Dependency]
 \end{minted}
 
-\subsection{Checking dependencies and ensuring soundness}%
+\subsection{Checking Dependencies and Ensuring Soundness}%
 \label{sub:checking_dependencies_and_ensuring_soundness}
 
 After applying every modification for a certain time point, the generated dependencies and resulting feature model are passed to the \texttt{checkGlobalConflict}. The function will either succeed with the correct feature model, or fail with a list of dependencies that did not pass.
@@ -2249,11 +2272,8 @@ unflattenGroup featureModel groupId =
       featureModel ^?! L.groups . ix groupId
 \end{minted}
 
-\subsection{Example}%
-\label{sub:example}
-
-\subsubsection{After Applying and Checking Modifications}%
-\label{ssub:after_applying_and_checking_modifications}
+\subsection{The Simple Example After Applying and Checking Modifications}%
+\label{sub:the_simple_example_after_applying_and_checking_modifications}
 
 Revisiting our simple example from Figure~\vref{fig:simple_three_way_example}, we pick up the example from where we left off. With the \texttt{FlatModificationEvolutionPlan} representation of the merged plan, we use \texttt{integrateAndCheckModifications} to apply the modifications and check the result for soundness. This results in a list of feature models, in our \texttt{FlatUserEvolutionPlan} representation. The result can be seen below.
 
@@ -2353,8 +2373,8 @@ simpleExampleCheckedPlan =
         ]
 \end{minted}
 
-\subsubsection{Dependencies Generated}%
-\label{ssub:dependencies_generated}
+\subsection{Dependencies Generated by the Example}%
+\label{sub:dependencies_generated_by_the_example}
 
 As we traverse the time points and apply the modifications to the current feature model, we generate dependencies that are later checked. The dependencies generated at each time point is visualized below.
 
@@ -2410,8 +2430,8 @@ generatedDependencies =
   ]
 \end{minted}
 
-\subsubsection{Converting To The Normal Form}%
-\label{ssub:converting_to_the_normal_form}
+\subsection{Final Output of the Simple Three-Way Example}%
+\label{sub:final_output_of_the_simple_three_way_example}
 
 As our example is passed through the final step, converting it back to the original representation, we get the following result.
 
