@@ -2514,7 +2514,7 @@ The resulting merged evolution plan is also visualized in Figure~\ref{fig:simple
 \chapter{Command-Line Interface and Visualization Tools}%
 \label{cha:command_line_interface_and_visualization_tools}
 
-\todo{bla bla about tools. cli and visualization tool.}
+In this chapter we will go through some tools created around the three-way merge algorithm. First, in Section~\ref{sec:command_line_interface}, we will present a command-line interface wrapping the merge algorithm. Second, in Section~\ref{sec:a_visualization_tool_for_evolution_plans}, we will introduce a tool created for exploring the input and output of the merge algorithm in a visual manner.
 
 \section{Command-Line Interface}%
 \label{sec:command_line_interface}
@@ -2595,7 +2595,26 @@ As an example, running the following will read a sound example from file\footnot
 \section{A Visualization Tool for Evolution Plans}%
 \label{sec:a_visualization_tool_for_evolution_plans}
 
-\todo{elm, files generated from cli. display the eps as a list of trees, with each tree automaticcally drawn using a svg library. designed to help explore the three-way merge algorithm, and its inputs and results, svg calculating and drawing each tree to do automatically, showcase a screendump of web page, explaining different elements. used to explore the different examples and edgecases of my tests, note about the visualization tool, how it differs from the paper. mandatory/optional are modeled as colors not dots above the feature. Results are generated and drawn automatically, what we display is simply a screenshot}
+In this section we will discuss and showcase a visualization tool for the merger we have created. This is not a tool created to be used directly by users, but rather to demonstrate the merge algorithm. Evolution plans are complex structures that are hard to grasp in textual format, especially considering the fact that we are dealing with multiple evolution plans. This tool lets us explore the input and output of the merge algorithm in a more structured, visual manner.
+
+\begin{figure}[htpb]
+  \centering
+  \includegraphics[width=\linewidth]{vending_machine/sound_example.png}
+  \caption{The visualization tool in use}%
+  \label{fig:visualization_tool_in_use}
+\end{figure}
+
+As part of this project, we have created a multitude of different scenarios for merging. This includes examples where the individual changes are automatically unifiable without user input as well as examples that result in one or more conflicts. Every one of the predefined examples can be explored using this tool. 
+
+The tool is implemented in Elm\footnote{https://elm-lang.org/}, an ML language specializing in web-applications. The language we chose for the merge program, Haskell, has a very similar approach to defining types. This allows for defining types almost identical to the ones in the merger in addition to the other benefits of a purely functional ML language.
+
+The tool is entirely separate from the command-line interface for the three-way merge algorithm. By providing certain options to the CLI, the merger can generate data that this tool can read, parse and visualize.
+
+The visualization tool lets us choose a merge example from a predefined list. Once an example is chosen, the tool allows us to explore the three evolution plans that are used as input to the three-way merge. In addition, the expected output of the merge algorithm as well as the actual output from the merger can also be explored.
+
+Each evolution plan is represented as a list of feature models. By choosing a certain time point, the user is presented with a feature model visualized as a tree. Based on the information in each feature model, the tool automatically generates a tree representing the feature model. The trees are drawn using SVGs\footnote{https://en.wikipedia.org/wiki/Scalable\_Vector\_Graphics}.
+
+To see the tool in use, see Figure~\ref{fig:visualization_tool_in_use}. To the right, we can see the list of explorable examples merges. The top section lets us pick what part of the input or output we want to see, as well as what time point we want to explore. The visualization for the trees follow a similar style to what we presented in this paper. The only difference between the tool and what we defined in Section~\vref{sub:visual_representation} is the representation for feature types. In this thesis, whether the feature were mandatory or optional was represented with a black or white circle above the feature. However, in the tool, this is represented with the background color of the feature. A mandatory feature type is noted by a dark blue background, whereas the optional type has a light blue background.
 
 \part{Case Study and Conclusion}%
 \label{prt:case_study_and_conclusion}
