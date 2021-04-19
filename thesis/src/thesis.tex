@@ -2669,9 +2669,19 @@ We will now present the second version of the evolution plan. The changes done i
   \item A Time 3: Changed the types of the milk type group and the different milk types except the Soy Milk feature. This change is almost the same as in version 1, except that the Soy Milk feature has not been removed.
 \end{itemize}
 
-bla bla
+\subsubsection{The Resulting Evolution Plan}%
+\label{ssub:the_resulting_evolution_plan}
 
-\todo{sound example. show the base ep. summarize the changes in v1 and v2. changes can be harmonized, show the result}.
+We will now present the result of the merger. By supplying the three evolution plans, the merger will use the base evolution plan to detect what changes has been made. The changes derived has been presented above. The merger will then merge these changes, and check that the resulting evolution plan is sound. The merged evolution plan is visualized in Figure~\vref{fig:vending_machine_sound_merged_ep}
+
+\begin{figure}[htpb]
+  \centering
+  \includegraphics[width=\linewidth]{vending_machine/merged_sound.pdf}
+  \caption{Sound Vending Machine Example - Merged Evolution Plan}%
+  \label{fig:vending_machine_sound_merged_ep}
+\end{figure}
+
+The changes in version 1 and 2 are unifiable, so we get a sound evolution plan as a result. In some cases, the changes are not overlapping, which results in both changes being included. In other cases, both versions made the same change, so the change is also included in the merged evolution plan.
 
 \section{An Unsound Example}%
 \label{sec:an_unsound_example}
