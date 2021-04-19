@@ -2622,7 +2622,7 @@ To see the tool in use, see Figure~\ref{fig:visualization_tool_in_use}. To the r
 \chapter{Case Study – Vending Machine}%
 \label{cha:case_study_vending_machine}
 
-In this chapter, we will apply the three-way merge tool on an example inspired from the real world. The example models the evolution of a vending machine software product line. The evolution plan models the planned changes of common vending machine features like beverages such as tea and coffee, different types of currency, different sizes to the cups, etc.
+In this chapter, we will apply the three-way merge tool on examples inspired from the real world. The example models the evolution of a vending machine software product line. The evolution plan models the planned changes of common vending machine features like beverages such as tea and coffee, different types of currency, different sizes to the cups, etc.
 
 Since we are creating a \textit{three}-way merge example, we will input three distinct evolution plans to the algorithm. A base evolution plan, and two derived evolution plan, each with their own changes to the base evolution plan. The changes of both versions are then detected and merged into a final, merged version of the evolution plans.
 
@@ -2631,12 +2631,27 @@ We will showcase two slightly different examples, an example that results in a s
 \section{A Sound Example}%
 \label{sec:a_sound_example}
 
+Firstly, we will present an example of a merge that results in a sound, well-formed evolution plan. The visualizations and results we present are actual data that have been tested and verified on the merge tool. We will start by presenting the three input evolution plans to the algorithm, then present the actual result of the merge tool.
 
+\subsubsection{The Base Evolution Plan}%
 
-in Figure~\ref{fig:vending_machine_sound_base_ep}. A quick summary of all the changes for both derived versions can be seen in Table~\ref{tab:vending_machine_derived_changes}
+We present the base evolution plan for the sound vending machine example. This base evolution plan is represented in Figure~\vref{fig:vending_machine_sound_base_ep}, which is visualized as a collection of screenshots from the visualization tool presented in Section~\vref{sec:a_visualization_tool_for_evolution_plans}.
+
+\begin{figure}[htpb]
+  \centering
+  \includegraphics[width=\linewidth]{vending_machine/base_plan.pdf}
+  \caption{Sound Vending Machine Example - Base Evolution Plan}%
+  \label{fig:vending_machine_sound_base_ep}
+\end{figure}
+
+The base evolution plan consists of four distinct time points. Each time point represents a milestone in the development of the vending machine example. Each time point is associated with a feature model, where more and more components are added with each time point. In the last time point, we will see a feature model that represents all the different ways we can configure a vending machine.
+
+In base evolution plan, we can see several different components consisting of features and groups. In time point 1, we introduce a mandatory beverages feature, which means a vending machine has to have a beverages option. Due to its or-group, a vending machine can choose if it wants to provide coffee, tea, none or both. In time point 2, a collection of features and groups are added which provides options for cup sizing of beverages. The size is optional, which means a vending machine does not have to have a size. If the size group is chosen, the vending machine has to supply both regular, large and small cups. In the last time point, 3, the milk feature is introduced. If a vending machine chooses to provide milk, it can choose to prove zero or more of the features lactose free, normal or soy milk.
 
 \subsubsection{Changes in Version 1}%
 \label{ssub:changes_in_version_1}
+
+The base evolution plan introduced in Figure~\vref{fig:vending_machine_sound_base_ep} represented the planned development of the vending machine software product line. However, since requirements often change, we present the base evolution plan modified with some changes to the plan. In reality, this is encoded as a completely new evolution plan, but we will just summarize the differences between this version and the base evolution plan. The full encoding can be seen in the Github repository\footnote{https://github.com/eirikhalvard/master-thesis/blob/master/backend/data/sound\_treeuser.json}. The changes include the following:
 
 \begin{itemize}
   \item At Time 1: Added a currency feature under the vending machine group. This has an alternative group with both a Dollar and Euro Feature. This indicates that a valid vending machine has to have some form of currency, which has to be either dollars or euro. 
@@ -2647,22 +2662,16 @@ in Figure~\ref{fig:vending_machine_sound_base_ep}. A quick summary of all the ch
 \subsubsection{Changes In Version 2}%
 \label{ssub:changes_in_version_2}
 
+We will now present the second version of the evolution plan. The changes done in this version is made on the base evolution plan. This means that the changes in version 1 has not been synchronized with this version yet. We summarize the changes in the same way as we did with version 1:
+
 \begin{itemize}
   \item At Time 1: An additional beverage type has been provided. We can see this by the new Cappuccino feature under the beverages group.
   \item A Time 3: Changed the types of the milk type group and the different milk types except the Soy Milk feature. This change is almost the same as in version 1, except that the Soy Milk feature has not been removed.
 \end{itemize}
 
-
 bla bla
 
 \todo{sound example. show the base ep. summarize the changes in v1 and v2. changes can be harmonized, show the result}.
-
-\begin{figure}[htpb]
-  \centering
-  \includegraphics[width=\linewidth]{vending_machine/base_plan.pdf}
-  \caption{Sound Vending Machine Example - Base Evolution Plan}%
-  \label{fig:vending_machine_sound_base_ep}
-\end{figure}
 
 \section{An Unsound Example}%
 \label{sec:an_unsound_example}
