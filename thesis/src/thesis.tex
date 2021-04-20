@@ -2631,7 +2631,7 @@ We will showcase two slightly different examples, an example that results in a s
 \section{A Sound Example}%
 \label{sec:a_sound_example}
 
-Firstly, we will present an example of a merge that results in a sound, well-formed evolution plan. The visualizations and results we present are actual data that have been tested and verified on the merge tool. We will start by presenting the three input evolution plans to the algorithm, then present the actual result of the merge tool.
+Firstly, we will present an example of a merge that results in a sound, well-formed evolution plan. The visualizations and results we present are actual data that have been tested and verified on the merge tool. We will start by presenting the three input evolution plans to the algorithm, then present the actual result of the merge tool. The example is also included in the command line interface, which can be run with the command \texttt{epmerge --generateOne SoundExample --print}.
 
 \subsubsection{The Base Evolution Plan}%
 
@@ -2686,8 +2686,39 @@ The changes in version 1 and 2 are unifiable, so we get a sound evolution plan a
 \section{An Unsound Example}%
 \label{sec:an_unsound_example}
 
-\todo{unsound example, note that all input eps are sound, this is an assumption. show base ep if not the same as before!. show the base ep. summarize the changes in v1 and v2. maybe say what is different from our sound example. changes cannot be harmonized, show the result}
+While the previous example resulted in a sound evolution plan, we will now present an example that results in a conflict. The example we will showcase is very similar to the previous example, with small changes made. The example we will showcase will result in a local conflict. The conflict will arise due to one version trying to add a feature at time 2 while the other version will add the same feature at time 3. The example is also included in the command line interface, which can be run with the command \texttt{epmerge --generateOne ConflictingAdditionMove --print}.
 
+\subsubsection{Differences from the Sound Example}%
+
+The base evolution plan is exactly the same as the previous, sound example. The example can be seen in Figure~\vref{fig:vending_machine_sound_base_ep}
+
+Version 1 are almost exactly the same as in the sound example. The main difference is when the Coffee feature is introduced. Instead of adding this feature in time 1 as in the original plan, we introduce it in time 2.
+
+Similarly, version 2 is almost identical to version 2 in the sound example, with one exception. The addition of the Coffee feature is moved from time 1 to time 3.
+
+\subsubsection{Results of Merging}%
+\label{ssub:results_of_merging}
+
+By executing the three way merge on the specified example, we will get a local conflict. The merger will successfully merge the modifications in time 0, 1 and 2. However, at time 3, the conflict will arise since the Coffee feature already exists.
+
+In Figure~\vref{fig:vending_machine_error_result}, we can see the actual result in the visualization application. The resulting conflict encoded in the \texttt{Local} data type is seen in below.
+
+\begin{minted}[breaklines]{haskell}
+Local 
+  3 
+  (FeatureAlreadyExists
+    (FeatureAdd "group:beverages-group" Optional "Coffee")
+    "feature:coffee")
+\end{minted}
+
+\begin{figure}[htpb]
+  \centering
+  \includegraphics[width=\linewidth]{vending_machine/error_result.png}
+  \caption{Result of Merging the Erroneous Example}%
+  \label{fig:vending_machine_error_result}
+\end{figure}
+
+\todo{unsound example, note that all input eps are sound, this is an assumption. show base ep if not the same as before!. show the base ep. summarize the changes in v1 and v2. maybe say what is different from our sound example. changes cannot be harmonized, show the result}
 
 \todo{OlDTODOwrite about the vending machine example. Write about how the entire example is done. from cli parsing, converting to right representation, merging, checking, converting back, writing to file. Then how the frontend visualization tool parses the result and displays the tree as an interactive thing. sound vs unsound examples}
 
