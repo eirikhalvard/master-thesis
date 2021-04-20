@@ -2718,6 +2718,32 @@ Local
   \label{fig:vending_machine_error_result}
 \end{figure}
 
+\section{Advantages and Drawbacks of the Solution}%
+\label{sec:advantages_and_drawbacks_of_the_solution}
+
+\todo{the choice of implementation has some drawbacks and advantages we will discuss in light of the vending machine example presented.}
+
+\paragraph{Bias Towards Earlier Time Points}%
+\label{par:bias_towards_earlier_time_points}
+
+\todo{incremental merger. will always that a conflict is due to the later modification, not the first. Even though the problem is due to two changes being incompatible. the first change can pass without issues, while the second change in the other version is incompatible due to the first change.}
+
+\todo{example with unsound. ref. adding a feature in time point 2 or 3. neither one are necessarily the correct one, and should require inspection by the enigneer merging. since the change in time 3 is reported, they might think that this should be removed.} 
+
+\paragraph{Little Detection of Cause}%
+\label{par:little_detection_of_cause}
+
+\todo{we are presented with a report that reports that a certain modification did not work, but not the reason why. since the input is sound, the modification was good. however, the reason is most commonly due to the other version doing incompatible changes. this we do not know, but would have to check manually.}
+
+\paragraph{Transparent Merging}%
+\label{par:transparent_merging}
+
+\todo{some drawbacks to the solution due to choise of merge stratigy. however, there might be advanttages as well. }
+
+\todo{bla is straight forward. transparent. merging the time points iteratively. no analysis between time points.}
+
+
+
 \todo{unsound example, note that all input eps are sound, this is an assumption. show base ep if not the same as before!. show the base ep. summarize the changes in v1 and v2. maybe say what is different from our sound example. changes cannot be harmonized, show the result}
 
 \todo{OlDTODOwrite about the vending machine example. Write about how the entire example is done. from cli parsing, converting to right representation, merging, checking, converting back, writing to file. Then how the frontend visualization tool parses the result and displays the tree as an interactive thing. sound vs unsound examples}
