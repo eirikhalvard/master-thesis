@@ -2622,11 +2622,13 @@ To see the tool in use, see Figure~\ref{fig:visualization_tool_in_use}. To the r
 \chapter{Case Study – Vending Machine}%
 \label{cha:case_study_vending_machine}
 
-In this chapter, we will apply the three-way merge tool on examples inspired from the real world. The example models the evolution of a vending machine software product line. The evolution plan models the planned changes of common vending machine features like beverages such as tea and coffee, different types of currency, different sizes to the cups, etc.
+In this chapter, we will apply the three-way merge tool on examples inspired from the real world. We do this by presenting two different examples, where one results in a successful merge, and the other results in a conflict. After presenting the examples, we will discuss advantages and disadvantages of the chosen merge strategy. In the discussion, we will use the presented examples to highlight the issues and benefits of the merge tool.
+
+The examples models the evolution of a vending machine software product line. The evolution plans we will present will model the planned changes of common vending machine features like beverages such as tea and coffee, different types of currency, different sizes to the cups, etc.
 
 Since we are creating a \textit{three}-way merge example, we will input three distinct evolution plans to the algorithm. A base evolution plan, and two derived evolution plan, each with their own changes to the base evolution plan. The changes of both versions are then detected and merged into a final, merged version of the evolution plans.
 
-We will showcase two slightly different examples, an example that results in a sound, well-formed evolution plan, and one that results in a conflict. The input to the merge tool is encoded in the common serialization format JSON, which is passed as argument to the command-line interface wrapping the three-way merge algorithm. The results from the algorithm is then serialized and written to a file. The command-line interface will also generate data which is passed to the visualization tool, which visualizes the input and output of the algorithm.
+We will showcase two slightly different examples, an example that results in a sound, well-formed evolution plan, and one that results in a conflict. The examples we present are encoded, executed and tested on the tools we have created. The input to the merge tool is encoded in the common serialization format JSON, which is passed as argument to the command-line interface wrapping the three-way merge algorithm. The results from the algorithm is then serialized and written to a file. The command-line interface will also generate data which is passed to the visualization tool, which visualizes the input and output of the algorithm.
 
 \section{A Sound Example}%
 \label{sec:a_sound_example}
@@ -2714,14 +2716,27 @@ Local
 \begin{figure}[htpb]
   \centering
   \includegraphics[width=\linewidth]{vending_machine/error_result.png}
-  \caption{Result of Merging the Erroneous Example}%
+  \caption{Result of merging the erroneous example}%
   \label{fig:vending_machine_error_result}
 \end{figure}
 
 \section{Advantages and Drawbacks of the Solution}%
 \label{sec:advantages_and_drawbacks_of_the_solution}
 
-\todo{the choice of implementation has some drawbacks and advantages we will discuss in light of the vending machine example presented.}
+In light of the vending machine examples discussed in this chapter, we will discuss some advantages and disadvantages of the chosen strategy for merging. We will start by discussing some problems related to detecting and fixing conflicting changes. Following these issues, we will discuss some advantages of the merge strategy, and how the advantages might make the issues manageable.
+
+\paragraph{Little Detection of Cause}%
+\label{par:little_detection_of_cause}
+
+The merge tool we have created are able to detect paradoxes in the merged evolution plan, but not what caused the paradox. When the merge algorithm is instantiated, we assume that each inputed evolution plan is sound. If a conflict occurs in the merged plan, it will occur due to incompatible changes in the two derived versions. This means that if one version has scheduled a change in the evolution plan, this change could cause issues in the planned changes for the other version. If we include the changes of one version, then arrive at the other version's incompatible changes, the merger only reports why the change will result in an invalid evolution plan. Figuring out the cause is left up to the user to do manually, as the merger will not report the underlying issue which is that the two changes were incompatible.
+
+We witness an example of this phenomenon in the unsound vending machine example described in Section~\vref{sec:an_unsound_example}. The original plan had scheduled a feature addition in time 1, but both versions moved the addition to time 2 and time 3 respectively. When the merger arrived at time 2, the addition from version 1 was included. However, when the merger arrived at time 3, the feature addition was not possible to perform since the feature already existed. As we can see in Figure~\vref{fig:vending_machine_error_result}, the only information about the merge failure was which changed caused the halt and why the change could not be included. However, we did not get information about the change that caused the issue, which was that feature was added in time point 2.
+
+We have chosen a merging strategy that is incremental. This means that we will merge one time point at a time, creating a list of feature models. Merging modifications in earlier time points might affect modifications later on in the plan. However, if a modification is not compatible with another later in the plan, we will not know this until we try to merge the latter. 
+
+\todo{something about inspecting the evolution plan manually to determine the cause}
+
+\todo{we are presented with a report that reports that a certain modification did not work, but not the reason why. since the input is sound, the modification was good. however, the reason is most commonly due to the other version doing incompatible changes. this we do not know, but would have to check manually.}
 
 \paragraph{Bias Towards Earlier Time Points}%
 \label{par:bias_towards_earlier_time_points}
@@ -2729,11 +2744,6 @@ Local
 \todo{incremental merger. will always that a conflict is due to the later modification, not the first. Even though the problem is due to two changes being incompatible. the first change can pass without issues, while the second change in the other version is incompatible due to the first change.}
 
 \todo{example with unsound. ref. adding a feature in time point 2 or 3. neither one are necessarily the correct one, and should require inspection by the enigneer merging. since the change in time 3 is reported, they might think that this should be removed.} 
-
-\paragraph{Little Detection of Cause}%
-\label{par:little_detection_of_cause}
-
-\todo{we are presented with a report that reports that a certain modification did not work, but not the reason why. since the input is sound, the modification was good. however, the reason is most commonly due to the other version doing incompatible changes. this we do not know, but would have to check manually.}
 
 \paragraph{Transparent Merging}%
 \label{par:transparent_merging}
