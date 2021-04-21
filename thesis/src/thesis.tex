@@ -2732,31 +2732,19 @@ The merge tool we have created are able to detect paradoxes in the merged evolut
 
 We witness an example of this phenomenon in the unsound vending machine example described in Section~\vref{sec:an_unsound_example}. The original plan had scheduled a feature addition in time 1, but both versions moved the addition to time 2 and time 3 respectively. When the merger arrived at time 2, the addition from version 1 was included. However, when the merger arrived at time 3, the feature addition was not possible to perform since the feature already existed. As we can see in Figure~\vref{fig:vending_machine_error_result}, the only information about the merge failure was which changed caused the halt and why the change could not be included. However, we did not get information about the change that caused the issue, which was that feature was added in time point 2.
 
-We have chosen a merging strategy that is incremental. This means that we will merge one time point at a time, creating a list of feature models. Merging modifications in earlier time points might affect modifications later on in the plan. However, if a modification is not compatible with another later in the plan, we will not know this until we try to merge the latter. 
-
-\todo{something about inspecting the evolution plan manually to determine the cause}
-
-\todo{we are presented with a report that reports that a certain modification did not work, but not the reason why. since the input is sound, the modification was good. however, the reason is most commonly due to the other version doing incompatible changes. this we do not know, but would have to check manually.}
-
-\paragraph{Bias Towards Earlier Time Points}%
+\paragraph{Bias Towards Earlier Changes}%
 \label{par:bias_towards_earlier_time_points}
 
-\todo{incremental merger. will always that a conflict is due to the later modification, not the first. Even though the problem is due to two changes being incompatible. the first change can pass without issues, while the second change in the other version is incompatible due to the first change.}
+Since we are merging time points incrementally, errors usually occur later in the plan. When we have conflicting changes in separate time points, the conflict would not arise at the change earlier in the plan, but rather at the later change. This causes a disproportionate amount of conflicts to report a problem with later changes rather than early changes. This bias towards earlier changes may cause the user to think that the issue is primarily with the later change. However, the issue may be either one, and solving the conflict requires further inspection by the engineer to determine.
 
-\todo{example with unsound. ref. adding a feature in time point 2 or 3. neither one are necessarily the correct one, and should require inspection by the enigneer merging. since the change in time 3 is reported, they might think that this should be removed.} 
+Revisiting our unsound example from Section~\vref{sec:an_unsound_example}, we can imagine this being a potential issue. In each version, we moved a feature addition to time point 2 and 3 respectively, which resulted in a conflict in the last time point. The conflict informs that the last change in time point is problematic since the feature already exist. A simple solution to handle the conflict is to just remove the feature addition in time point 3. However, neither adding the feature at time 2 og 3 is correct, and removing the last feature addition might not be the correct solution.
 
 \paragraph{Transparent Merging}%
 \label{par:transparent_merging}
 
-\todo{some drawbacks to the solution due to choise of merge stratigy. however, there might be advanttages as well. }
+As we now have discussed, the choice of merging strategy raised some potential issues with conflicts. However, the strategy might come with some advantages as well. The three-way merge algorithm is designed as an incremental merger. For our case, this means that we will go through each time point and incrementally build a merged feature model at each time point. The engineer performing the merge can understand how the evolution plans are analyzed and merged, as there are no advanced analyzing across time points. The choice of a straight forward merging strategy can be perceived as more transparent that other more advanced strategies. This transparency might make it easier to solve conflicts.
 
-\todo{bla is straight forward. transparent. merging the time points iteratively. no analysis between time points.}
-
-
-
-\todo{unsound example, note that all input eps are sound, this is an assumption. show base ep if not the same as before!. show the base ep. summarize the changes in v1 and v2. maybe say what is different from our sound example. changes cannot be harmonized, show the result}
-
-\todo{OlDTODOwrite about the vending machine example. Write about how the entire example is done. from cli parsing, converting to right representation, merging, checking, converting back, writing to file. Then how the frontend visualization tool parses the result and displays the tree as an interactive thing. sound vs unsound examples}
+Finding the cause of the conflict might be easier since the user can manually simulate how the merger operates. Since the engineer knows why the modification violated the semantics, the engineer could go back and find the change that caused it. Due to the mergers incremental nature, finding the cause requires only inspecting the same time point or any of the time points prior to the conflicts time point. By manually stepping through each time point, the cause might be determined.
 
 \chapter{Conclusion and Future Work}%
 \label{cha:conclusion_and_future_work}
