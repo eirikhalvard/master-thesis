@@ -74,9 +74,11 @@ something about summer project?
 \chapter{Introduction}%
 \label{cha:introduction}
 
-A \textit{Software Product Line (SPL)} is a collection of closely-related software products. The different software products in the SPL have several things in common, as well aspects that separate them. As an software development paradigm, SPLs allows the developers to leverage the softwares commonalities and variabilities in order to improve a variety of factors.
+A \textit{Software Product Line (SPL)} is a collection of closely-related \textit{software products}. The different software products in an SPL have several things in common, as well aspects that separate them \cite{cite:spl_practices_and_patterns, cite:spl_book}. As an software development paradigm, SPLs allows the engineers to model the softwares commonalities and variabilities to facilitate for large scale reuse.
 
-This variability and commonalities can be captured by \textit{feature models (FM)}, which uses \textit{features} to capture the different aspects of an SPL. Each feature in the feature model corresponds to a certain increment in program functionality. The particular \textit{variant} of the software product line is defined by a unique combination of features \cite{cite:don_batory_fm_grammar_prop}. The feature model organizes the features in a tree structure to capture the variability of the SPL.
+The most common variability model, \textit{feature models (FM)} capture the different aspects and visible characteristics of a system in terms of features \cite{cite:software_diversity_ina}. Each feature in the feature model corresponds to a certain increment in program functionality. The particular \textit{variant} of the software product line is defined by a unique combination of features \cite{cite:don_batory_fm_grammar_prop}. The feature model organizes the features in a tree structure to capture the variability of the SPL.
+
+For instance, we can model common and variable features of a product line of cars in a feature model. Cars usually has several similarities in software, such as some sort of infotainment system. Other features are only present in some car models, i.e. bluetooth functionality. Modeling the car SPL in a feature model would dictate what combination of features are valid. Modeling SPLs features and dependencies between them in a feature model dictates what variants of cars are allowed to assemble.
 
 Since SPLs undergo continuous evolution, planning for the long-term evolution of a software product line is often crucial. The evolution of the SPL is mostly handled as an informal procedure relying on the intuition and experience of individual engineers. Without formal tools, long-term goals might not be addressed properly, increasing the risk of significantly increased development costs.
 
@@ -165,10 +167,17 @@ i bakgrunnseksjon: diskutere litt hvordan forskjellige merge teknikker har forde
 
 \todo{begynne med å introdusere background. fortelle hva vi skal gå gjennom. fortelle om spl. div merge teknikker. haskell formalisering. etc}
 
-\section{Software product lines}%
+\section{Useful references about software product lines}%
+\label{sec:useful_references_about_software_product_lines}
+
+
+
+\section{Software Product Lines}%
 \label{sec:software_product_lines}
 
-A software product line (SPL) is a family of closely related software systems. These systems will often have several features in common, as well as variations that makes each piece of software unique. SPLs are used to make highly configurable systems, where each product in the SPL, called a \textit{variant}, is defined by the combination of features chosen. Several large scale companies such as Hewlett-Packard and Nokia are finding remarkable quantitative improvements in product quality, customer satisfaction, and more by using a software product line approach \cite{cite:northrop_spl_tenets}.
+A software product line (SPL) is a family of closely related software systems. These systems will often have several features in common, as well as variations that makes each piece of software unique. SPLs are used to make highly configurable systems, where each product in the SPL, called a \textit{variant}, is defined by the combination of features chosen. 
+
+Several large scale companies such as Hewlett-Packard and Nokia are finding remarkable quantitative improvements in product quality, customer satisfaction, and more by using a software product line approach \cite{cite:northrop_spl_tenets}.
 
 Software product line engineering is a discipline for efficiently developing such families of software systems. Instead of maintaining potentially hundreds of different software artifacts, these engineering methods have ways of capitalizing on the similarities and differences between each variant. The number of variants are subject to combinatorial explosion, with additions of new features may double the amount of variants. Developing software product lines can be very time efficient, because you can maintain one code base, instead of one code base per variant. This simplifies additions of features or bug fixes greatly.
 
