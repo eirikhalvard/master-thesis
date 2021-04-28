@@ -115,34 +115,27 @@ As the goal of the LTEP project is to devise a methodology for long-term evoluti
 \section{Research Questions}%
 \label{sec:research_questions}
 
-\todo{research question: 3rd. is there any other approaches to. how to improve it? is there a better approach?} 
+% \todo{research question: 3rd. is there any other approaches to. how to improve it? is there a better approach?} 
+% \todo{pretend rqs are set before solution.}
+% \todo{how do i create a merge tool that respect soundness.}
+% \todo{how or what type rqs}
+% \todo{what capabilities. how can we build this? type rqs. what degree, not jsut yes/no. invite discussion.}
+% \todo{algorithm. soundness. my results.} 
+% \todo{what algo can i use to. what data structure, what algo do i need to develop in order to be able to merge different plans taking into account ordering, challenges with algorithm. phrasing into a a discussion.}
 
-\todo{pretend rqs are set before solution.}
-
-\todo{how do i create a merge tool that respect soundness.}
-
-\todo{how or what type rqs}
-
-\todo{what capabilities. how can we build this? type rqs. what degree, not jsut yes/no. invite discussion.}
-
-\todo{algorithm. soundness. my results.} 
-
-\todo{what algo can i use to. what data structure, what algo do i need to develop in order to be able to merge different plans taking into account ordering, challenges with algorithm. phrasing into a a discussion.}
-
-how to design an algorithm for merging evolution plans.
 As the goal of the thesis is to provide tools aiding developers and engineers cooperate in planning the evolution of a software product line, we propose some research questions (RQ). The research questions are concrete questions that we want to answer as a result of this thesis:
 
 \paragraph{RQ1}
 
-\textit{Is it feasable to create a merge tool for evolution plans that respect soundness?} When developing a merge tool, we optimally want to ensure that the structure and semantics of evolution plans are met. Can the tool ensure this?
+\textit{How do we create a merge tool for evolution plans that respect soundness?} When developing a merge tool, we optimally want to ensure that the structure and semantics of evolution plans are met. How do we create a tool to ensure this?
 
 \paragraph{RQ2}
 
-\textit{Are the results of the merge tool predictable and interpretable?} As we want the merge tool to be used by humans, the output of the tool needs to be possible to understand.
+\textit{How do we design an algorithm for merging evolution plans?} When designing an algorithm, we need to explore what characteristics the algorithm needs in order to merge contributions effectively. This includes figuring out what data structures and representations are suited, what approach we need for merging, etc.
 
 \paragraph{RQ3}
 
-\textit{What are the drawbacks and short comings of the merge tool?} The method of merging may have several implications for the result of the merge. We want to investigate if there are any issues as a result.
+\textit{Are the results of the merge tool predictable and interpretable?} As we want the merge tool to be used by humans, the output of the tool needs to be possible to understand. When the merging is successful, the output needs to make sense for the user. When a conflict is produced, the user should also be able to understand the error message and have ways of dealing with the conflict.
 
 % OLD>>>
 % \begin{itemize}
@@ -171,11 +164,17 @@ To summarize, the contributions include:
 \section{Chapter Overview}%
 \label{sec:chapter_overview}
 
-\textbf{Chapter~\ref{cha:background}} something about background
+\textbf{Chapter~\ref{cha:background}} Introduces necessary background in order to understand the contributions in the thesis. Includes background on SPLs, feature models and evolution planning, a section about software merging as well as an introduction to the programming language used in this thesis.
 
-\textbf{Chapter~\ref{cha:three_way_merge_algorithm}} something about something
+\textbf{Chapter~\ref{cha:developing_a_sound_three_way_merge_of_evolution_plans}} Defining the problem and the characteristics of the solution. A high level look at the three-way merge tool.
 
-\todo{WRITE}
+\textbf{Chapter~\ref{cha:specification_and_implementation_of_the_three_way_merge_algorithm}} Implementation and specification of the merge algorithm. This includes the formalization of data structures, the specification of the functions used in the algorithm as well as a running example for demonstrating the implementation.
+
+\textbf{Chapter~\ref{cha:command_line_interface_and_visualization_tools}} Tools supporting the core algorithm. Includes a command-line interface for automated interaction with existing tools as well as a tool for visualizing and exploring the merger.
+
+\textbf{Chapter~\ref{cha:case_study_vending_machine}} Executing the merge tool on an example SPL. Includes examples resulting in both success and failure.
+
+\textbf{Chapter~\ref{cha:conclusion_and_future_work}} Conclusion of the work, discussion of the research questions and future work.
 
 \section{Project Source Code}%
 \label{sec:project_source_code}
