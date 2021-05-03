@@ -106,7 +106,7 @@ The LTEP project aims to devise methodology for long-term evolution planning in 
 
 During the course of the LTEP project, we published a paper, \textit{Consistency-Preserving Evolution Planning on Feature Models} \cite{cite:consistency_preserving_evolution_planning}. In the paper, we presented methods for creating and retroactively adapting a feature model evolution plan while preventing structural and logical inconsistencies in the model. The method was established by structural operational semantics and linear temporal logic, and implemented using rewriting logic and integrated with the DarwinSPL tool \footnote{https://gitlab.com/DarwinSPL/DarwinSPL}.
 
-While the work published in \cite{cite:consistency_preserving_evolution_planning} addresses some of the scientific aims of the LTEP project, some issues still remain. Concretely, one of the scientific aims is harmonizing partial evolution plans of multiple contributors, which my thesis will attempt to address.
+While the published work addresses some of the scientific aims of the LTEP project, some issues still remain. Concretely, one of the scientific aims is harmonizing partial evolution plans of multiple contributors, which my thesis will attempt to address.
 
 \section{Research Questions}%
 \label{sec:research_questions}
@@ -185,34 +185,35 @@ i bakgrunnseksjon: diskutere litt hvordan forskjellige merge teknikker har forde
 
 \todo{begynne med å introdusere background. fortelle hva vi skal gå gjennom. fortelle om spl. div merge teknikker. haskell formalisering. etc}
 
-\section{Useful references about software product lines}%
-\label{sec:useful_references_about_software_product_lines}
-
-
-
 \section{Software Product Lines}%
 \label{sec:software_product_lines}
 
-A software product line (SPL) is a family of closely related software systems. These systems will often have several features in common, as well as variations that makes each piece of software unique. SPLs are used to make highly configurable systems, where each product in the SPL, called a \textit{variant}, is defined by the combination of features chosen. 
+A software product line (SPL) is a family of closely related software systems. These systems will often have several features in common, as well as variations that makes each piece of software unique. SPLs are used to make highly configurable systems, where each product in the SPL, called a \textit{variant}, is defined by the combination of features chosen.
 
-Several large scale companies such as Hewlett-Packard and Nokia are finding remarkable quantitative improvements in product quality, customer satisfaction, and more by using a software product line approach \cite{cite:northrop_spl_tenets}.
+% Several large scale companies such as Hewlett-Packard and Nokia are finding remarkable quantitative improvements in product quality, customer satisfaction, and more by using a software product line approach \cite{cite:northrop_spl_tenets}.
 
-Software product line engineering is a discipline for efficiently developing such families of software systems. Instead of maintaining potentially hundreds of different software artifacts, these engineering methods have ways of capitalizing on the similarities and differences between each variant. The number of variants are subject to combinatorial explosion, with additions of new features may double the amount of variants. Developing software product lines can be very time efficient, because you can maintain one code base, instead of one code base per variant. This simplifies additions of features or bug fixes greatly.
+Several such variants are often needed to be developed in parallel to address a wide range of customer requirements \cite{cite:software_diversity_ina}. Simultaneous development of variants is often a complex task, affecting all phases of development. SPLs often emerge \textit{ad-hoc} when companies sees the need for a similar yet different product than the existing ones. In many of these cases, this is handled by cloning and modifying the software of an existing product, known as \textit{clone-and-own} \cite{cite:clone_and_own}. The issue with clone-and-own often emerges when changes are required to the common parts of the variants. Since the different versions are separated entirely, changes need to be done in both versions. This can be problematic, especially in SPLs with a large number of variants.
+
+Software product line engineering is a discipline for efficiently developing such families of software systems. Instead of maintaining potentially hundreds of different software variants, these engineering methods have ways of capitalizing on the similarities and differences between each variant. Such \textit{variability realization mechanisms} are used to encode the variability in the implementation explicitly. Instead of maintaining one code base per variant, all variants are instead expressed in the same code base. There are two common ways of doing this, the \textit{compositional approach} and the \textit{annotative approach} \cite{cite:granularity_in_spl}. The compositional approach models features in distinct components, allowing variants to be generated by \textit{composing} components together. On the other hand, the annotative approach relies on annotating the source code similar to how C-style preprocessors use \texttt{\#ifdef} and \texttt{\#endif} annotations. Depending on the software variant needed, the preprocessor use the annotations to generate the correct software variant.
 
 \subsection{Feature Models}%
 \label{sub:feature_models}
 
-All possible variants of a software product line can be defined in terms of a \textit{feature model}. A feature model is a tree structure of features and groups. Features can be mandatory or optional, and will contain zero or more groups. Each group has a set of features. A group (of features) can have different types. For example, in an \texttt{AND} group, all the features has to be chosen.
+While tools for implementing software product lines are very important, planning and specifying the different variants of an SPL are also beneficial. Variability models plays a central role in this planning, and is also used as a communications tool. We will detail the most common variability model, \textit{feature models}, as it is an important software artifact this thesis will rely on.
+
+All possible variants of a software product line can be defined in terms of a \textit{feature model}. A feature model is a tree structure of features and groups. Features can be mandatory or optional, and will contain zero or more groups. Each group has a set of features. A group (of features) can have different types. For example, in an \texttt{AND} group, all the features has to be chosen. Normally, feature models can contain cross-tree constraints. However, since these are not in the scope of the thesis, we will not detail it here.
 
 % Example feature model
 \begin{figure}[htpb]
 	\centering
 	\includegraphics[width=0.8\linewidth]{illustrations/example.pdf}
-	\caption{Example feature model}%
+	\caption{Car Feature Model}%
 	\label{fig:example1}
 \end{figure}
 
 A visual representation of a feature model can be seen in Figure~\vref{fig:example1}. The small dot above \texttt{Infotainment System} indicates that the feature is mandatory, where as the white dot above \texttt{Comfort Systems} represents an optional feature. Each feature (except the root) is in a group. The \texttt{Infotainment System} feature is in a singleton group below \texttt{Car}. The features \texttt{Android Auto} and \texttt{Apple Car Play} are in a \texttt{XOR} group, indicated by the arch between the features. This represents that each valid variant has to choose between one of the two (but not both).
+
+Note that the visualization in Figure~\ref{fig:example1} of feature models are perhaps the most common across the research field. However, we will through the rest of this thesis use a slightly different notation for reasons we will explain in Section~\vref{sub:visual_representation}.
 
 \subsection{Evolution planning}%
 \label{sub:evolution_planning}
@@ -241,7 +242,8 @@ SPL evolution is a major challenge in SPL engineering as many stakeholders are i
 	\label{fig:exampleplan}
 \end{figure}
 
-An example of an evolution plan can be seen in Figure~\vref{fig:exampleplan}. The initial feature model contains three features, and two time points are added. At time 1, a group and two features are added, and at time 2, another group and two features are added. The evolution plan can derive three feature models, the initial, and the two at time 1 and 2. Performing all the operations results in a feature model that is equal to the one in Figure~\vref{fig:example1}
+\todo{change to vref if possible}
+An example of an evolution plan can be seen in Figure~\ref{fig:exampleplan}. The initial feature model contains three features, and two time points are added. At time 1, a group and two features are added, and at time 2, another group and two features are added. The evolution plan can derive three feature models, the initial, and the two at time 1 and 2. Performing all the operations results in a feature model that is equal to the one in Figure~\vref{fig:example1}
 
 \section{Version Control Systems}%
 \label{sec:version_control_systems}
@@ -504,7 +506,9 @@ In the work in this thesis, I will build upon the semantics of the operations de
 \subsection{Visual Representation}%
 \label{sub:visual_representation}
 
-As we want to visualize examples of feature models and evolution plans, we make \textit{feature model diagrams} to achieve this. The visualization captures the most important aspects of a feature model in a visual tree structure.
+As we want to visualize examples of feature models and evolution plans, we make \textit{feature model diagrams} to achieve this. The visualization captures the most important aspects of a feature model in a visual tree structure. 
+
+The notation presented here is a bit different than what we have seen up until this point. The main difference is concerned with how groups are represented. In the common feature diagram notation, groups are often implicit relations between features. In cases with groups without features and \textit{and} groups, the group is not visible in the notation, which can help make results from the merge tool harder to understand. The notation presented here will encode groups similar to features, which is intended to help the reader understand how the merger operates.
 
 In the diagram, each feature is a node of rectangular shape with the name of the feature in the center of the node. Features has either a black or white circle above it, indicating whether the feature is mandatory or optional. This is true for every feature but one, the root feature, since the root is always mandatory. Groups are modeled as a circle with a symbol inside. The symbol inside represents the type of the group, where \textit{and} groups are using the $\land$ symbol, \textit{or} groups use $\lor$, and \textit{alternative} groups use the $\oplus$ symbol.
 
