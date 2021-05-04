@@ -10,6 +10,7 @@
 \usepackage{minted}
 \usepackage{varioref}
 \usepackage{parskip}
+\usepackage{url}
 \usepackage[shortlabels]{enumitem}
 \usepackage[backend=biber,style=ieee]{biblatex}
 \usepackage[toc,page]{appendix}
@@ -104,7 +105,7 @@ Both universities involved has previously worked on relevant work for this proje
 
 The LTEP project aims to devise methodology for long-term evolution planning in highly variable software systems. Creating SPLs and performing evolutionary changes are research areas that have received significant focus. However, the planning of evolution in these highly variable software systems is overlooked by science to this day. Within the LTEP project, we created a novel variability modeling notation which allows collaborative planning of SPL evolution. We are the first to identify, analyze and circumvent evolution paradoxes.
 
-During the course of the LTEP project, we published a paper, \textit{Consistency-Preserving Evolution Planning on Feature Models} \cite{cite:consistency_preserving_evolution_planning}. In the paper, we presented methods for creating and retroactively adapting a feature model evolution plan while preventing structural and logical inconsistencies in the model. The method was established by structural operational semantics and linear temporal logic, and implemented using rewriting logic and integrated with the DarwinSPL tool \footnote{https://gitlab.com/DarwinSPL/DarwinSPL}.
+During the course of the LTEP project, we published a paper, \textit{Consistency-Preserving Evolution Planning on Feature Models} \cite{cite:consistency_preserving_evolution_planning}. In the paper, we presented methods for creating and retroactively adapting a feature model evolution plan while preventing structural and logical inconsistencies in the model. The method was established by structural operational semantics and linear temporal logic, and implemented using rewriting logic and integrated with the DarwinSPL tool \footnote{\url{https://gitlab.com/DarwinSPL/DarwinSPL}}.
 
 While the published work addresses some of the scientific aims of the LTEP project, some issues still remain. Concretely, one of the scientific aims is harmonizing partial evolution plans of multiple contributors, which my thesis will attempt to address.
 
@@ -175,7 +176,7 @@ To summarize, the contributions include:
 \section{Project Source Code}%
 \label{sec:project_source_code}
 
-All the source code from the master thesis can be found on Github\footnote{https://github.com/eirikhalvard/master-thesis}.
+All the source code from the master thesis can be found on Github\footnote{\url{https://github.com/eirikhalvard/master-thesis}}.
 
 \chapter{Background}%
 \label{cha:background}
@@ -371,7 +372,7 @@ The inputs of the algorithm, the three evolution plans, are assumed to be sound.
 
 In this section we will explain how the three-way merger will fit into the general work flow of engineers actually working on the evolution plans.
 
-The core platform engineers will use, is the Eclipse application DarwinSPL\footnote{https://gitlab.com/DarwinSPL/DarwinSPL}. In this application, users are presented with a graphical interface for creating and modifying evolution plans. A screenshot of the application in use can be seen in Figure~\ref{fig:darwin_spl_screenshot}. 
+The core platform engineers will use, is the Eclipse application DarwinSPL\footnote{\url{https://gitlab.com/DarwinSPL/DarwinSPL}}. In this application, users are presented with a graphical interface for creating and modifying evolution plans. A screenshot of the application in use can be seen in Figure~\ref{fig:darwin_spl_screenshot}. 
 
 \begin{figure}[htpb]
   \centering
@@ -667,7 +668,7 @@ simpleExample =
         )
 \end{minted}
 
-Note that each feature and groups \texttt{Set} of children are constructed using list syntax. This is to make it a bit easier to read, not having too much visual clutter. This is possible using the language extension \texttt{OverloadedLists} \footnote{https://ghc.gitlab.haskell.org/ghc/doc/users\_guide/exts/overloaded\_lists.html}, where we allow Haskell's type system to figure out that the list is actually a \texttt{Set} based on the context.
+Note that each feature and groups \texttt{Set} of children are constructed using list syntax. This is to make it a bit easier to read, not having too much visual clutter. This is possible using the language extension \texttt{OverloadedLists} \footnote{\url{https://ghc.gitlab.haskell.org/ghc/doc/users\_guide/exts/overloaded\_lists.html}}, where we allow Haskell's type system to figure out that the list is actually a \texttt{Set} based on the context.
 
 \section{Converting To a Suitable Representation}%
 \label{sec:converting_to_a_suitable_representation}
@@ -1090,7 +1091,7 @@ diffFeatureModels prevFM currFM =
     )
 \end{minted}
 
-In order to calculate the differences between two \texttt{Map}s, we rely on the Haskell module \texttt{Data.Map.Merge} from the containers module\footnote{https://hackage.haskell.org/package/containers-0.6.2.1}. This module provides ways of merging maps with keys of the same type. In our case, we have two mappings from \texttt{FeatureId} to \texttt{FlatFeature}, which we will attempt to merge into a mapping from \texttt{FeatureId} to \texttt{FeatureModification}. The merging will be done using the \texttt{merge} function from \texttt{Data.Map.Merge}, which will compare the keys, the feature ids, in both maps. Based on the result of the comparison, one of three different merge tactics will be used to produce the desired result. The merge tactics will rely on the three functions that we pass to the \texttt{merge} function. Given a feature id, the following three cases describes can appear:
+In order to calculate the differences between two \texttt{Map}s, we rely on the Haskell module \texttt{Data.Map.Merge} from the containers module\footnote{\url{https://hackage.haskell.org/package/containers-0.6.2.1}}. This module provides ways of merging maps with keys of the same type. In our case, we have two mappings from \texttt{FeatureId} to \texttt{FlatFeature}, which we will attempt to merge into a mapping from \texttt{FeatureId} to \texttt{FeatureModification}. The merging will be done using the \texttt{merge} function from \texttt{Data.Map.Merge}, which will compare the keys, the feature ids, in both maps. Based on the result of the comparison, one of three different merge tactics will be used to produce the desired result. The merge tactics will rely on the three functions that we pass to the \texttt{merge} function. Given a feature id, the following three cases describes can appear:
 
 \begin{itemize}
   \item \textbf{The id exists only in the previous feature model}: This will produce a \texttt{FeatureRemove} modification for the id.
@@ -1480,7 +1481,7 @@ emptyModifications = Modifications M.empty M.empty
 
 The \texttt{diff\-Modifications} function defined below will handle the transformation combining modifications into the \texttt{DiffResult} type. Combining the modifications of groups follow the same general process as with feature modifications. 
 
-Combining the different \texttt{Map}s follow a similar approach as we did deriving the modifications between feature models (See Section~\vref{ssub:specifying_the_final_representation_transformation}), using the \texttt{merge} function from \texttt{Data.Map.Merge}\footnote{https://hackage.haskell.org/package/containers-0.6.2.1/docs/Data-Map-Merge-Strict.html}. Since we are merging three maps instead of two, we combine the three maps in two steps; (1) We combine the two derived modifications into a intermediate result using the function \texttt{mergeDerived}, and (2), we combine the base modifications with the combined derived result using \texttt{merge\-Base\-And\-Derived}.
+Combining the different \texttt{Map}s follow a similar approach as we did deriving the modifications between feature models (See Section~\vref{ssub:specifying_the_final_representation_transformation}), using the \texttt{merge} function from \texttt{Data.Map.Merge}\footnote{\url{https://hackage.haskell.org/package/containers-0.6.2.1/docs/Data-Map-Merge-Strict.html}}. Since we are merging three maps instead of two, we combine the three maps in two steps; (1) We combine the two derived modifications into a intermediate result using the function \texttt{mergeDerived}, and (2), we combine the base modifications with the combined derived result using \texttt{merge\-Base\-And\-Derived}.
 
 \begin{minted}[breaklines]{haskell}
 diffModifications ::
@@ -2554,7 +2555,7 @@ The evolution plan merger defines a command-line interface, \texttt{epmerge}, wh
 
 By designing a command-line interface using the common data serialization format json, our application can be easily integrated with other tools. Other tools are often designed and implemented in other technologies and languages, and having a command-line interface allows for easier integration of the tools.
 
-We used the Haskell library \textit{optparse-applicative}\footnote{https://github.com/pcapriotti/optparse-applicative} to define the interface, which allowed us to automatically generate a help page. By invoking the command \texttt{epmerge --help}, the following help page will be shown.
+We used the Haskell library \textit{optparse-applicative}\footnote{\url{https://github.com/pcapriotti/optparse-applicative}} to define the interface, which allowed us to automatically generate a help page. By invoking the command \texttt{epmerge --help}, the following help page will be shown.
 
 \begin{minted}[breaklines]{text}
 A three way merge tool for feature model evolution plans
@@ -2621,7 +2622,7 @@ In able to view the results of the merge, we could do one or more of the followi
 
 To specify the output format of the print or the file to write the output, you can use the `--toType`, with either `TreeUser`, `FlatUser` or `FlatModification` as an argument.
 
-As an example, running the following will read a sound example from file\footnote{https://github.com/eirikhalvard/master-thesis/blob/master/backend/data/sound\_flatuser.json}, merge the input, and print the result. \texttt{epmerge --fromFile="./data/sound\_flatuser.json" --fromType=FlatUser --print}
+As an example, running the following will read a sound example from file\footnote{\url{https://github.com/eirikhalvard/master-thesis/blob/master/backend/data/sound\_flatuser.json}}, merge the input, and print the result. \texttt{epmerge --fromFile="./data/sound\_flatuser.json" --fromType=FlatUser --print}
 
 \section{A Visualization Tool for Evolution Plans}%
 \label{sec:a_visualization_tool_for_evolution_plans}
@@ -2637,13 +2638,13 @@ In this section we will discuss and showcase a visualization tool for the merger
 
 As part of this project, we have created a multitude of different scenarios for merging. This includes examples where the individual changes are automatically unifiable without user input as well as examples that result in one or more conflicts. Every one of the predefined examples can be explored using this tool. 
 
-The tool is implemented in Elm\footnote{https://elm-lang.org/}, an ML language specializing in web-applications. The language we chose for the merge program, Haskell, has a very similar approach to defining types. This allows for defining types almost identical to the ones in the merger in addition to the other benefits of a purely functional ML language.
+The tool is implemented in Elm\footnote{\url{https://elm-lang.org/}}, an ML language specializing in web-applications. The language we chose for the merge program, Haskell, has a very similar approach to defining types. This allows for defining types almost identical to the ones in the merger in addition to the other benefits of a purely functional ML language.
 
 The tool is entirely separate from the command-line interface for the three-way merge algorithm. By providing certain options to the CLI, the merger can generate data that this tool can read, parse and visualize.
 
 The visualization tool lets us choose a merge example from a predefined list. Once an example is chosen, the tool allows us to explore the three evolution plans that are used as input to the three-way merge. In addition, the expected output of the merge algorithm as well as the actual output from the merger can also be explored.
 
-Each evolution plan is represented as a list of feature models. By choosing a certain time point, the user is presented with a feature model visualized as a tree. Based on the information in each feature model, the tool automatically generates a tree representing the feature model. The trees are drawn using SVGs\footnote{https://en.wikipedia.org/wiki/Scalable\_Vector\_Graphics}.
+Each evolution plan is represented as a list of feature models. By choosing a certain time point, the user is presented with a feature model visualized as a tree. Based on the information in each feature model, the tool automatically generates a tree representing the feature model. The trees are drawn using SVGs\footnote{\url{https://en.wikipedia.org/wiki/Scalable\_Vector\_Graphics}}.
 
 To see the tool in use, see Figure~\ref{fig:visualization_tool_in_use}. To the right, we can see the list of explorable examples merges. The top section lets us pick what part of the input or output we want to see, as well as what time point we want to explore. The visualization for the trees follow a similar style to what we presented in this paper. The only difference between the tool and what we defined in Section~\vref{sub:visual_representation} is the representation for feature types. In this thesis, whether the feature were mandatory or optional was represented with a black or white circle above the feature. However, in the tool, this is represented with the background color of the feature. A mandatory feature type is noted by a dark blue background, whereas the optional type has a light blue background.
 
@@ -2684,7 +2685,7 @@ In base evolution plan, we can see several different components consisting of fe
 \subsubsection{Changes in Version 1}%
 \label{ssub:changes_in_version_1}
 
-The base evolution plan introduced in Figure~\vref{fig:vending_machine_sound_base_ep} represented the planned development of the vending machine software product line. However, since requirements often change, we present the base evolution plan modified with some changes to the plan. In reality, this is encoded as a completely new evolution plan, but we will just summarize the differences between this version and the base evolution plan. The full encoding can be seen in the Github repository\footnote{https://github.com/eirikhalvard/master-thesis/blob/master/backend/data/sound\_treeuser.json}. The changes include the following:
+The base evolution plan introduced in Figure~\vref{fig:vending_machine_sound_base_ep} represented the planned development of the vending machine software product line. However, since requirements often change, we present the base evolution plan modified with some changes to the plan. In reality, this is encoded as a completely new evolution plan, but we will just summarize the differences between this version and the base evolution plan. The full encoding can be seen in the Github repository\footnote{\url{https://github.com/eirikhalvard/master-thesis/blob/master/backend/data/sound\_treeuser.json}}. The changes include the following:
 
 \begin{itemize}
   \item At Time 1: Added a currency feature under the vending machine group. This has an alternative group with both a Dollar and Euro Feature. This indicates that a valid vending machine has to have some form of currency, which has to be either dollars or euro. 
