@@ -80,7 +80,7 @@ A \textit{Software Product Line (SPL)} is a collection of closely-related \texti
 
 The most common variability model, \textit{feature models (FM)} capture the different aspects and visible characteristics of a system in terms of features \cite{cite:software_diversity_ina}. Each feature in the feature model corresponds to a certain increment in program functionality. The particular \textit{variant} of the software product line is defined by a unique combination of features \cite{cite:don_batory_fm_grammar_prop}. The feature model organizes the features in a tree structure to capture the variability of the SPL.
 
-For instance, we can model common and variable features of a product line of cars in a feature model. Cars usually has several similarities in software, such as some sort of infotainment system. Other features are only present in some car models, i.e. bluetooth functionality. Modeling the car SPL in a feature model would dictate what combination of features are valid. Modeling SPLs features and dependencies between them in a feature model dictates what variants of cars are allowed to assemble.
+For instance, we can model common and variable features of a product line of cars in a feature model. Cars usually has several similarities in software, such as some sort of infotainment system. Other features are only present in some car models, i.e. Bluetooth functionality. Modeling the car SPL in a feature model would dictate what combination of features are valid. Modeling SPLs features and dependencies between them in a feature model dictates what variants of cars are allowed to assemble.
 
 Since SPLs undergo continuous evolution, planning for the long-term evolution of a software product line is often crucial \cite{cite:product_line_evolution_reasoning}. While long-term planning is beneficial for success, there is little support for handling the long-term evolution \cite{cite:evofm_fm_planning}. The evolution of the SPL is usually handled as an informal procedure relying on the intuition and experience of individual engineers. Without formal tools, long-term goals might not be addressed properly, increasing the risk of significantly increased development costs.
 
@@ -202,49 +202,48 @@ Software product line engineering is a discipline for efficiently developing suc
 
 While tools for implementing software product lines are very important, planning and specifying the different variants of an SPL are also beneficial. Variability models plays a central role in this planning, and is also used as a communications tool. We will detail the most common variability model, \textit{feature models}, as it is an important software artifact this thesis will rely on.
 
-All possible variants of a software product line can be defined in terms of a \textit{feature model}. A feature model is a tree structure of features and groups. Features can be mandatory or optional, and will contain zero or more groups. Each group has a set of features. A group (of features) can have different types. For example, in an \texttt{AND} group, all the features has to be chosen. Normally, feature models can contain cross-tree constraints. However, since these are not in the scope of the thesis, we will not detail it here.
+All possible variants of a software product line can be defined in terms of a \textit{feature model}. A feature model is a tree structure of features and groups. Features represent a concrete aspect in an SPL. Features can be mandatory or optional, and will contain zero or more groups. Each group has a set of features and the type of the group dictates which features in the group can to be selected. For example, in an \textit{and} group, all the features has to be chosen, while  \textit{alternative} groups has to select exactly one feature. Normally, feature models also contain cross-tree constraints. However, since these are not in the scope of the thesis, we will not detail it here.
 
 % Example feature model
 \begin{figure}[htpb]
 	\centering
 	\includegraphics[width=0.8\linewidth]{illustrations/example.pdf}
-	\caption{Car Feature Model}%
+	\caption{Car Example - Feature Model}%
 	\label{fig:example1}
 \end{figure}
 
-A visual representation of a feature model can be seen in Figure~\vref{fig:example1}. The small dot above \texttt{Infotainment System} indicates that the feature is mandatory, where as the white dot above \texttt{Comfort Systems} represents an optional feature. Each feature (except the root) is in a group. The \texttt{Infotainment System} feature is in a singleton group below \texttt{Car}. The features \texttt{Android Auto} and \texttt{Apple Car Play} are in a \texttt{XOR} group, indicated by the arch between the features. This represents that each valid variant has to choose between one of the two (but not both).
+A visual representation of a feature model can be seen in Figure~\vref{fig:example1}. The small dot above \texttt{Infotainment System} indicates that the feature is mandatory, where as the white dot above \texttt{Comfort Systems} represents an optional feature. Each feature (except the root) is in a group. The \texttt{Infotainment System} feature is in a singleton group below \texttt{Car}. The features \texttt{Android Auto} and \texttt{Apple Car Play} are in a \texttt{Alternative} group, indicated by the arch between the features. This represents that each valid variant has to choose between one of the two (but not both).
 
-Note that the visualization in Figure~\ref{fig:example1} of feature models are perhaps the most common across the research field. However, we will through the rest of this thesis use a slightly different notation for reasons we will explain in Section~\vref{sub:visual_representation}.
+Note that the visualization in Figure~\vref{fig:example1} of feature models are perhaps the most common across the research field. However, we will through the rest of this thesis use a slightly different notation for reasons we will explain in Section~\vref{sub:visual_representation}.
 
-\subsection{Evolution planning}%
+\subsection{Evolution Planning}%
 \label{sub:evolution_planning}
 
-Feature models let engineers capture all variants of the current software product line, but sometimes it can be beneficial to model future or past versions as well. Planning for the long term evolution of the product line can be important in managing the complexity that comes with large software systems. Developing these kinds of systems typically involves many engineers, managers or other stakeholders, and managing when certain changes, additions or deprecations are implemented can be complex and confusing without suitable tools. Changing the SPL potentially influences many configurations, which might conflict with the stakeholders requirements.
+Feature models let engineers capture all variants of the current software product line, but sometimes it can be beneficial to model future or past versions as well. Developing these kinds of systems typically involves many engineers, managers or other stakeholders. Managing when certain changes, additions or deprecations are implemented can be complex and confusing without suitable tools. Changing the SPL may also potentially influences many configurations, which might conflict with stakeholders requirements. Thus, it is paramount to thoroughly plan SPL evolution in advance, e.g., to perform analyses and to have enough time for implementing new or adapted features.
 
-SPL evolution is a major challenge in SPL engineering as many stakeholders are involved, many requirements exist, and changing the SPL potentially influences many configurations. Thus, it is paramount to thoroughly plan SPL evolution in advance, e.g., to perform analyses and to have enough time for implementing new or adapted features.
+Several approaches and tools for planning the evolution of an SPL exist to this day. DeltaEcore is a tool suite relying on \textit{Hyper-Feature Models (HFMs)} and \textit{evolution delta modules} for the integrated management of variability in space and time in SPLs \cite{cite:s02_deltaecore}. DarwinSPL is another tool suite for modeling evolving context-sensitive SPLs by extending DeltaEcore's HFMs \cite{cite:s17_darwinspl}. EvoFM supports long-term feature-oriented planning and analysis of evolution plans \cite{cite:evofm_fm_planning}. In addition, other tools also include Feature-Driven Versioning \cite{cite:feature_driven_versioning}, FORCE \cite{cite:force} and SuperMod \cite{cite:supermod}.
 
-\textit{Evolution plans} lets us model a sequence of feature models, which represents the current and all planned future versions of the feature model. Each feature model represents the product line in a point in time, which could have varying validity, from a week from now to a year. Since the next feature model is derived from the previous one, we can represent the evolution plan as an initial feature model, as well as a sequence of \textit{points}, where each point is a set of operations to perform on the previous feature model to achieve the current one. The operations vary from changing, adding or deleting features or groups from the feature model.
+In this thesis, we will focus our efforts on \textit{Evolution Plans (EPs)}, also called \textit{Feature Model Evolution Plans} \cite{cite:consistency_preserving_evolution_planning}. EPs lets us model a sequence of feature models, which represents the current and all planned future versions of the feature model. Each feature model represents the product line in a point in time, which could have varying validity, from a week from now to a year. Since the next feature model is derived from the previous one, we can represent the evolution plan as an initial feature model, as well as a sequence of \textit{time points}, where each time point is a set of operations to perform on the previous feature model to derive the next. The operations will either change, add or delete features or groups in the feature model.
 
 \begin{figure}[htpb]
 	\centering
 	\includegraphics[width=0.8\linewidth]{illustrations/initial.pdf}
 	\begin{tabular}{l}
 		\textbf{At time 1:}                                           \\ \hline
-		add an XOR group to Infotainment System.                      \\
-		add feature Android Auto to the Infotainment System XOR group \\
-		add feature Car Play to the Infotainment System XOR group     \\
+		add an Alternative group to Infotainment System.                      \\
+		add feature Android Auto to the Infotainment System Alternative group \\
+		add feature Car Play to the Infotainment System Alternative group     \\
 		\\
 		\textbf{At time 2:}                                           \\ \hline
 		add feature Comfort Systems to the Car AND group              \\
 		add an AND group to Comfort Systems                           \\
 		add feature Parking Pilot to the Comfort Systems AND group
 	\end{tabular}
-	\caption{An example evolution plan}%
+	\caption{Car Example - Evolution Plan}%
 	\label{fig:exampleplan}
 \end{figure}
 
-\todo{change to vref if possible}
-An example of an evolution plan can be seen in Figure~\ref{fig:exampleplan}. The initial feature model contains three features, and two time points are added. At time 1, a group and two features are added, and at time 2, another group and two features are added. The evolution plan can derive three feature models, the initial, and the two at time 1 and 2. Performing all the operations results in a feature model that is equal to the one in Figure~\vref{fig:example1}
+An example of an evolution plan can be seen in Figure~\vref{fig:exampleplan}. The initial feature model contains three features, and two time points are added. At time 1, a group and two features are added, and at time 2, another group and two features are added. The evolution plan can derive three feature models, the initial, and the two at time 1 and 2. Performing all the operations results in a feature model that is equal to the one in Figure~\vref{fig:example1}
 
 \section{Version Control Systems}%
 \label{sec:version_control_systems}
