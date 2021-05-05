@@ -248,40 +248,36 @@ An example of an evolution plan can be seen in Figure~\vref{fig:exampleplan}. Th
 \section{Version Control Systems}%
 \label{sec:version_control_systems}
 
-\textit{Software configuration mechanisms} is the discipline of managing the evolution of large and complex software systems \cite{cite:software_configuration_management}. \textit{Version control mechanisms} are used to deal with the evolution of software products. These mechanisms include ways to deal with having multiple, parallel versions of the software simultaneously. Techniques like \textit{software merging} are used to keep consistency and unify different versions by automatically or semi-automatically deriving merged versions of the different parallel versions.
+\textit{Software configuration mechanisms} is the discipline of managing the evolution of large and complex software systems \cite{cite:software_configuration_management}. \textit{Version control mechanisms} are used to deal with the evolution of software products. These mechanisms include methods of dealing with multiple, parallel versions of the software simultaneously. Techniques like \textit{software merging} are used to keep consistency and unify different versions by automatically or semi-automatically deriving merged versions of the different parallel versions.
 
 Mens~\cite{cite:tom_mens_software_merging_survey} categorizes and describes different aspect of version control systems and software merging techniques. Two-way and three-way merging differentiates between how many versions of the artifact you are comparing. Different representations of the merge artifact can be categorized in textual, syntactic, semantic or structural merging. State-based merge techniques uses delta algorithms to compute differences between revisions while change-based techniques keeps track of the exact operations that were performed between the revisions.
 
-\subsection{Two-way vs three-way merging}%
+\subsection{Two-Way vs Three-Way Merging}%
 \label{sub:two_way_vs_three_way_merging}
 
 When merging different versions of a piece of software, we differentiate between \textit{two-way} and \textit{three-way} merging. Two-way merging merges the two versions without taking a common ancestor into account. Three-way merging on the other hand, uses a common ancestor as a reference point, to know how the different versions were changed. The latter technique is more powerful and produces more accurate merges, because the merge will know extra information from the common ancestor.
 
 To illustrate the difference, consider the following program: \texttt{print(a); print(b); print(a + b)}, and two different versions derived from the base program, (1) \texttt{print(a); print(b); print(a+b); print("new line")}, (2) \texttt{print(b); print(a + b)}. Since a three-way merger uses the base program as a reference point, it will notice that derived version 1 added one statement, while version two deleted one. The three-way merger will then merge successfully without conflict with the following result: \texttt{print(b); print(a + b); print("new line")}. However, a two-way merger does not use the base program the different versions were derived from, and can not deduce whether \texttt{print(a)} were added in version 1 or deleted in version 2, thus raising a conflict. The same ambiguity occurs with the added statement \texttt{print("new line")}.
 
-\subsection{Textual merging}%
+\subsection{Textual Merging}%
 \label{sub:textual_merging}
 
 Textual merging views the software artifacts as unstructured text files. There exist several granularities of what is considered one unit, but \textit{line-based merging} is probably the most common textual merge. Line-based merging techniques computes the difference between files by comparing equality over the lines. This has several implications, like adding a single space after a line is considered a deletion of the old line and addition of the new. This coarse granularity often leads to unnecessary and confusing conflicts. Changing the indentation or other formatting differences often lead to unnecessary conflicts.
 
-To exemplify this, consider the two versions of a Python program, Listing~\vref{lst:code_diff_1} and Listing~\vref{lst:code_diff_2}. The second version simply wrapped the content of the function in an if-statement that checks for input sanity. Using a standard textual, line-based differencing tool like the Unix' \textit{diff}-tool \cite{cite:fast_algo_for_lcs}, we are able to calculate the difference between the two files by calculating the longest common subsequence. As seen in the result (Listing~\vref{lst:result_code_diff}), difference between the two are confusing and inaccurate. Conceptually, the difference is that the second version wrapped the block in a if-statement. Due to the coarse grained line-based differencing and the disregard of structure and semantics, the algorithm reports that the whole block is deleted, and the same block wrapped in an if is inserted.
+To exemplify this, we will consider a simple Python example to showcase how textual, line-based merging can problematic. Since calculating the difference between a base version and a derived version is an important step in merging, we will use the Unix' \textit{diff}-tool \cite{cite:fast_algo_for_lcs} to exemplify the short-comings of the standard textual merging tools. First, we consider the following Python function.
 
-\begin{listing}
-	\begin{minted}[]{python}
+\begin{minted}[breaklines]{python}
 def some_function(n):
   sum = 0
   for i in range(0, n):
     sum += i
   print(sum)
 some_function(5)
+\end{minted}
 
-  \end{minted}
-	\caption{Code diff 1}
-	\label{lst:code_diff_1}
-\end{listing}
+With this python program as a starting point, we change the program and end up with the following, derived version.
 
-\begin{listing}
-	\begin{minted}[]{python}
+\begin{minted}[breaklines]{python}
 def some_function(n):
   if isinstance(n, int):
     sum = 0
@@ -289,13 +285,11 @@ def some_function(n):
       sum += i
     print(sum)
 some_function(5)
-  \end{minted}
-	\caption{Code diff 2}
-	\label{lst:code_diff_2}
-\end{listing}
+\end{minted}
 
-\begin{listing}
-	\begin{minted}{text}
+The second version simply wrapped the content of the function in an if-statement that checks for input sanity. Running this example with the diff-tool, we get the following results.
+
+\begin{minted}[breaklines]{python}
 <   sum = 0
 <   for i in range(0, n):
 <     sum += i
@@ -306,17 +300,16 @@ some_function(5)
 >     for i in range(0, n):
 >       sum += i
 >     print(sum)
-  \end{minted}
-	\caption{Resulting code diff}
-	\label{lst:result_code_diff}
-\end{listing}
+\end{minted}
 
-As discussed, text-based merge techniques often provide inferior results, however, they have several advantages in terms of efficiency and generality. The algorithm is general enough to work well for different programming languages, documentation, markup files, configuration files, etc. Some measurements performed on three-way, textual, line-based merge techniques in industrial case studies showed that about 90 percent of the changed files could be merged automatically \cite{cite:large_scale_case_study}. Other tools can complement the merge algorithm in avoiding or resolving conflicts. Formatters can make sure things like indentation and whitespace are uniformly handled, to avoid unnecessary conflicts. Compilers can help in resolving conflicts arising from things like renaming, where one version renames a variables, while another version introduces new lines referencing the old variable.
+The resulting differences between the two versions are confusing and inaccurate. Conceptually, the difference is that the second version wrapped the block in a if-statement. Due to the coarse grained line-based differencing and the disregard of structure and semantics, the algorithm reports that the whole block is deleted, and the same block wrapped in an if is inserted.
+
+As discussed, text-based merge techniques often provide inferior results, however, they have several advantages in terms of efficiency and generality. The algorithm is general enough to work well for different programming languages, documentation, markup files, configuration files, etc. Some measurements performed on three-way, textual, line-based merge techniques in industrial case studies showed that about 90 percent of the changed files could be merged automatically \cite{cite:large_scale_case_study}. Other tools can complement the merge algorithm in avoiding or resolving conflicts. Formatters can make sure things like indentation and whitespace are uniformly handled, to avoid unnecessary conflicts. Compilers can help in resolving conflicts arising from things like renaming, where one version renames a variable, while another version introduces new lines referencing the old variable.
 
 \subsection{Syntactic Merging}%
 \label{sub:syntactic_merging}
 
-\textit{Syntactic merging}~\cite{cite:syntactic_software_merging} differs from textual merging in that it considers the syntax of the artifact it is merging. This makes it more powerful, because depending on the syntactic structure of the artifact, the merger can ignore certain aspects, like whitespace or code comments. Syntactic merge techniques can represent the software artifacts in a better data structure than just flat text files, like a tree or a graph. In example, representing the Python program from Listing~\vref{lst:code_diff_1} and Listing~\vref{lst:code_diff_2} as a parse tree or abstract syntax tree, we can avoid merge conflicts.
+\textit{Syntactic merging}~\cite{cite:syntactic_software_merging} differs from textual merging in that it considers the syntax of the artifact it is merging. This makes it more powerful, because depending on the syntactic structure of the artifact, the merger can ignore certain aspects, like whitespace or code comments. Syntactic merge techniques can represent the software artifacts in a better data structure than just flat text files, like a tree or a graph. In example, representing the Python program from Section~\vref{sub:textual_merging} as a parse tree or abstract syntax tree, we can represent the changes more accurately.
 
 The granularity of the merger is still relevant, because we sometimes want to report a conflict even though the versions can be automatically merged. Consider the following example. $n < x$ is changed to $n \leq x$ in one version, and to $n < x + 1$ in another. Too fine grained granularity may cause this to be merged conflict free as $n \leq x + 1$. The merge can be done automatically and conflict free, but here we want to report a warning or conflict, because the merge might lead to logical errors.
 
