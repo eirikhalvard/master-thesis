@@ -322,7 +322,98 @@ Semantic mergers takes these kinds of conflicts into consideration while merging
 \section{Haskell and Algebraic Data Types}%
 \label{sec:haskell_and_algebraic_data_types}
 
-\todo{write about type synonyms, data types including records and sum types. show polymorphic data types. maybe something about deriving, maybe lens generation? etc. something about maybe? expressive and strict type system}
+In this thesis we will rely on Haskell and algebraic data types in order to specify and implement the three-way merge algorithm. Therefor, we give a short introduction to some of Haskell's most important aspects. Haskell is a purely functional, compiled, strongly typed programming language. While we will not go into full detail on the implications of these traits, we will discuss some of them.
+
+\subsubsection{Sum Types}%
+\label{ssub:a_powerful_type_system}
+
+The strongly-typed nature of Haskell allows for precise and accurate formal definitions of our data types. Haskell's data types are rooted in algebraic data types\footnote{\url{https://en.wikipedia.org/wiki/Algebraic_data_type}}. One of it's most important aspects, are \textit{sum types}, which allows us to define types that can have one or more variants. As an example, we show how a polymorphic binary tree of can be encoded in Haskell.
+
+\begin{minted}[breaklines]{haskell}
+data Tree a
+  = Empty
+  | Node a (Tree a) (Tree a)
+\end{minted}
+
+Since the tree is polymorphic, we can choose what type the elements in the tree is. A simple tree of \texttt{Int} with three nodes can be encoded in the following way.
+
+\begin{minted}[breaklines]{haskell}
+exampleTree :: Tree Int
+exampleTree =
+  Node 1
+    (Node 2 Empty Empty)
+    (Node 3 Empty Empty)
+\end{minted}
+
+The benefits of the type system becomes clear when we define functions on the data types. When defining functions on sum types, we can \textit{pattern match} on the data type. When we are pattern matching, Haskell's type system forces us to consider every case, yielding a compilation warning if we don't. To exemplify this, we consider a function on the newly defined \texttt{Tree} type, calculating the amount of nodes in a tree.
+
+\begin{minted}[breaklines]{haskell}
+numNodes :: Tree a -> Int
+numNodes Empty = 0
+numNodes (Node i left right) = 
+  1 + numNodes left + numNodes right
+\end{minted}
+
+This function is also polymorphic, noted by the type signature \texttt{numNodes :: Tree a -> Int}. This means we run our tree of ints on the function, using \texttt{numNodes exampleTree} to get a result, \texttt{3}.
+
+\subsubsection{Record Types}%
+\label{ssub:record_types}
+
+While sum types are very powerful and useful, Haskell also allows for \textit{record types}, which lets us define a structure with named fields. We provide a simple bank account example to showcase records.
+
+\begin{minted}[breaklines]{haskell}
+data BankAccount = BankAccount
+  { name :: String
+  , amount :: Int
+  }
+\end{minted}
+
+This definition allows us to create a \texttt{BankAccount} in the following way: \texttt{BankAccount "account" 100}
+
+\subsubsection{Monads and Advanced Type Classes}%
+\label{ssub:monads_and_advanced_type_classes}
+
+Being a \textit{pure} functional language, Haskell has certain implications on what is allowed to do. This means that when a function is called, Haskell guarantees that no side effect other than what is specified by the type system takes place. If a function takes a \texttt{String} and returns an \texttt{Int}, then there are no mutation of variables, no printing, no fetching of remote data. This does not mean that side effects are not possible, it just has to be expressed explicitly through the type system. If a function returns an \texttt{Int} but would like to print something in addition, the return type would be \texttt{IO Int}. If a function could potentially fail, a \texttt{Maybe Int} or \texttt{Either ErrorType Int} could be the return type.
+
+The purity of the language requires us to be very explicit and precise in our function definitions. This could potentially cause a lot of boilerplate which impure languages would circumvent. However, as we will see, Haskell uses \textit{monads} and other \textit{type classes} to let us write avoid much of the boilerplate necessary to do these tasks. We will detail a common task for monads, which is error handling. One way of doing error-handling, is using the \texttt{Maybe} data type, which is defined in the following way.
+
+\begin{minted}[breaklines]{haskell}
+data Maybe a = Nothing | Just a
+\end{minted}
+
+Since it is polymorphic, it works for all kinds of types. As an example, we will show how we can create a function that can fail by specifying that the return type is of \texttt{Maybe Int}. We will use standard integer division as our example, which can fail if we divide by zero.
+
+\begin{minted}[breaklines]{haskell}
+safeDiv :: Int -> Int -> Maybe Int
+safeDiv a b =
+  if b == 0
+    then Nothing
+    else Just (a `div` b)
+\end{minted}
+
+Dividing 10 by 2 can be done using \texttt{safeDiv 10 2}, which will yield \texttt{Just 5}. However, if we divide by zero using \texttt{safeDiv 10 0}, we will get \texttt{Nothing}. Our function is now safe, but it comes with  the drawback of having to explicitly dealing with errors. Often times, we want the errors to be propagated automatically, much like how standard exceptions work. Luckily, the \texttt{Maybe} data type implements a lot of type classes, such as \texttt{Monad}, \texttt{Applicative} and \texttt{Functor}. This allows us to avoid a lot of boilerplate that comes with composing programs that use \texttt{Maybe} as error handling.
+
+Haskell also comes with built in syntactic abstractions like \texttt{do}-notation that helps us work with data types implementing the \texttt{Monad} class. In the case for \texttt{Maybe}, the monad implementation will make sure that errors are propagated immediately. To exemplify this, we will use do-notation to automatically compose several calls to the \texttt{safeDiv} function. The do-notation will then handle unwrapping the \texttt{safeDiv} results and sparing us of boilerplate.
+
+\begin{minted}[breaklines]{haskell}
+doSomeDividing :: Maybe Int
+doSomeDividing = do
+  res1 <- safeDiv 10 5
+  res2 <- safeDiv 10 2
+  res3 <- safeDiv 14 7
+  return $ res1 + res2 + res3
+\end{minted}
+
+The result of \texttt{doSomeDividing} is \texttt{Just 9}. If, however, one of the calls to \texttt{safeDiv} failed, we would get \texttt{Nothing} as a result instead.
+
+\subsubsection{Lenses for Nested Data Structures}%
+\label{ssub:optics_for_nested_data_structures}
+
+Another common issue with pure languages is that updating structures can be challenging. Since mutation are not allowed, one cannot simply change a field in a structure. Instead, a copy of the structure would have to be made, only with the single field changed. When handling deeply nested data structures, this can be quite cumbersome. One solution to dealing with this issue, is using \textit{functional references}, also called \textit{lenses}.
+
+Lenses are values that represents a certain field, often called \textit{focus} in a structure. This could be a certain position in a list or a field in a record. The same lens can be used both for viewing and updating structures. Lenses themselves can also be composed with other lenses, which creates lenses that handle nested structures.
+
+Two common lenses used in the \textit{lens}\footnote{\url{https://hackage.haskell.org/package/lens}} library is the \texttt{\_1} and \texttt{\_2} lenses. These two lenses focus on the first and second part of a tuple respectively. To create a lens that focus on nested tuples, the lenses can be composed like this: \texttt{\_1.\_2}. With our newly created lens, we can perform both view and update operations on a nested tuple, \texttt{((1,2), "hello")}. Using \texttt{view (\_1.\_2) ((1,2), "hello")}, we will get \texttt{1}, and using \texttt{set (\_1.\_2) 100 ((1,2), "hello")}, we will get \texttt{((100,2), "hello")}.
 
 \part{A Soundness-Preserving Merger for Evolution Plans}%
 \label{prt:a_sound_semantic_merger_for_evolution_plans}
