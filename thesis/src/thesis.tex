@@ -50,23 +50,15 @@ long]
 \mbox{}
 \chapter*{Abstract}
 
-A software product line (SPL) models closely related software systems by capitalizing on their similarities and differences. Software engineers explicitly encode similarities and differences of an SPL by defining it in terms of a feature model. However, in order to ensure successful long-term development, it is beneficial to not just capture the current software product line, but the planned evolution of the SPL as well.
+A software product line (SPL) models closely related software systems by capitalizing on the high similarity of the products by organizing them in common and variable parts. Software engineers explicitly encode similarities and differences of an SPL by defining it in terms of a feature model. In order to ensure successful long-term development, it is beneficial to not just capture the current software product line, but the planned evolution of the SPL as well.
 
-Evolution planning of an SPL is often a dynamic, changing process, due to changes in product requirements. In addition, planning is typically not done by a single engineer, but multiple engineers, often working separately and independently of each other. To ensure successful development, their individual contributions would need to be synchronized and unified. This can be a complex task, especially without proper synchronization tools.
+Evolution planning of an SPL is often a dynamic, changing process, due to changes in product requirements. In addition, planning is typically a collaborative effort with multiple engineers working separately and independently of each other. To improve development, their individual contributions would need to be synchronized and unified. This can be a complex task, especially without proper synchronization tools.
 
 In this thesis, we develop a merge tool for evolution plans. The essence of the tool is a three-way merge algorithm. Given two different versions of an evolution plan, together with the common evolution plan they are derived from, the merge algorithm attempts to merge all the different changes from both versions. If the evolution plans are unifiable, the algorithm succeeds and yields the merged result containing the changes from both versions. However, if the changes are conflicting by breaking the structure or semantics of evolution plans, the algorithm terminates and reports the reason for failure. The three-way merge algorithm will act as an essential component in a version control system, allowing several contributors to synchronize their individual versions into a unified evolution plan.
 
 \tableofcontents{}
 \listoffigures{}
 \listoftables{}
-
-\chapter*{Preface}
-
-\todo{write better and more}
-\todo{something about the LTEP project}
-\todo{something about summer project?}
-
-\todo{written by other people? not necessarily. opptak, more personal. personal journey. what it means for me.} 
 
 \mainmatter{}
 
