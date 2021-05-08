@@ -155,7 +155,7 @@ To summarize, the contributions include:
 
 \textbf{Chapter~\ref{cha:background}} introduces necessary background in order to understand the contributions in the thesis. Includes background on SPLs, feature models and evolution planning, a section about software merging as well as an introduction to the programming language used in this thesis.
 
-\textbf{Chapter~\ref{cha:developing_a_sound_three_way_merge_of_evolution_plans}} defines the problem and the characteristics of the solution. A high level look at the three-way merge tool.
+\textbf{Chapter~\ref{cha:developing_a_sound_three_way_merge_of_evolution_plans}} defines the problem and the characteristics of the solution. We will define soundness for evolution plans as well as a high level overview of the three-way merge tool.
 
 \textbf{Chapter~\ref{cha:specification_and_implementation_of_the_three_way_merge_algorithm}} covers implementation and specification of the merge algorithm. This includes the formalization of data structures, the specification of the functions used in the algorithm as well as a running example for demonstrating the implementation.
 
@@ -2860,17 +2860,17 @@ In this concluding chapter, we start by describing how the solution addresses th
 
 We start by addressing the research questions detailed in Section~\vref{sec:research_questions}.
 
-\paragraph{RQ1: How do we design an algorithm for merging evolution plans?}
+\subsubsection{RQ1: How do we design an algorithm for merging evolution plans?} 
 
-\todo{As specified in the outline for the three-way merge algorithm in Section~...., the algorithm were split up in distinct steps. The steps transformed the inputs one step at a time in order to get the results we wanted.}
+When we designed the merge algorithm for evolution plans, we opted for a three-way approach. Doing so allowed us to more accurately derive what changes each version made to the evolution plan, which we leveraged in the merge algorithm. In creating the algorithm, we split the task in several distinct parts, which we outline in Section~\vref{sec:algorithm_overview}. The first phases included transformations to the evolution plans to use representations better suited for detecting changes and merging the versions. Later steps included merging the actual changes and lastly ensuring soundness for the result. Since we had defined a precise, mathematical definition of evolution plans, we could leverage the properties to create a merger that respected both structure and semantics.
 
-\paragraph{RQ2: How do we create a merge tool for evolution plans that respect soundness?}
+\subsubsection{RQ2: How do we create a merge tool for evolution plans that respect soundness?}
 
-\todo{As soundness is important for ensuring successful long-term evolution, we wanted the tool to guarantee soundness. We did this by .....}
+As evolution planning is a delicate matter, requiring attention to detail, we wanted the tool to guarantee a result that upholds the soundness requirements of evolution plans. We managed to guarantee soundness in a couple of ways. Firstly, we assumed that the evolution plans inputed for merging were sound. The existing tools had already methods for ensuring soundness for a single plan, and there is no point in merging multiple plans if the individual plans were unsound to begin with. This meant that we could leverage the soundness of the individual plans in the merger. Secondly, we created representations for evolution plans that allowed us to guarantee certain aspects of the merging. For instance, we could know that a certain feature were only either modified, added or removed once per time point, which we could not guarantee if we used other representations. Upon a successful merge, the representation allowed us guarantee soundness no matter what combination of changes both versions made. The representation also allowed us to not worry about what order we applied the changes per time point. This meant that we could apply every change in a time point, then later go through the result and make sure there was no violations to soundness.
 
 \paragraph{RQ3: Are the results of the merge tool predictable and interpretable?}
 
-\todo{An important aspect to merging is that actual engineers has to interpret and act on the results of the merge. For this reason, we wanted to create results that made sense. We created an incremental merger, merging one time point at a time, which allows the engineer to step through the resulting plan to ensure a satisfactory result. In cases of failure, we wanted to report the reason for failure, such that the engineer could find and fix the cause of the error.}
+An important aspect to the merge tool is that actual engineers has to interpret and act on the results of the merge. For this reason, we wanted the results of the merge to make sense from the engineers point of view. We specifically wanted the results to be predictable, which meant that the merger did not make any big decisions altering the semantics of the resulting evolution plan. Predictability also meant that way the evolution plans were merged were possible to understand and predict based on the changes in each version. This was important in order to get results that reflected the intended evolution of the SPL. Upon a conflicting result, we wanted the reported reason for conflict to be possible to interpret such that changes to the evolution plan could be made accordingly. For this reason, we opted for an merging strategy that merged one time point at a time incrementally. We felt that this approach also reflected how the engineer might have done the task if a manual approach was necessary. Upon failure, the tool provided information detailing exactly why a certain change was not possible to include. This allowed the engineer to manually inspect the evolution plans to make alterations.
 
 \section{Future Work}%
 \label{sec:future_work}
