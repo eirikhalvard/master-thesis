@@ -86,7 +86,7 @@ The use of version control systems are ubiquitous and a big part of the daily li
 \section{Objective}%
 \label{sec:objective}
 
-The objective of my thesis is to design and implement a three-way merge algorithm for evolution plans. To achieve an effective and accurate algorithm, good data structures and representations for evolution plans has to be chosen. The three-way merge algorithm will consider a base evolution plan, and two derived evolution plans. The algorithm will then try to merge the two derived plans, with the base model as a reference to what changes were made. If the changes in both versions are incompatible, an error would be produced indicating why the evolution plans were not unifiable. However, if it is possible to merge evolution plans while avoiding any violations to the structure or semantics, a merged evolution plan will be produced. The algorithm should follow some specified heuristics to ensure a plan that follows the users intent as closely as possible, without creating an unnecessary amount of conflicts and warnings. The algorithm should also find a good balance between complexity and usability.
+The objective of my thesis is to design and implement a three-way merge algorithm for evolution plans. To achieve an effective and accurate algorithm, good data structures and representations for evolution plans has to be chosen. The three-way merge algorithm will consider a base evolution plan, and two derived evolution plans. The algorithm will then try to merge the two derived plans, with the base model as a reference to what changes were made. If the changes in both versions are incompatible, an error would be produced indicating why the evolution plans were not unifiable. However, the merge is successful if the changes are compatible and the resulting evolution plan is \textit{sound}, meaning that the structure and semantics are not violated. The algorithm should follow some specified heuristics to ensure a plan that follows the users intent as closely as possible, without creating an unnecessary amount of conflicts and warnings. The algorithm should also find a good balance between complexity and usability.
 
 \section{About the Project}%
 \label{sec:about_the_project}
@@ -116,11 +116,11 @@ As the goal of the thesis is to provide tools aiding developers and engineers co
 
 \paragraph{RQ1}
 
-\textit{How do we create a merge tool for evolution plans that respect soundness?} When developing a merge tool, we optimally want to ensure that the structure and semantics of evolution plans are met. How do we create a tool to ensure this?
+\textit{How do we design an algorithm for merging evolution plans?} When designing an algorithm, we need to explore what characteristics the algorithm needs in order to merge contributions effectively. This includes figuring out what data structures and representations are suited, what approach we need for merging, etc.
 
 \paragraph{RQ2}
 
-\textit{How do we design an algorithm for merging evolution plans?} When designing an algorithm, we need to explore what characteristics the algorithm needs in order to merge contributions effectively. This includes figuring out what data structures and representations are suited, what approach we need for merging, etc.
+\textit{How do we create a merge tool for evolution plans that respect soundness?} When developing a merge tool, we optimally want to ensure that the structure and semantics of evolution plans are met. How do we create a tool to ensure this?
 
 \paragraph{RQ3}
 
@@ -2860,18 +2860,15 @@ In this concluding chapter, we start by describing how the solution addresses th
 
 We start by addressing the research questions detailed in Section~\vref{sec:research_questions}.
 
-\paragraph{RQ1: How do we create a merge tool for evolution plans that respect soundness?}%
-\label{par:rq1_bla_bla}
-
-\todo{As soundness is important for ensuring successful long-term evolution, we wanted the tool to guarantee soundness. We did this by .....}
-
-\paragraph{RQ2: How do we design an algorithm for merging evolution plans?}%
-\label{par:rq2}
+\paragraph{RQ1: How do we design an algorithm for merging evolution plans?}
 
 \todo{As specified in the outline for the three-way merge algorithm in Section~...., the algorithm were split up in distinct steps. The steps transformed the inputs one step at a time in order to get the results we wanted.}
 
-\paragraph{RQ3: Are the results of the merge tool predictable and interpretable?}%
-\label{par:rq3}
+\paragraph{RQ2: How do we create a merge tool for evolution plans that respect soundness?}
+
+\todo{As soundness is important for ensuring successful long-term evolution, we wanted the tool to guarantee soundness. We did this by .....}
+
+\paragraph{RQ3: Are the results of the merge tool predictable and interpretable?}
 
 \todo{An important aspect to merging is that actual engineers has to interpret and act on the results of the merge. For this reason, we wanted to create results that made sense. We created an incremental merger, merging one time point at a time, which allows the engineer to step through the resulting plan to ensure a satisfactory result. In cases of failure, we wanted to report the reason for failure, such that the engineer could find and fix the cause of the error.}
 
