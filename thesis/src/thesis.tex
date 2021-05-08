@@ -2868,14 +2868,20 @@ When we designed the merge algorithm for evolution plans, we opted for a three-w
 
 As evolution planning is a delicate matter, requiring attention to detail, we wanted the tool to guarantee a result that upholds the soundness requirements of evolution plans. We managed to guarantee soundness in a couple of ways. Firstly, we assumed that the evolution plans inputed for merging were sound. The existing tools had already methods for ensuring soundness for a single plan, and there is no point in merging multiple plans if the individual plans were unsound to begin with. This meant that we could leverage the soundness of the individual plans in the merger. Secondly, we created representations for evolution plans that allowed us to guarantee certain aspects of the merging. For instance, we could know that a certain feature were only either modified, added or removed once per time point, which we could not guarantee if we used other representations. Upon a successful merge, the representation allowed us guarantee soundness no matter what combination of changes both versions made. The representation also allowed us to not worry about what order we applied the changes per time point. This meant that we could apply every change in a time point, then later go through the result and make sure there was no violations to soundness.
 
-\paragraph{RQ3: Are the results of the merge tool predictable and interpretable?}
+\subsubsection{RQ3: Are the results of the merge tool predictable and interpretable?}
 
 An important aspect to the merge tool is that actual engineers has to interpret and act on the results of the merge. For this reason, we wanted the results of the merge to make sense from the engineers point of view. We specifically wanted the results to be predictable, which meant that the merger did not make any big decisions altering the semantics of the resulting evolution plan. Predictability also meant that way the evolution plans were merged were possible to understand and predict based on the changes in each version. This was important in order to get results that reflected the intended evolution of the SPL. Upon a conflicting result, we wanted the reported reason for conflict to be possible to interpret such that changes to the evolution plan could be made accordingly. For this reason, we opted for an merging strategy that merged one time point at a time incrementally. We felt that this approach also reflected how the engineer might have done the task if a manual approach was necessary. Upon failure, the tool provided information detailing exactly why a certain change was not possible to include. This allowed the engineer to manually inspect the evolution plans to make alterations.
 
 \section{Future Work}%
 \label{sec:future_work}
 
-\todo{future biz}
+For possibilities of future work, we purpose the following:
+
+\begin{itemize}
+  \item \textbf{Cause detection for conflicts}: \todo{write}
+  \item \textbf{Constructing a version control system}: \todo{write}
+  \item \textbf{Integration with current tools}: \todo{write}
+\end{itemize}
 
 \section{Conclusion}%
 \label{sec:conclusion}
