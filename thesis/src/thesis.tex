@@ -104,14 +104,6 @@ While the published work addresses some of the scientific aims of the LTEP proje
 \section{Research Questions}%
 \label{sec:research_questions}
 
-% \todo{research question: 3rd. is there any other approaches to. how to improve it? is there a better approach?} 
-% \todo{pretend rqs are set before solution.}
-% \todo{how do i create a merge tool that respect soundness.}
-% \todo{how or what type rqs}
-% \todo{what capabilities. how can we build this? type rqs. what degree, not jsut yes/no. invite discussion.}
-% \todo{algorithm. soundness. my results.} 
-% \todo{what algo can i use to. what data structure, what algo do i need to develop in order to be able to merge different plans taking into account ordering, challenges with algorithm. phrasing into a a discussion.}
-
 As the goal of the thesis is to provide tools aiding developers and engineers cooperate in planning the evolution of a software product line, we propose some research questions (RQ). The research questions are concrete questions that we want to answer as a result of this thesis:
 
 \paragraph{RQ1}
@@ -124,14 +116,7 @@ As the goal of the thesis is to provide tools aiding developers and engineers co
 
 \paragraph{RQ3}
 
-\textit{Are the results of the merge tool predictable and interpretable?} As we want the merge tool to be used by humans, the output of the tool needs to be possible to understand. When the merging is successful, the output needs to make sense for the user. When a conflict is produced, the user should also be able to understand the error message and have ways of dealing with the conflict.
-
-% OLD>>>
-% \begin{itemize}
-%   \item \textbf{RQ1}: In what way should we represent an evolution plan in order to do an effective merge?
-%   \item \textbf{RQ2}: How should we design the three-way merge algorithm in order to produce a sound evolution plan?
-%   \item \textbf{RQ3}: How do we create a merge tool that produces predictable, interpretable results which allows resolution?
-% \end{itemize}
+\textit{Are the results of the merge tool predictable and interpretable?} As we want the merge tool to be used by humans, the output of the tool needs to be possible to understand. When the merging is successful, the output needs to make sense for the user. When a conflict is produced, the user should also be able to understand the error message and have ways of dealing with the conflict. The results also needs to be predictable, meaning that the merger does not produce unwanted results that go unnoticed by the user.
 
 \section{Contributions}%
 \label{sec:contributions}
@@ -2886,8 +2871,11 @@ For possibilities of future work, we purpose the following:
 \section{Conclusion}%
 \label{sec:conclusion}
 
-\todo{konklusjon bør si hvordan det jeg har gjort addresserer forskningsspørsmålene forskningsspørsmålene kan være større en bidraget how to ensure sound plan and merge of sound plans future work kan være flere ting å se på for å belyse forskningsspm}
+In this thesis, we have created a merge tool for feature model evolution plans. The merge tool is a three-way merger that merges two different versions with respect to the common evolution plan they were derived from. Being a syntactic and semantic merger, the merger will consider the structure and semantics of the evolution plans being merged. By not creating a general merge tool, but rather a tool specifically made for evolution plans, we could leverage the specific semantics of evolution plans to create accurate merge results. The implementation relied on a strongly typed functional language, which allowed for stronger correctness guarantees than less strict languages would.
 
+We have also created an application facilitating further development and integration with other tools. The tool has been implemented in a Haskell application with a command-line interface. Haskell being a compiled, industry-level language allows for further integration with existing tools, leveraging the defined command-line interface. A visualization tool has also been created which allows exploration of how the merge tool operates and handles different cases, which could aid further development and integration of the merge tool.
+
+To conclude, we believe that the merge tool created can give engineers a better toolbox for dealing with parallel development of evolution plans. The merge tool can synchronize multiple versions of evolution plans while simultaneously ensuring correctness for the evolution plan semantics, which we believe current tools are not capable of.
 
 \backmatter{}
 
