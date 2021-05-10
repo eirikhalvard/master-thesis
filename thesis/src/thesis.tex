@@ -2878,9 +2878,9 @@ An important aspect to the merge tool is that actual engineers has to interpret 
 For possibilities of future work, we purpose the following:
 
 \begin{itemize}
-  \item \textbf{Cause detection for conflicts}: \todo{write}
-  \item \textbf{Constructing a version control system}: \todo{write}
-  \item \textbf{Integration with current tools}: \todo{write}
+  \item \textbf{Cause detection for conflicts}: When a change to the evolution plan would cause a violation to soundness, the merger raises a conflict. The conflict occurs because the change is not possible to implement in the merged plan. However, the \textit{cause} of the paradox is usually due to a conflicting change in the other evolution plan version. For instance, if one version tries to remove a feature, then another version tries to add a group to the feature, we will get a conflict. The conflict will tell us that the feature does not exist, so we cannot add a group to it. However, we will not be notified that we removed the feature in the other version, which caused the paradox. Implementing functionality for cause detection might help the user understand the errors and how to fix them.
+  \item \textbf{Constructing a version control system}: While the merge tool is an important piece in facilitating synchronization of contributions, it should optimally be complimented by a version control system. Such a system could keep record of different snapshots and branches of the evolution plan. This would allow for implementing systems for merging two branches, which could automatically fetch the common base evolution plan and pass it along to the three-way merger.
+  \item \textbf{Integration with current tools}: A possible version control system could also be tightly integrated in the DarwinSPL editor for a more seamless experience. Currently, the DarwinSPL tool allows for constructing and replanning of evolution plans by using a graphical user interface. The merge tool or a potential version control system could be integrated in the graphical editor as well. This opens up possibilities for a more automatic synchronization process than we would using them as a standalone tools.
 \end{itemize}
 
 \section{Conclusion}%
