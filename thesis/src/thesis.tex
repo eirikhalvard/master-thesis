@@ -71,7 +71,7 @@ In this thesis, we develop a merge tool for evolution plans. The essence of the 
 \chapter{Introduction}%
 \label{cha:introduction}
 
-A \textit{Software Product Line (SPL)} is a collection of closely-related \textit{software products}. The different software products leverage the high similarity by explicitly encoding the common and variable parts~\cite{cite:spl_practices_and_patterns, cite:spl_book}. As a software development paradigm, SPLs allows the engineers to model the \todo{softwares or software or software's ??} commonalities and variabilities to facilitate for large scale reuse.
+A \textit{Software Product Line (SPL)} is a collection of closely-related \textit{software products}. The different software products leverage the high similarity by explicitly encoding the common and variable parts~\cite{cite:spl_practices_and_patterns, cite:spl_book}. As a software development paradigm, SPLs allows the engineers to model the software's commonality and variability to facilitate large scale reuse.
 
 The most common variability model, \textit{feature models (FM)} capture the different aspects and visible characteristics of a system in terms of features~\cite{cite:software_diversity_ina}. Each feature in the feature model corresponds to a certain increment in program functionality. The particular \textit{variant} of the software product line is defined by a unique combination of features~\cite{cite:don_batory_fm_grammar_prop}. The feature model organizes the features in a tree structure to capture the variability of the SPL.
 
@@ -585,7 +585,7 @@ We present an example, seen in Figure~\ref{fig:visual_example}, to demonstrate t
 \chapter{Specification and Implementation of the Three-Way Merge}%
 \label{cha:specification_and_implementation_of_the_three_way_merge_algorithm}
 
-In this chapter, we will present the three-way merge algorithm. The algorithm are formalized in the functional language Haskell. By leveraging Haskell's type system, we will model different evolution plan representations, types of conflict and other intermediate representations essential for the algorithm. In addition to defining the types, we define the different parts and phases of the algorithm in terms of Haskell functions. We will also demonstrate the transformations by constructing a simple example that we will use in the entire chapter.
+In this chapter, we will present the three-way merge algorithm. The algorithm is formalized in the functional language Haskell. By leveraging Haskell's type system, we will model different evolution plan representations, types of conflict and other intermediate representations essential for the algorithm. In addition to defining the types, we define the different parts and phases of the algorithm in terms of Haskell functions. We will also demonstrate the transformations by constructing a simple example that we will use in the entire chapter. Lastly, we will discuss the time complexity of the algorithm.
 
 \section{A Normal Form for Evolution Plans}%
 \label{sec:defining_a_normal_form_for_evolution_plans}
@@ -2601,6 +2601,13 @@ The resulting merged evolution plan is also visualized in Figure~\ref{fig:simple
   \caption{A visualization of the merged result of our simple example}%
   \label{fig:simple_three_way_merged_result}
 \end{figure}
+
+\section{Efficiency of the Algorithm}%
+\label{sec:efficiency_of_the_algorithm}
+
+We will in this section give a rough time complexity analysis of the three-way merge algorithm. How the algorithm will perform is highly dependent on a number of factors, including the total amount of features and groups, the amount of modifications between each time point as well as the similarities between the versions. To keep it simple, we will perform a worst-case time complexity analysis with regards to the amount of time points, $t$, and the average amount of features and groups per time point, $n$
+
+\todo{write about}
 
 \chapter{Command-Line Interface and Visualization Tools}%
 \label{cha:command_line_interface_and_visualization_tools}
