@@ -1391,7 +1391,7 @@ data Version
   = V1 | V2
 \end{minted}
 
-\subsection{Representing the extended example}%
+\subsection{Representing the Extended Example}%
 \label{sub:representing_the_extended_example}
 
 Revisiting our example from Figure~\ref{fig:simple_three_way_example}, we can now represent the changes with our newly defined data types. Our merged version of the evolution plan is as follows:
@@ -2621,7 +2621,7 @@ With the first two functions only acting on single evolution plans, the next fun
 
 \paragraph{Unifying Changes}
 
-write write write
+With the \texttt{createMergePlan} function merging all three evolution plans into a single data type, \texttt{MergeEvolutionPlan}, the next step is actually merging this representation into a single evolution plan. This is done by traversing every \texttt{DiffResult} for every time point, and either raising a conflict or producing a modification. This yields a time complexity of $O(t \cdot n)$.
 
 \paragraph{Ensuring Soundness}
 
