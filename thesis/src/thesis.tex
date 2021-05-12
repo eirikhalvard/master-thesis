@@ -71,11 +71,11 @@ In this thesis, we develop a merge tool for evolution plans. The essence of the 
 \chapter{Introduction}%
 \label{cha:introduction}
 
-A \textit{Software Product Line (SPL)} is a collection of closely-related \textit{software products}. The different software products leverage the high similarity by explicitly encoding the common and variable parts~\cite{cite:spl_practices_and_patterns, cite:spl_book}. As a software development paradigm, SPLs allows the engineers to model the softwares commonalities and variabilities to facilitate for large scale reuse.
+A \textit{Software Product Line (SPL)} is a collection of closely-related \textit{software products}. The different software products leverage the high similarity by explicitly encoding the common and variable parts~\cite{cite:spl_practices_and_patterns, cite:spl_book}. As a software development paradigm, SPLs allows the engineers to model the \todo{softwares or software or software's ??} commonalities and variabilities to facilitate for large scale reuse.
 
 The most common variability model, \textit{feature models (FM)} capture the different aspects and visible characteristics of a system in terms of features~\cite{cite:software_diversity_ina}. Each feature in the feature model corresponds to a certain increment in program functionality. The particular \textit{variant} of the software product line is defined by a unique combination of features~\cite{cite:don_batory_fm_grammar_prop}. The feature model organizes the features in a tree structure to capture the variability of the SPL.
 
-For instance, we can model common and variable features of a product line of cars in a feature model. Cars usually has several similarities in software, such as some sort of infotainment system. Other features are only present in some car models, e.g. electrical battery indicator. Modeling the car SPL in a feature model would dictate what combination of features are valid. Modeling SPLs features and dependencies between them in a feature model dictates what variants of cars are allowed to assemble.
+For instance, we can model common and variable features of a product line of cars in a feature model. Cars usually have several similarities in software, such as some sort of infotainment system. Other features are only present in some car models, e.g. electrical battery indicator. Modeling the car SPL in a feature model would dictate what combination of features are valid. Modeling SPLs features and dependencies between them in a feature model dictates what variants of cars are allowed to assemble.
 
 Since SPLs undergo continuous evolution, planning for the long-term evolution of a software product line is often crucial~\cite{cite:product_line_evolution_reasoning}. While long-term planning is beneficial for success, there is little support for handling the long-term evolution~\cite{cite:evofm_fm_planning}. The evolution of the SPL is usually handled as an informal procedure relying on the intuition and experience of individual engineers. Without formal tools, long-term goals might not be addressed properly, increasing the risk of significantly increased development costs.
 
@@ -107,7 +107,7 @@ While the published work addresses some of the scientific aims of the LTEP proje
 \section{Research Questions}%
 \label{sec:research_questions}
 
-As the goal of the thesis is to provide tools aiding developers and engineers cooperate in planning the evolution of a software product line, we propose some research questions (RQ). The research questions are concrete questions that we want to answer as a result of this thesis:
+The overall goal of this thesis is to provide tools aiding developers and engineers cooperate in planning the evolution of a software product line. To achieve this goal, this thesis will address the following research questions (RQ):
 
 \paragraph{RQ1}
 
@@ -161,16 +161,16 @@ All the source code from the master thesis can be found on Github\footnote{\url{
 \chapter{Background}%
 \label{cha:background}
 
-In this section we will detail background information to better understand the contents of the thesis. This includes three sections. The first section will be about software product lines, feature models and evolution plans. This is important because it is the software artifact we are attempting to create merge tools for. Secondly, we will detail version control systems. We will discuss different types of merging tactics, including their respective drawbacks and benefits. Lastly, we will introduce the programming language and theory necessary to better understand the implementation details in this thesis.
+In this section we will detail background information to better understand the contents of the thesis. This includes three sections. The first section will be about software product lines, feature models and evolution plans. This is important because it is the software artifact we are attempting to create merge tools for. The second section will be about version control systems. We will discuss different types of merging tactics, including their respective drawbacks and benefits. Lastly, we will introduce the programming language and theory necessary to better understand the implementation details in this thesis.
 
 \section{Software Product Lines}%
 \label{sec:software_product_lines}
 
-A software product line (SPL) is a family of closely related software systems. These systems will often have several features in common, as well as variations that makes each piece of software unique. SPLs are used to make highly configurable systems, where each product in the SPL, called a \textit{variant}, is defined by the combination of features chosen.
+A software product line (SPL) is a family of closely related software systems. These systems will often have several features in common, as well as variations that make each piece of software unique. SPLs are used to make highly configurable systems, where each product in the SPL, called a \textit{variant}, is defined by the combination of features chosen.
 
 % Several large scale companies such as Hewlett-Packard and Nokia are finding remarkable quantitative improvements in product quality, customer satisfaction, and more by using a software product line approach~\cite{cite:northrop_spl_tenets}.
 
-Several such variants are often needed to be developed in parallel to address a wide range of customer requirements~\cite{cite:software_diversity_ina}. Simultaneous development of variants is often a complex task, affecting all phases of development. SPLs often emerge \textit{ad-hoc} when companies sees the need for a similar yet different product than the existing ones. In many of these cases, this is handled by cloning and modifying the software of an existing product, known as \textit{clone-and-own}~\cite{cite:clone_and_own}. The issue with clone-and-own often emerges when changes are required to the common parts of the variants. Since the different versions are separated entirely, changes need to be done in both versions. This can be problematic, especially in SPLs with a large number of variants.
+Several such variants are often needed to be developed in parallel to address a wide range of customer requirements~\cite{cite:software_diversity_ina}. Simultaneous development of variants is often a complex task, affecting all phases of development. SPLs often emerge \textit{ad-hoc} when companies see the need for a similar yet different product than the existing ones. In many of these cases, this is handled by cloning and modifying the software of an existing product, known as \textit{clone-and-own}~\cite{cite:clone_and_own}. The issue with clone-and-own often emerges when changes are required to the common parts of the variants. Since the different versions are separated entirely, changes need to be done in both versions. This can be problematic, especially in SPLs with a large number of variants.
 
 Software product line engineering is a discipline for efficiently developing such families of software systems. Instead of maintaining potentially hundreds of different software variants, these engineering methods have ways of capitalizing on the similarities and differences between each variant. Such \textit{variability realization mechanisms} are used to encode the variability in the implementation explicitly. Instead of maintaining one code base per variant, all variants are instead expressed in the same code base. There are two common ways of doing this, the \textit{compositional approach} and the \textit{annotative approach}~\cite{cite:granularity_in_spl}. The compositional approach models features in distinct components, allowing variants to be generated by \textit{composing} components together. On the other hand, the annotative approach relies on annotating the source code similar to how C-style preprocessors use \texttt{\#ifdef} and \texttt{\#endif} annotations. Depending on the software variant needed, the preprocessor use the annotations to generate the correct software variant.
 
@@ -179,7 +179,7 @@ Software product line engineering is a discipline for efficiently developing suc
 
 While tools for implementing software product lines are very important, planning and specifying the different variants of an SPL are also beneficial. Variability models plays a central role in this planning, and is also used as a communications tool. We will detail the most common variability model, \textit{feature models}, as it is an important software artifact this thesis will rely on.
 
-All possible variants of a software product line can be defined in terms of a \textit{feature model}. A feature model is a tree structure of features and groups. Features represent a concrete aspect in an SPL. Features can be mandatory or optional, and will contain zero or more groups. Each group has a set of features and the type of the group dictates which features in the group can to be selected. For example, in an \textit{and} group, all the features has to be chosen, while  \textit{alternative} groups has to select exactly one feature. Normally, feature models also contain cross-tree constraints. However, since these are not in the scope of the thesis, we will not detail it here.
+All possible variants of a software product line can be defined in terms of a \textit{feature model}. A feature model is a tree structure of features and groups. Features represent a concrete aspect in an SPL. Features can be mandatory or optional, and will contain zero or more groups. Each group has a set of features and the type of the group dictates which features in the group can to be selected. For example, in an \textit{and} group, all the mandatory features has to be chosen, while \textit{alternative} groups has to select exactly one feature. Normally, feature models also contain cross-tree constraints. However, since these are not in the scope of the thesis, we will not detail it here.
 
 % Example feature model
 \begin{figure}[htpb]
@@ -191,12 +191,12 @@ All possible variants of a software product line can be defined in terms of a \t
 
 A visual representation of a feature model can be seen in Figure~\vref{fig:example1}. The small dot above \texttt{Infotainment System} indicates that the feature is mandatory, where as the white dot above \texttt{Comfort Systems} represents an optional feature. Each feature (except the root) is in a group. The \texttt{Infotainment System} feature is in a singleton group below \texttt{Car}. The features \texttt{Android Auto} and \texttt{Apple Car Play} are in a \texttt{Alternative} group, indicated by the arch between the features. This represents that each valid variant has to choose between one of the two (but not both).
 
-Note that the visualization in Figure~\vref{fig:example1} of feature models are perhaps the most common across the research field. However, we will through the rest of this thesis use a slightly different notation for reasons we will explain in Section~\vref{sub:visual_representation}.
+Note that the visualization in Figure~\vref{fig:example1} is one of the common representations of feature models. However, we will through the rest of this thesis use a slightly different notation for reasons we will explain in Section~\vref{sub:visual_representation}.
 
 \subsection{Evolution Planning}%
 \label{sub:evolution_planning}
 
-Feature models let engineers capture all variants of the current software product line, but sometimes it can be beneficial to model future or past versions as well. Developing these kinds of systems typically involves many engineers, managers or other stakeholders. Managing when certain changes, additions or deprecations are implemented can be complex and confusing without suitable tools. Changing the SPL may also potentially influences many configurations, which might conflict with stakeholders requirements. Thus, it is paramount to thoroughly plan SPL evolution in advance, e.g., to perform analyses and to have enough time for implementing new or adapted features.
+Feature models let engineers capture all variants of the current software product line, but sometimes it can be beneficial to model future or past versions as well. Developing these kinds of systems typically involves many engineers, managers or other stakeholders. Managing when certain changes, additions or deprecations are implemented can be complex and confusing without suitable tools. Changing the SPL may also potentially influence many configurations, which might conflict with stakeholders' requirements. Thus, it is paramount to thoroughly plan SPL evolution in advance, e.g., to perform analyses and to have enough time for implementing new or adapted features.
 
 Several approaches and tools for planning the evolution of an SPL exist to this day. DeltaEcore is a tool suite relying on \textit{Hyper-Feature Models (HFMs)} and \textit{evolution delta modules} for the integrated management of variability in space and time in SPLs~\cite{cite:s02_deltaecore}. DarwinSPL is another tool suite for modeling evolving context-sensitive SPLs by extending DeltaEcore's HFMs~\cite{cite:s17_darwinspl}. EvoFM supports long-term feature-oriented planning and analysis of evolution plans~\cite{cite:evofm_fm_planning}. In addition, other tools also include Feature-Driven Versioning~\cite{cite:feature_driven_versioning}, FORCE~\cite{cite:force} and SuperMod~\cite{cite:supermod}.
 
@@ -220,7 +220,7 @@ In this thesis, we will focus our efforts on \textit{Evolution Plans (EPs)}, als
 	\label{fig:exampleplan}
 \end{figure}
 
-An example of an evolution plan can be seen in Figure~\vref{fig:exampleplan}. The initial feature model contains three features, and two time points are added. At time 1, a group and two features are added, and at time 2, another group and two features are added. The evolution plan can derive three feature models, the initial, and the two at time 1 and 2. Performing all the operations results in a feature model that is equal to the one in Figure~\vref{fig:example1}
+An example of an evolution plan can be seen in Figure~\vref{fig:exampleplan}. The initial feature model contains three features, and two time points are added. At time 1, a group and two features are added, and at time 2, another group and two features are added. The evolution plan can derive three feature models, the initial, and the two at time 1 and 2. Performing all the operations results in a feature model that is equal to the one in Figure~\vref{fig:example1}.
 
 \section{Version Control Systems}%
 \label{sec:version_control_systems}
@@ -234,7 +234,7 @@ Mens~\cite{cite:tom_mens_software_merging_survey} categorizes and describes diff
 
 When merging different versions of a piece of software, we differentiate between \textit{two-way} and \textit{three-way} merging. Two-way merging merges the two versions without taking a common ancestor into account. Three-way merging on the other hand, uses a common ancestor as a reference point, to know how the different versions were changed. The latter technique is more powerful and produces more accurate merges, because the merge will know extra information from the common ancestor.
 
-To illustrate the difference, consider the following program: \texttt{print(a); print(b); print(a + b)}, and two different versions derived from the base program, (1) \texttt{print(a); print(b); print(a+b); print("new line")}, (2) \texttt{print(b); print(a + b)}. Since a three-way merger uses the base program as a reference point, it will notice that derived version 1 added one statement, while version two deleted one. The three-way merger will then merge successfully without conflict with the following result: \texttt{print(b); print(a + b); print("new line")}. However, a two-way merger does not use the base program the different versions were derived from, and can not deduce whether \texttt{print(a)} were added in version 1 or deleted in version 2, thus raising a conflict. The same ambiguity occurs with the added statement \texttt{print("new line")}.
+To illustrate the difference, consider the following program: \texttt{print(a); print(b); print(a + b)}, and two different versions derived from the base program, (1) \texttt{print(a); print(b); print(a+b); print("new line")}, (2) \texttt{print(b); print(a + b)}. Since a three-way merger uses the base program as a reference point, it will notice that derived version 1 added one statement, while version 2 deleted one. The three-way merger will then merge successfully without conflict with the following result: \texttt{print(b); print(a + b); print("new line")}. However, a two-way merger does not use the base program the different versions were derived from, and can not deduce whether \texttt{print(a)} were added in version 1 or deleted in version 2, thus raising a conflict. The same ambiguity occurs with the added statement \texttt{print("new line")}.
 
 \subsection{Textual Merging}%
 \label{sub:textual_merging}
@@ -355,7 +355,7 @@ This definition allows us to create a \texttt{BankAccount} in the following way:
 
 Being a \textit{pure} functional language, Haskell has certain implications on what is allowed to do. This means that when a function is called, Haskell guarantees that no side effect other than what is specified by the type system takes place. If a function takes a \texttt{String} and returns an \texttt{Int}, then there are no mutation of variables, no printing, no fetching of remote data. This does not mean that side effects are not possible, it just has to be expressed explicitly through the type system. If a function returns an \texttt{Int} but would like to print something in addition, the return type would be \texttt{IO Int}. If a function could potentially fail, a \texttt{Maybe Int} or \texttt{Either ErrorType Int} could be the return type.
 
-The purity of the language requires us to be very explicit and precise in our function definitions. This could potentially cause a lot of boilerplate which impure languages would circumvent. However, as we will see, Haskell uses \textit{monads} and other \textit{type classes} to let us write avoid much of the boilerplate necessary to do these tasks. We will detail a common task for monads, which is error handling. One way of doing error-handling, is using the \texttt{Maybe} data type, which is defined in the following way.
+The purity of the language requires us to be very explicit and precise in our function definitions. This could potentially cause a lot of boilerplate which impure languages would circumvent. However, as we will see, Haskell uses \textit{monads} and other \textit{type classes} to let us avoid much of the boilerplate necessary to do these tasks. We will detail a common task for monads, which is error handling. One way of doing error-handling, is using the \texttt{Maybe} data type, which is defined in the following way.
 
 \begin{minted}[breaklines]{haskell}
 data Maybe a = Nothing | Just a
@@ -373,7 +373,7 @@ safeDiv a b =
 
 Dividing 10 by 2 can be done using \texttt{safeDiv 10 2}, which will yield \texttt{Just 5}. However, if we divide by zero using \texttt{safeDiv 10 0}, we will get \texttt{Nothing}. Our function is now safe, but it comes with  the drawback of having to explicitly dealing with errors. Often times, we want the errors to be propagated automatically, much like how standard exceptions work. Luckily, the \texttt{Maybe} data type implements a lot of type classes, such as \texttt{Monad}, \texttt{Applicative} and \texttt{Functor}. This allows us to avoid a lot of boilerplate that comes with composing programs that use \texttt{Maybe} as error handling.
 
-Haskell also comes with built in syntactic abstractions like \texttt{do}-notation that helps us work with data types implementing the \texttt{Monad} class. In the case for \texttt{Maybe}, the monad implementation will make sure that errors are propagated immediately. To exemplify this, we will use do-notation to automatically compose several calls to the \texttt{safeDiv} function. The do-notation will then handle unwrapping the \texttt{safeDiv} results and sparing us of boilerplate.
+Haskell also comes with built-in syntactic abstractions like \texttt{do}-notation that helps us work with data types implementing the \texttt{Monad} class. In the case for \texttt{Maybe}, the monad implementation will make sure that errors are propagated immediately. To exemplify this, we will use do-notation to automatically compose several calls to the \texttt{safeDiv} function. The do-notation will then handle unwrapping the \texttt{safeDiv} results and sparing us of boilerplate.
 
 \begin{minted}[breaklines]{haskell}
 doSomeDividing :: Maybe Int
@@ -406,9 +406,9 @@ In this chapter, we want to define the general characteristics of our tool for m
 \section{Problem Definition}%
 \label{sec:problem_defintion}
 
-Evolution planning is a long term endeavour, often requiring planning years a head when dealing with large scale SPLs. Software product lines are subject to frequent changes, which requires replanning the evolution plan. An evolution plan consists of several feature models coupled with a time point, and making changes to intermediate feature models will affect the subsequent feature models. This is prone to errors, which yields the need for tools for ensuring that a plan is correct after applying changes to an evolution plan.
+Evolution planning is a long term endeavour, often requiring planning years ahead when dealing with large scale SPLs. Software product lines are subject to frequent changes, which requires replanning the evolution plan. An evolution plan consists of several feature models coupled with a time point, and making changes to intermediate feature models will affect the subsequent feature models. This is prone to errors, which yields the need for tools for ensuring that a plan is correct after applying changes to an evolution plan.
 
-Evolution planning are a created to aid the development of long term software product lines. Development of these evolution plans often requires multiple engineers, often working in multiple teams. For this reason, we develop tools specifically for synchronizing the replanning efforts of multiple engineers. However, even though the individual evolution plans are conforming to the formal semantics of evolution plans, harmonizing their contributions might yield results that are not sound. These issues might simply be diverging changes to the same thing, or more complicated violations of the semantics.
+Evolution planning is created to aid the development of long term software product lines. Development of these evolution plans often requires multiple engineers, often working in multiple teams. For this reason, we develop tools specifically for synchronizing the replanning efforts of multiple engineers. However, even though the individual evolution plans are conforming to the formal semantics of evolution plans, harmonizing their contributions might yield results that are not sound. These issues might simply be diverging changes to the same thing, or more complicated violations of the semantics.
 
 The core contribution of this thesis is a three-way merge algorithm. The algorithm will take three evolution plans as input, then output either an error or the resulting merged evolution plan. The three evolution plans consist of a base evolution plan, as well as two derived evolution plans, version 1 and version 2. The algorithm will merge version 1 and version 2, using the base version to create better results. The merged results are merged in such a way that the result is guaranteed to follow the structure and semantics of evolution plans.
 
@@ -420,7 +420,7 @@ Even though we are just trying to synchronize the efforts of two collaborators a
 \paragraph{Syntactic, Semantic Merger}%
 \label{par:semantic_merger}
 
-In contrast to the most common merging techniques, we will not opt for a textual merging technique. These techniques are often very general, and does not consider the merge artifact at hand. Since we know the structure and semantics of the merge artifact, we will design the merge algorithm as a \textit{syntactic}, \textit{semantic} merger. This simply means that the merger will take the structure and semantics of evolution plans into account when merging. The benefits of this approach is discussed in greater detail in Section~\vref{sub:syntactic_merging} and \vref{sub:semantic_merging}
+In contrast to the most common merging techniques, we will not opt for a textual merging technique. These techniques are often very general, and does not consider the merge artifact at hand. Since we know the structure and semantics of the merge artifact, we will design the merge algorithm as a \textit{syntactic}, \textit{semantic} merger. This simply means that the merger will take the structure and semantics of evolution plans into account when merging. The benefits of this approach is discussed in greater detail in Section~\vref{sub:syntactic_merging} and \vref{sub:semantic_merging}.
 
 \paragraph{Soundness Assumption}%
 \label{par:soundness_assumption}
@@ -445,7 +445,7 @@ As the merger is designed with the DarwinSPL application in mind, the merge tool
 
 A potential version control system can be tightly integrated with the editor as a wrapper layer between the editor and the three-way merge backend. Creating such a system can let users commit and push changes of the evolution plan. When multiple contributors are to harmonize their diverging versions, the diverging versions as well as the base plan they were derived from could be retrieved from the version control system and fed to the three-way merger. If the merge were successful, the engineer could check the output, and make small changes if necessary. If the merge resulted in a conflict, the conflict would be reported to the user, so that changes could be made in order to achieve a sound result.
 
-Our three-way merge backend is implemented in Haskell, which is different from the DarwinSPL tool which is implemented in the Java language. For this reason, one could not simply plug the pure three-way merge algorithm directly. To tackle this problem, we have defined a command-line interface facilitating the integration of the tools. The command-line interface includes serialization and deserialization of the input and output data structures, as well as several options and modes to control the way the merger behaves. This command-line interface is defined and discussed in more detail in Section~\vref{sec:command_line_interface}
+Our three-way merge backend is implemented in Haskell, which is different from the DarwinSPL tool which is implemented in the Java language. For this reason, one could not simply plug the pure three-way merge algorithm directly. To tackle this problem, we have defined a command-line interface facilitating the integration of the tools. The command-line interface includes serialization and deserialization of the input and output data structures, as well as several options and modes to control the way the merger behaves. This command-line interface is defined and discussed in more detail in Section~\vref{sec:command_line_interface}.
 
 \section{Algorithm Overview}%
 \label{sec:algorithm_overview}
@@ -467,7 +467,7 @@ In order to merge the different versions of the evolution plan, the algorithm is
 \paragraph{Converting Individual Plans}%
 \label{par:converting_individual_plans}
 
-The first phase is transforming the three different evolution plans into representations that is more suitable for merging. This includes converting both the way feature models are represented as well as the way the entire evolution plan is represented. This phase includes the \texttt{flatten\-Evolution\-Plan} and \texttt{derive\-Modifications}, which is described in further detail in Section~\vref{sec:converting_to_a_suitable_representation}
+The first phase is transforming the three different evolution plans into representations that is more suitable for merging. This includes converting both the way feature models are represented as well as the way the entire evolution plan is represented. This phase includes the \texttt{flatten\-Evolution\-Plan} and \texttt{derive\-Modifications}, which is described in further detail in Section~\vref{sec:converting_to_a_suitable_representation}.
 
 \paragraph{Detecting Changes}%
 \label{par:detecting_changes}
@@ -492,27 +492,27 @@ During the different phases of the merge algorithm, different kind of conflicts 
 \paragraph{Merge Conflicts}%
 \label{par:merge_conflicts}
 
-Occur because of conflicting operations on a single feature or group. This could happen if one version tries to remove a feature, while the other tries to change the type of a feature. This could also happen if there originally existed a modification in the \textit{base} version, and one of the derived versions try to change the modification, while the other tries to remove the modification.
+occur because of conflicting operations on a single feature or group. This could happen if one version tries to remove a feature, while the other tries to change the type of a feature. This could also happen if there originally existed a modification in the \textit{base} version, and one of the derived versions try to change the modification, while the other tries to remove the modification.
 
 \paragraph{Local Conflicts}%
 \label{par:local_conflicts}
 
-Occurs when a modification is not possible to apply because of the existence or non-existence of a feature or group. For example, if we try to add a feature with an id that already exist, or try to change the type of a group that does not exist.
+occur when a modification is not possible to apply because of the existence or non-existence of a feature or group. For example, if we try to add a feature with an id that already exist, or try to change the type of a group that does not exist.
 
 \paragraph{Global Conflicts}%
 \label{par:global_conflicts}
 
-This is the last kind of error that could occur. When all the modifications has been integrated into the evolution plan, each feature model is checked for certain structural or semantical errors. At this point, each change \textit{local} to a feature or group is valid, so we check for potential errors that occur because of dependencies between the features and groups, \textit{global} to the entire feature model. The structural errors is typically modifications that lead to anomalies in the tree structure. These violations of the structure could happen if you add features to parents that don't exist, remove groups that has children, or move features in such a way that cycles are formed. Other violations to the semantics are also checked. This could for example be violations of well-formedness, that could happen if we change the type of a feature to something incompatible with its group.
+This is the last kind of error that could occur. When all the modifications have been integrated into the evolution plan, each feature model is checked for certain structural or semantical errors. At this point, each change \textit{local} to a feature or group is valid, so we check for potential errors that occur because of dependencies between the features and groups, \textit{global} to the entire feature model. The structural errors is typically modifications that lead to anomalies in the tree structure. These violations of the structure could happen if you add features to parents that don't exist, remove groups that have children, or move features in such a way that cycles are formed. Other violations to the semantics are also checked. This could for example be violations of well-formedness, that could happen if we change the type of a feature to something incompatible with its group type.
 
 \subsection{Evolution Plan Representations}%
 \label{sub:evolution_plan_representations}
 
-As seen in the merge algorihm outline in Figure~\ref{fig:merge_outline}, each step of the algorithm produces a certain representation for the evolution plans. This can be seen with the blue boxes between the phases, were we have the three representations \texttt{Tree\-User\-Evolution\-Plan}, \texttt{Flat\-User\-Evolution\-Plan} and \texttt{Flat\-Modification\-Evolution\-Plan}. We will go into further detail about the different representations and their purpose later, but we give a small overview below.
+As seen in the merge algorihm outline in Figure~\ref{fig:merge_outline}, each step of the algorithm produces a certain representation for the evolution plans. This can be seen with the blue boxes between the phases, where we have the three representations \texttt{Tree\-User\-Evolution\-Plan}, \texttt{Flat\-User\-Evolution\-Plan} and \texttt{Flat\-Modification\-Evolution\-Plan}. We will go into further detail about the different representations and their purpose later, but we give a brief overview below.
 
 \paragraph{TreeUserEvolutionPlan}%
 \label{par:treeuserevolutionplan}
 
-This is the representation that is closest to what the actual user would see and interact with. For this reason, we will use this as the main input type of the algorithm. In this representation, the evolution plan is modeled as an ordered list of feature models, where each feature model is modeled as a recursive tree+structure. However, this representation of evolution plans are not well suited for detecting changes between versions as well as merging and unifying several plans.
+This is the representation that is closest to what the actual user would see and interact with. For this reason, we will use this as the main input type of the algorithm. In this representation, the evolution plan is modeled as an ordered list of feature models, where each feature model is modeled as a recursive tree-structure. However, this representation of evolution plans are not well suited for detecting changes between versions as well as merging and unifying several plans.
 
 \paragraph{FlatUserEvolutionPlan}%
 \label{par:flatuserevolutionplan}
@@ -527,7 +527,7 @@ This is the final, merge-ready representation for evolution plans. In this repre
 \section{Formal Definition of Evolution Plans}%
 \label{sec:formal_definition_of_evolution_plans}
 
-As stated in \textbf{RQ1} in Section~\vref{sec:research_questions}, we want design the merger in a way that guarantees a sound merge result. In order to do so, we need to have a clear, formal definition of the software artifact at hand, namely evolution plans.
+As stated in \textbf{RQ2} in Section~\vref{sec:research_questions}, we want to design the merger in a way that guarantees a sound merge result. In order to do so, we need to have a clear, formal definition of the software artifact at hand, namely evolution plans.
 
 The work we did in~\cite{cite:consistency_preserving_evolution_planning} defined the theoretical foundation of a sound, well-formed evolution plan, which we used to create a framework for ensuring soundness. In our merge tool, we are merging evolution plans which are assumed to be \textit{sound}. This means we can leverage the properties of sound evolution plans defined in the paper. Since we also want to create a sound evolution plan, we will present the details necessary in order to understand the formal semantics of evolution plans.
 
@@ -543,15 +543,15 @@ In addition to the structure of a feature model, we also have a list of addition
 
 \begin{enumerate}[\textit{\textbf{WF\arabic*}}, itemsep=0mm]
   \item A feature model has exactly one root feature.
-  \item The root feature must be mandatory.
+  \item The root feature must be \textit{mandatory}.
   \item Each feature has exactly one unique name, variation type and (potentially empty) collection of subgroups.
   \item Features are organized in groups that have exactly one variation type.
   \item Each feature, except for the root feature, must be part of exactly one group.
   \item Each group must have exactly one parent feature.
-  \item Groups with types alternative or or must not contain mandatory features.
+  \item Groups with types \textit{alternative} or \textit{or} must not contain \textit{mandatory} features.
 \end{enumerate}
 
-Note that in the paper~\cite{cite:consistency_preserving_evolution_planning}, there was an additonal well-formedness requirement stating that groups of type alternative or or must contain at least two child features. However, this requirement is not considered in this thesis.
+Note that in the paper~\cite{cite:consistency_preserving_evolution_planning}, there was an additonal well-formedness requirement stating that groups of type \textit{alternative} or \textit{or} must contain at least two child features. However, this requirement is not considered in this thesis.
 
 \subsection{Evolution Plans}%
 \label{sub:evolution_plans}
@@ -562,7 +562,7 @@ Evolution planning often requires revisiting intermediate feature models, not ju
 
 In order to facilitate for replanning, we defined the semantics for what is considered a valid change on a feature model. A change was captured formally as an \textit{operation}, which described how the feature model would be changed, and under what conditions. The operations include addition and deletion of features and groups, as well as modifications to their fields, such as names or types.
 
-In the work in this thesis, I will build upon the semantics of the operations defined in~\cite{cite:consistency_preserving_evolution_planning}. However, we cannot use the operations directly, since due to several issues we will detail in Section~\vref{sub:avoiding_the_pitfalls_of_an_operation_based_representation}. Instead, we develop new representations which is better suited for merging evolution plans.
+In the work of this thesis, I will build upon the semantics of the operations defined in~\cite{cite:consistency_preserving_evolution_planning}. However, we cannot use the operations directly, since due to several issues we will detail in Section~\vref{sub:avoiding_the_pitfalls_of_an_operation_based_representation}. Instead, we develop new representations which is better suited for merging evolution plans.
 
 \subsection{Visual Representation}%
 \label{sub:visual_representation}
@@ -635,7 +635,7 @@ type GroupId = String
 
 There is a few important things to note in this representation. Each feature and groups id is unique across the entire feature model, which we will leverage when merging. Each feature and group can have an arbitrary number of children. The children is organized in a \texttt{Set}, not a \texttt{List}, noting that the ordering is irrelevant. In order for the feature model to be sound, some combination of parent group type and child feature types are prohibited. If a group is of type \texttt{Alternative} or \texttt{Or}, every child feature has to be of type \texttt{Optional}.
 
-Now that we have a suitable definition feature models, we define evolution plans. In this representation, we want the evolution plans to mirror what the user is presented with, so we define the evolution plan as a list of feature models. In later stages of the merge algorithm, we will reuse the polymorphic \texttt{User\-Evolution\-Plan} definition of evolution plans, only with a different definition of feature models. This allows us to leverage Haskell's polymorphic type system, which spares us from defining it twice.
+Now that we have a suitable definition feature models, we define evolution plans. In this representation, we want the evolution plans to mirror what the user is presented with, so we define the evolution plan as a list of feature models. In later stages of the merge algorithm, we will reuse the polymorphic \texttt{User\-Evolution\-Plan} definition of evolution plans, only with a different definition of feature models. This allows us to leverage Haskell's polymorphic type system, which spares us from redefining it.
 
 \begin{minted}{haskell}
 data UserEvolutionPlan featureModel = UserEvolutionPlan
@@ -650,7 +650,7 @@ data TimePoint featureModel = TimePoint
   }
 \end{minted}
 
-Now that a generalized representation for evolution plans are defined, using a representation with a list of feature models, we can instantiate the polymorphic evolution plan to create our normal form, \texttt{Tree\-User\-Evolution\-Plan}. This is relatively straight forward, the only thing we have to do is replace the \texttt{featureModel} argument with our concrete feature model, namely \texttt{Tree\-Feature\-Model}.
+Now that a generalized representation for evolution plans are defined, using a representation with a list of feature models, we can instantiate the polymorphic evolution plan to create our normal form, \texttt{Tree\-User\-Evolution\-Plan}. This is relatively straight forward, the only thing we have to do is to replace the \texttt{featureModel} argument with our concrete feature model, namely \texttt{Tree\-Feature\-Model}.
 
 \begin{minted}{haskell}
 type TreeUserEvolutionPlan = UserEvolutionPlan TreeFeatureModel
@@ -659,7 +659,7 @@ type TreeUserEvolutionPlan = UserEvolutionPlan TreeFeatureModel
 \subsection{Constructing a Simple Evolution Plan Example}%
 \label{sub:constructing_a_simple_evolution_plan_example}
 
-Now that we have defined the normal form for evolution plans formally, we will give a concrete example and how it is represented in this formalization. This example will act as a running example through the rest of the chapter. In Section~\vref{sec:converting_to_a_suitable_representation}, we will show how this example are transformed in the various evolution plan representations. In Section~\vref{sec:detecting_the_changes_between_versions}, we extend this example to not just involve a single evolution plan, but three evolution plans. The example presented here will then act as the base evolution plan, while we construct two derived versions to showcase the merge process. The expanded example will continue through the rest of the sections in this chapter.
+Now that we have defined the normal form for evolution plans formally, we will give a concrete example and how it is represented in this formalization. This example will act as a running example through the rest of the chapter. In Section~\vref{sec:converting_to_a_suitable_representation}, we will show how this example is transformed in the various evolution plan representations. In Section~\vref{sec:detecting_the_changes_between_versions}, we extend this example to not just involve a single evolution plan, but three evolution plans. The example presented here will then act as the base evolution plan, while we construct two derived versions to showcase the merge process. The expanded example will continue through the rest of the sections in this chapter.
 
 The simple example we will showcase is a small example containing three time points. The initial feature model at time 0 is simply just the root feature. The next time point at time 1 adds a new group and two features belonging to this group. The last time point removes one of the features and alters the name of the root and type of the group. A visualization of this simple evolution plan can be seen in Figure~\vref{fig:simpleep_treeuser}. Below is the Haskell code necessary for encoding this example.
 
@@ -739,10 +739,10 @@ Evolution planning is not just done one time, but a continuous process that requ
 
 We will transform the evolution plan to the merge-ready representation, \texttt{Flat\-Modification\-Evolution\-Plan}, in two steps. We will begin by briefly explaining the two steps in the paragraphs below, then in Section~\vref{sub:a_flatter_feature_model_structure} and Section~\vref{sub:a_merge_ready_evolution_plan_representation} go into more detail on formal definitions, algorithms and examples.
 
-\paragraph{A Flatter Structure For Feature Models}%
+\paragraph{A Flattened Structure For Feature Models}%
 \label{par:a_flatter_structure_for_feature_models}
 
-To capture the explicit modifications between each time point in the evolution plan, we would need to figure out an approach to calculating the difference between two subsequent feature models. However, with our current tree-based feature model, \texttt{Tree\-Feature\-Model}, this can be a bit cumbersome, requiring us to traverse the two trees simultaneously. In some cases this is not very straight forward, i.e. handling \texttt{Move}-operations that relocates entire subtrees. We will combat this by using a flat mapping structure for feature models, relying on node ids for indexing. With this structure, calculating the differences between feature models becomes significantly easier. 
+To capture the explicit modifications between each time point in the evolution plan, we would need to figure out an approach to calculating the differences between two subsequent feature models. However, with our current tree-based feature model, \texttt{Tree\-Feature\-Model}, this can be a bit cumbersome, requiring us to traverse the two trees simultaneously. In some cases this is not very straight forward, i.e. handling \texttt{Move}-operations that relocates entire subtrees. We will combat this by using a flat mapping structure for feature models, relying on node ids for indexing. With this structure, calculating the differences between feature models becomes significantly easier. 
 
 \paragraph{Explicit Changes Between Subsequent Feature Models}%
 \label{par:explicit_changes_between_subsequent_feature_models}
@@ -753,12 +753,12 @@ With a representation more suitable for calculating differences between feature 
 
 % The input of the three-way merge algorithm is three evolution plans in our evolution plan normal form, \texttt{TreeUserEvolutionPlan}. Each of the three evolution plans will be transformed into our merge-ready representation of evolution plan in two steps. First we will use \texttt{flattenEvolutionPlan} in order to flatten the evolution plan and represent it as our intermediate representation \texttt{FlatUserEvolutionPlan}. After this transformation, the evolution plans will be transformed into the merge-ready representation, \texttt{FlatModificationEvolutionPlan}.
 
-\subsection{A Flatter Feature Model Structure}%
+\subsection{A Flattened Feature Model Structure}%
 \label{sub:a_flatter_feature_model_structure}
 
 We define a new representation for feature models, \texttt{FlatFeatureModel}, in order to have a structure better suited for detecting and applying changes to the tree-structure. This is achievable due to our features and groups having unique ids. This allows for a simple mapping-structure, where we each feature and group can be looked up by its id. The edges and relations in the tree are modeled as node-id references instead of a recursive structure.
 
-The new definition of feature models has advantages will make deriving and integrating modifications between two subsequent feature models easier. Since we have a flat structure, deriving or integrating modifications on a feature or group saves us from traversing the tree structure. The flat structure leverages the unique ids in order to allow lookup based on id. Changing a feature or group requires a lookup based on the id, then changing the fields of the mapping entry. Removing or adding a node is similarly simple, requiring only adding or removing an entry in the mapping. Since the edges in the tree are modeled as references to the parent id, we don't need to modify the parent node when removing a node. This makes moving entire subtrees straight forward, requiring changing only the parent-field of the node to move.
+The new definition of feature models makes deriving and integrating modifications between two subsequent feature models easier. Since we have a flat structure, deriving or integrating modifications on a feature or group saves us from traversing the tree structure. The flat structure leverages the unique ids in order to allow lookup based on id. Changing a feature or group requires a lookup based on the id, then changing the fields of the mapping entry. Removing or adding a node is similarly simple, requiring only adding or removing an entry in the mapping. Since the edges in the tree are modeled as references to the parent id, we don't need to modify the parent node when removing a node. This makes moving entire subtrees straight forward, requiring changing only the parent-field of the node being moved.
 
 \subsubsection{Formalizing the Flat Structure}%
 \label{ssub:formalizing_the_flat_structure}
@@ -853,7 +853,7 @@ Each feature model in the evolution plan consists of a reference to the root fea
 \subsubsection{Transformation from the Normal Form}%
 \label{ssub:transformation_from_the_normal_form}
 
-The first step in the merge algorithm is using \texttt{flatten\-Evolution\-Plan} to transform the tree-based evolution plan into the flattened structure. Note that in the code we call this \texttt{flatten\-Sound\-Evolution\-Plan}, since we assume that the three plans in the algorithm is sound. In order to do this transformation, we would need to go through every feature model in the plan and transform it using \texttt{flatten\-Sound\-Feature\-Model}
+The first step in the merge algorithm are using \texttt{flatten\-Evolution\-Plan} to transform the tree-based evolution plan into the flattened structure. Note that in the code we call this \texttt{flatten\-Sound\-Evolution\-Plan}, since we assume that the three plans in the algorithm is sound. In order to do this transformation, we would need to go through every feature model in the plan and transform it using \texttt{flatten\-Sound\-Feature\-Model}
 
 \begin{minted}[breaklines]{haskell}
 flattenSoundEvolutionPlan :: 
@@ -906,7 +906,6 @@ In some cases, swapping the order of the operations in a time point has no effec
 
 \begin{table}[htpb]
   \centering
-  \label{tab:non_dependent}
   \begin{tabular}{llll} 
     \hline Initial Model & Operations & Original Order & Swapped Order \\
     \hline \parbox[c]{1em}{\includegraphics[width=1.5cm]{operations_pitfalls/initial.pdf}}
@@ -916,6 +915,7 @@ In some cases, swapping the order of the operations in a time point has no effec
     \hline
   \end{tabular}
   \caption{Non-Dependent Operations Example} 
+  \label{tab:non_dependent}
 \end{table}
 
 This meant that there are several ways to achieve the same evolution plan, which is a problem for our purpose. When users are merging what they perceive as the same evolution plan, we don't want to raise a conflict due to differences in the internal representation of evolution plans.
@@ -925,11 +925,10 @@ To counter these issues, one might naïvely find an standardized ordering of ope
 \subsubsection{Dependent Operations}%
 \label{ssub:dependent_operations}
 
-In the previous example, switching the ordering of operations had no effect. In this example, we will demonstrate an example were swapping the order has an effect. To showcase the problem, we start with the same feature model used previously, with two features and a group: $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{F1}$. In the next planned time point, the changes to the feature model include the removal of both group \texttt{G1} and feature \texttt{F1}. However, there is only one legal ordering, namely removing the feature first, then removing the group. Applying the operation in this order yields a sound feature model; $\texttt{Root}$. Trying to remove the group first will as we defined sound evolution plans yield an inconsistency, because we are trying to remove a non-empty group. This example is also visualized in Table~\ref{tab:dependent}.
+In the previous example, switching the ordering of operations had no effect. In this example, we will demonstrate an example where swapping the order has an effect. To showcase the problem, we start with the same feature model used previously, with two features and a group: $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{F1}$. In the next planned time point, the changes to the feature model include the removal of both group \texttt{G1} and feature \texttt{F1}. However, there is only one legal ordering, namely removing the feature first, then removing the group. Applying the operation in this order yields a sound feature model; $\texttt{Root}$. Trying to remove the group first will as we defined sound evolution plans yield an inconsistency, because we are trying to remove a non-empty group. This example is also visualized in Table~\ref{tab:dependent}.
 
 \begin{table}[htpb]
   \centering
-  \label{tab:dependent}
   \begin{tabular}{llll} 
     \hline Initial Model & Operations & Original Order & Swapped Order \\
     \hline \parbox[c]{1em}{\includegraphics[width=1.5cm]{operations_pitfalls/initial.pdf}}
@@ -939,6 +938,7 @@ In the previous example, switching the ordering of operations had no effect. In 
     \hline
   \end{tabular}
   \caption{Dependent Operations Example} 
+  \label{tab:dependent}
 \end{table}
 
 \subsubsection{Operations Shadowing}%
@@ -946,11 +946,10 @@ In the previous example, switching the ordering of operations had no effect. In 
 
 Another issue with the list-based approach is \textit{operation shadowing}, which is the phenomenon where an operation is rendered useless because of another operation later in the list. This issue would also have to be considered, because rearranging the operation could lead to unwanted results. In addition to rearrangement resulting in unsound plans, moving a shadowed operation might result in a different, yet sound evolution plan.
 
-We exemplify operation shadowing by considering the same initial feature model as before: $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{F1}$. The list of operations for the next point in time include first changing the name of \texttt{F1} to \texttt{Feat 1}, then later to \texttt{Feature 1}. The operation shadowing occurs because of the second renaming makes the first renaming completely useless. The resulting feature model, $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{Feature 1}$, are identical to the one we would have if we excluded the shadowed operation. However, if we were to swap the ordering of the rename operations, the resulting feature model would still be sound, but differ from the original ordering: $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{Feat 1}$.
+We exemplify operation shadowing by considering the same initial feature model as before: $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{F1}$. The list of operations for the next point in time include first changing the name of \texttt{F1} to \texttt{Feat 1}, then later to \texttt{Feature 1}. The operation shadowing occurs because of the second renaming makes the first renaming completely useless. The resulting feature model, $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{Feature 1}$, are identical to the one we would have if we excluded the shadowed operation. However, if we were to swap the ordering of the rename operations, the resulting feature model would still be sound, but differ from the original ordering: $\texttt{Root} \rightarrow \texttt{G1} \rightarrow \texttt{Feat 1}$. This example is also visualized in Table~\ref{tab:shadowed}.
 
 \begin{table}[htpb]
   \centering
-  \label{tab:shadowed}
   \begin{tabular}{llll} 
     \hline Initial Model & Operations & Original Order & Swapped Order \\
     \hline \parbox[c]{1em}{\includegraphics[width=1.5cm]{operations_pitfalls/initial.pdf}}
@@ -960,6 +959,7 @@ We exemplify operation shadowing by considering the same initial feature model a
     \hline
   \end{tabular}
   \caption{Shadowed Operations Example} 
+  \label{tab:shadowed}
 \end{table}
 
 \subsection{A Merge-Ready Evolution Plan Representation}%
@@ -967,7 +967,7 @@ We exemplify operation shadowing by considering the same initial feature model a
 
 As discussed in Section~\ref{sub:avoiding_the_pitfalls_of_an_operation_based_representation}, the list-based operation approach is problematic in order to achieve a desired merge result. We present the merge-ready representation for evolution plans. Similar to the operation-based representation, it will define a data type for deriving the next feature model from the previous. However, it will avoid the issues caused by an ordered list of operations.
 
-We present the merge-ready evolution plan representation, \texttt{Flat\-Modification\-Evolution\-Plan}, modeling the evolution plan as an initial model along with an ordered list of time points associated with \textit{modifications}. The modifications model the changes necessary to go from the previous feature model to the one in the specified time point. The modifications consists of two mappings, one for features and one for groups. Each mappings map ids to a \textit{modification}. By creating a indexed mapping structure, we limit a feature or group to have maximum one modification at a time point. This could be either an addition, removal or a change to one or more fields. 
+We present the merge-ready evolution plan representation, \texttt{Flat\-Modification\-Evolution\-Plan}, modeling the evolution plan as an initial model along with an ordered list of time points associated with \textit{modifications}. The modifications model the changes necessary to go from the previous feature model to the one in the specified time point. The modifications consist of two mappings, one for features and one for groups. Each mappings map ids to a \textit{modification}. By creating an indexed mapping structure, we limit a feature or group to have maximum one modification at a time point. This could be either an addition, removal or a change to one or more fields. 
 
 The mapping structure also implies that there are no ordering to the feature and group modifications. Having no specific ordering to the modifications were challenging with the tree-structured feature models. However, all these issues dissolved when we converted to the flat feature model structure, \texttt{Flat\-User\-Evolution\-Plan}. If we were to add a child before its parent, the tree-structure made this impossible. This, however, was made possible with the flexible flat structured feature models.
 
@@ -1017,11 +1017,11 @@ data FeatureModification
 data FeatureParentModification
   = FeatureParentModification GroupId
 
-data FeatureNameModification
-  = FeatureNameModification String
-
 data FeatureTypeModification
   = FeatureTypeModification FeatureType
+
+data FeatureNameModification
+  = FeatureNameModification String
 
 data GroupModification
   = GroupAdd FeatureId GroupType
@@ -1294,7 +1294,7 @@ result = [("g1", GroupModification Nothing
 \section{Detecting the Changes Between Versions}%
 \label{sec:detecting_the_changes_between_versions}
 
-Up until this point, we have only considered transformations on single evolution plans. We have created a method of transforming a evolution plan into a merge-ready evolution plan using our two functions \texttt{flatten\-Evolution\-Plan} and \texttt{derive\-Modifications}. However, since we want to merge two evolution plans into a single evolution plan, we have to figure out an approach to detecting, comparing and merging the changes into a single unified evolution plan.
+Up until this point, we have only considered transformations on single evolution plans. We have created a method of transforming an evolution plan into a merge-ready evolution plan using our two functions \texttt{flatten\-Evolution\-Plan} and \texttt{derive\-Modifications}. However, since we want to merge two evolution plans into a single evolution plan, we have to figure out an approach to detecting, comparing and merging the changes into a single unified evolution plan.
 
 The process of merging two different versions of an evolution plan involves figuring out what changes each version has made. In order to do so, we will utilize the common evolution plan both version were derived from, in order to confidently tell what changes has been made to each plan. As seen in our outline for the three-way merge algorithm in Figure~\vref{fig:merge_outline}, we will transform all three evolution plans into the \texttt{Flat\-Modification\-Evolution\-Plan} representation, then attempt to merge version 1 and 2 with respect to the base evolution plan.
 
@@ -1320,13 +1320,13 @@ The three evolution plans is visualized in Figure~\ref{fig:simple_three_way_exam
 \subsection{Representing Changes Between Versions}%
 \label{sub:representing_changes_between_versions}
 
-Before attempting to merge the different versions, we want to detect what \textit{changes} has been made in both derived versions. We present data types for representing such changes.
+Before attempting to merge the different versions, we want to detect what \textit{changes} have been made in both derived versions. We present data types for representing such changes.
 
-An important aspect to notice is the difference between \textit{modifications} and \textit{changes}. With modifications, we are talking about the changes between two feature models. The modifications are a part of the evolution plan, and has nothing to do with detecting changes between different versions. However, changes represent the actual changes that has been done to the base evolution plan in one of the derived versions.
+An important aspect to notice is the difference between \textit{modifications} and \textit{changes}. With modifications, we are talking about the changes between two feature models. The modifications are a part of the evolution plan, and has nothing to do with detecting changes between different versions. However, changes represent the actual changes that have been done to the base evolution plan in one of the derived versions.
 
-With our changes, we are not adding, removing or changing features and groups, but rather adding, removing or changing the modifications themselves. The changes are working on a meta-level, allowing us to represent changes to the modifications. This distinction is a subtle, yet important factor. If one of the derived versions are removing a feature in a time point, this is actually represented as an addition. This is because the feature removal is represented as a new modification in the evolution plan, and we represent this by saying we "add" a new modification, which is the feature removal.
+With our changes, we are not adding, removing or changing features and groups, but rather adding, removing or changing the modifications themselves. The changes are working on a meta-level, allowing us to represent changes to the modifications. This distinction is a subtle, yet important factor. If one of the derived versions is removing a feature at a time point, this is actually represented as an addition. This is because the feature removal is represented as a new modification in the evolution plan, and we represent this by saying we "add" a new modification, which is the feature removal.
 
-We present an evolution plan representing the merging of all three evolution plans. This representation follow a similar structure to our \texttt{Flat\-Modification\-Evolution\-Plan}, which is why we reuse the data type \texttt{Transformation\-Evolution\-Plan} defined in Section~\vref{ssub:formalizing_modification_based_evolution_plans}
+We present an evolution plan representing the merging of all three evolution plans. This representation follow a similar structure to our \texttt{Flat\-Modification\-Evolution\-Plan}, which is why we reuse the data type \texttt{Transformation\-Evolution\-Plan} defined in Section~\vref{ssub:formalizing_modification_based_evolution_plans}.
 
 \begin{minted}[breaklines]{haskell}
 type MergeEvolutionPlan featureModel = 
@@ -1338,7 +1338,7 @@ The transformations between each time points are no longer represented as \textt
 \begin{itemize}
   \item \textbf{NoChange}: A modification existed in the base version, and was not changed or removed in either version.
   \item \textbf{ChangedInOne}: A modification \textit{changed} in one of the derived versions. This includes three scenarios; (1) a modification did not exist in the base, and were added in the derived version, (2) a modification existed in the base, but were removed in the derived version, and (3) a modification from the base were changed to another modification in the derived.
-  \item \textbf{ChangedInBoth}: A modification changed in both versions. Similar to \texttt{ChangedInOne}, this includes changes where a modification existed in base and modifications where it did not exist.
+  \item \textbf{ChangedInBoth}: A modification changed in both versions. Similar to \texttt{ChangedInOne}, this includes changes where a modification existed in base and modifications that did not exist in the base.
 \end{itemize}
 
 The data types related to \texttt{DiffResult} are as follows:
@@ -1388,8 +1388,7 @@ data AddedModification modificationType
   = AddedModification modificationType
 
 data Version
-  = V1
-  | V2
+  = V1 | V2
 \end{minted}
 
 \subsection{Representing the extended example}%
@@ -1447,7 +1446,7 @@ Since most of the modification remained unchanged, they are represented on the f
 \subsection{Calculating the Changes}%
 \label{sub:calculating_the_changes}
 
-In order to merge the three three evolution plans into a evolution plan representing all the changes from the different versions, we define a function \texttt{create\-Merge\-Plan}. Creating this representation requires unifying every time point in all three evolution plans. For each time point, the different modifications are combined into our new representation \texttt{DiffResult}. 
+In order to merge the three evolution plans into an evolution plan representing all the changes from the different versions, we define a function \texttt{create\-Merge\-Plan}. Creating this representation requires unifying every time point in all three evolution plans. For each time point, the different modifications are combined into our new representation \texttt{DiffResult}. 
 
 \begin{minted}[breaklines]{haskell}
 createMergePlan ::
@@ -1541,7 +1540,7 @@ emptyModifications = Modifications M.empty M.empty
 
 The \texttt{diff\-Modifications} function defined below will handle the transformation combining modifications into the \texttt{DiffResult} type. Combining the modifications of groups follow the same general process as with feature modifications. 
 
-Combining the different \texttt{Map}s follow a similar approach as we did deriving the modifications between feature models (See Section~\vref{ssub:specifying_the_final_representation_transformation}), using the \texttt{merge} function from \texttt{Data.Map.Merge}\footnote{\url{https://hackage.haskell.org/package/containers-0.6.2.1/docs/Data-Map-Merge-Strict.html}}. Since we are merging three maps instead of two, we combine the three maps in two steps; (1) We combine the two derived modifications into a intermediate result using the function \texttt{mergeDerived}, and (2), we combine the base modifications with the combined derived result using \texttt{merge\-Base\-And\-Derived}.
+Combining the different \texttt{Map}s follows a similar approach as deriving the modifications between feature models (See Section~\vref{ssub:specifying_the_final_representation_transformation}), using the \texttt{merge} function from \texttt{Data.Map.Merge}\footnote{\url{https://hackage.haskell.org/package/containers-0.6.2.1/docs/Data-Map-Merge-Strict.html}}. Since we are merging three maps instead of two, we combine the three maps in two steps; (1) We combine the two derived modifications into a intermediate result using the function \texttt{mergeDerived}, and (2), we combine the base modifications with the combined derived result using \texttt{merge\-Base\-And\-Derived}.
 
 \begin{minted}[breaklines]{haskell}
 diffModifications ::
@@ -1645,9 +1644,9 @@ mergeDerived =
 \section{Merging Intended Changes}%
 \label{sec:merging_intended_changes}
 
-Now that we have a representation for the unification off all three evolution plans, we can begin the process of creating a single merged evolution plan. We created the type \texttt{Merge\-Evolution\-Plan} for having a representation for all three evolution plans, and our \texttt{create\-Merge\-Plan} for transforming the three evolution plans to this representation. We will now present the next step of our algorithm, \texttt{unify\-Merge\-Plan}, which joins the different modifications in the \texttt{Merge\-Evolution\-Plan} and produces a single, unified \texttt{Flat\-Modification\-Evolution\-Plan}.
+Now that we have a representation for the unification of all three evolution plans, we can begin the process of creating a single merged evolution plan. We created the type \texttt{Merge\-Evolution\-Plan} for having a representation for all three evolution plans, and our \texttt{create\-Merge\-Plan} for transforming the three evolution plans to this representation. We will now present the next step of our algorithm, \texttt{unify\-Merge\-Plan}, which joins the different modifications in the \texttt{Merge\-Evolution\-Plan} and produces a single, unified \texttt{Flat\-Modification\-Evolution\-Plan}.
 
-We can notice from the three-way merge algorithm outline from Figure~\vref{fig:merge_outline} that the \texttt{mergePlan} was split into two parts, \texttt{create\-Merge\-Plan} and \texttt{unify\-Merge\-Plan}. This had several benefits. Both functions had clearly defined purposes. The only purpose of \texttt{create\-Merge\-Plan} was to create a better representation for all the modifications, making it easier to see what changes each version made to the base. Having an intermediate representation like \texttt{Merge\-Evolution\-Plan} also serves as documentation, letting the reader see more clearly what cases has to be considered. This benefit is also present in our \texttt{unify\-Merge\-Plan} algorithm defined below, since we now can see what modification the algorithm chooses, which it discards, and which combinations result in errors.
+In the three-way merge algorithm outline from Figure~\vref{fig:merge_outline}, the \texttt{mergePlan} phase takes three evolution plans and merge them into a single evolution plan. In the actual implementation, we have split this up in two phases, \texttt{create\-Merge\-Plan} and \texttt{unify\-Merge\-Plan}. This had several benefits. Both functions had clearly defined purposes. The purpose of \texttt{create\-Merge\-Plan} was to create a better representation for all the modifications, making it easier to see what changes each version made to the base. Having an intermediate representation like \texttt{Merge\-Evolution\-Plan} also serves as documentation, letting the readers see more clearly what cases have to be considered. This benefit is also present in our \texttt{unify\-Merge\-Plan} algorithm defined below, since we now can see what modification the algorithm chooses, which it discards, and which combinations result in errors.
 
 \subsection{Merge Conflicts}%
 \label{sub:merge_errors}
@@ -1661,7 +1660,7 @@ data Conflict
   | Global Time GlobalConflict
 \end{minted}
 
-All of our different conflict types store the time in which the error occured, as well as information specific to the given conflict. Since merging the plan could only raise a merge conflict, we will get in to the detail of local and global conflicts later. We define \texttt{MergeConflict} as follows:
+All of our different conflict types store the time in which the error occured, as well as information specific to the given conflict. Since merging the plan could only raise a merge conflict, we will get into the detail of local and global conflicts later. We define \texttt{MergeConflict} as follows:
 
 \begin{minted}[breaklines]{haskell}
 data MergeConflict
@@ -1819,7 +1818,7 @@ simpleExampleUnifiedPlan =
         ]
 \end{minted}
 
-The result of the \texttt{unify\-Merge\-Plan} function returned what we wanted. From both derived versions, there was a total of three changes. A new feature was added at time 1, the name change in time 2 was removed and the group type modification in time 2 was changed to transform to a \texttt{Alternative} group instead of \texttt{Or} group.
+The result of the \texttt{unify\-Merge\-Plan} function returned what we wanted. From both derived versions, there was a total of three changes. A new feature was added at time 1, the name change in time 2 was removed and the group type modification in time 2 was changed to an \texttt{Alternative} group instead of \texttt{Or} group.
 
 \section{Ensuring Structural and Semantic Soundness}%
 \label{sec:ensuring_structural_and_semantic_soundness_of_merge_result}
@@ -1868,7 +1867,7 @@ scanEvolutionPlan (plan : plans) currentTimePoint = do
   return $ currentTimePoint : convertedEvolutionPlan
 \end{minted}
 
-As discussed, the first part is integrating the modifications. Most of the work is here done by \texttt{integrate\-Single\-Plan}, which returns a \texttt{WriterT [Dependency] (Either Conflict) (TimePoint FlatFeatureModel)}. Using the \texttt{Writer} and \texttt{Either} monad, we can write a function that handles conflicts, writing dependencies and returning the merged time point without to much boilerplate. This is made possible by the \texttt{WriterT} monad transformer, which allows us to compose monads. In this case, we have our \texttt{Either Conflict} monad, which lets us propagate errors. As we integrate modifications one by one, we also generate a list of dependencies, which the \texttt{Writer} monad lets us do without much boilerplate. These two monads are then combined, allowing us to use the \texttt{runWriterT} functions which returns both the next time point as well as the dependencies that needs to be checked in an \texttt{Either} environment that propagates errors when they occur.
+As discussed, the first part integrates the modifications. Most of the work is here done by \texttt{integrate\-Single\-Plan}, which returns a \texttt{WriterT [Dependency] (Either Conflict) (TimePoint FlatFeatureModel)}. Using the \texttt{Writer} and \texttt{Either} monad, we can write a function handling conflicts, writing dependencies and returning the merged time point without to much boilerplate. This is made possible by the \texttt{WriterT} monad transformer, which allows us to compose monads. In this case, we have our \texttt{Either Conflict} monad, which lets us propagate errors. As we integrate modifications one by one, we also generate a list of dependencies, which the \texttt{Writer} monad lets us do without much boilerplate. These two monads are then combined, allowing us to use the \texttt{runWriterT} functions which returns both the next time point as well as the dependencies that need to be checked in an \texttt{Either} environment that propagates errors when they occur.
 
 The generated dependencies and the next time point are then passed to \texttt{check\-Global\-Conflict}, which either succeeds or raise a conflict. Upon failure, the do-notation and monadic structure will propagate the error. However, if it succeeds, the rest of the time points are recursively called.
 
@@ -2148,11 +2147,10 @@ data GroupDependencyType
   | GroupIsWellFormed GroupId
 \end{minted}
 
-Each modification yields a set of dependencies depending on what conflicts could potentially rise. This is encoded in the \texttt{integrate\-Feature} and \texttt{integrate\-Group} functions, as well as visualized in Table~\vref{tab:generated_dependencies}
+Each modification yields a set of dependencies depending on what conflicts could potentially rise. This is encoded in the \texttt{integrate\-Feature} and \texttt{integrate\-Group} functions, as well as visualized in Table~\vref{tab:generated_dependencies}.
 
 \begin{table}[htpb]
   \centering
-  \label{tab:generated_dependencies}
   \begin{tabular}{c|c}
     \textbf{Modification Type} & \textbf{Generated Dependencies} \\ \hline
     Add Feature & \begin{tabular}[c]{@{}c@{}}ParentGroupExists\\ UniqueName\\ FeatureIsWellFormed\end{tabular} \\ \hline
@@ -2166,6 +2164,7 @@ Each modification yields a set of dependencies depending on what conflicts could
     Modify Group Type & GroupIsWellFormed
   \end{tabular}
   \caption{Generated dependencies}
+  \label{tab:generated_dependencies}
 \end{table}
 
 \subsection{Global Conflicts}%
@@ -2474,7 +2473,7 @@ As we traverse the time points and apply the modifications to the current featur
 generatedDependencies :: [(Time, [Dependency])]
 generatedDependencies =
   [
-    ( 0
+    ( 1
     ,
       [ FeatureDependency
           (FeatureAdd "group" Optional "Feature 2")
@@ -2509,7 +2508,7 @@ generatedDependencies =
       ]
     )
   ,
-    ( 1
+    ( 2
     ,
       [ FeatureDependency
           FeatureRemove
@@ -2613,7 +2612,7 @@ In this chapter we will go through some tools created around the three-way merge
 
 The evolution plan merger defines a command-line interface, \texttt{epmerge}, which will do three-way merges on evolution plans. The interface acts as a wrapper around the three-way merge algorithm, handling things like reading and writing to file, logging, converting between representations, etc. 
 
-By designing a command-line interface using the common data serialization format json, our application can be easily integrated with other tools. Other tools are often designed and implemented in other technologies and languages, and having a command-line interface allows for easier integration of the tools.
+By designing a command-line interface using the common data serialization format JSON, our application can be easily integrated with other tools. Other tools are often designed and implemented in other technologies and languages, and having a command-line interface allows for easier integration of the tools.
 
 We used the Haskell library \textit{optparse-applicative}\footnote{\url{https://github.com/pcapriotti/optparse-applicative}} to define the interface, which allowed us to automatically generate a help page. By invoking the command \texttt{epmerge --help}, the following help page will be shown.
 
@@ -2655,14 +2654,12 @@ Available options:
 \paragraph{Modes}%
 \label{par:modes}
 
-The interface has three different \textit{modes}; \texttt{GenerateOne}, \texttt{GenerateAll} and \texttt{FromFile}. The first two will merge either one or all of the predefined test inputs. This includes different variations of the vending machine example we will explore in this chapter. The last, mode \texttt{fromFile}, will read the input from a json encoded file.
-
-The command-line interface has three basic `Modes`. `GenerateAll`, `GenerateOne` and `FromFile`.
+The interface has three different \textit{modes}; \texttt{GenerateOne}, \texttt{GenerateAll} and \texttt{FromFile}. The first two will merge either one or all of the predefined test inputs. This includes different variations of the vending machine example we will explore in this chapter. The last, mode \texttt{fromFile}, will read the input from a JSON encoded file.
 
 \begin{itemize}
 \item \texttt{GenerateAll} will simply run all the examples in the code. This includes some sound examples and some erroneous examples. The erroneous examples consists of \texttt{Merge} conflicts, \texttt{Local} conflicts and \texttt{Global} conflicts. This mode can be run using \texttt{epmerge --generateAll}.
 \item \texttt{GenerateOne} takes one argument, \texttt{Example Name}, which is the string associated with one of the examples in the code. The merger will run the merger on the specified example. This mode can be run using \texttt{epmerge --generateOne EXAMPLENAME}. If you provide an \texttt{EXAMPLENAME} that does not exist, the merger will give you all the available example names.
-\item \texttt{FromFile} also takes an argument, \texttt{File Name}, which is the name of json file to read from. The merger will read the file, and run the merger on the input. This mode can be run using \texttt{epmerge --fromFile FILEPATH}.
+\item \texttt{FromFile} also takes an argument, \texttt{File Name}, which is the name of JSON file to read from. The merger will read the file, and run the merger on the input. This mode can be run using \texttt{epmerge --fromFile FILEPATH}.
 \end{itemize}
 
 \paragraph{Options}%
@@ -2676,11 +2673,11 @@ In able to view the results of the merge, we could do one or more of the followi
 
 \begin{itemize}
   \item Print the result of the merge using the \texttt{--print} option
-  \item Write the result to a json file using the \texttt{--toFile FILEPATH} option.
+  \item Write the result to a JSON file using the \texttt{--toFile FILEPATH} option.
   \item Write the example(s) to the Elm frontend using the \texttt{--generateElm} option. The next time the frontend is loaded, the user can see an actual visual, tree representation of the \textit{base}, \textit{version 1} and \textit{version 2} evolution plans, as well as the expected and actual merge output. The frontend is discussed in more detail in Section~\vref{sec:a_visualization_tool_for_evolution_plans}.
 \end{itemize}
 
-To specify the output format of the print or the file to write the output, you can use the `--toType`, with either `TreeUser`, `FlatUser` or `FlatModification` as an argument.
+To specify the output format of the print or the file to write the output, you can use the \texttt{--toType}, with either \texttt{TreeUser}, \texttt{FlatUser} or \texttt{FlatModification} as an argument.
 
 As an example, running the following will read a sound example from file\footnote{\url{https://github.com/eirikhalvard/master-thesis/blob/master/backend/data/sound\_flatuser.json}}, merge the input, and print the result. \texttt{epmerge --fromFile="./data/sound\_flatuser.json" --fromType=FlatUser --print}
 
@@ -2718,7 +2715,7 @@ In this chapter, we will apply the three-way merge tool on examples inspired fro
 
 The examples models the evolution of a vending machine software product line. The evolution plans we will present will model the planned changes of common vending machine features like beverages such as tea and coffee, different types of currency, different sizes to the cups, etc.
 
-Since we are creating a \textit{three}-way merge example, we will input three distinct evolution plans to the algorithm. A base evolution plan, and two derived evolution plan, each with their own changes to the base evolution plan. The changes of both versions are then detected and merged into a final, merged version of the evolution plans.
+Since we are creating a three-way merge example, we will input three distinct evolution plans to the algorithm. A base evolution plan, and two derived evolution plan, each with their own changes to the base evolution plan. The changes of both versions are then detected and merged into a final, merged version of the evolution plans.
 
 We will showcase two slightly different examples, an example that results in a sound, well-formed evolution plan, and one that results in a conflict. The examples we present are encoded, executed and tested on the tools we have created. The input to the merge tool is encoded in the common serialization format JSON, which is passed as argument to the command-line interface wrapping the three-way merge algorithm. The results from the algorithm is then serialized and written to a file. The command-line interface will also generate data which is passed to the visualization tool, which visualizes the input and output of the algorithm.
 
@@ -2750,7 +2747,7 @@ The base evolution plan introduced in Figure~\vref{fig:vending_machine_sound_bas
 \begin{itemize}
   \item At Time 1: Added a currency feature under the vending machine group. This has an alternative group with both a Dollar and Euro Feature. This indicates that a valid vending machine has to have some form of currency, which has to be either dollars or euro. 
   \item At Time 2: Simplified the Size feature. The only two features in the and-group of size is now Regular and Large. This implies that if the vending machine allows different sized cups, the only two choices has to be regular or large.
-  \item A Time 3: Changed the types of the milk type group and the different milk types. The Soy Milk feature has also been removed. In the base, a vending machine could choose what milk types it could have. In this version however, if the vending machine has a milk type option, both the lactose free and normal milk types has to be provided.
+  \item A Time 3: Changed the types of the milk type group and the different milk types. The Soy Milk feature has also been removed. In the base, a vending machine could choose what milk types it could have. In this version however, if the vending machine has a milk type option, both the lactose free and normal milk types have to be provided.
 \end{itemize}
 
 \subsubsection{Changes In Version 2}%
@@ -2784,9 +2781,9 @@ While the previous example resulted in a sound evolution plan, we will now prese
 
 \subsubsection{Differences from the Sound Example}%
 
-The base evolution plan is exactly the same as the previous, sound example. The example can be seen in Figure~\vref{fig:vending_machine_sound_base_ep}
+The base evolution plan is exactly the same as the previous, sound example. The example can be seen in Figure~\vref{fig:vending_machine_sound_base_ep}.
 
-Version 1 are almost exactly the same as in the sound example. The main difference is when the Coffee feature is introduced. Instead of adding this feature in time 1 as in the original plan, we introduce it in time 2.
+Version 1 is almost exactly the same as in the sound example. The main difference is when the Coffee feature is introduced. Instead of adding this feature in time 1 as in the original plan, we introduce it in time 2.
 
 Similarly, version 2 is almost identical to version 2 in the sound example, with one exception. The addition of the Coffee feature is moved from time 1 to time 3.
 
@@ -2822,7 +2819,7 @@ In light of the vending machine examples discussed in this chapter, we will disc
 
 The merge tool we have created are able to detect paradoxes in the merged evolution plan, but not what caused the paradox. When the merge algorithm is instantiated, we assume that each inputed evolution plan is sound. If a conflict occurs in the merged plan, it will occur due to incompatible changes in the two derived versions. This means that if one version has scheduled a change in the evolution plan, this change could cause issues in the planned changes for the other version. If we include the changes of one version, then arrive at the other version's incompatible changes, the merger only reports why the change will result in an invalid evolution plan. Figuring out the cause is left up to the user to do manually, as the merger will not report the underlying issue which is that the two changes were incompatible.
 
-We witness an example of this phenomenon in the unsound vending machine example described in Section~\vref{sec:an_unsound_example}. The original plan had scheduled a feature addition in time 1, but both versions moved the addition to time 2 and time 3 respectively. When the merger arrived at time 2, the addition from version 1 was included. However, when the merger arrived at time 3, the feature addition was not possible to perform since the feature already existed. As we can see in Figure~\vref{fig:vending_machine_error_result}, the only information about the merge failure was which changed caused the halt and why the change could not be included. However, we did not get information about the change that caused the issue, which was that feature was added in time point 2.
+We witness an example of this phenomenon in the unsound vending machine example described in Section~\vref{sec:an_unsound_example}. The original plan had scheduled a feature addition in time 1, but both versions moved the addition to time 2 and time 3 respectively. When the merger arrived at time 2, the addition from version 1 was included. However, when the merger arrived at time 3, the feature addition was not possible to perform since the feature already existed. As we can see in Figure~\vref{fig:vending_machine_error_result}, the only information about the merge failure was which change caused the halt and why the change could not be included. However, we did not get information about the change that caused the issue, which was that feature was added in time point 2.
 
 \paragraph{Bias Towards Earlier Changes}%
 \label{par:bias_towards_earlier_time_points}
@@ -2834,7 +2831,7 @@ Revisiting our unsound example from Section~\vref{sec:an_unsound_example}, we ca
 \paragraph{Transparent Merging}%
 \label{par:transparent_merging}
 
-As we now have discussed, the choice of merging strategy raised some potential issues with conflicts. However, the strategy might come with some advantages as well. The three-way merge algorithm is designed as an incremental merger. For our case, this means that we will go through each time point and incrementally build a merged feature model at each time point. The engineer performing the merge can understand how the evolution plans are analyzed and merged, as there are no advanced analyzing across time points. The choice of a straight forward merging strategy can be perceived as more transparent that other more advanced strategies. This transparency might make it easier to solve conflicts.
+As we now have discussed, the choice of merging strategy raised some potential issues with conflicts. However, the strategy might come with some advantages as well. The three-way merge algorithm is designed as an incremental merger. For our case, this means that we will go through each time point and incrementally build a merged feature model at each time point. The engineer performing the merge can understand how the evolution plans are analyzed and merged, as there are no advanced analyzing across time points. The choice of a straight forward merging strategy can be perceived as more transparent than other more advanced strategies. This transparency might make it easier to solve conflicts.
 
 Finding the cause of the conflict might be easier since the user can manually simulate how the merger operates. Since the engineer knows why the modification violated the semantics, the engineer could go back and find the change that caused it. Due to the mergers incremental nature, finding the cause requires only inspecting the same time point or any of the time points prior to the conflicts time point. By manually stepping through each time point, the cause might be determined.
 
@@ -2850,7 +2847,7 @@ We start by addressing the research questions detailed in Section~\vref{sec:rese
 
 \subsubsection{RQ1: How do we design an algorithm for merging evolution plans?} 
 
-When we designed the merge algorithm for evolution plans, we opted for a three-way approach. Doing so allowed us to more accurately derive what changes each version made to the evolution plan, which we leveraged in the merge algorithm. In creating the algorithm, we split the task in several distinct parts, which we outline in Section~\vref{sec:algorithm_overview}. The first phases included transformations to the evolution plans to use representations better suited for detecting changes and merging the versions. Later steps included merging the actual changes and lastly ensuring soundness for the result. Since we had defined a precise, mathematical definition of evolution plans, we could leverage the properties to create a merger that respected both structure and semantics.
+When we designed the merge algorithm for evolution plans, we opted for a three-way approach. Doing so allowed us to more accurately derive what changes each version made to the evolution plan, which we leveraged in the merge algorithm. In creating the algorithm, we split the task in several distinct parts, which we outline in Section~\vref{sec:algorithm_overview}. The first phases included transformations of the evolution plans with representations better suited for detecting changes and merging the versions. Later steps included merging the actual changes and lastly ensuring soundness for the result. Since we had defined a precise, mathematical definition of evolution plans, we could leverage the properties to create a merger that respected both structure and semantics.
 
 \subsubsection{RQ2: How do we create a merge tool for evolution plans that respect soundness?}
 
@@ -2858,7 +2855,7 @@ As evolution planning is a delicate matter, requiring attention to detail, we wa
 
 \subsubsection{RQ3: Are the results of the merge tool predictable and interpretable?}
 
-An important aspect to the merge tool is that actual engineers has to interpret and act on the results of the merge. For this reason, we wanted the results of the merge to make sense from the engineers point of view. We specifically wanted the results to be predictable, which meant that the merger did not make any big decisions altering the semantics of the resulting evolution plan. Predictability also meant that way the evolution plans were merged were possible to understand and predict based on the changes in each version. This was important in order to get results that reflected the intended evolution of the SPL. Upon a conflicting result, we wanted the reported reason for conflict to be possible to interpret such that changes to the evolution plan could be made accordingly. For this reason, we opted for an merging strategy that merged one time point at a time incrementally. We felt that this approach also reflected how the engineer might have done the task if a manual approach was necessary. Upon failure, the tool provided information detailing exactly why a certain change was not possible to include. This allowed the engineer to manually inspect the evolution plans to make alterations.
+An important aspect to the merge tool is that actual engineers have to interpret and act on the results of the merge. For this reason, we wanted the results of the merge to make sense from the engineers point of view. We specifically wanted the results to be predictable, which meant that the merger did not make any big decisions altering the semantics of the resulting evolution plan. Predictability also meant that the way the evolution plans were merged were possible to understand and predict based on the changes in each version. This was important in order to get results that reflected the intended evolution of the SPL. Upon a conflicting result, we wanted the reported reason for conflict to be possible to interpret such that changes to the evolution plan could be made accordingly. For this reason, we opted for an merging strategy that merged one time point at a time incrementally. We felt that this approach also reflected how the engineer might have done the task if a manual approach was necessary. Upon failure, the tool provided information detailing exactly why a certain change was not possible to include. This allowed the engineer to manually inspect the evolution plans to make alterations.
 
 \section{Future Work}%
 \label{sec:future_work}
