@@ -2605,9 +2605,38 @@ The resulting merged evolution plan is also visualized in Figure~\ref{fig:simple
 \section{Efficiency of the Algorithm}%
 \label{sec:efficiency_of_the_algorithm}
 
-We will in this section give a rough time complexity analysis of the three-way merge algorithm. How the algorithm will perform is highly dependent on a number of factors, including the total amount of features and groups, the amount of modifications between each time point as well as the similarities between the versions. To keep it simple, we will perform a worst-case time complexity analysis with regards to the amount of time points, $t$, and the average amount of features and groups per time point, $n$
+In this section, we give a rough time complexity analysis of the three-way merge algorithm. How the algorithm perform is highly dependent on a number of factors, including the total amount of features and groups, the amount of modifications between each time point as well as the similarities between the versions. To keep it simple, we perform a worst-case time complexity analysis with regards to the amount of time points, $t$, and the average amount of features and groups per time point, $n$. The analysis is performed by discussing the complexity of each phase of the algorithm, and conclude with the total complexity of the algorithm.
 
-\todo{write about}
+\paragraph{Converting Individual Plans to a Flat Structure}
+
+In the first function, \texttt{flatten\-Evolution\-Plan}, we traverse the list of feature models and apply \texttt{flatten\-Sound\-Feature\-Model} to each time point. Flattening each feature model requires traversing the tree structure and constructing a list of \texttt{FlatFeature} and a list of \texttt{FlatGroup}. Since list concatenation has the complexity of $O(n)$, flattening an feature model has the worst-case complexity of $O(n^2)$. Since each feature model in the evolution plan are transformed to the \texttt{FlatFeatureModel} representation, we get the worst-case complexity of $O(t \cdot n^2)$. However, we get this complexity only when we have very unbalanced trees. In the average case, our feature models are more balanced which gives us a time complexity of $O(t \cdot n \cdot log(n))$.
+
+\paragraph{Deriving Modifications of Individual Plans}
+
+After converting each evolution plan to the flat structure, we transform each individual evolution plan to the \texttt{Flat\-Modification\-Evolution\-Plan} representation using the \texttt{derive\-Sound\-Modifications} function. The conversion process is handled by calculating the difference between every subsequent pair of feature models. Since there are $t$ feature models, we have to calculate the difference between $t-1$ pairs. In calculating the difference, we rely heavily on the \texttt{merge} function from \texttt{Data.Map.Merge}. Even though its time complexity is not noted in the documentation\footnote{\url{https://hackage.haskell.org/package/containers-0.6.2.1/docs/Data-Map-Merge-Strict.html}}, similar functions on \texttt{Maps} such as \texttt{unionWithKey}\footnote{\url{https://hackage.haskell.org/package/containers-0.6.4.1/docs/Data-Map-Strict.html}} has the complexity of $O(x \cdot log(\frac{y}{x} + 1)), x \leq y$, which in our example equates to $O(n \cdot log(2)) = O(n)$. Since this is calculated $t-1$ times per evolution plan, we get the total of $O(t \cdot n)$
+
+\paragraph{Detecting Changes}
+
+With the first two functions only acting on single evolution plans, the next function we analyse takes all three evolution plans as input. Since the different versions could introduce new time points, we are using \texttt{collectAllTimePoints} to collect the different times used in all versions. This is done by simultaneously traversing all three evolution plans, requiring a complexity of $O(t_{base} + t_{v1} + t_{v2})$. For simplicity, we will assume that $t$ is the total amount of time points, which makes the complexity for \texttt{collectAllTimePoints} $O(t)$. Next, we traverse the list of time points and merge the different modifications of all three versions. To calculate the complexity, we are no longer dealing with features and feature models, but rather modifications that transform subsequent feature models. However, since we know that a single feature or group can only be modified once per time point, we know that the amount of modifications are linear with regards to the amount of nodes in a feature model. Merging the modifications of all versions for a given time point requires a time complexity of $O(n_{base} + n_{v1} + n_{v2})$, which we simplify as $O(n)$. Merging all three evolution plan thus yields a complexity of $O(t \cdot n)$.
+
+\paragraph{Unifying Changes}
+
+write write write
+
+\paragraph{Ensuring Soundness}
+
+write write write
+
+\paragraph{Converting Back to Original Representation}
+
+write write write
+
+\subsection*{Conclusion of Total Complexity}%
+\label{sub:conclusion_of_total_complexity}
+
+write write, total complexity.
+
+however, cli for skipping some of the initial and final phases based on what representations we want. This could be beneficial if other tools want to handle converting between representations, which could be nice for efficiency reasons.
 
 \chapter{Command-Line Interface and Visualization Tools}%
 \label{cha:command_line_interface_and_visualization_tools}
