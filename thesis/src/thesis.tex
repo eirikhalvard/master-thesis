@@ -511,12 +511,12 @@ As seen in the merge algorihm outline in Figure~\ref{fig:merge_outline}, each st
 \paragraph{TreeUserEvolutionPlan}%
 \label{par:treeuserevolutionplan}
 
-This is the representation that is closest to what the actual user would see and interact with. For this reason, we will use this as the main input type of the algorithm. In this representation, the evolution plan is modeled as an ordered list of feature models, where each feature model is modeled as a recursive tree-structure. However, this representation of evolution plans are not well suited for detecting changes between versions as well as merging and unifying several plans.
+This is the representation that is closest to what the actual user would see and interact with. For this reason, we will use this as the main input type of the algorithm. In this representation, the evolution plan is modeled as an ordered list of feature models, where each feature model is modeled as a recursive tree structure. However, this representation of evolution plans are not well suited for detecting changes between versions as well as merging and unifying several plans.
 
 \paragraph{FlatUserEvolutionPlan}%
 \label{par:flatuserevolutionplan}
 
-In order to transform the input representation to a better suited representation for merging, we split the process up in two phases as described in Section~\vref{sub:algorithm_phases}. This representation will be the intermediate representation in this process. The representation is similar to the \texttt{Tree\-User\-Evolution\-Plan} modeling the evolution plan as a list of feature models. The difference lies in the representation for feature models. Instead of a tree-structure, we will model the feature model as a map of features and a map of groups indexed by their IDs.
+In order to transform the input representation to a better suited representation for merging, we split the process up in two phases as described in Section~\vref{sub:algorithm_phases}. This representation will be the intermediate representation in this process. The representation is similar to the \texttt{Tree\-User\-Evolution\-Plan} modeling the evolution plan as a list of feature models. The difference lies in the representation for feature models. Instead of a tree structure, we will model the feature model as a map of features and a map of groups indexed by their IDs.
 
 \paragraph{FlatModificationEvolutionPlan}%
 \label{par:flatmodificationevolutionplan}
@@ -533,7 +533,7 @@ The work we did in~\cite{cite:consistency_preserving_evolution_planning} defined
 \subsection{Feature Models}%
 \label{sub:feature_models}
 
-Since evolution plans consist of feature models, we start by defining feature models formally. \textit{Feature models} are a recursive tree-structure of \textit{features} and \textit{groups}. Each feature model begins with a \textit{root feature}, which has an arbitrary number of child groups. Each group has in turn an arbitrary number of features, etc. Each feature and group has also a unique ID. Each feature consists of an ID, name and a type. Each features type can either be \textit{mandatory} or \textit{optional}. Each group has an ID and a type, where the type of a group can either be \textit{and}, \textit{or} or \textit{xor/alternative}.
+Since evolution plans consist of feature models, we start by defining feature models formally. \textit{Feature models} are a recursive tree structure of \textit{features} and \textit{groups}. Each feature model begins with a \textit{root feature}, which has an arbitrary number of child groups. Each group has in turn an arbitrary number of features, etc. Each feature and group has also a unique ID. Each feature consists of an ID, name and a type. Each features type can either be \textit{mandatory} or \textit{optional}. Each group has an ID and a type, where the type of a group can either be \textit{and}, \textit{or} or \textit{xor/alternative}.
 
 \paragraph{Well-Formedness Requirements}%
 \label{par:well_formedness_requirements}
@@ -751,7 +751,7 @@ With a representation more suitable for calculating differences between feature 
 \subsection{A Flattened Feature Model Structure}%
 \label{sub:a_flatter_feature_model_structure}
 
-We define a new representation for feature models, \texttt{FlatFeatureModel}, in order to have a structure better suited for detecting and applying changes to the tree-structure. This is achievable due to our features and groups having unique IDs. This allows for a simple mapping-structure, where we each feature and group can be looked up by its ID. The edges and relations in the tree are modeled as node-ID references instead of a recursive structure.
+We define a new representation for feature models, \texttt{FlatFeatureModel}, in order to have a structure better suited for detecting and applying changes to the tree structure. This is achievable due to our features and groups having unique IDs. This allows for a simple mapping-structure, where we each feature and group can be looked up by its ID. The edges and relations in the tree are modeled as node-ID references instead of a recursive structure.
 
 The new definition of feature models makes deriving and integrating modifications between two subsequent feature models easier. Since we have a mapping-based structure instead of a recursive tree structure, we do not need to recursively traverse both trees simultaneously in order to figure out what modifications has been made between the two trees. Cases where many subtrees are moved are especially challenging with a tree-based structure. The flat structure leverages the unique IDs in order to allow lookup based on ID. Changing a feature or group requires a lookup based on the ID, then changing the fields of the mapping entry. Removing or adding a node is similarly simple, requiring only adding or removing an entry in the mapping. Since the edges in the tree are modeled as references to the parent ID, we do not need to modify the parent node when removing a node. This makes moving entire subtrees straightforward, requiring changing only the parent field of the node being moved.
 
@@ -964,7 +964,7 @@ As discussed in Section~\ref{sub:avoiding_the_pitfalls_of_an_operation_based_rep
 
 We present the merge-ready evolution plan representation, \texttt{Flat\-Modification\-Evolution\-Plan}, modeling the evolution plan as an initial model along with an ordered list of time points associated with \textit{modifications}. The modifications model the changes necessary to go from the previous feature model to the one in the specified time point. The modifications consist of two mappings, one for features and one for groups. Each mappings map IDs to a \textit{modification}. By creating an indexed mapping structure, we limit a feature or group to have at most one modification at a time point. This could be either an addition, a removal, or a change to one or more fields. 
 
-The mapping structure also implies that there is no ordering to the feature and group modifications. Having no specific ordering to the modifications is challenging with the tree-structured feature models. However, all these issues disappeared when we converted to the flat feature model structure, \texttt{Flat\-User\-Evolution\-Plan}. If we were to add a child before its parent, the tree-structure makes this impossible. This is however made possible with the flexible flat structured feature models.
+The mapping structure also implies that there is no ordering to the feature and group modifications. Having no specific ordering to the modifications is challenging with the tree structured feature models. However, all these issues disappeared when we converted to the flat feature model structure, \texttt{Flat\-User\-Evolution\-Plan}. If we were to add a child before its parent, the tree structure makes this impossible. This is however made possible with the flexible flat structured feature models.
 
 The new semantics for detecting changes between feature models has an important implication. The operation-based semantics allows verifying soundness after every operation application. However, since the mapping-based structure has no specific order of application, the verification would have to be postponed until every modification for a time point has been included. This is not relevant for now, but will be in further stages of the algorithm.
 
@@ -2301,7 +2301,7 @@ groupInCycle visited groupId featureModel
 \subsection{Converting Back to Normal Form}%
 \label{sub:converting_back_to_normal_form}
 
-The last steps of the three-way algorithm transformed the \texttt{Flat\-Modification\-Evolution\-Plan} back to \texttt{Flat\-User\-Evolution\-Plan}, which models the evolution plan as a list of feature models. The final and last step of the algorithm is converting this back to the \texttt{Tree\-User\-Evolution\-Plan}, which models each feature model in a recursive tree-structure instead of the flat mapping based way.
+The last steps of the three-way algorithm transformed the \texttt{Flat\-Modification\-Evolution\-Plan} back to \texttt{Flat\-User\-Evolution\-Plan}, which models the evolution plan as a list of feature models. The final and last step of the algorithm is converting this back to the \texttt{Tree\-User\-Evolution\-Plan}, which models each feature model in a recursive tree structure instead of the flat mapping based way.
 
 This is done by retrieving the root feature and its child groups. The child groups are recursively transformed to our tree representation, and combined with the root feature to create our recursive tree structure.
 
