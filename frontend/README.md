@@ -17,8 +17,8 @@ The frontend will give you a list of examples, and each example consists of a _b
 
 ### Sound Example
 
-![Sound example](../img/sound_example.png)
+![Sound example](../thesis/src/illustrations/vending_machine/sound_example.png)
 
 ### Conflict Example
 
-![Conflict example image](../img/error_example.png)
+![Conflict example image](../thesis/src/illustrations/vending_machine/error_example.png)

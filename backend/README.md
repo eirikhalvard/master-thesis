@@ -32,7 +32,6 @@ There are a couple of ways to compile and run the project. Depending on your per
 - `stack repl` Opens up a repl with all the modules available
 - `ghcid -c "stack repl"` Compiles project on save
 
-
 ## Example usage
 
 - `epmerge --generateAll --generateElm` Performs a merge on all examples, and writes everything to the frontend
@@ -87,7 +86,7 @@ In order to produce some useful information, the user has to set some flags. Ful
 
 ---
 
-When using the `FromFile` mode, you will have to specify what evolution plan representation you are using. this can be done with the `--fromType` flag, which takes either `TreeUser`, `FlatUser` or `FlatModification` as a parameter. As an example, running the following will read a sound example from file, merge the input, and print the result. 
+When using the `FromFile` mode, you will have to specify what evolution plan representation you are using. this can be done with the `--fromType` flag, which takes either `TreeUser`, `FlatUser` or `FlatModification` as a parameter. As an example, running the following will read a sound example from file, merge the input, and print the result.
 
 `epmerge --fromFile="./data/sound_flatuser.json" --fromType=FlatUser --print`
 
