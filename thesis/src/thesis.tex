@@ -126,7 +126,6 @@ The main contribution of this thesis is a three-way merge algorithm for feature 
 
 The three-way merge algorithm is implemented in the strongly typed, functional programming language Haskell. The Haskell program is created as an \textit{command-line interface (CLI)}, to handle reading and writing from a file, logging the output of the algorithm, checking for correct behavior, etc. The CLI allows a variety of different input formats for the evolution plans, as well as the option for generating some predefined examples, both sound and unsound. Since feature models and evolution plans often are very hard to read in textual format, a frontend visualization tool has also been created using a language similar to Haskell, namely Elm. The Elm application is a web application that can display the evolution plans as visual tree structures, and lets users explore what the merge algorithm produces. Several examples and test cases have also been implemented, checking that the expected behavior of the program matches the actual output.
 
-\todo{finne ut hva ida mener}
 To summarize, the contributions include:
 
 \begin{itemize}
@@ -178,7 +177,6 @@ While tools for implementing software product lines are very important, planning
 
 All possible variants of a software product line can be defined in terms of a \textit{feature model}. A feature model is a tree structure of features and groups. Features represent a concrete aspect in an SPL. Features can be mandatory or optional and will contain zero or more groups. Each group has a set of features and the type of the group dictates which features in the group can be selected. For example, in an \textit{and} group, all the mandatory features have to be chosen, while \textit{alternative} groups have to select exactly one feature. Normally, feature models also contain cross-tree constraints. However, since these are not in the scope of the thesis, we will not detail them here.
 
-% Example feature model
 \begin{figure}[htpb]
 	\centering
 	\includegraphics[width=0.8\linewidth]{illustrations/example.pdf}
