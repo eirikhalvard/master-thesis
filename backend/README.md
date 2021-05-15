@@ -1,8 +1,8 @@
-# Master Thesis Backend
+# A Three-Way Merge Tool - Haskell Code
 
 ## Introduction
 
-The backend for the evolution plan three way merge. The program is implemented in the strongly typed, purely functional programming language Haskell.
+The backend for the evolution plan three-way merge. The program is implemented in the strongly typed, purely functional programming language Haskell.
 
 The evolution plan merger backend defines a command line interface, `epmerge`, which will do three way merges on evolution plans. This means that you have a common base evolution plan, and two evolution plans which are derived from the common base, and the merger will merge the two derived versions. The base is used as a reference to know what changed in each version. The result of the merge is either an error, or a sound evolution plan, which consists of all the changes from both versions.
 

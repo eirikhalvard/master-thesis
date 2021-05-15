@@ -1,4 +1,4 @@
-# Master Thesis Frontend
+# A Visualization Tool - Elm Code
 
 ## Introduction
 
