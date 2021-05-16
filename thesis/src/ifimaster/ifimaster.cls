@@ -2,7 +2,7 @@
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]  % Any version, really!
 
-\ProvidesClass{template/ifimaster}[2010/01/17 v1.0 Ifi/UiO document class]
+\ProvidesClass{ifimaster}[2017/03/17 v1.02 Ifi/UiO document class]
 
 %% Initial code part:
 
@@ -14,20 +14,22 @@
 
 %% Base class load part:
 
-\LoadClass[a4paper,12pt,openright]{report}
+\LoadClass[a4paper,12pt,twoside,openright]{report}
 
 %% Adjustments:
 
-\addtolength{\topmargin}{-1\baselineskip}
+\addtolength{\topmargin}{-2\baselineskip}
 \addtolength{\textheight}{4\baselineskip}
+\addtolength{\evensidemargin}{-5mm}  % Compensate for binding
+\addtolength{\oddsidemargin}{5mm}
 
 \pretolerance = 2000
 \tolerance = 5000   \hbadness = \tolerance
 
 %% Required packages:
 
-\IfFileExists{uiofont2010.sty}% Official text font (if installed)
-  {\RequirePackage{uiofont2010}}%
+\IfFileExists{uiofont.sty}% Official text font (if installed)
+  {\RequirePackage{uiofont}}%
   {\RequirePackage{mathpazo}}
 
 %% Document parts:
